@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
+import VideoCard from "@/components/VideoCard";
 
 const highlights = [
   { id: 0, name: "My Story", isAdd: true },
@@ -28,12 +29,17 @@ const playlist = [
   { id: 5, title: "Summer Breeze", artist: "Chill Vibes", duration: "3:55", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop", likes: 178, comments: 28 },
 ];
 
+const videos = [
+  { id: 101, title: "Mountain Hiking Adventure", duration: "2:34", thumbnail: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=300&fit=crop", likes: 342, comments: 56, views: "12.4k" },
+  { id: 102, title: "Sunset Timelapse Collection", duration: "1:48", thumbnail: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=400&h=300&fit=crop", likes: 589, comments: 87, views: "28.7k" },
+];
+
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
 
-  const handleToggleComments = (songId: number) => {
-    setOpenCommentsId(openCommentsId === songId ? null : songId);
+  const handleToggleComments = (itemId: number) => {
+    setOpenCommentsId(openCommentsId === itemId ? null : itemId);
   };
 
   return (
@@ -188,6 +194,25 @@ const Profile = () => {
             {/* Expand option */}
             <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
               <span>View all music</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {activeTab === "videos" && (
+          <div className="space-y-3">
+            {videos.map((video) => (
+              <VideoCard 
+                key={video.id} 
+                {...video} 
+                isCommentsOpen={openCommentsId === video.id}
+                onToggleComments={() => handleToggleComments(video.id)}
+              />
+            ))}
+            
+            {/* Expand option */}
+            <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
+              <span>View all videos</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
