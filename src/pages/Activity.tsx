@@ -79,15 +79,13 @@ const Activity = () => {
                 <p className="text-xs text-muted-foreground">{activity.time}</p>
               </div>
               {activity.postImage ? (
-                <div className="neo-card p-0.5 rounded-xl">
-                  <img 
-                    src={activity.postImage} 
-                    alt=""
-                    className="w-11 h-11 rounded-lg object-cover"
-                  />
-                </div>
+                <img 
+                  src={activity.postImage} 
+                  alt=""
+                  className="w-11 h-11 rounded-lg object-cover"
+                />
               ) : (
-                <button className="action-button action-button-primary text-xs py-1.5 px-4">
+                <button className="bg-primary text-primary-foreground text-xs py-1.5 px-4 rounded-full font-medium">
                   Follow
                 </button>
               )}
