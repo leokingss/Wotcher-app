@@ -30,6 +30,11 @@ const playlist = [
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
+  const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
+
+  const handleToggleComments = (songId: number) => {
+    setOpenCommentsId(openCommentsId === songId ? null : songId);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -172,7 +177,12 @@ const Profile = () => {
         {activeTab === "music" && (
           <div className="space-y-3">
             {playlist.map((song) => (
-              <SongCard key={song.id} {...song} />
+              <SongCard 
+                key={song.id} 
+                {...song} 
+                isCommentsOpen={openCommentsId === song.id}
+                onToggleComments={() => handleToggleComments(song.id)}
+              />
             ))}
             
             {/* Expand option */}

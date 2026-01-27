@@ -17,6 +17,8 @@ interface SongCardProps {
   cover: string;
   likes: number;
   comments: number;
+  isCommentsOpen: boolean;
+  onToggleComments: () => void;
 }
 
 const mockComments: Comment[] = [
@@ -25,13 +27,12 @@ const mockComments: Comment[] = [
   { id: 3, username: "djsoul", avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=50&h=50&fit=crop", text: "Added to my playlist!", time: "1d" },
 ];
 
-const SongCard = ({ title, artist, duration, cover, likes, comments }: SongCardProps) => {
+const SongCard = ({ title, artist, duration, cover, likes, comments, isCommentsOpen, onToggleComments }: SongCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
   const [dislikeCount, setDislikeCount] = useState(0);
-  const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [commentList, setCommentList] = useState<Comment[]>(mockComments);
   const [commentCount, setCommentCount] = useState(comments);
@@ -114,8 +115,8 @@ const SongCard = ({ title, artist, duration, cover, likes, comments }: SongCardP
             <span className="text-sm font-medium">{dislikeCount}</span>
           </button>
           <button 
-            onClick={() => setShowComments(!showComments)}
-            className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${showComments ? 'neo-card-inset' : ''}`}
+            onClick={onToggleComments}
+            className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isCommentsOpen ? 'neo-card-inset' : ''}`}
           >
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm font-medium">{commentCount}</span>
@@ -133,7 +134,7 @@ const SongCard = ({ title, artist, duration, cover, likes, comments }: SongCardP
       </div>
 
       {/* Expandable Comments Section */}
-      {showComments && (
+      {isCommentsOpen && (
         <div className="mt-3 pt-3 border-t border-border/50 animate-fade-in">
           {/* Comments list */}
           <div className="space-y-3 mb-3">
