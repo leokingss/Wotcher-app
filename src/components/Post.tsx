@@ -107,7 +107,7 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
               className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isDisliked ? 'like-animation' : ''}`}
             >
               <HeartCrack 
-                className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-500' : ''}`} 
+                className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-900' : ''}`} 
               />
               <span className="text-sm font-medium">{dislikeCount}</span>
             </button>
