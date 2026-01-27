@@ -65,8 +65,8 @@ const Profile = () => {
       <main className="max-w-lg mx-auto px-4">
         {/* Profile Stats */}
         <div className="flex items-center justify-center gap-8 py-6">
-          <div className="neo-card-inset px-4 py-3 rounded-2xl text-center">
-            <p className="font-bold text-lg">16.8k</p>
+          <div className="text-center">
+            <p className="neo-card-inset px-3 py-1.5 rounded-xl font-bold text-lg mb-1">16.8k</p>
             <p className="text-xs text-muted-foreground">Followers</p>
           </div>
           
@@ -75,7 +75,7 @@ const Profile = () => {
               <img
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop"
                 alt="Profile"
-                className="w-24 h-24 rounded-full object-cover"
+                className="w-[102px] h-[102px] rounded-full object-cover"
               />
             </div>
             <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg">
@@ -83,8 +83,8 @@ const Profile = () => {
             </button>
           </div>
           
-          <div className="neo-card-inset px-4 py-3 rounded-2xl text-center">
-            <p className="font-bold text-lg">99</p>
+          <div className="text-center">
+            <p className="neo-card-inset px-3 py-1.5 rounded-xl font-bold text-lg mb-1">99</p>
             <p className="text-xs text-muted-foreground">Following</p>
           </div>
         </div>
