@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Play } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Play, Square } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import VideoCard from "@/components/VideoCard";
@@ -34,9 +34,14 @@ const videos = [
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
+  const [playingSongId, setPlayingSongId] = useState<number | null>(null);
 
   const handleToggleComments = (itemId: number) => {
     setOpenCommentsId(openCommentsId === itemId ? null : itemId);
+  };
+
+  const handleTogglePlay = (songId: number) => {
+    setPlayingSongId(playingSongId === songId ? null : songId);
   };
 
   return (
@@ -106,63 +111,67 @@ const Profile = () => {
           </button>
         </div>
 
-        {/* Featured Songs - individual cards */}
-        <div className="flex gap-3 mb-4">
+        {/* Featured Songs - stacked vertically */}
+        <div className="flex flex-col gap-1.5 mb-4">
           {featuredSongs.map((song) => (
-            <button 
+            <div 
               key={song.id} 
-              onClick={() => setActiveTab("music")}
-              className="neo-card flex-1 p-3 rounded-2xl flex items-center gap-3 hover:scale-[0.98] transition-transform"
+              className="neo-card p-3 rounded-2xl flex items-center gap-3"
             >
-              <div className="relative">
-                <img src={song.cover} alt={song.title} className="w-12 h-12 rounded-xl object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl">
-                  <Play className="w-4 h-4 text-white fill-white" />
-                </div>
+              <img src={song.cover} alt={song.title} className="w-11 h-11 rounded-xl object-cover" />
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-semibold truncate">{song.title}</p>
+                <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
               </div>
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-medium truncate">{song.title}</p>
-                <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-              </div>
-            </button>
+              <button 
+                onClick={() => handleTogglePlay(song.id)}
+                className="neo-button-icon w-10 h-10 flex items-center justify-center"
+              >
+                {playingSongId === song.id ? (
+                  <Square className="w-4 h-4 fill-primary text-primary" />
+                ) : (
+                  <Play className="w-4 h-4 fill-foreground text-foreground" />
+                )}
+              </button>
+            </div>
           ))}
         </div>
 
-        {/* Tabs - individual icon buttons */}
-        <div className="flex justify-center gap-3 mb-4">
+        {/* Tabs - individual icon buttons spread evenly */}
+        <div className="flex justify-between mb-4">
           <button 
             onClick={() => setActiveTab("posts")}
-            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "posts" ? "text-primary" : "text-muted-foreground"}`}
+            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "posts" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
           >
             <Grid3X3 className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("music")}
-            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "music" ? "text-primary" : "text-muted-foreground"}`}
+            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "music" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
           >
             <Music className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("videos")}
-            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "videos" ? "text-primary" : "text-muted-foreground"}`}
+            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "videos" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
           >
             <Film className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("photos")}
-            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "photos" ? "text-primary" : "text-muted-foreground"}`}
+            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "photos" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
           >
             <UserSquare2 className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("links")}
-            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "links" ? "text-primary" : "text-muted-foreground"}`}
+            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "links" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
           >
             <LinkIcon className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("saved")}
-            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "saved" ? "text-primary" : "text-muted-foreground"}`}
+            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "saved" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
           >
             <Bookmark className="w-5 h-5" />
           </button>
