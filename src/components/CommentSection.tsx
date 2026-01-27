@@ -145,11 +145,11 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">{comment.time}</p>
               </div>
-              {/* Like/Dislike buttons stacked vertically */}
-              <div className="flex flex-col items-center gap-1">
+              {/* Like/Dislike buttons side by side */}
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleLikeComment(comment.id)}
-                  className="flex flex-col items-center"
+                  className="flex items-center gap-1"
                 >
                   <Heart
                     className={`w-3.5 h-3.5 ${comment.isLiked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
@@ -158,7 +158,7 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                 </button>
                 <button
                   onClick={() => handleDislikeComment(comment.id)}
-                  className="flex flex-col items-center"
+                  className="flex items-center gap-1"
                 >
                   <HeartCrack
                     className={`w-3.5 h-3.5 ${comment.isDisliked ? 'fill-red-500 text-red-900' : 'text-muted-foreground'}`}
