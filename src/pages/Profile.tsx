@@ -1,4 +1,4 @@
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Film, UserSquare2, Link as LinkIcon, Bookmark } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
 const highlights = [
@@ -110,6 +110,9 @@ const Profile = () => {
         <div className="neo-card-inset flex rounded-2xl p-1 mb-4">
           <button className="flex-1 py-3 flex justify-center rounded-xl neo-button">
             <Grid3X3 className="w-5 h-5" />
+          </button>
+          <button className="flex-1 py-3 flex justify-center opacity-50">
+            <Music className="w-5 h-5" />
           </button>
           <button className="flex-1 py-3 flex justify-center opacity-50">
             <Film className="w-5 h-5" />
