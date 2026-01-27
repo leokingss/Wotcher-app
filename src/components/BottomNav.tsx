@@ -14,7 +14,7 @@ const BottomNav = () => {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50">
-      <nav className="floating-nav max-w-lg mx-auto px-6 py-3 flex items-center justify-between">
+      <nav className="neo-card max-w-lg mx-auto px-4 py-3 flex items-center justify-between rounded-2xl">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -23,14 +23,14 @@ const BottomNav = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`p-3 rounded-full transition-all ${
+              className={`w-11 h-11 flex items-center justify-center rounded-full transition-all ${
                 isActive 
-                  ? 'bg-primary/20 text-primary-foreground scale-110' 
-                  : 'text-primary-foreground/70 hover:text-primary-foreground'
+                  ? 'neo-card-inset text-primary' 
+                  : 'neo-button-icon text-muted-foreground hover:text-foreground'
               }`}
             >
               <Icon 
-                className={`w-6 h-6 ${isActive ? 'stroke-[2.5px]' : ''}`}
+                className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : ''}`}
                 fill={isActive && item.icon !== PlusSquare ? 'currentColor' : 'none'}
               />
             </Link>
