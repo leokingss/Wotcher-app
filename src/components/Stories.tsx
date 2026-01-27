@@ -1,12 +1,12 @@
 import { Plus } from "lucide-react";
 
 const stories = [
-  { id: 1, username: "My Story", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop", isOwn: true, hasStory: false, gradient: 1 },
-  { id: 2, username: "Lina", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", hasStory: true, gradient: 1 },
-  { id: 3, username: "Ahmed", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", hasStory: true, gradient: 2 },
-  { id: 4, username: "Jenny", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", hasStory: true, gradient: 3 },
-  { id: 5, username: "Linda", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop", hasStory: true, gradient: 4 },
-  { id: 6, username: "Karim", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop", hasStory: true, gradient: 1 },
+  { id: 1, username: "My Story", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop", isOwn: true, hasStory: false },
+  { id: 2, username: "Lina", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", hasStory: true },
+  { id: 3, username: "Ahmed", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", hasStory: true },
+  { id: 4, username: "Jenny", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", hasStory: true },
+  { id: 5, username: "Linda", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop", hasStory: true },
+  { id: 6, username: "Karim", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop", hasStory: true },
 ];
 
 const Stories = () => {
@@ -17,11 +17,15 @@ const Stories = () => {
           {stories.map((story) => (
             <div key={story.id} className="flex flex-col items-center gap-1.5 flex-shrink-0">
               {story.isOwn ? (
-                <div className="relative w-16 h-16 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center bg-card">
-                  <Plus className="w-6 h-6 text-muted-foreground" />
+                <div className="relative">
+                  <div className="neo-button-icon p-0.5">
+                    <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center">
+                      <Plus className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div className={`story-ring story-ring-${story.gradient}`}>
+                <div className="story-ring">
                   <div className="story-ring-inner">
                     <img
                       src={story.avatar}

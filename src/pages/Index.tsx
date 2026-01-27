@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Stories from "@/components/Stories";
-import FeedTabs from "@/components/FeedTabs";
 import Feed from "@/components/Feed";
 import BottomNav from "@/components/BottomNav";
 
@@ -10,10 +9,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      <main>
+      <Header activeTab={activeTab} onTabChange={setActiveTab} />
+      <main className="pt-4 pb-24">
         <Stories />
-        <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
         <Feed />
       </main>
       <BottomNav />

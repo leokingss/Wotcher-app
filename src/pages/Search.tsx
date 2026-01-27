@@ -23,18 +23,18 @@ const Search = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Search Bar */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md p-4">
+      <div className="sticky top-0 z-50 bg-background/90 backdrop-blur-md p-4">
         <div className="max-w-lg mx-auto">
           <div className="relative flex items-center gap-3">
             <div className="flex-1 relative">
               <input
                 type="text"
                 placeholder="Search"
-                className="w-full bg-card rounded-full py-3 pl-4 pr-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 border border-border"
+                className="w-full neo-input py-3 pl-4 pr-10 text-sm placeholder:text-muted-foreground"
               />
               <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             </div>
-            <button className="p-3 bg-card rounded-full border border-border hover:bg-secondary transition-colors">
+            <button className="neo-button-icon p-3">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 6h18M3 12h18M3 18h18" />
               </svg>
@@ -58,16 +58,16 @@ const Search = () => {
         </div>
 
         {/* Masonry Grid */}
-        <div className="columns-2 gap-2 space-y-2">
+        <div className="columns-2 gap-3 space-y-3">
           {exploreImages.map((image, index) => (
             <div 
               key={index} 
-              className="break-inside-avoid rounded-xl overflow-hidden"
+              className="break-inside-avoid neo-card p-1 rounded-2xl overflow-hidden"
             >
               <img 
                 src={image} 
                 alt="" 
-                className="w-full object-cover hover:opacity-90 transition-opacity cursor-pointer"
+                className="w-full object-cover rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
               />
             </div>
           ))}

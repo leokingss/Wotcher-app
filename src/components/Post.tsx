@@ -40,24 +40,26 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
   };
 
   return (
-    <article className="post-card mx-4 mb-4">
+    <article className="post-card">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
-          <img src={avatar} alt={username} className="w-10 h-10 rounded-full object-cover" />
+          <div className="neo-button-icon p-0.5">
+            <img src={avatar} alt={username} className="w-10 h-10 rounded-full object-cover" />
+          </div>
           <div>
             <p className="font-semibold text-sm">{username}</p>
             <p className="text-xs text-muted-foreground">{location}</p>
           </div>
         </div>
-        <button className="hover:opacity-60 transition-opacity">
+        <button className="neo-button-icon p-2">
           <MoreHorizontal className="w-5 h-5" />
         </button>
       </div>
 
       {/* Image */}
       <div 
-        className="relative aspect-[4/5] bg-muted cursor-pointer"
+        className="relative aspect-[4/5] bg-muted cursor-pointer mx-4 rounded-2xl overflow-hidden neo-card-inset"
         onDoubleClick={handleDoubleTap}
       >
         <img 
@@ -67,53 +69,53 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
         />
         {showHeart && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <Heart className="w-24 h-24 text-white fill-white double-tap-heart drop-shadow-lg" />
+            <Heart className="w-24 h-24 text-primary fill-primary double-tap-heart drop-shadow-lg" />
           </div>
         )}
       </div>
 
       {/* Actions */}
-      <div className="px-4 py-3">
+      <div className="px-4 py-4">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <button 
               onClick={handleLike}
-              className={`flex items-center gap-1.5 ${isLiked ? 'like-animation' : ''}`}
+              className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isLiked ? 'like-animation' : ''}`}
             >
               <Heart 
                 className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} 
               />
               <span className="text-sm font-medium">{formatLikes(likeCount)}</span>
             </button>
-            <button className="flex items-center gap-1.5 hover:opacity-60 transition-opacity">
+            <button className="neo-button-icon p-2.5 flex items-center gap-1.5">
               <MessageCircle className="w-5 h-5" />
               <span className="text-sm font-medium">{comments}</span>
             </button>
-            <button className="hover:opacity-60 transition-opacity">
+            <button className="neo-button-icon p-2.5">
               <Send className="w-5 h-5" />
             </button>
           </div>
           <button 
             onClick={() => setIsSaved(!isSaved)}
-            className="hover:opacity-60 transition-opacity"
+            className="neo-button-icon p-2.5"
           >
-            <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-foreground' : ''}`} />
+            <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-primary text-primary' : ''}`} />
           </button>
         </div>
 
         {/* Liked by */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 neo-card-inset px-3 py-2 rounded-xl">
           <div className="flex -space-x-2">
             {likedBy.slice(0, 3).map((user, i) => (
               <img 
                 key={i}
                 src={`https://images.unsplash.com/photo-${1494790108377 + i * 1000}-be9c29b29330?w=30&h=30&fit=crop`}
                 alt=""
-                className="w-5 h-5 rounded-full border-2 border-card object-cover"
+                className="w-5 h-5 rounded-full border-2 border-background object-cover"
               />
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground flex-1">
             {likedBy.slice(0, 3).join(', ')}...
           </p>
           <button className="action-button action-button-primary text-xs py-1 px-3">

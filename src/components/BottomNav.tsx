@@ -23,10 +23,10 @@ const BottomNav = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`p-2 transition-all ${
+              className={`p-3 rounded-full transition-all ${
                 isActive 
-                  ? 'text-foreground scale-110' 
-                  : 'text-foreground/60 hover:text-foreground'
+                  ? 'bg-primary/20 text-primary-foreground scale-110' 
+                  : 'text-primary-foreground/70 hover:text-primary-foreground'
               }`}
             >
               <Icon 
