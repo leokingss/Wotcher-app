@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
 
 interface PostProps {
   username: string;
@@ -14,13 +14,28 @@ interface PostProps {
 
 const Post = ({ username, location, avatar, image, likes, likedBy, caption, comments }: PostProps) => {
   const [isLiked, setIsLiked] = useState(false);
+  const [isDisliked, setIsDisliked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [showHeart, setShowHeart] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
+  const [dislikeCount, setDislikeCount] = useState(0);
 
   const handleLike = () => {
+    if (isDisliked) {
+      setIsDisliked(false);
+      setDislikeCount(prev => prev - 1);
+    }
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+  };
+
+  const handleDislike = () => {
+    if (isLiked) {
+      setIsLiked(false);
+      setLikeCount(prev => prev - 1);
+    }
+    setIsDisliked(!isDisliked);
+    setDislikeCount(prev => isDisliked ? prev - 1 : prev + 1);
   };
 
   const handleDoubleTap = () => {
@@ -77,7 +92,7 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
       {/* Actions */}
       <div className="px-4 py-4">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button 
               onClick={handleLike}
               className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isLiked ? 'like-animation' : ''}`}
@@ -86,6 +101,15 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
                 className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} 
               />
               <span className="text-sm font-medium">{formatLikes(likeCount)}</span>
+            </button>
+            <button 
+              onClick={handleDislike}
+              className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isDisliked ? 'like-animation' : ''}`}
+            >
+              <HeartCrack 
+                className={`w-5 h-5 ${isDisliked ? 'fill-muted-foreground text-muted-foreground' : ''}`} 
+              />
+              <span className="text-sm font-medium">{dislikeCount}</span>
             </button>
             <button className="neo-button-icon p-2.5 flex items-center gap-1.5">
               <MessageCircle className="w-5 h-5" />
