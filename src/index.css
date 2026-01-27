@@ -2,45 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Grand+Hotel&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 4%;
+    --background: 15 60% 96%;
+    --foreground: 0 0% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 4%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover-foreground: 0 0% 15%;
 
-    --primary: 340 82% 52%;
+    --primary: 8 72% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 4%;
+    --secondary: 15 50% 94%;
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 0 0% 96%;
+    --muted: 15 30% 90%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 4%;
+    --accent: 8 72% 65%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 340 82% 52%;
+    --border: 15 30% 88%;
+    --input: 15 30% 88%;
+    --ring: 8 72% 65%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    /* Instagram specific */
-    --instagram-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    --instagram-gradient-reverse: linear-gradient(135deg, #833AB4 0%, #C13584 25%, #E1306C 50%, #FD1D1D 75%, #F77737 100%);
-    --like-red: 0 100% 50%;
-    --story-ring: conic-gradient(from 180deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #833ab4, #5851db, #405de6, #f09433);
+    /* Watcher specific */
+    --nav-background: 8 72% 70%;
+    --story-gradient-1: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%);
+    --story-gradient-2: linear-gradient(135deg, #4ECDC4 0%, #556270 100%);
+    --story-gradient-3: linear-gradient(135deg, #A855F7 0%, #EC4899 100%);
+    --story-gradient-4: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -53,33 +54,35 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 0%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 340 82% 52%;
+    --primary: 8 72% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 64%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 8 72% 65%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 340 82% 52%;
+    --ring: 8 72% 65%;
+
+    --nav-background: 0 0% 15%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -99,24 +102,27 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
   }
 }
 
 @layer components {
-  .instagram-logo {
-    font-family: 'Grand Hotel', cursive;
+  .watcher-logo {
+    font-family: 'Dancing Script', cursive;
     font-size: 1.75rem;
-    background: var(--instagram-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 700;
+    color: hsl(var(--foreground));
   }
 
   .story-ring {
-    background: var(--story-ring);
     padding: 2px;
     border-radius: 50%;
   }
+
+  .story-ring-1 { background: var(--story-gradient-1); }
+  .story-ring-2 { background: var(--story-gradient-2); }
+  .story-ring-3 { background: var(--story-gradient-3); }
+  .story-ring-4 { background: var(--story-gradient-4); }
 
   .story-ring-inner {
     background: hsl(var(--background));
@@ -124,19 +130,42 @@
     border-radius: 50%;
   }
 
-  .instagram-gradient-bg {
-    background: var(--instagram-gradient-reverse);
+  .post-card {
+    @apply bg-card rounded-2xl shadow-sm overflow-hidden;
   }
 
-  .instagram-button {
-    @apply font-semibold text-sm px-4 py-1.5 rounded-lg transition-all;
-    background: var(--instagram-gradient-reverse);
-    color: white;
+  .floating-nav {
+    background: hsl(var(--nav-background));
+    border-radius: 2rem;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   }
 
-  .instagram-button:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
+  .tab-pill {
+    @apply px-4 py-2 rounded-full text-sm font-medium transition-all;
+  }
+
+  .tab-pill-active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .tab-pill-inactive {
+    @apply bg-card text-foreground hover:bg-secondary;
+  }
+
+  .category-pill {
+    @apply flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card text-sm font-medium transition-all hover:bg-secondary;
+  }
+
+  .action-button {
+    @apply px-5 py-2 rounded-full text-sm font-medium transition-all;
+  }
+
+  .action-button-primary {
+    @apply bg-primary text-primary-foreground hover:opacity-90;
+  }
+
+  .action-button-outline {
+    @apply border border-border bg-card hover:bg-secondary;
   }
 
   .like-animation {

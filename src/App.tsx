@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
-import Reels from "./pages/Reels";
+import Activity from "./pages/Activity";
 import Create from "./pages/Create";
 import NotFound from "./pages/NotFound";
 
@@ -22,7 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/reels" element={<Reels />} />
+          <Route path="/activity" element={<Activity />} />
           <Route path="/create" element={<Create />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
