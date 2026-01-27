@@ -7,7 +7,6 @@ import VideoCard from "@/components/VideoCard";
 const featuredSongs = [
   { id: 1, title: "Midnight Dreams", artist: "Luna Wave", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" },
   { id: 2, title: "Electric Sunrise", artist: "Neon Pulse", cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop" },
-  { id: 3, title: "Ocean Waves", artist: "Calm Beats", cover: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=100&h=100&fit=crop" },
 ];
 
 const userPosts = [
@@ -123,8 +122,10 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="text-xs font-medium truncate">{song.title}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{song.artist}</p>
+                  <p className="text-xs truncate">
+                    <span className="font-medium">{song.title}</span>
+                    <span className="text-muted-foreground"> · {song.artist}</span>
+                  </p>
                 </div>
               </button>
             ))}
