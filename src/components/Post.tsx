@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
+import CommentSection from "./CommentSection";
 
 interface PostProps {
   username: string;
@@ -19,6 +20,7 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
   const [showHeart, setShowHeart] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
   const [dislikeCount, setDislikeCount] = useState(0);
+  const [showComments, setShowComments] = useState(false);
 
   const handleLike = () => {
     if (isDisliked) {
@@ -111,8 +113,11 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
               />
               <span className="text-sm font-medium">{dislikeCount}</span>
             </button>
-            <button className="neo-button-icon p-2.5 flex items-center gap-1.5">
-              <MessageCircle className="w-5 h-5" />
+            <button 
+              onClick={() => setShowComments(!showComments)}
+              className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${showComments ? 'neo-card-inset text-primary' : ''}`}
+            >
+              <MessageCircle className={`w-5 h-5 ${showComments ? 'fill-primary' : ''}`} />
               <span className="text-sm font-medium">{comments}</span>
             </button>
             <button className="neo-button-icon p-2.5">
@@ -147,6 +152,9 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
           </button>
         </div>
       </div>
+
+      {/* Comments Section */}
+      <CommentSection isOpen={showComments} />
     </article>
   );
 };
