@@ -106,77 +106,63 @@ const Profile = () => {
           </button>
         </div>
 
-        {/* Featured Songs */}
-        <div className="neo-card-inset rounded-2xl p-3 mb-4">
-          <div className="flex flex-col gap-1">
-            {featuredSongs.map((song) => (
-              <button 
-                key={song.id} 
-                onClick={() => setActiveTab("music")}
-                className="p-2 rounded-xl flex items-center gap-2 hover:bg-secondary/50 transition-colors"
-              >
-                <div className="relative">
-                  <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-lg object-cover" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
-                    <Play className="w-3 h-3 text-white fill-white" />
-                  </div>
+        {/* Featured Songs - individual cards */}
+        <div className="flex gap-3 mb-4">
+          {featuredSongs.map((song) => (
+            <button 
+              key={song.id} 
+              onClick={() => setActiveTab("music")}
+              className="neo-card flex-1 p-3 rounded-2xl flex items-center gap-3 hover:scale-[0.98] transition-transform"
+            >
+              <div className="relative">
+                <img src={song.cover} alt={song.title} className="w-12 h-12 rounded-xl object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl">
+                  <Play className="w-4 h-4 text-white fill-white" />
                 </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="text-xs truncate">
-                    <span className="font-medium">{song.title}</span>
-                    <span className="text-muted-foreground"> · {song.artist}</span>
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-          
-          {/* Expand bar */}
-          <button 
-            onClick={() => setActiveTab("music")}
-            className="neo-button w-full mt-3 py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs font-medium"
-          >
-            <Music className="w-3.5 h-3.5" />
-            <span>View all music</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-medium truncate">{song.title}</p>
+                <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
+              </div>
+            </button>
+          ))}
         </div>
 
-        {/* Tabs */}
-        <div className="neo-card-inset flex rounded-2xl p-1 mb-4">
+        {/* Tabs - individual icon buttons */}
+        <div className="flex justify-center gap-3 mb-4">
           <button 
             onClick={() => setActiveTab("posts")}
-            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "posts" ? "neo-button" : "opacity-50"}`}
+            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "posts" ? "text-primary" : "text-muted-foreground"}`}
           >
             <Grid3X3 className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("music")}
-            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "music" ? "neo-button" : "opacity-50"}`}
+            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "music" ? "text-primary" : "text-muted-foreground"}`}
           >
             <Music className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("videos")}
-            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "videos" ? "neo-button" : "opacity-50"}`}
+            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "videos" ? "text-primary" : "text-muted-foreground"}`}
           >
             <Film className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("photos")}
-            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "photos" ? "neo-button" : "opacity-50"}`}
+            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "photos" ? "text-primary" : "text-muted-foreground"}`}
           >
             <UserSquare2 className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("links")}
-            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "links" ? "neo-button" : "opacity-50"}`}
+            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "links" ? "text-primary" : "text-muted-foreground"}`}
           >
             <LinkIcon className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setActiveTab("saved")}
-            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "saved" ? "neo-button" : "opacity-50"}`}
+            className={`neo-button-icon w-12 h-12 flex items-center justify-center ${activeTab === "saved" ? "text-primary" : "text-muted-foreground"}`}
           >
             <Bookmark className="w-5 h-5" />
           </button>
