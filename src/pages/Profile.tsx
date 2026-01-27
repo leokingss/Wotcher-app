@@ -109,12 +109,12 @@ const Profile = () => {
 
         {/* Featured Songs */}
         <div className="neo-card-inset rounded-2xl p-3 mb-4">
-          <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+          <div className="flex flex-col gap-2">
             {featuredSongs.map((song) => (
               <button 
                 key={song.id} 
                 onClick={() => setActiveTab("music")}
-                className="neo-card p-2 rounded-xl flex items-center gap-2 flex-shrink-0 min-w-[140px] hover:scale-[1.02] transition-transform"
+                className="neo-card p-2 rounded-xl flex items-center gap-2 hover:scale-[1.01] transition-transform"
               >
                 <div className="relative">
                   <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-lg object-cover" />
