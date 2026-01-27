@@ -41,6 +41,7 @@ const mockComments: Comment[] = [
 const CommentSection = ({ isOpen }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [newComment, setNewComment] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,16 +57,19 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
 
     setComments((prev) => [...prev, comment]);
     setNewComment("");
+    setShowAll(true); // Show all comments after posting
   };
 
   if (!isOpen) return null;
+
+  const displayedComments = showAll ? comments : comments.slice(0, 3);
 
   return (
     <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
       <div className="neo-card-inset rounded-xl p-3 space-y-3">
         {/* Comments List */}
         <div className="space-y-3 max-h-48 overflow-y-auto">
-          {comments.slice(0, 3).map((comment) => (
+          {displayedComments.map((comment) => (
             <div key={comment.id} className="flex items-start gap-2">
               <img
                 src={comment.avatar}
@@ -81,8 +85,11 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
               </div>
             </div>
           ))}
-          {comments.length > 3 && (
-            <button className="text-xs text-primary font-medium">
+          {!showAll && comments.length > 3 && (
+            <button 
+              onClick={() => setShowAll(true)}
+              className="text-xs text-primary font-medium"
+            >
               View all {comments.length} comments
             </button>
           )}
