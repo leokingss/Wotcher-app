@@ -116,11 +116,14 @@ const Profile = () => {
           {featuredSongs.map((song) => (
             <div 
               key={song.id} 
-              className="neo-card p-3 rounded-2xl flex items-center gap-3"
+              className="flex items-center gap-3 py-2"
             >
-              <img src={song.cover} alt={song.title} className="w-11 h-11 rounded-xl object-cover" />
-              <div className="flex-1 min-w-0">
+              <div className="neo-card p-1 rounded-xl">
+                <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-lg object-cover" />
+              </div>
+              <div className="flex-1 min-w-0 flex items-center gap-2">
                 <p className="text-base font-semibold truncate">{song.title}</p>
+                <span className="text-muted-foreground">•</span>
                 <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
               </div>
               <button 
