@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, Play, ChevronRight, MessageCircle, Heart, HeartCrack, Share2 } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import SongCard from "@/components/SongCard";
 
 const highlights = [
   { id: 0, name: "My Story", isAdd: true },
@@ -20,11 +21,11 @@ const userPosts = [
 ];
 
 const playlist = [
-  { id: 1, title: "Midnight Dreams", artist: "Luna Wave", duration: "3:45", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" },
-  { id: 2, title: "Electric Sunrise", artist: "Neon Pulse", duration: "4:12", cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop" },
-  { id: 3, title: "Ocean Waves", artist: "Calm Beats", duration: "3:28", cover: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=100&h=100&fit=crop" },
-  { id: 4, title: "City Lights", artist: "Urban Echo", duration: "4:02", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" },
-  { id: 5, title: "Summer Breeze", artist: "Chill Vibes", duration: "3:55", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" },
+  { id: 1, title: "Midnight Dreams", artist: "Luna Wave", duration: "3:45", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop", likes: 48, comments: 12 },
+  { id: 2, title: "Electric Sunrise", artist: "Neon Pulse", duration: "4:12", cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop", likes: 125, comments: 34 },
+  { id: 3, title: "Ocean Waves", artist: "Calm Beats", duration: "3:28", cover: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=100&h=100&fit=crop", likes: 89, comments: 21 },
+  { id: 4, title: "City Lights", artist: "Urban Echo", duration: "4:02", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop", likes: 256, comments: 45 },
+  { id: 5, title: "Summer Breeze", artist: "Chill Vibes", duration: "3:55", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop", likes: 178, comments: 28 },
 ];
 
 const Profile = () => {
@@ -171,43 +172,7 @@ const Profile = () => {
         {activeTab === "music" && (
           <div className="space-y-3">
             {playlist.map((song) => (
-              <div key={song.id} className="neo-card p-3 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <img src={song.cover} alt={song.title} className="w-12 h-12 rounded-lg object-cover" />
-                    <button className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
-                      <Play className="w-5 h-5 text-white fill-white" />
-                    </button>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{song.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{song.duration}</span>
-                </div>
-                
-                {/* Interaction icons */}
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-                  <button className="neo-button-icon p-2 flex items-center gap-1">
-                    <MessageCircle className="w-4 h-4" />
-                    <span className="text-xs">12</span>
-                  </button>
-                  <button className="neo-button-icon p-2 flex items-center gap-1">
-                    <Heart className="w-4 h-4" />
-                    <span className="text-xs">48</span>
-                  </button>
-                  <button className="neo-button-icon p-2 flex items-center gap-1">
-                    <HeartCrack className="w-4 h-4" />
-                    <span className="text-xs">3</span>
-                  </button>
-                  <button className="neo-button-icon p-2 flex items-center gap-1">
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                  <button className="neo-button-icon p-2 flex items-center gap-1">
-                    <Bookmark className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              <SongCard key={song.id} {...song} />
             ))}
             
             {/* Expand option */}
