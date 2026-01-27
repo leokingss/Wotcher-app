@@ -1,4 +1,5 @@
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark } from "lucide-react";
+import { useState } from "react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, Play, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
 const highlights = [
@@ -18,7 +19,17 @@ const userPosts = [
   { image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" },
 ];
 
+const playlist = [
+  { id: 1, title: "Midnight Dreams", artist: "Luna Wave", duration: "3:45", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" },
+  { id: 2, title: "Electric Sunrise", artist: "Neon Pulse", duration: "4:12", cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop" },
+  { id: 3, title: "Ocean Waves", artist: "Calm Beats", duration: "3:28", cover: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=100&h=100&fit=crop" },
+  { id: 4, title: "City Lights", artist: "Urban Echo", duration: "4:02", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" },
+  { id: 5, title: "Summer Breeze", artist: "Chill Vibes", duration: "3:55", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" },
+];
+
 const Profile = () => {
+  const [activeTab, setActiveTab] = useState("posts");
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -108,34 +119,80 @@ const Profile = () => {
 
         {/* Tabs */}
         <div className="neo-card-inset flex rounded-2xl p-1 mb-4">
-          <button className="flex-1 py-3 flex justify-center rounded-xl neo-button">
+          <button 
+            onClick={() => setActiveTab("posts")}
+            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "posts" ? "neo-button" : "opacity-50"}`}
+          >
             <Grid3X3 className="w-5 h-5" />
           </button>
-          <button className="flex-1 py-3 flex justify-center opacity-50">
+          <button 
+            onClick={() => setActiveTab("music")}
+            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "music" ? "neo-button" : "opacity-50"}`}
+          >
             <Music className="w-5 h-5" />
           </button>
-          <button className="flex-1 py-3 flex justify-center opacity-50">
+          <button 
+            onClick={() => setActiveTab("videos")}
+            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "videos" ? "neo-button" : "opacity-50"}`}
+          >
             <Film className="w-5 h-5" />
           </button>
-          <button className="flex-1 py-3 flex justify-center opacity-50">
+          <button 
+            onClick={() => setActiveTab("photos")}
+            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "photos" ? "neo-button" : "opacity-50"}`}
+          >
             <UserSquare2 className="w-5 h-5" />
           </button>
-          <button className="flex-1 py-3 flex justify-center opacity-50">
+          <button 
+            onClick={() => setActiveTab("links")}
+            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "links" ? "neo-button" : "opacity-50"}`}
+          >
             <LinkIcon className="w-5 h-5" />
           </button>
-          <button className="flex-1 py-3 flex justify-center opacity-50">
+          <button 
+            onClick={() => setActiveTab("saved")}
+            className={`flex-1 py-3 flex justify-center rounded-xl ${activeTab === "saved" ? "neo-button" : "opacity-50"}`}
+          >
             <Bookmark className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Photo Grid */}
-        <div className="grid grid-cols-3 gap-2">
-          {userPosts.map((post, index) => (
-            <div key={index} className="neo-card p-1 rounded-xl">
-              <img src={post.image} alt="" className="w-full aspect-square object-cover rounded-lg" />
-            </div>
-          ))}
-        </div>
+        {/* Content based on active tab */}
+        {activeTab === "posts" && (
+          <div className="grid grid-cols-3 gap-2">
+            {userPosts.map((post, index) => (
+              <div key={index} className="neo-card p-1 rounded-xl">
+                <img src={post.image} alt="" className="w-full aspect-square object-cover rounded-lg" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === "music" && (
+          <div className="space-y-3">
+            {playlist.map((song) => (
+              <div key={song.id} className="neo-card p-3 rounded-xl flex items-center gap-3">
+                <div className="relative">
+                  <img src={song.cover} alt={song.title} className="w-12 h-12 rounded-lg object-cover" />
+                  <button className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
+                    <Play className="w-5 h-5 text-white fill-white" />
+                  </button>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{song.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
+                </div>
+                <span className="text-xs text-muted-foreground">{song.duration}</span>
+              </div>
+            ))}
+            
+            {/* Expand option */}
+            <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
+              <span>View all music</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </main>
 
       <BottomNav />
