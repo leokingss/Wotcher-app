@@ -94,32 +94,38 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
       {/* Actions */}
       <div className="px-4 py-4">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={handleLike}
-              className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isLiked ? 'like-animation' : ''}`}
-            >
-              <Heart 
-                className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} 
-              />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5">
+              <button 
+                onClick={handleLike}
+                className={`neo-button-icon p-2.5 ${isLiked ? 'like-animation' : ''}`}
+              >
+                <Heart 
+                  className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} 
+                />
+              </button>
               <span className="text-sm font-medium">{formatLikes(likeCount)}</span>
-            </button>
-            <button 
-              onClick={handleDislike}
-              className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isDisliked ? 'like-animation' : ''}`}
-            >
-              <HeartCrack 
-                className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-900' : ''}`} 
-              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button 
+                onClick={handleDislike}
+                className={`neo-button-icon p-2.5 ${isDisliked ? 'like-animation' : ''}`}
+              >
+                <HeartCrack 
+                  className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-900' : ''}`} 
+                />
+              </button>
               <span className="text-sm font-medium">{dislikeCount}</span>
-            </button>
-            <button 
-              onClick={() => setShowComments(!showComments)}
-              className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${showComments ? 'neo-card-inset text-primary' : ''}`}
-            >
-              <MessageCircle className={`w-5 h-5 ${showComments ? 'fill-primary' : ''}`} />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button 
+                onClick={() => setShowComments(!showComments)}
+                className={`neo-button-icon p-2.5 ${showComments ? 'neo-card-inset text-primary' : ''}`}
+              >
+                <MessageCircle className={`w-5 h-5 ${showComments ? 'fill-primary' : ''}`} />
+              </button>
               <span className="text-sm font-medium">{comments}</span>
-            </button>
+            </div>
             <button className="neo-button-icon p-2.5">
               <Send className="w-5 h-5" />
             </button>
