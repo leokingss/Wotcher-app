@@ -1,11 +1,11 @@
-import { Search as SearchIcon, Film, Tv, ShoppingBag, Gamepad2 } from "lucide-react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
 const categories = [
-  { icon: Film, label: "Reels" },
-  { icon: Tv, label: "IGTV" },
+  { icon: Image, label: "Photos" },
+  { icon: Music, label: "Music" },
+  { icon: Film, label: "Movies" },
   { icon: ShoppingBag, label: "Store" },
-  { icon: Gamepad2, label: "Games" },
 ];
 
 const exploreImages = [
@@ -45,14 +45,16 @@ const Search = () => {
 
       <div className="max-w-lg mx-auto px-4">
         {/* Categories */}
-        <div className="flex gap-3 mb-4 overflow-x-auto hide-scrollbar py-2">
+        <div className="flex gap-4 mb-4 overflow-x-auto hide-scrollbar py-2">
           {categories.map((cat) => {
             const Icon = cat.icon;
             return (
-              <button key={cat.label} className="category-pill flex-shrink-0">
-                <Icon className="w-4 h-4" />
-                <span>{cat.label}</span>
-              </button>
+              <div key={cat.label} className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                <button className="neo-button-icon p-3">
+                  <Icon className="w-5 h-5" />
+                </button>
+                <span className="text-xs text-muted-foreground">{cat.label}</span>
+              </div>
             );
           })}
         </div>
