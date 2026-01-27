@@ -133,16 +133,18 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
         </div>
 
         {/* Liked by */}
-        <div className="flex items-center gap-2 neo-card-inset px-3 py-2 rounded-xl">
-          <div className="flex -space-x-2">
-            {likedBy.slice(0, 3).map((user, i) => (
-              <img 
-                key={i}
-                src={`https://images.unsplash.com/photo-${1494790108377 + i * 1000}-be9c29b29330?w=30&h=30&fit=crop`}
-                alt=""
-                className="w-5 h-5 rounded-full border-2 border-background object-cover"
-              />
-            ))}
+        <div className="flex items-center gap-2">
+          <div className="neo-card p-1 rounded-full">
+            <div className="flex -space-x-2">
+              {likedBy.slice(0, 3).map((user, i) => (
+                <img 
+                  key={i}
+                  src={`https://images.unsplash.com/photo-${1494790108377 + i * 1000}-be9c29b29330?w=30&h=30&fit=crop`}
+                  alt=""
+                  className="w-6 h-6 rounded-full border-2 border-background object-cover"
+                />
+              ))}
+            </div>
           </div>
           <p className="text-xs text-muted-foreground flex-1">
             {likedBy.slice(0, 3).join(', ')}...
