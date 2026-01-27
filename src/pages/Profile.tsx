@@ -112,28 +112,28 @@ const Profile = () => {
         </div>
 
         {/* Featured Songs - stacked vertically */}
-        <div className="flex flex-col gap-1.5 mb-4">
+        <div className="flex flex-col gap-0.5 mb-4">
           {featuredSongs.map((song) => (
             <div 
               key={song.id} 
-              className="flex items-center gap-3 py-2"
+              className="flex items-center gap-2 py-1"
             >
-              <div className="neo-card p-1 rounded-xl">
-                <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-lg object-cover" />
+              <div className="neo-card p-0.5 rounded-lg">
+                <img src={song.cover} alt={song.title} className="w-8 h-8 rounded-md object-cover" />
               </div>
-              <div className="flex-1 min-w-0 flex items-center gap-2">
-                <p className="text-base font-semibold truncate">{song.title}</p>
-                <span className="text-muted-foreground">•</span>
-                <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
+              <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                <p className="text-sm font-semibold truncate">{song.title}</p>
+                <span className="text-muted-foreground text-xs">•</span>
+                <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
               </div>
               <button 
                 onClick={() => handleTogglePlay(song.id)}
-                className="neo-button-icon w-10 h-10 flex items-center justify-center"
+                className="neo-button-icon w-8 h-8 flex items-center justify-center"
               >
                 {playingSongId === song.id ? (
-                  <Square className="w-4 h-4 fill-primary text-primary" />
+                  <Square className="w-3 h-3 fill-primary text-primary" />
                 ) : (
-                  <Play className="w-4 h-4 fill-foreground text-foreground" />
+                  <Play className="w-3 h-3 fill-foreground text-foreground" />
                 )}
               </button>
             </div>
