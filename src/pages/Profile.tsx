@@ -1,15 +1,13 @@
 import { useState } from "react";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Play } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import VideoCard from "@/components/VideoCard";
 
-const highlights = [
-  { id: 0, name: "My Story", isAdd: true },
-  { id: 1, name: "Travels", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100&h=100&fit=crop", emoji: "🏔️" },
-  { id: 2, name: "Cool", image: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=100&h=100&fit=crop", emoji: "😎" },
-  { id: 3, name: "Scot", image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=100&h=100&fit=crop", emoji: "🏴󠁧󠁢󠁳󠁣󠁴󠁿" },
-  { id: 4, name: "Holidays", image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=100&h=100&fit=crop", emoji: "🌴" },
+const featuredSongs = [
+  { id: 1, title: "Midnight Dreams", artist: "Luna Wave", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" },
+  { id: 2, title: "Electric Sunrise", artist: "Neon Pulse", cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop" },
+  { id: 3, title: "Ocean Waves", artist: "Calm Beats", cover: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=100&h=100&fit=crop" },
 ];
 
 const userPosts = [
@@ -109,24 +107,38 @@ const Profile = () => {
           </button>
         </div>
 
-        {/* Highlights */}
-        <div className="flex gap-4 overflow-x-auto hide-scrollbar py-2 mb-4">
-          {highlights.map((highlight) => (
-            <div key={highlight.id} className="flex flex-col items-center gap-1.5 flex-shrink-0">
-              {highlight.isAdd ? (
-                <div className="neo-button-icon p-0.5">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center bg-secondary">
-                    <Plus className="w-6 h-6 text-muted-foreground" />
+        {/* Featured Songs */}
+        <div className="neo-card-inset rounded-2xl p-3 mb-4">
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+            {featuredSongs.map((song) => (
+              <button 
+                key={song.id} 
+                onClick={() => setActiveTab("music")}
+                className="neo-card p-2 rounded-xl flex items-center gap-2 flex-shrink-0 min-w-[140px] hover:scale-[1.02] transition-transform"
+              >
+                <div className="relative">
+                  <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-lg object-cover" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
+                    <Play className="w-3 h-3 text-white fill-white" />
                   </div>
                 </div>
-              ) : (
-                <div className="neo-card p-0.5 rounded-full">
-                  <img src={highlight.image} alt={highlight.name} className="w-16 h-16 rounded-full object-cover" />
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-xs font-medium truncate">{song.title}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{song.artist}</p>
                 </div>
-              )}
-              <span className="text-xs font-medium">{highlight.name}</span>
-            </div>
-          ))}
+              </button>
+            ))}
+          </div>
+          
+          {/* Expand bar */}
+          <button 
+            onClick={() => setActiveTab("music")}
+            className="neo-button w-full mt-3 py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs font-medium"
+          >
+            <Music className="w-3.5 h-3.5" />
+            <span>View all music</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Tabs */}
