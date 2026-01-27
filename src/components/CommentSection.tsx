@@ -1,0 +1,118 @@
+import { useState } from "react";
+import { Send } from "lucide-react";
+
+interface Comment {
+  id: number;
+  username: string;
+  avatar: string;
+  text: string;
+  time: string;
+}
+
+interface CommentSectionProps {
+  isOpen: boolean;
+  postId?: string;
+}
+
+const mockComments: Comment[] = [
+  {
+    id: 1,
+    username: "sarah_designs",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop",
+    text: "This is absolutely stunning! 🔥",
+    time: "2h",
+  },
+  {
+    id: 2,
+    username: "mike_photos",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop",
+    text: "Love the composition here",
+    time: "1h",
+  },
+  {
+    id: 3,
+    username: "creative_jane",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop",
+    text: "Where was this taken?",
+    time: "45m",
+  },
+];
+
+const CommentSection = ({ isOpen }: CommentSectionProps) => {
+  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const [newComment, setNewComment] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    const comment: Comment = {
+      id: Date.now(),
+      username: "you",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop",
+      text: newComment,
+      time: "now",
+    };
+
+    setComments((prev) => [...prev, comment]);
+    setNewComment("");
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
+      <div className="neo-card-inset rounded-xl p-3 space-y-3">
+        {/* Comments List */}
+        <div className="space-y-3 max-h-48 overflow-y-auto">
+          {comments.slice(0, 3).map((comment) => (
+            <div key={comment.id} className="flex items-start gap-2">
+              <img
+                src={comment.avatar}
+                alt={comment.username}
+                className="w-7 h-7 rounded-full object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm">
+                  <span className="font-semibold">{comment.username}</span>{" "}
+                  <span className="text-muted-foreground">{comment.text}</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">{comment.time}</p>
+              </div>
+            </div>
+          ))}
+          {comments.length > 3 && (
+            <button className="text-xs text-primary font-medium">
+              View all {comments.length} comments
+            </button>
+          )}
+        </div>
+
+        {/* Comment Input */}
+        <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-2 border-t border-border/50">
+          <img
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop"
+            alt="You"
+            className="w-7 h-7 rounded-full object-cover"
+          />
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add a comment..."
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            type="submit"
+            disabled={!newComment.trim()}
+            className="neo-button-icon p-2 disabled:opacity-50"
+          >
+            <Send className="w-4 h-4 text-primary" />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CommentSection;
