@@ -66,7 +66,7 @@ const Profile = () => {
         {/* Profile Stats */}
         <div className="flex items-center justify-center gap-8 py-6">
           <div className="text-center">
-            <p className="neo-card-inset px-3 py-1.5 rounded-xl font-bold text-lg mb-1">16.8k</p>
+            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1">16.8k</p>
             <p className="text-xs text-muted-foreground">Followers</p>
           </div>
           
@@ -84,7 +84,7 @@ const Profile = () => {
           </div>
           
           <div className="text-center">
-            <p className="neo-card-inset px-3 py-1.5 rounded-xl font-bold text-lg mb-1">99</p>
+            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1">99</p>
             <p className="text-xs text-muted-foreground">Following</p>
           </div>
         </div>
