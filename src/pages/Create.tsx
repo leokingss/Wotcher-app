@@ -1,4 +1,4 @@
-import { X, Image, Camera, Film, LayoutGrid } from "lucide-react";
+import { X, Camera, LayoutGrid } from "lucide-react";
 import { Link } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 
@@ -19,15 +19,15 @@ const recentPhotos = [
 
 const Create = () => {
   return (
-    <div className="min-h-screen bg-background pb-14">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background border-b border-border">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/" className="hover:opacity-60 transition-opacity">
+          <Link to="/" className="p-2 hover:opacity-60 transition-opacity">
             <X className="w-6 h-6" />
           </Link>
           <h1 className="font-semibold">New post</h1>
-          <button className="instagram-button">
+          <button className="action-button action-button-primary py-1.5">
             Next
           </button>
         </div>
@@ -51,13 +51,13 @@ const Create = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="flex items-center gap-1 bg-secondary hover:bg-secondary/80 transition-colors rounded-full px-3 py-1.5">
+          <div className="flex items-center gap-3">
+            <button className="category-pill">
               <LayoutGrid className="w-4 h-4" />
-              <span className="text-xs font-medium">Select multiple</span>
+              <span>Select multiple</span>
             </button>
-            <button className="w-8 h-8 rounded-full bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center">
-              <Camera className="w-4 h-4" />
+            <button className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-secondary transition-colors">
+              <Camera className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -70,24 +70,6 @@ const Create = () => {
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
             </div>
           ))}
-        </div>
-
-        {/* Bottom Options */}
-        <div className="fixed bottom-14 left-0 right-0 bg-background border-t border-border">
-          <div className="max-w-lg mx-auto flex">
-            <button className="flex-1 py-4 text-center font-semibold text-sm border-b-2 border-foreground">
-              <div className="flex items-center justify-center gap-2">
-                <Image className="w-5 h-5" />
-                POST
-              </div>
-            </button>
-            <button className="flex-1 py-4 text-center text-muted-foreground text-sm">
-              <div className="flex items-center justify-center gap-2">
-                <Film className="w-5 h-5" />
-                REEL
-              </div>
-            </button>
-          </div>
         </div>
       </main>
 
