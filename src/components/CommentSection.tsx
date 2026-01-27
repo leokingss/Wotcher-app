@@ -66,16 +66,18 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
 
   return (
     <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
-      <div className="neo-card-inset rounded-xl p-3 space-y-3">
+      <div className="space-y-3">
         {/* Comments List */}
         <div className="space-y-3 max-h-48 overflow-y-auto">
           {displayedComments.map((comment) => (
             <div key={comment.id} className="flex items-start gap-2">
-              <img
-                src={comment.avatar}
-                alt={comment.username}
-                className="w-7 h-7 rounded-full object-cover"
-              />
+              <div className="neo-card p-0.5 rounded-full">
+                <img
+                  src={comment.avatar}
+                  alt={comment.username}
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm">
                   <span className="font-semibold">{comment.username}</span>{" "}
@@ -96,12 +98,14 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
         </div>
 
         {/* Comment Input */}
-        <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-2 border-t border-border/50">
-          <img
-            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop"
-            alt="You"
-            className="w-7 h-7 rounded-full object-cover"
-          />
+        <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-2 border-t border-border/30">
+          <div className="neo-card p-0.5 rounded-full">
+            <img
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop"
+              alt="You"
+              className="w-7 h-7 rounded-full object-cover"
+            />
+          </div>
           <input
             type="text"
             value={newComment}
