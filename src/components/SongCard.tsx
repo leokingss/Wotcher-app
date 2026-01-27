@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Heart, HeartCrack, MessageCircle, Send, Bookmark, Play } from "lucide-react";
 
+interface Comment {
+  id: number;
+  username: string;
+  avatar: string;
+  text: string;
+  time: string;
+}
+
 interface SongCardProps {
   id: number;
   title: string;
@@ -11,12 +19,22 @@ interface SongCardProps {
   comments: number;
 }
 
+const mockComments: Comment[] = [
+  { id: 1, username: "musiclover", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop", text: "This track is amazing! 🔥", time: "2h" },
+  { id: 2, username: "beatmaker", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop", text: "Love the vibe on this one", time: "5h" },
+  { id: 3, username: "djsoul", avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=50&h=50&fit=crop", text: "Added to my playlist!", time: "1d" },
+];
+
 const SongCard = ({ title, artist, duration, cover, likes, comments }: SongCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
   const [dislikeCount, setDislikeCount] = useState(0);
+  const [showComments, setShowComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [commentList, setCommentList] = useState<Comment[]>(mockComments);
+  const [commentCount, setCommentCount] = useState(comments);
 
   const handleLike = () => {
     if (isDisliked) {
@@ -34,6 +52,21 @@ const SongCard = ({ title, artist, duration, cover, likes, comments }: SongCardP
     }
     setIsDisliked(!isDisliked);
     setDislikeCount(prev => isDisliked ? prev - 1 : prev + 1);
+  };
+
+  const handlePostComment = () => {
+    if (newComment.trim()) {
+      const comment: Comment = {
+        id: Date.now(),
+        username: "you",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop",
+        text: newComment.trim(),
+        time: "now"
+      };
+      setCommentList([comment, ...commentList]);
+      setCommentCount(prev => prev + 1);
+      setNewComment("");
+    }
   };
 
   const formatCount = (count: number) => {
@@ -80,9 +113,12 @@ const SongCard = ({ title, artist, duration, cover, likes, comments }: SongCardP
             />
             <span className="text-sm font-medium">{dislikeCount}</span>
           </button>
-          <button className="neo-button-icon p-2.5 flex items-center gap-1.5">
+          <button 
+            onClick={() => setShowComments(!showComments)}
+            className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${showComments ? 'neo-card-inset' : ''}`}
+          >
             <MessageCircle className="w-5 h-5" />
-            <span className="text-sm font-medium">{comments}</span>
+            <span className="text-sm font-medium">{commentCount}</span>
           </button>
           <button className="neo-button-icon p-2.5">
             <Send className="w-5 h-5" />
@@ -95,6 +131,56 @@ const SongCard = ({ title, artist, duration, cover, likes, comments }: SongCardP
           <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-primary text-primary' : ''}`} />
         </button>
       </div>
+
+      {/* Expandable Comments Section */}
+      {showComments && (
+        <div className="mt-3 pt-3 border-t border-border/50 animate-fade-in">
+          {/* Comments list */}
+          <div className="space-y-3 mb-3">
+            {commentList.slice(0, 3).map((comment) => (
+              <div key={comment.id} className="flex items-start gap-2">
+                <img 
+                  src={comment.avatar} 
+                  alt={comment.username} 
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold">{comment.username}</span>
+                    <span className="text-xs text-muted-foreground">{comment.time}</span>
+                  </div>
+                  <p className="text-xs text-foreground/80">{comment.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Write comment */}
+          <div className="flex items-center gap-2 neo-card-inset p-2 rounded-xl">
+            <img 
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop" 
+              alt="You" 
+              className="w-7 h-7 rounded-full object-cover"
+            />
+            <input
+              type="text"
+              placeholder="Add a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handlePostComment()}
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              maxLength={500}
+            />
+            <button 
+              onClick={handlePostComment}
+              disabled={!newComment.trim()}
+              className={`neo-button-icon p-2 ${newComment.trim() ? 'text-primary' : 'opacity-50'}`}
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
