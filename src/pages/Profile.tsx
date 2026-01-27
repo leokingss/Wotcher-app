@@ -47,16 +47,16 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <button className="neo-button-icon p-2">
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
+        <div className="max-w-lg mx-auto px-4 h-16 flex items-center justify-between">
+          <button className="neo-button-icon w-10 h-10 flex items-center justify-center">
             <Settings className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-1">
-            <span className="font-semibold">qd019el</span>
+          <button className="neo-button px-4 py-2 rounded-full flex items-center gap-1.5">
+            <span className="font-semibold text-sm">qd019el</span>
             <ChevronDown className="w-4 h-4" />
-          </div>
-          <button className="neo-button-icon p-2">
+          </button>
+          <button className="neo-button-icon w-10 h-10 flex items-center justify-center">
             <Menu className="w-5 h-5" />
           </button>
         </div>
