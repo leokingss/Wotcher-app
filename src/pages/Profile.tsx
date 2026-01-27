@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Play, Square } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Play } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import VideoCard from "@/components/VideoCard";
@@ -34,7 +34,6 @@ const videos = [
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
-  const [playingSongId, setPlayingSongId] = useState<number | null>(null);
 
   const handleToggleComments = (itemId: number) => {
     setOpenCommentsId(openCommentsId === itemId ? null : itemId);
@@ -108,17 +107,20 @@ const Profile = () => {
         </div>
 
         {/* Featured Songs */}
-        <div className="flex flex-col gap-2 mb-4">
-          {featuredSongs.map((song) => (
-            <div 
-              key={song.id} 
-              className="neo-card p-2 rounded-xl flex items-center gap-2"
-            >
+        <div className="neo-card-inset rounded-2xl p-3 mb-4">
+          <div className="flex flex-col gap-1">
+            {featuredSongs.map((song) => (
               <button 
+                key={song.id} 
                 onClick={() => setActiveTab("music")}
-                className="flex items-center gap-2 flex-1 min-w-0"
+                className="p-2 rounded-xl flex items-center gap-2 hover:bg-secondary/50 transition-colors"
               >
-                <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-lg object-cover" />
+                <div className="relative">
+                  <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-lg object-cover" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
+                    <Play className="w-3 h-3 text-white fill-white" />
+                  </div>
+                </div>
                 <div className="flex-1 min-w-0 text-left">
                   <p className="text-xs truncate">
                     <span className="font-medium">{song.title}</span>
@@ -126,26 +128,13 @@ const Profile = () => {
                   </p>
                 </div>
               </button>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setPlayingSongId(playingSongId === song.id ? null : song.id);
-                }}
-                className="neo-button-icon p-2 rounded-lg"
-              >
-                {playingSongId === song.id ? (
-                  <Square className="w-4 h-4 fill-current" />
-                ) : (
-                  <Play className="w-4 h-4 fill-current" />
-                )}
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
           
           {/* Expand bar */}
           <button 
             onClick={() => setActiveTab("music")}
-            className="neo-button w-full py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs font-medium"
+            className="neo-button w-full mt-3 py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs font-medium"
           >
             <Music className="w-3.5 h-3.5" />
             <span>View all music</span>
