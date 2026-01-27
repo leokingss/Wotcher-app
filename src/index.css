@@ -69,7 +69,7 @@
     --popover: 220 8% 13%;
     --popover-foreground: 220 5% 75%;
 
-    --primary: 190 100% 50%;
+    --primary: 45 100% 50%;
     --primary-foreground: 220 15% 10%;
 
     --secondary: 220 8% 14%;
@@ -86,7 +86,7 @@
 
     --border: 220 8% 18%;
     --input: 220 8% 14%;
-    --ring: 190 100% 50%;
+    --ring: 45 100% 50%;
 
     /* Neomorphic shadows - from reference image with exact values */
     /* Drop shadow: x:34 y:34 blur:60% #141414 90%, x:-20 y:-20 blur:60% #333537 50% */
@@ -101,12 +101,12 @@
 
     --sidebar-background: 220 8% 11%;
     --sidebar-foreground: 220 5% 75%;
-    --sidebar-primary: 190 100% 50%;
+    --sidebar-primary: 45 100% 50%;
     --sidebar-primary-foreground: 220 15% 10%;
     --sidebar-accent: 220 8% 14%;
     --sidebar-accent-foreground: 220 5% 70%;
     --sidebar-border: 220 8% 18%;
-    --sidebar-ring: 190 100% 50%;
+    --sidebar-ring: 45 100% 50%;
   }
 }
 
