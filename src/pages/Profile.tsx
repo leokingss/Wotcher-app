@@ -118,8 +118,8 @@ const Profile = () => {
               key={song.id} 
               className="flex items-center gap-2 py-1"
             >
-              <div className="neo-card p-0.5 rounded-lg">
-                <img src={song.cover} alt={song.title} className="w-8 h-8 rounded-md object-cover" />
+              <div className="neo-card p-0.5 rounded">
+                <img src={song.cover} alt={song.title} className="w-8 h-8 rounded-sm object-cover" />
               </div>
               <div className="flex-1 min-w-0 flex items-center gap-1.5">
                 <p className="text-sm font-semibold truncate">{song.title}</p>
