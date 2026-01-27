@@ -21,9 +21,9 @@ const Create = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/" className="p-2 hover:opacity-60 transition-opacity">
+          <Link to="/" className="neo-button-icon p-2">
             <X className="w-6 h-6" />
           </Link>
           <h1 className="font-semibold">New post</h1>
@@ -33,19 +33,19 @@ const Create = () => {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto">
+      <main className="max-w-lg mx-auto px-4">
         {/* Selected Image Preview */}
-        <div className="aspect-square bg-muted">
+        <div className="neo-card-inset p-2 rounded-2xl mb-4">
           <img 
             src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=600&h=600&fit=crop" 
             alt="Selected" 
-            className="w-full h-full object-cover"
+            className="w-full aspect-square object-cover rounded-xl"
           />
         </div>
 
         {/* Gallery Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between py-3 mb-2">
+          <div className="neo-button flex items-center gap-2 px-4 py-2 rounded-xl">
             <span className="font-semibold text-sm">Recents</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -56,18 +56,17 @@ const Create = () => {
               <LayoutGrid className="w-4 h-4" />
               <span>Select multiple</span>
             </button>
-            <button className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-secondary transition-colors">
+            <button className="neo-button-icon p-2.5">
               <Camera className="w-5 h-5" />
             </button>
           </div>
         </div>
 
         {/* Photo Grid */}
-        <div className="grid grid-cols-4 gap-0.5">
+        <div className="grid grid-cols-4 gap-2">
           {recentPhotos.map((photo, index) => (
-            <div key={index} className="aspect-square relative group cursor-pointer">
-              <img src={photo} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+            <div key={index} className="neo-card p-0.5 rounded-xl cursor-pointer">
+              <img src={photo} alt="" className="w-full aspect-square object-cover rounded-lg" />
             </div>
           ))}
         </div>

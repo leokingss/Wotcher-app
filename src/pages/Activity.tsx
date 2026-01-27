@@ -1,5 +1,4 @@
 import BottomNav from "@/components/BottomNav";
-import { Heart } from "lucide-react";
 
 const activities = [
   {
@@ -51,44 +50,50 @@ const Activity = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-center">
           <h1 className="font-semibold text-lg">Activity</h1>
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto">
-        <div className="px-4 py-2">
+      <main className="max-w-lg mx-auto px-4">
+        <div className="py-2">
           <h2 className="font-semibold text-sm mb-3">Recent</h2>
         </div>
         
-        {activities.map((activity) => (
-          <div key={activity.id} className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors">
-            <img 
-              src={activity.avatar} 
-              alt={activity.user}
-              className="w-11 h-11 rounded-full object-cover"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm">
-                <span className="font-semibold">{activity.user}</span>{" "}
-                <span className="text-muted-foreground">{activity.action}</span>
-              </p>
-              <p className="text-xs text-muted-foreground">{activity.time}</p>
+        <div className="space-y-3">
+          {activities.map((activity) => (
+            <div key={activity.id} className="neo-card flex items-center gap-3 p-3 rounded-2xl">
+              <div className="neo-button-icon p-0.5">
+                <img 
+                  src={activity.avatar} 
+                  alt={activity.user}
+                  className="w-11 h-11 rounded-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm">
+                  <span className="font-semibold">{activity.user}</span>{" "}
+                  <span className="text-muted-foreground">{activity.action}</span>
+                </p>
+                <p className="text-xs text-muted-foreground">{activity.time}</p>
+              </div>
+              {activity.postImage ? (
+                <div className="neo-card p-0.5 rounded-xl">
+                  <img 
+                    src={activity.postImage} 
+                    alt=""
+                    className="w-11 h-11 rounded-lg object-cover"
+                  />
+                </div>
+              ) : (
+                <button className="action-button action-button-primary text-xs py-1.5 px-4">
+                  Follow
+                </button>
+              )}
             </div>
-            {activity.postImage ? (
-              <img 
-                src={activity.postImage} 
-                alt=""
-                className="w-11 h-11 rounded-lg object-cover"
-              />
-            ) : (
-              <button className="action-button action-button-primary text-xs py-1.5 px-4">
-                Follow
-              </button>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </main>
 
       <BottomNav />
