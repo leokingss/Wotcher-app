@@ -45,7 +45,7 @@ const Search = () => {
 
       <div className="max-w-lg mx-auto px-4">
         {/* Categories */}
-        <div className="flex gap-4 mb-4 overflow-x-auto hide-scrollbar py-2">
+        <div className="flex justify-evenly mb-4 py-2">
           {categories.map((cat) => {
             const Icon = cat.icon;
             return (
