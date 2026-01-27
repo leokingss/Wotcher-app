@@ -16,7 +16,7 @@
     --popover: 220 15% 91%;
     --popover-foreground: 220 15% 20%;
 
-    --primary: 270 60% 60%;
+    --primary: 220 15% 35%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 15% 85%;
@@ -25,7 +25,7 @@
     --muted: 220 15% 85%;
     --muted-foreground: 220 15% 45%;
 
-    --accent: 270 60% 60%;
+    --accent: 220 15% 40%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -33,7 +33,7 @@
 
     --border: 220 15% 80%;
     --input: 220 15% 85%;
-    --ring: 270 60% 60%;
+    --ring: 220 15% 35%;
 
     --radius: 1rem;
 
@@ -44,16 +44,16 @@
     --neo-inset-dark: rgba(163, 177, 198, 0.5);
 
     /* Navigation */
-    --nav-background: 270 50% 45%;
+    --nav-background: 220 15% 25%;
 
     --sidebar-background: 220 15% 91%;
     --sidebar-foreground: 220 15% 20%;
-    --sidebar-primary: 270 60% 60%;
+    --sidebar-primary: 220 15% 35%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 15% 85%;
     --sidebar-accent-foreground: 220 15% 20%;
     --sidebar-border: 220 15% 80%;
-    --sidebar-ring: 270 60% 60%;
+    --sidebar-ring: 220 15% 35%;
   }
 
   .dark {
@@ -67,7 +67,7 @@
     --popover: 220 10% 15%;
     --popover-foreground: 220 10% 85%;
 
-    --primary: 270 60% 55%;
+    --primary: 220 10% 45%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 10% 15%;
@@ -76,7 +76,7 @@
     --muted: 220 10% 18%;
     --muted-foreground: 220 10% 55%;
 
-    --accent: 270 60% 55%;
+    --accent: 220 10% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 45%;
@@ -84,7 +84,7 @@
 
     --border: 220 10% 18%;
     --input: 220 10% 18%;
-    --ring: 270 60% 55%;
+    --ring: 220 10% 45%;
 
     /* Neomorphic shadows - dark mode from style guide */
     --neo-shadow-light: rgba(51, 53, 55, 0.6);
@@ -93,16 +93,16 @@
     --neo-inset-dark: rgba(25, 27, 29, 0.74);
 
     /* Navigation */
-    --nav-background: 260 40% 30%;
+    --nav-background: 220 10% 18%;
 
     --sidebar-background: 220 10% 11%;
     --sidebar-foreground: 220 10% 85%;
-    --sidebar-primary: 270 60% 55%;
+    --sidebar-primary: 220 10% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 10% 15%;
     --sidebar-accent-foreground: 220 10% 85%;
     --sidebar-border: 220 10% 18%;
-    --sidebar-ring: 270 60% 55%;
+    --sidebar-ring: 220 10% 45%;
   }
 }
 
@@ -212,7 +212,7 @@
   }
 
   .neo-progress-bar {
-    background: linear-gradient(90deg, hsl(var(--primary)), hsl(270 70% 65%));
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(220 15% 55%));
     border-radius: 1rem;
   }
 
@@ -227,7 +227,7 @@
   .story-ring {
     padding: 3px;
     border-radius: 50%;
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(270 70% 70%));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(220 15% 50%));
     box-shadow: 
       4px 4px 8px var(--neo-shadow-dark),
       -4px -4px 8px var(--neo-shadow-light);
