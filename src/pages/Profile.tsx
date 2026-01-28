@@ -71,8 +71,12 @@ const Profile = () => {
           </div>
           
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-md animate-blob-morph" 
-                 style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', transform: 'scale(1.1)' }} />
+            {/* Outer rotating glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/50 to-primary blur-xl animate-glow-rotate" 
+                 style={{ borderRadius: '50%' }} />
+            {/* Inner pulsing glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/60 via-transparent to-primary/40 blur-md animate-blob-morph" 
+                 style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', transform: 'scale(1.08)' }} />
             <div className="neo-card p-1 relative animate-blob-morph" style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}>
               <img
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop"
