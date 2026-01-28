@@ -11,23 +11,11 @@ interface FeaturedSongRowProps {
   onTogglePlay: (id: number) => void;
 }
 
-interface WavePoint {
-  x: number;
-  y: number;
-}
-
 const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogglePlay }: FeaturedSongRowProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const phaseRef = useRef(0);
-
-  const waveColors = [
-    'hsl(45, 100%, 55%)',   // Bright yellow
-    'hsl(35, 100%, 50%)',   // Orange-yellow
-    'hsl(20, 100%, 50%)',   // Orange
-    'hsl(0, 85%, 55%)',     // Red
-  ];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -36,55 +24,63 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const drawWaves = () => {
+    let dataPoints: number[] = Array(100).fill(0);
+
+    const drawSeismograph = () => {
       const width = canvas.width;
       const height = canvas.height;
       const centerY = height / 2;
       
       ctx.clearRect(0, 0, width, height);
       
-      waveColors.forEach((color, waveIndex) => {
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1.5;
-        ctx.lineCap = 'round';
+      // Shift data left and add new point
+      dataPoints.shift();
+      
+      let newPoint = 0;
+      if (isPlaying) {
+        // Create seismograph-like spikes
+        const spike = Math.random() > 0.7 ? (Math.random() - 0.5) * 20 : 0;
+        const tremor = (Math.random() - 0.5) * 8;
+        const baseWave = Math.sin(phaseRef.current * 0.5) * 3;
+        newPoint = spike + tremor + baseWave;
+      } else {
+        // Gentle flatline with tiny variations
+        newPoint = (Math.random() - 0.5) * 1.5;
+      }
+      dataPoints.push(newPoint);
+      
+      // Draw the seismograph line
+      ctx.beginPath();
+      ctx.strokeStyle = 'hsl(45, 100%, 55%)';
+      ctx.lineWidth = 1.5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      
+      dataPoints.forEach((point, i) => {
+        const x = (i / dataPoints.length) * width;
+        const y = centerY + point;
         
-        const phaseOffset = waveIndex * 0.8;
-        const amplitudeBase = isPlaying ? 6 + waveIndex * 1.5 : 2 + waveIndex * 0.5;
-        const frequency = 0.03 + waveIndex * 0.008;
-        
-        for (let x = 0; x <= width; x += 2) {
-          const normalizedX = x / width;
-          // Amplitude envelope - bigger in middle, smaller at edges
-          const envelope = Math.sin(normalizedX * Math.PI) * 0.8 + 0.2;
-          
-          const wave1 = Math.sin(x * frequency + phaseRef.current + phaseOffset);
-          const wave2 = Math.sin(x * frequency * 1.5 + phaseRef.current * 1.2 + phaseOffset) * 0.5;
-          const wave3 = Math.sin(x * frequency * 0.5 + phaseRef.current * 0.8 + phaseOffset) * 0.3;
-          
-          const amplitude = amplitudeBase * envelope * (isPlaying ? 1 : 0.4);
-          const y = centerY + (wave1 + wave2 + wave3) * amplitude;
-          
-          if (x === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
-          }
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
         }
-        
-        ctx.stroke();
       });
       
+      ctx.stroke();
+      
+      // Add glow effect when playing
       if (isPlaying) {
-        phaseRef.current += 0.08;
-      } else {
-        phaseRef.current += 0.015;
+        ctx.strokeStyle = 'hsla(45, 100%, 55%, 0.3)';
+        ctx.lineWidth = 4;
+        ctx.stroke();
       }
       
-      animationRef.current = requestAnimationFrame(drawWaves);
+      phaseRef.current += 0.1;
+      animationRef.current = requestAnimationFrame(drawSeismograph);
     };
 
-    drawWaves();
+    drawSeismograph();
 
     return () => {
       if (animationRef.current) {
