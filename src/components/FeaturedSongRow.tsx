@@ -11,6 +11,16 @@ interface FeaturedSongRowProps {
   onTogglePlay: (id: number) => void;
 }
 
+interface Ring {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  life: number;
+  hue: number;
+  intensity: number;
+}
+
 const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogglePlay }: FeaturedSongRowProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -18,6 +28,8 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const ringsRef = useRef<Ring[]>([]);
+  const lastBeatRef = useRef(0);
   const phaseRef = useRef(0);
 
   useEffect(() => {
@@ -34,7 +46,7 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
         audioContextRef.current = new AudioContext();
         analyserRef.current = audioContextRef.current.createAnalyser();
         analyserRef.current.fftSize = 128;
-        analyserRef.current.smoothingTimeConstant = 0.8;
+        analyserRef.current.smoothingTimeConstant = 0.75;
         sourceRef.current = audioContextRef.current.createMediaElementSource(audio);
         sourceRef.current.connect(analyserRef.current);
         analyserRef.current.connect(audioContextRef.current.destination);
@@ -43,154 +55,127 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       }
     }
 
-    // Define core positions
-    const coreCount = 7;
-    const getCorePositions = (width: number, height: number) => {
-      const positions = [];
-      for (let i = 0; i < coreCount; i++) {
-        positions.push({
-          x: (width / (coreCount + 1)) * (i + 1),
-          y: height / 2,
-          baseSize: 4 + (i % 3) * 2,
-          phaseOffset: i * 0.7,
-        });
-      }
-      return positions;
-    };
-
-    const drawGlowingCore = (
-      x: number, 
-      y: number, 
-      size: number, 
-      intensity: number, 
-      hue: number,
-      phase: number
-    ) => {
-      const breathe = 1 + Math.sin(phase) * 0.15;
-      const coreSize = size * breathe * (0.5 + intensity * 0.5);
-      
-      // Layer 1: Outer diffuse glow
-      const outerGlow = ctx.createRadialGradient(x, y, 0, x, y, coreSize * 4);
-      outerGlow.addColorStop(0, `hsla(${hue}, 100%, 60%, ${intensity * 0.3})`);
-      outerGlow.addColorStop(0.3, `hsla(${hue - 5}, 100%, 55%, ${intensity * 0.15})`);
-      outerGlow.addColorStop(0.6, `hsla(${hue - 10}, 100%, 50%, ${intensity * 0.05})`);
-      outerGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = outerGlow;
-      ctx.beginPath();
-      ctx.arc(x, y, coreSize * 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Layer 2: Mid glow with warmth
-      const midGlow = ctx.createRadialGradient(x, y, 0, x, y, coreSize * 2.5);
-      midGlow.addColorStop(0, `hsla(${hue + 5}, 100%, 70%, ${intensity * 0.6})`);
-      midGlow.addColorStop(0.4, `hsla(${hue}, 100%, 60%, ${intensity * 0.3})`);
-      midGlow.addColorStop(0.7, `hsla(${hue - 5}, 100%, 55%, ${intensity * 0.1})`);
-      midGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = midGlow;
-      ctx.beginPath();
-      ctx.arc(x, y, coreSize * 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Layer 3: Inner intense glow
-      const innerGlow = ctx.createRadialGradient(x, y, 0, x, y, coreSize * 1.5);
-      innerGlow.addColorStop(0, `hsla(${hue + 10}, 100%, 85%, ${intensity * 0.9})`);
-      innerGlow.addColorStop(0.3, `hsla(${hue + 5}, 100%, 75%, ${intensity * 0.6})`);
-      innerGlow.addColorStop(0.6, `hsla(${hue}, 100%, 65%, ${intensity * 0.3})`);
-      innerGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = innerGlow;
-      ctx.beginPath();
-      ctx.arc(x, y, coreSize * 1.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Layer 4: Bright core center
-      const coreGradient = ctx.createRadialGradient(x, y, 0, x, y, coreSize);
-      coreGradient.addColorStop(0, `hsla(55, 100%, 95%, ${0.3 + intensity * 0.7})`);
-      coreGradient.addColorStop(0.3, `hsla(50, 100%, 85%, ${intensity * 0.8})`);
-      coreGradient.addColorStop(0.6, `hsla(${hue + 5}, 100%, 70%, ${intensity * 0.5})`);
-      coreGradient.addColorStop(1, 'transparent');
-      ctx.fillStyle = coreGradient;
-      ctx.beginPath();
-      ctx.arc(x, y, coreSize, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Layer 5: Ultra-bright white center point
-      if (intensity > 0.2) {
-        const whiteCore = ctx.createRadialGradient(x, y, 0, x, y, coreSize * 0.3);
-        whiteCore.addColorStop(0, `hsla(60, 100%, 100%, ${intensity})`);
-        whiteCore.addColorStop(0.5, `hsla(55, 100%, 95%, ${intensity * 0.6})`);
-        whiteCore.addColorStop(1, 'transparent');
-        ctx.fillStyle = whiteCore;
-        ctx.beginPath();
-        ctx.arc(x, y, coreSize * 0.3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    };
+    const spawnRing = (x: number, intensity: number): Ring => ({
+      x,
+      y: canvas.height / 2,
+      radius: 2,
+      maxRadius: 25 + intensity * 20,
+      life: 0,
+      hue: 40 + Math.random() * 15,
+      intensity,
+    });
 
     const drawVisualization = () => {
       const width = canvas.width;
       const height = canvas.height;
       const centerY = height / 2;
+      const now = Date.now();
       
-      // Clear canvas completely
-      ctx.fillStyle = 'rgba(27, 28, 30, 1)';
+      // Clear with slight fade for trail effect
+      ctx.fillStyle = 'rgba(27, 28, 30, 0.25)';
       ctx.fillRect(0, 0, width, height);
 
-      const corePositions = getCorePositions(width, height);
-      let frequencyData: number[] = [];
-      let overallIntensity = 0;
+      let bass = 0;
+      let mid = 0;
       
       if (isPlaying && analyserRef.current) {
         const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
         analyserRef.current.getByteFrequencyData(dataArray);
         
-        // Map frequency bands to cores
-        const bandsPerCore = Math.floor(dataArray.length / coreCount);
-        for (let i = 0; i < coreCount; i++) {
-          const start = i * bandsPerCore;
-          const end = start + bandsPerCore;
-          const bandAvg = dataArray.slice(start, end).reduce((a, b) => a + b, 0) / bandsPerCore / 255;
-          frequencyData.push(bandAvg);
-          overallIntensity += bandAvg;
+        bass = dataArray.slice(0, 8).reduce((a, b) => a + b, 0) / 8 / 255;
+        mid = dataArray.slice(8, 24).reduce((a, b) => a + b, 0) / 16 / 255;
+
+        // Spawn rings on strong beats with cooldown
+        if (bass > 0.55 && now - lastBeatRef.current > 120) {
+          const spawnCount = bass > 0.75 ? 3 : bass > 0.65 ? 2 : 1;
+          for (let i = 0; i < spawnCount; i++) {
+            const x = width * (0.2 + Math.random() * 0.6);
+            ringsRef.current.push(spawnRing(x, bass));
+          }
+          lastBeatRef.current = now;
         }
-        overallIntensity /= coreCount;
+
+        // Occasional mid-frequency rings
+        if (mid > 0.5 && Math.random() < 0.15) {
+          ringsRef.current.push(spawnRing(width * (0.3 + Math.random() * 0.4), mid * 0.7));
+        }
       } else {
-        // Idle breathing state
-        for (let i = 0; i < coreCount; i++) {
-          frequencyData.push(0.15 + Math.sin(phaseRef.current + i * 0.5) * 0.1);
+        // Idle: gentle ambient rings
+        if (Math.random() < 0.02) {
+          ringsRef.current.push(spawnRing(width * (0.3 + Math.random() * 0.4), 0.3));
         }
-        overallIntensity = 0.2;
       }
 
-      // Draw connecting ambient glow between cores
-      if (overallIntensity > 0.1) {
+      // Draw subtle center line
+      ctx.beginPath();
+      ctx.strokeStyle = `hsla(45, 60%, 50%, ${isPlaying ? 0.12 : 0.06})`;
+      ctx.lineWidth = 1;
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(width, centerY);
+      ctx.stroke();
+
+      // Update and draw rings
+      ringsRef.current = ringsRef.current.filter(ring => {
+        ring.life += 1;
+        const progress = ring.radius / ring.maxRadius;
+        if (progress >= 1) return false;
+
+        // Expand ring
+        ring.radius += 0.8 + ring.intensity * 0.6;
+        
+        const alpha = (1 - progress) * ring.intensity;
+
+        // Outer glow ring
         ctx.beginPath();
-        const gradient = ctx.createLinearGradient(0, centerY, width, centerY);
-        gradient.addColorStop(0, 'transparent');
-        gradient.addColorStop(0.2, `hsla(45, 100%, 55%, ${overallIntensity * 0.15})`);
-        gradient.addColorStop(0.5, `hsla(50, 100%, 60%, ${overallIntensity * 0.25})`);
-        gradient.addColorStop(0.8, `hsla(45, 100%, 55%, ${overallIntensity * 0.15})`);
-        gradient.addColorStop(1, 'transparent');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, centerY - 8, width, 16);
-      }
-
-      // Draw each glowing core
-      corePositions.forEach((core, index) => {
-        const intensity = frequencyData[index] || 0.15;
-        const hue = 40 + index * 3; // Subtle hue variation from yellow to orange
-        drawGlowingCore(
-          core.x, 
-          core.y, 
-          core.baseSize, 
-          intensity, 
-          hue, 
-          phaseRef.current + core.phaseOffset
+        const outerGradient = ctx.createRadialGradient(
+          ring.x, ring.y, ring.radius - 3,
+          ring.x, ring.y, ring.radius + 6
         );
+        outerGradient.addColorStop(0, 'transparent');
+        outerGradient.addColorStop(0.4, `hsla(${ring.hue}, 100%, 60%, ${alpha * 0.3})`);
+        outerGradient.addColorStop(0.6, `hsla(${ring.hue}, 100%, 55%, ${alpha * 0.5})`);
+        outerGradient.addColorStop(0.8, `hsla(${ring.hue}, 100%, 60%, ${alpha * 0.3})`);
+        outerGradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = outerGradient;
+        ctx.arc(ring.x, ring.y, ring.radius + 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Main ring stroke
+        ctx.beginPath();
+        ctx.strokeStyle = `hsla(${ring.hue + 5}, 100%, 70%, ${alpha * 0.9})`;
+        ctx.lineWidth = 2 + ring.intensity * 2;
+        ctx.arc(ring.x, ring.y, ring.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Inner bright ring
+        ctx.beginPath();
+        ctx.strokeStyle = `hsla(55, 100%, 85%, ${alpha * 0.7})`;
+        ctx.lineWidth = 1;
+        ctx.arc(ring.x, ring.y, ring.radius - 1, 0, Math.PI * 2);
+        ctx.stroke();
+
+        return true;
       });
 
-      phaseRef.current += isPlaying ? 0.04 : 0.015;
+      // Limit rings
+      if (ringsRef.current.length > 20) {
+        ringsRef.current = ringsRef.current.slice(-20);
+      }
 
-      phaseRef.current += isPlaying ? 0.05 : 0.01;
+      // Draw center pulse that reacts to bass
+      const pulseIntensity = isPlaying ? 0.2 + bass * 0.6 : 0.1 + Math.sin(phaseRef.current) * 0.05;
+      const pulseSize = isPlaying ? 3 + bass * 8 : 3;
+      
+      const centerGlow = ctx.createRadialGradient(width / 2, centerY, 0, width / 2, centerY, pulseSize * 3);
+      centerGlow.addColorStop(0, `hsla(50, 100%, 80%, ${pulseIntensity})`);
+      centerGlow.addColorStop(0.4, `hsla(45, 100%, 65%, ${pulseIntensity * 0.5})`);
+      centerGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = centerGlow;
+      ctx.beginPath();
+      ctx.arc(width / 2, centerY, pulseSize * 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      phaseRef.current += isPlaying ? 0.05 : 0.02;
       animationRef.current = requestAnimationFrame(drawVisualization);
     };
 
