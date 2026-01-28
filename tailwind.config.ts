@@ -81,44 +81,24 @@ export default {
           },
         },
         "blob-morph": {
-          "0%": {
+          "0%, 100%": {
             borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
-            transform: "rotate(0deg) scale(1)",
           },
-          "14%": {
-            borderRadius: "40% 60% 55% 45% / 55% 45% 55% 45%",
-            transform: "rotate(5deg) scale(1.02)",
-          },
-          "28%": {
+          "25%": {
             borderRadius: "30% 60% 70% 40% / 50% 60% 30% 60%",
-            transform: "rotate(-3deg) scale(0.98)",
           },
-          "42%": {
-            borderRadius: "55% 45% 40% 60% / 40% 55% 60% 45%",
-            transform: "rotate(4deg) scale(1.01)",
-          },
-          "57%": {
+          "50%": {
             borderRadius: "50% 60% 30% 60% / 30% 60% 70% 40%",
-            transform: "rotate(-5deg) scale(0.99)",
           },
-          "71%": {
-            borderRadius: "45% 55% 50% 50% / 55% 40% 50% 60%",
-            transform: "rotate(3deg) scale(1.02)",
-          },
-          "85%": {
+          "75%": {
             borderRadius: "40% 60% 50% 40% / 60% 40% 50% 60%",
-            transform: "rotate(-2deg) scale(0.98)",
-          },
-          "100%": {
-            borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
-            transform: "rotate(0deg) scale(1)",
           },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "blob-morph": "blob-morph 6s cubic-bezier(0.4, 0, 0.2, 1) infinite",
+        "blob-morph": "blob-morph 8s ease-in-out infinite",
       },
     },
   },
