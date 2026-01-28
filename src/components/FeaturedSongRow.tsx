@@ -13,35 +13,20 @@ interface FeaturedSongRowProps {
 
 const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogglePlay }: FeaturedSongRowProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [audioData, setAudioData] = useState<number[]>(Array(12).fill(0.2));
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const [audioData, setAudioData] = useState<number[]>(Array(24).fill(0.2));
   const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
-        // Create audio context only once
-        if (!audioContextRef.current) {
-          audioContextRef.current = new AudioContext();
-          analyserRef.current = audioContextRef.current.createAnalyser();
-          analyserRef.current.fftSize = 32;
-          sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-          sourceRef.current.connect(analyserRef.current);
-          analyserRef.current.connect(audioContextRef.current.destination);
-        }
+        audioRef.current.play().catch(console.error);
         
-        audioRef.current.play();
-        
-        // Start visualization
+        // Simulate sound wave animation
         const updateVisualization = () => {
-          if (analyserRef.current) {
-            const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-            analyserRef.current.getByteFrequencyData(dataArray);
-            const normalizedData = Array.from(dataArray.slice(0, 12)).map(v => Math.max(0.15, v / 255));
-            setAudioData(normalizedData);
-          }
+          const newData = Array(24).fill(0).map(() => 
+            Math.random() * 0.7 + 0.3
+          );
+          setAudioData(newData);
           animationRef.current = requestAnimationFrame(updateVisualization);
         };
         updateVisualization();
@@ -50,7 +35,7 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
         if (animationRef.current) {
           cancelAnimationFrame(animationRef.current);
         }
-        setAudioData(Array(12).fill(0.2));
+        setAudioData(Array(24).fill(0.2));
       }
     }
     
@@ -63,25 +48,25 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
 
   return (
     <div className="flex items-center gap-2 py-1">
-      <audio ref={audioRef} src={audioUrl} preload="metadata" />
+      <audio ref={audioRef} src={audioUrl} preload="auto" crossOrigin="anonymous" />
       
-      <div className="neo-card p-0.5 rounded">
+      <div className="neo-card p-0.5 rounded shrink-0">
         <img src={cover} alt={title} className="w-8 h-8 rounded-sm object-cover" />
       </div>
       
-      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+      <div className="flex-1 min-w-0 flex flex-col gap-1">
         <div className="flex items-center gap-1.5">
           <p className="text-sm font-semibold truncate">{title}</p>
           <span className="text-muted-foreground text-xs">•</span>
           <p className="text-xs text-muted-foreground truncate">{artist}</p>
         </div>
         
-        {/* Sound Wave Visualization */}
-        <div className="flex items-end gap-[2px] h-3">
+        {/* Sound Wave Visualization - Full Width */}
+        <div className="flex items-end justify-between gap-[2px] h-3 w-full">
           {audioData.map((value, index) => (
             <div
               key={index}
-              className={`w-[3px] rounded-full transition-all duration-75 ${
+              className={`flex-1 max-w-[4px] rounded-full transition-all duration-100 ${
                 isPlaying 
                   ? 'bg-gradient-to-t from-primary to-primary/60' 
                   : 'bg-muted-foreground/30'
@@ -97,7 +82,7 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       
       <button 
         onClick={() => onTogglePlay(id)}
-        className="neo-button-icon w-8 h-8 flex items-center justify-center"
+        className="neo-button-icon w-8 h-8 flex items-center justify-center shrink-0"
       >
         {isPlaying ? (
           <Square className="w-3 h-3 fill-primary text-primary" />
