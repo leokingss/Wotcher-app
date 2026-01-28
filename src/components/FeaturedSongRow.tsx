@@ -11,49 +11,96 @@ interface FeaturedSongRowProps {
   onTogglePlay: (id: number) => void;
 }
 
+interface WavePoint {
+  x: number;
+  y: number;
+}
+
 const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogglePlay }: FeaturedSongRowProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [audioData, setAudioData] = useState<number[]>(Array(16).fill(0).map((_, i) => 
-    0.3 + Math.sin(i * 0.5) * 0.2
-  ));
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const phaseRef = useRef(0);
 
+  const waveColors = [
+    'hsl(45, 100%, 55%)',   // Bright yellow
+    'hsl(35, 100%, 50%)',   // Orange-yellow
+    'hsl(20, 100%, 50%)',   // Orange
+    'hsl(0, 85%, 55%)',     // Red
+  ];
+
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.play().catch(console.error);
-        
-        // Organic flowing wave animation
-        const updateVisualization = () => {
-          phaseRef.current += 0.15;
-          const newData = Array(16).fill(0).map((_, i) => {
-            const wave1 = Math.sin(phaseRef.current + i * 0.4) * 0.3;
-            const wave2 = Math.sin(phaseRef.current * 1.3 + i * 0.6) * 0.2;
-            const wave3 = Math.sin(phaseRef.current * 0.7 + i * 0.3) * 0.15;
-            return Math.max(0.15, Math.min(1, 0.5 + wave1 + wave2 + wave3));
-          });
-          setAudioData(newData);
-          animationRef.current = requestAnimationFrame(updateVisualization);
-        };
-        updateVisualization();
-      } else {
-        audioRef.current.pause();
-        if (animationRef.current) {
-          cancelAnimationFrame(animationRef.current);
-        }
-        // Resting state - gentle sine wave
-        setAudioData(Array(16).fill(0).map((_, i) => 
-          0.25 + Math.sin(i * 0.5) * 0.1
-        ));
-      }
-    }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const drawWaves = () => {
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerY = height / 2;
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      waveColors.forEach((color, waveIndex) => {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        
+        const phaseOffset = waveIndex * 0.8;
+        const amplitudeBase = isPlaying ? 6 + waveIndex * 1.5 : 2 + waveIndex * 0.5;
+        const frequency = 0.03 + waveIndex * 0.008;
+        
+        for (let x = 0; x <= width; x += 2) {
+          const normalizedX = x / width;
+          // Amplitude envelope - bigger in middle, smaller at edges
+          const envelope = Math.sin(normalizedX * Math.PI) * 0.8 + 0.2;
+          
+          const wave1 = Math.sin(x * frequency + phaseRef.current + phaseOffset);
+          const wave2 = Math.sin(x * frequency * 1.5 + phaseRef.current * 1.2 + phaseOffset) * 0.5;
+          const wave3 = Math.sin(x * frequency * 0.5 + phaseRef.current * 0.8 + phaseOffset) * 0.3;
+          
+          const amplitude = amplitudeBase * envelope * (isPlaying ? 1 : 0.4);
+          const y = centerY + (wave1 + wave2 + wave3) * amplitude;
+          
+          if (x === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        
+        ctx.stroke();
+      });
+      
+      if (isPlaying) {
+        phaseRef.current += 0.08;
+      } else {
+        phaseRef.current += 0.015;
+      }
+      
+      animationRef.current = requestAnimationFrame(drawWaves);
+    };
+
+    drawWaves();
+
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(console.error);
+      } else {
+        audioRef.current.pause();
+      }
+    }
   }, [isPlaying]);
 
   return (
@@ -71,38 +118,13 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
           <p className="text-xs text-muted-foreground truncate">{artist}</p>
         </div>
         
-        {/* Sound Wave Visualization - Mirrored Bars */}
-        <div className="flex items-center justify-between gap-[3px] h-4 w-full">
-          {audioData.map((value, index) => (
-            <div
-              key={index}
-              className="flex-1 flex flex-col items-center justify-center gap-[1px]"
-            >
-              {/* Top bar */}
-              <div
-                className={`w-full rounded-t-full transition-all duration-150 ease-out ${
-                  isPlaying 
-                    ? 'bg-gradient-to-t from-primary/80 to-primary' 
-                    : 'bg-muted-foreground/20'
-                }`}
-                style={{ 
-                  height: `${value * 8}px`,
-                }}
-              />
-              {/* Bottom bar (mirrored) */}
-              <div
-                className={`w-full rounded-b-full transition-all duration-150 ease-out ${
-                  isPlaying 
-                    ? 'bg-gradient-to-b from-primary/80 to-primary/40' 
-                    : 'bg-muted-foreground/15'
-                }`}
-                style={{ 
-                  height: `${value * 8}px`,
-                }}
-              />
-            </div>
-          ))}
-        </div>
+        {/* Morphing Wave Lines Canvas */}
+        <canvas 
+          ref={canvasRef} 
+          width={200} 
+          height={24}
+          className="w-full h-6"
+        />
       </div>
       
       <button 
