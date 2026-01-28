@@ -1,12 +1,25 @@
 import { useState } from "react";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Play, Square } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import VideoCard from "@/components/VideoCard";
+import FeaturedSongRow from "@/components/FeaturedSongRow";
 
 const featuredSongs = [
-  { id: 1, title: "Midnight Dreams", artist: "Luna Wave", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" },
-  { id: 2, title: "Electric Sunrise", artist: "Neon Pulse", cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop" },
+  { 
+    id: 1, 
+    title: "Midnight Dreams", 
+    artist: "Luna Wave", 
+    cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  },
+  { 
+    id: 2, 
+    title: "Electric Sunrise", 
+    artist: "Neon Pulse", 
+    cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop",
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+  },
 ];
 
 const userPosts = [
@@ -117,29 +130,12 @@ const Profile = () => {
         {/* Featured Songs - stacked vertically */}
         <div className="flex flex-col gap-0.5 mb-4">
           {featuredSongs.map((song) => (
-            <div 
-              key={song.id} 
-              className="flex items-center gap-2 py-1"
-            >
-              <div className="neo-card p-0.5 rounded">
-                <img src={song.cover} alt={song.title} className="w-8 h-8 rounded-sm object-cover" />
-              </div>
-              <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                <p className="text-sm font-semibold truncate">{song.title}</p>
-                <span className="text-muted-foreground text-xs">•</span>
-                <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-              </div>
-              <button 
-                onClick={() => handleTogglePlay(song.id)}
-                className="neo-button-icon w-8 h-8 flex items-center justify-center"
-              >
-                {playingSongId === song.id ? (
-                  <Square className="w-3 h-3 fill-primary text-primary" />
-                ) : (
-                  <Play className="w-3 h-3 fill-foreground text-foreground" />
-                )}
-              </button>
-            </div>
+            <FeaturedSongRow
+              key={song.id}
+              {...song}
+              isPlaying={playingSongId === song.id}
+              onTogglePlay={handleTogglePlay}
+            />
           ))}
           
           {/* More Music Expanding Tab */}
