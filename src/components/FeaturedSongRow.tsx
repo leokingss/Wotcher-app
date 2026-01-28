@@ -48,8 +48,13 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       const height = canvas.height;
       const centerY = height / 2;
       
-      // Clear canvas
-      ctx.fillStyle = 'rgba(27, 28, 30, 1)';
+      // Get background color from CSS custom property (theme-aware)
+      const computedStyle = getComputedStyle(document.documentElement);
+      const bgHsl = computedStyle.getPropertyValue('--background').trim();
+      const bgColor = bgHsl ? `hsl(${bgHsl})` : 'hsl(220, 8%, 11%)';
+      
+      // Clear canvas with theme background
+      ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, width, height);
 
       let bass = 0;
