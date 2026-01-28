@@ -80,10 +80,25 @@ export default {
             height: "0",
           },
         },
+        "blob-morph": {
+          "0%, 100%": {
+            borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
+          },
+          "25%": {
+            borderRadius: "30% 60% 70% 40% / 50% 60% 30% 60%",
+          },
+          "50%": {
+            borderRadius: "50% 60% 30% 60% / 30% 60% 70% 40%",
+          },
+          "75%": {
+            borderRadius: "40% 60% 50% 40% / 60% 40% 50% 60%",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "blob-morph": "blob-morph 8s ease-in-out infinite",
       },
     },
   },
