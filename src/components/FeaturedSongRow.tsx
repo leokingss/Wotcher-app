@@ -11,18 +11,6 @@ interface FeaturedSongRowProps {
   onTogglePlay: (id: number) => void;
 }
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  life: number;
-  maxLife: number;
-  size: number;
-  hue: number;
-  type: 'spark' | 'trail' | 'burst';
-}
-
 const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogglePlay }: FeaturedSongRowProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -30,7 +18,6 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const particlesRef = useRef<Particle[]>([]);
   const phaseRef = useRef(0);
 
   useEffect(() => {
@@ -56,20 +43,87 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       }
     }
 
-    const createParticle = (x: number, intensity: number, type: 'spark' | 'trail' | 'burst' = 'spark'): Particle => {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = type === 'burst' ? 2 + Math.random() * 4 : 0.5 + Math.random() * 2;
-      return {
-        x,
-        y: canvas.height / 2 + (Math.random() - 0.5) * 10,
-        vx: Math.cos(angle) * speed * intensity,
-        vy: Math.sin(angle) * speed * intensity,
-        life: 0,
-        maxLife: type === 'burst' ? 20 + Math.random() * 15 : 40 + Math.random() * 30,
-        size: type === 'burst' ? 2 + Math.random() * 3 : 1 + Math.random() * 2,
-        hue: 35 + Math.random() * 25, // Yellow to orange-red
-        type,
-      };
+    // Define core positions
+    const coreCount = 7;
+    const getCorePositions = (width: number, height: number) => {
+      const positions = [];
+      for (let i = 0; i < coreCount; i++) {
+        positions.push({
+          x: (width / (coreCount + 1)) * (i + 1),
+          y: height / 2,
+          baseSize: 4 + (i % 3) * 2,
+          phaseOffset: i * 0.7,
+        });
+      }
+      return positions;
+    };
+
+    const drawGlowingCore = (
+      x: number, 
+      y: number, 
+      size: number, 
+      intensity: number, 
+      hue: number,
+      phase: number
+    ) => {
+      const breathe = 1 + Math.sin(phase) * 0.15;
+      const coreSize = size * breathe * (0.5 + intensity * 0.5);
+      
+      // Layer 1: Outer diffuse glow
+      const outerGlow = ctx.createRadialGradient(x, y, 0, x, y, coreSize * 4);
+      outerGlow.addColorStop(0, `hsla(${hue}, 100%, 60%, ${intensity * 0.3})`);
+      outerGlow.addColorStop(0.3, `hsla(${hue - 5}, 100%, 55%, ${intensity * 0.15})`);
+      outerGlow.addColorStop(0.6, `hsla(${hue - 10}, 100%, 50%, ${intensity * 0.05})`);
+      outerGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = outerGlow;
+      ctx.beginPath();
+      ctx.arc(x, y, coreSize * 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Layer 2: Mid glow with warmth
+      const midGlow = ctx.createRadialGradient(x, y, 0, x, y, coreSize * 2.5);
+      midGlow.addColorStop(0, `hsla(${hue + 5}, 100%, 70%, ${intensity * 0.6})`);
+      midGlow.addColorStop(0.4, `hsla(${hue}, 100%, 60%, ${intensity * 0.3})`);
+      midGlow.addColorStop(0.7, `hsla(${hue - 5}, 100%, 55%, ${intensity * 0.1})`);
+      midGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = midGlow;
+      ctx.beginPath();
+      ctx.arc(x, y, coreSize * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Layer 3: Inner intense glow
+      const innerGlow = ctx.createRadialGradient(x, y, 0, x, y, coreSize * 1.5);
+      innerGlow.addColorStop(0, `hsla(${hue + 10}, 100%, 85%, ${intensity * 0.9})`);
+      innerGlow.addColorStop(0.3, `hsla(${hue + 5}, 100%, 75%, ${intensity * 0.6})`);
+      innerGlow.addColorStop(0.6, `hsla(${hue}, 100%, 65%, ${intensity * 0.3})`);
+      innerGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = innerGlow;
+      ctx.beginPath();
+      ctx.arc(x, y, coreSize * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Layer 4: Bright core center
+      const coreGradient = ctx.createRadialGradient(x, y, 0, x, y, coreSize);
+      coreGradient.addColorStop(0, `hsla(55, 100%, 95%, ${0.3 + intensity * 0.7})`);
+      coreGradient.addColorStop(0.3, `hsla(50, 100%, 85%, ${intensity * 0.8})`);
+      coreGradient.addColorStop(0.6, `hsla(${hue + 5}, 100%, 70%, ${intensity * 0.5})`);
+      coreGradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = coreGradient;
+      ctx.beginPath();
+      ctx.arc(x, y, coreSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Layer 5: Ultra-bright white center point
+      if (intensity > 0.2) {
+        const whiteCore = ctx.createRadialGradient(x, y, 0, x, y, coreSize * 0.3);
+        whiteCore.addColorStop(0, `hsla(60, 100%, 100%, ${intensity})`);
+        whiteCore.addColorStop(0.5, `hsla(55, 100%, 95%, ${intensity * 0.6})`);
+        whiteCore.addColorStop(1, 'transparent');
+        ctx.fillStyle = whiteCore;
+        ctx.beginPath();
+        ctx.arc(x, y, coreSize * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
     };
 
     const drawVisualization = () => {
@@ -77,159 +131,64 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       const height = canvas.height;
       const centerY = height / 2;
       
-      // Clear with stronger fade for particle trails
-      ctx.fillStyle = 'rgba(27, 28, 30, 0.12)';
+      // Clear canvas completely
+      ctx.fillStyle = 'rgba(27, 28, 30, 1)';
       ctx.fillRect(0, 0, width, height);
 
-      let intensity = 0;
-      let bass = 0;
+      const corePositions = getCorePositions(width, height);
+      let frequencyData: number[] = [];
+      let overallIntensity = 0;
       
       if (isPlaying && analyserRef.current) {
         const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
         analyserRef.current.getByteFrequencyData(dataArray);
         
-        bass = dataArray.slice(0, 8).reduce((a, b) => a + b, 0) / 8 / 255;
-        const mid = dataArray.slice(8, 32).reduce((a, b) => a + b, 0) / 24 / 255;
-        intensity = bass * 0.6 + mid * 0.4;
-
-        // Spawn trail particles continuously
-        for (let i = 0; i < 3; i++) {
-          if (Math.random() < intensity) {
-            particlesRef.current.push(createParticle(Math.random() * width, intensity, 'trail'));
-          }
+        // Map frequency bands to cores
+        const bandsPerCore = Math.floor(dataArray.length / coreCount);
+        for (let i = 0; i < coreCount; i++) {
+          const start = i * bandsPerCore;
+          const end = start + bandsPerCore;
+          const bandAvg = dataArray.slice(start, end).reduce((a, b) => a + b, 0) / bandsPerCore / 255;
+          frequencyData.push(bandAvg);
+          overallIntensity += bandAvg;
         }
-
-        // Spawn burst particles on beats
-        if (bass > 0.6 && Math.random() < 0.4) {
-          const burstX = width * 0.3 + Math.random() * width * 0.4;
-          for (let i = 0; i < 8; i++) {
-            particlesRef.current.push(createParticle(burstX, intensity * 1.5, 'burst'));
-          }
-        }
-
-        // Spawn spark particles
-        if (Math.random() < intensity * 0.6) {
-          particlesRef.current.push(createParticle(Math.random() * width, intensity, 'spark'));
-        }
+        overallIntensity /= coreCount;
       } else {
-        // Idle state - gentle floating particles
-        if (Math.random() < 0.05) {
-          particlesRef.current.push(createParticle(Math.random() * width, 0.3, 'trail'));
+        // Idle breathing state
+        for (let i = 0; i < coreCount; i++) {
+          frequencyData.push(0.15 + Math.sin(phaseRef.current + i * 0.5) * 0.1);
         }
+        overallIntensity = 0.2;
       }
 
-      // Draw subtle baseline
-      ctx.beginPath();
-      ctx.strokeStyle = `hsla(45, 60%, 50%, ${isPlaying ? 0.15 : 0.08})`;
-      ctx.lineWidth = 1;
-      ctx.moveTo(0, centerY);
-      ctx.lineTo(width, centerY);
-      ctx.stroke();
-
-      // Update and draw particles with different behaviors
-      particlesRef.current = particlesRef.current.filter(p => {
-        p.life++;
-        const lifeRatio = 1 - p.life / p.maxLife;
-        if (lifeRatio <= 0) return false;
-
-        // Different physics per type
-        if (p.type === 'burst') {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vx *= 0.96;
-          p.vy *= 0.96;
-        } else if (p.type === 'trail') {
-          p.x += p.vx + Math.sin(p.life * 0.1) * 0.5;
-          p.y += p.vy + Math.cos(p.life * 0.15) * 0.3;
-          p.vx *= 0.99;
-          p.vy *= 0.98;
-        } else {
-          p.x += p.vx;
-          p.y += p.vy + Math.sin(p.life * 0.2) * 0.5;
-          p.vy += (centerY - p.y) * 0.01; // Pull back to center
-        }
-
-        const currentSize = p.size * lifeRatio;
-        const alpha = lifeRatio * (p.type === 'burst' ? 1 : 0.8);
-
-        // Draw outer glow
-        const glowSize = currentSize * (p.type === 'burst' ? 6 : 4);
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowSize);
-        gradient.addColorStop(0, `hsla(${p.hue}, 100%, 65%, ${alpha * 0.5})`);
-        gradient.addColorStop(0.5, `hsla(${p.hue}, 100%, 55%, ${alpha * 0.2})`);
+      // Draw connecting ambient glow between cores
+      if (overallIntensity > 0.1) {
+        ctx.beginPath();
+        const gradient = ctx.createLinearGradient(0, centerY, width, centerY);
+        gradient.addColorStop(0, 'transparent');
+        gradient.addColorStop(0.2, `hsla(45, 100%, 55%, ${overallIntensity * 0.15})`);
+        gradient.addColorStop(0.5, `hsla(50, 100%, 60%, ${overallIntensity * 0.25})`);
+        gradient.addColorStop(0.8, `hsla(45, 100%, 55%, ${overallIntensity * 0.15})`);
         gradient.addColorStop(1, 'transparent');
         ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, glowSize, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillRect(0, centerY - 8, width, 16);
+      }
 
-        // Draw core
-        ctx.beginPath();
-        ctx.fillStyle = `hsla(${p.hue}, 100%, ${70 + (1 - lifeRatio) * 20}%, ${alpha})`;
-        ctx.arc(p.x, p.y, currentSize, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Add bright center for bursts
-        if (p.type === 'burst' && lifeRatio > 0.5) {
-          ctx.beginPath();
-          ctx.fillStyle = `hsla(50, 100%, 90%, ${alpha * 0.8})`;
-          ctx.arc(p.x, p.y, currentSize * 0.4, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        return true;
+      // Draw each glowing core
+      corePositions.forEach((core, index) => {
+        const intensity = frequencyData[index] || 0.15;
+        const hue = 40 + index * 3; // Subtle hue variation from yellow to orange
+        drawGlowingCore(
+          core.x, 
+          core.y, 
+          core.baseSize, 
+          intensity, 
+          hue, 
+          phaseRef.current + core.phaseOffset
+        );
       });
 
-      // Limit particles
-      if (particlesRef.current.length > 150) {
-        particlesRef.current = particlesRef.current.slice(-150);
-      }
-
-      // GLOWING CENTER PULSE
-      const pulseIntensity = isPlaying ? 0.3 + intensity * 0.7 : 0.15 + Math.sin(phaseRef.current) * 0.05;
-      const pulseSize = isPlaying ? 20 + bass * 40 : 12;
-      
-      // Outer glow ring
-      const outerGlow = ctx.createRadialGradient(width / 2, centerY, 0, width / 2, centerY, pulseSize * 2);
-      outerGlow.addColorStop(0, `hsla(45, 100%, 60%, ${pulseIntensity * 0.4})`);
-      outerGlow.addColorStop(0.3, `hsla(40, 100%, 55%, ${pulseIntensity * 0.2})`);
-      outerGlow.addColorStop(0.6, `hsla(35, 100%, 50%, ${pulseIntensity * 0.1})`);
-      outerGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = outerGlow;
-      ctx.beginPath();
-      ctx.arc(width / 2, centerY, pulseSize * 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Middle pulse
-      const midGlow = ctx.createRadialGradient(width / 2, centerY, 0, width / 2, centerY, pulseSize);
-      midGlow.addColorStop(0, `hsla(50, 100%, 70%, ${pulseIntensity * 0.8})`);
-      midGlow.addColorStop(0.5, `hsla(45, 100%, 60%, ${pulseIntensity * 0.4})`);
-      midGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = midGlow;
-      ctx.beginPath();
-      ctx.arc(width / 2, centerY, pulseSize, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Bright core
-      const coreSize = isPlaying ? 4 + bass * 8 : 3;
-      const coreGlow = ctx.createRadialGradient(width / 2, centerY, 0, width / 2, centerY, coreSize);
-      coreGlow.addColorStop(0, `hsla(55, 100%, 95%, ${pulseIntensity})`);
-      coreGlow.addColorStop(0.4, `hsla(50, 100%, 80%, ${pulseIntensity * 0.8})`);
-      coreGlow.addColorStop(1, `hsla(45, 100%, 60%, 0)`);
-      ctx.fillStyle = coreGlow;
-      ctx.beginPath();
-      ctx.arc(width / 2, centerY, coreSize, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Pulsing ring on beats
-      if (isPlaying && bass > 0.5) {
-        const ringSize = 15 + bass * 25;
-        ctx.beginPath();
-        ctx.strokeStyle = `hsla(45, 100%, 65%, ${(bass - 0.5) * 0.6})`;
-        ctx.lineWidth = 2;
-        ctx.arc(width / 2, centerY, ringSize, 0, Math.PI * 2);
-        ctx.stroke();
-      }
+      phaseRef.current += isPlaying ? 0.04 : 0.015;
 
       phaseRef.current += isPlaying ? 0.05 : 0.01;
       animationRef.current = requestAnimationFrame(drawVisualization);
