@@ -74,7 +74,7 @@ const Profile = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreviewPhoto(e.target?.result as string);
-        setPhotoZoom(1);
+        setPhotoZoom(1.2); // Start slightly zoomed to allow immediate panning
         setPhotoPosition({ x: 0, y: 0 });
       };
       reader.readAsDataURL(file);
@@ -89,7 +89,8 @@ const Profile = () => {
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
-    const maxOffset = (photoZoom - 1) * 64; // 64 = half of 128px container
+    // Allow movement based on zoom - more zoom = more movement range
+    const maxOffset = Math.max(20, (photoZoom - 0.5) * 64);
     const newX = Math.max(-maxOffset, Math.min(maxOffset, e.clientX - dragStart.x));
     const newY = Math.max(-maxOffset, Math.min(maxOffset, e.clientY - dragStart.y));
     setPhotoPosition({ x: newX, y: newY });
@@ -109,7 +110,7 @@ const Profile = () => {
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
     const touch = e.touches[0];
-    const maxOffset = (photoZoom - 1) * 64;
+    const maxOffset = Math.max(20, (photoZoom - 0.5) * 64);
     const newX = Math.max(-maxOffset, Math.min(maxOffset, touch.clientX - dragStart.x));
     const newY = Math.max(-maxOffset, Math.min(maxOffset, touch.clientY - dragStart.y));
     setPhotoPosition({ x: newX, y: newY });
@@ -397,7 +398,7 @@ const Profile = () => {
                 <Slider
                   value={[photoZoom]}
                   onValueChange={(value) => setPhotoZoom(value[0])}
-                  min={1}
+                  min={0.5}
                   max={3}
                   step={0.1}
                   className="flex-1"
