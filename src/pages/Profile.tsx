@@ -11,14 +11,14 @@ const featuredSongs = [
     title: "Midnight Dreams", 
     artist: "Luna Wave", 
     cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    audioUrl: "https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg"
   },
   { 
     id: 2, 
     title: "Electric Sunrise", 
     artist: "Neon Pulse", 
     cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+    audioUrl: "https://actions.google.com/sounds/v1/ambiences/forest_night.ogg"
   },
 ];
 
