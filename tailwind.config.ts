@@ -81,21 +81,32 @@ export default {
           },
         },
         "blob-morph": {
-          "0%, 100%": {
+          "0%": {
             borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
-            transform: "rotate(0deg) scale(1)",
+          },
+          "12.5%": {
+            borderRadius: "40% 60% 50% 50% / 40% 50% 50% 60%",
           },
           "25%": {
             borderRadius: "30% 60% 70% 40% / 50% 60% 30% 60%",
-            transform: "rotate(3deg) scale(1.02)",
+          },
+          "37.5%": {
+            borderRadius: "55% 45% 40% 60% / 35% 65% 45% 55%",
           },
           "50%": {
             borderRadius: "50% 60% 30% 60% / 30% 60% 70% 40%",
-            transform: "rotate(-2deg) scale(1)",
+          },
+          "62.5%": {
+            borderRadius: "35% 65% 55% 45% / 55% 45% 35% 65%",
           },
           "75%": {
             borderRadius: "40% 60% 50% 40% / 60% 40% 50% 60%",
-            transform: "rotate(2deg) scale(1.01)",
+          },
+          "87.5%": {
+            borderRadius: "55% 45% 35% 65% / 45% 55% 65% 35%",
+          },
+          "100%": {
+            borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
           },
         },
         "glow-rotate": {
