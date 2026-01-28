@@ -185,6 +185,52 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
         particlesRef.current = particlesRef.current.slice(-150);
       }
 
+      // GLOWING CENTER PULSE
+      const pulseIntensity = isPlaying ? 0.3 + intensity * 0.7 : 0.15 + Math.sin(phaseRef.current) * 0.05;
+      const pulseSize = isPlaying ? 20 + bass * 40 : 12;
+      
+      // Outer glow ring
+      const outerGlow = ctx.createRadialGradient(width / 2, centerY, 0, width / 2, centerY, pulseSize * 2);
+      outerGlow.addColorStop(0, `hsla(45, 100%, 60%, ${pulseIntensity * 0.4})`);
+      outerGlow.addColorStop(0.3, `hsla(40, 100%, 55%, ${pulseIntensity * 0.2})`);
+      outerGlow.addColorStop(0.6, `hsla(35, 100%, 50%, ${pulseIntensity * 0.1})`);
+      outerGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = outerGlow;
+      ctx.beginPath();
+      ctx.arc(width / 2, centerY, pulseSize * 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Middle pulse
+      const midGlow = ctx.createRadialGradient(width / 2, centerY, 0, width / 2, centerY, pulseSize);
+      midGlow.addColorStop(0, `hsla(50, 100%, 70%, ${pulseIntensity * 0.8})`);
+      midGlow.addColorStop(0.5, `hsla(45, 100%, 60%, ${pulseIntensity * 0.4})`);
+      midGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = midGlow;
+      ctx.beginPath();
+      ctx.arc(width / 2, centerY, pulseSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bright core
+      const coreSize = isPlaying ? 4 + bass * 8 : 3;
+      const coreGlow = ctx.createRadialGradient(width / 2, centerY, 0, width / 2, centerY, coreSize);
+      coreGlow.addColorStop(0, `hsla(55, 100%, 95%, ${pulseIntensity})`);
+      coreGlow.addColorStop(0.4, `hsla(50, 100%, 80%, ${pulseIntensity * 0.8})`);
+      coreGlow.addColorStop(1, `hsla(45, 100%, 60%, 0)`);
+      ctx.fillStyle = coreGlow;
+      ctx.beginPath();
+      ctx.arc(width / 2, centerY, coreSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pulsing ring on beats
+      if (isPlaying && bass > 0.5) {
+        const ringSize = 15 + bass * 25;
+        ctx.beginPath();
+        ctx.strokeStyle = `hsla(45, 100%, 65%, ${(bass - 0.5) * 0.6})`;
+        ctx.lineWidth = 2;
+        ctx.arc(width / 2, centerY, ringSize, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
       phaseRef.current += isPlaying ? 0.05 : 0.01;
       animationRef.current = requestAnimationFrame(drawVisualization);
     };
