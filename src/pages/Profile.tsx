@@ -71,11 +71,12 @@ const Profile = () => {
           </div>
           
           <div className="relative">
-            <div className="neo-card p-1 rounded-full">
+            <div className="neo-card p-1" style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}>
               <img
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop"
                 alt="Profile"
-                className="w-[102px] h-[102px] rounded-full object-cover"
+                className="w-[102px] h-[102px] object-cover"
+                style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}
               />
             </div>
             <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg">
