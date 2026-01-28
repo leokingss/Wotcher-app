@@ -34,7 +34,7 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
         audioContextRef.current = new AudioContext();
         analyserRef.current = audioContextRef.current.createAnalyser();
         analyserRef.current.fftSize = 256;
-        analyserRef.current.smoothingTimeConstant = 0.8;
+        analyserRef.current.smoothingTimeConstant = 0.75;
         sourceRef.current = audioContextRef.current.createMediaElementSource(audio);
         sourceRef.current.connect(analyserRef.current);
         analyserRef.current.connect(audioContextRef.current.destination);
@@ -55,164 +55,133 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       let bass = 0;
       let mid = 0;
       let high = 0;
-      let frequencyData: number[] = [];
+      let intensity = 0;
       
       if (isPlaying && analyserRef.current) {
         const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
         analyserRef.current.getByteFrequencyData(dataArray);
         
         bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10 / 255;
-        mid = dataArray.slice(10, 40).reduce((a, b) => a + b, 0) / 30 / 255;
-        high = dataArray.slice(40, 80).reduce((a, b) => a + b, 0) / 40 / 255;
-        
-        // Sample frequency data for strand nodes
-        for (let i = 0; i < 12; i++) {
-          const idx = Math.floor((i / 12) * dataArray.length);
-          frequencyData.push(dataArray[idx] / 255);
-        }
+        mid = dataArray.slice(10, 50).reduce((a, b) => a + b, 0) / 40 / 255;
+        high = dataArray.slice(50, 100).reduce((a, b) => a + b, 0) / 50 / 255;
+        intensity = (bass * 0.5 + mid * 0.3 + high * 0.2);
       }
 
-      const nodeCount = 12;
-      const nodeSpacing = width / (nodeCount + 1);
       const phase = phaseRef.current;
       
-      // Calculate strand amplitude based on playing state
-      const amplitude = isPlaying ? 6 + bass * 8 : 0;
-      const waveSpeed = isPlaying ? 0.08 : 0;
-
-      // Draw connecting energy field (only when playing)
-      if (isPlaying && (bass > 0.3 || mid > 0.3)) {
-        const energyGradient = ctx.createLinearGradient(0, 0, width, 0);
-        energyGradient.addColorStop(0, 'transparent');
-        energyGradient.addColorStop(0.3, `hsla(45, 100%, 55%, ${bass * 0.08})`);
-        energyGradient.addColorStop(0.5, `hsla(50, 100%, 60%, ${mid * 0.12})`);
-        energyGradient.addColorStop(0.7, `hsla(45, 100%, 55%, ${bass * 0.08})`);
-        energyGradient.addColorStop(1, 'transparent');
-        ctx.fillStyle = energyGradient;
-        ctx.fillRect(0, centerY - 10, width, 20);
-      }
-
-      // Calculate node positions for both strands
-      const topStrand: {x: number, y: number}[] = [];
-      const bottomStrand: {x: number, y: number}[] = [];
+      // Color calculation: yellow (45) to red (0) based on high frequencies and intensity
+      const colorProgress = isPlaying ? Math.min(1, (high * 0.7 + intensity * 0.3) * 1.5) : 0;
+      const baseHue = 45 - colorProgress * 45; // 45 (yellow) → 0 (red)
       
-      for (let i = 0; i < nodeCount; i++) {
-        const x = nodeSpacing * (i + 1);
-        const waveOffset = Math.sin(phase + i * 0.6) * amplitude;
-        const freqBoost = isPlaying && frequencyData[i] ? frequencyData[i] * 4 : 0;
+      // Strand configuration - 5 interweaving strands
+      const strands = [
+        { amplitude: 1, frequency: 1, phaseOffset: 0, opacity: 0.9 },
+        { amplitude: 0.8, frequency: 1.3, phaseOffset: Math.PI * 0.4, opacity: 0.7 },
+        { amplitude: 0.6, frequency: 1.7, phaseOffset: Math.PI * 0.8, opacity: 0.5 },
+        { amplitude: 0.7, frequency: 0.8, phaseOffset: Math.PI * 1.2, opacity: 0.6 },
+        { amplitude: 0.5, frequency: 2.1, phaseOffset: Math.PI * 1.6, opacity: 0.4 },
+      ];
+
+      // Base amplitude affected by bass
+      const baseAmplitude = isPlaying ? 4 + bass * 8 : 2;
+      
+      // Draw each strand
+      strands.forEach((strand, strandIndex) => {
+        const points: {x: number, y: number}[] = [];
+        const segments = 60;
         
-        topStrand.push({ x, y: centerY - waveOffset - freqBoost });
-        bottomStrand.push({ x, y: centerY + waveOffset + freqBoost });
-      }
-
-      // Draw flowing strand connections (top)
-      if (isPlaying) {
-        ctx.beginPath();
-        ctx.moveTo(topStrand[0].x, topStrand[0].y);
-        for (let i = 1; i < topStrand.length; i++) {
-          const xc = (topStrand[i].x + topStrand[i - 1].x) / 2;
-          const yc = (topStrand[i].y + topStrand[i - 1].y) / 2;
-          ctx.quadraticCurveTo(topStrand[i - 1].x, topStrand[i - 1].y, xc, yc);
-        }
-        ctx.strokeStyle = `hsla(45, 100%, 65%, ${0.3 + mid * 0.4})`;
-        ctx.lineWidth = 1.5 + bass * 1.5;
-        ctx.stroke();
-
-        // Draw flowing strand connections (bottom)
-        ctx.beginPath();
-        ctx.moveTo(bottomStrand[0].x, bottomStrand[0].y);
-        for (let i = 1; i < bottomStrand.length; i++) {
-          const xc = (bottomStrand[i].x + bottomStrand[i - 1].x) / 2;
-          const yc = (bottomStrand[i].y + bottomStrand[i - 1].y) / 2;
-          ctx.quadraticCurveTo(bottomStrand[i - 1].x, bottomStrand[i - 1].y, xc, yc);
-        }
-        ctx.strokeStyle = `hsla(40, 100%, 60%, ${0.3 + mid * 0.4})`;
-        ctx.lineWidth = 1.5 + bass * 1.5;
-        ctx.stroke();
-
-        // Draw cross-connections (DNA rungs) on beats
-        if (bass > 0.4) {
-          for (let i = 0; i < nodeCount; i += 2) {
-            const gradient = ctx.createLinearGradient(
-              topStrand[i].x, topStrand[i].y,
-              bottomStrand[i].x, bottomStrand[i].y
-            );
-            gradient.addColorStop(0, `hsla(50, 100%, 70%, ${bass * 0.4})`);
-            gradient.addColorStop(0.5, `hsla(55, 100%, 80%, ${bass * 0.6})`);
-            gradient.addColorStop(1, `hsla(50, 100%, 70%, ${bass * 0.4})`);
-            
-            ctx.beginPath();
-            ctx.moveTo(topStrand[i].x, topStrand[i].y);
-            ctx.lineTo(bottomStrand[i].x, bottomStrand[i].y);
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = 1 + bass;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // Draw nodes
-      for (let i = 0; i < nodeCount; i++) {
-        const nodeIntensity = isPlaying ? (frequencyData[i] || 0.2) : 0.15;
-        const nodeSize = isPlaying ? 2 + nodeIntensity * 3 : 1.5;
-        const hue = 42 + (i % 3) * 5;
-        
-        // Top strand node
-        if (isPlaying) {
-          // Glow
-          const topGlow = ctx.createRadialGradient(
-            topStrand[i].x, topStrand[i].y, 0,
-            topStrand[i].x, topStrand[i].y, nodeSize * 3
-          );
-          topGlow.addColorStop(0, `hsla(${hue}, 100%, 70%, ${nodeIntensity * 0.8})`);
-          topGlow.addColorStop(0.5, `hsla(${hue}, 100%, 60%, ${nodeIntensity * 0.3})`);
-          topGlow.addColorStop(1, 'transparent');
-          ctx.fillStyle = topGlow;
-          ctx.beginPath();
-          ctx.arc(topStrand[i].x, topStrand[i].y, nodeSize * 3, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        
-        // Core node (top)
-        ctx.beginPath();
-        ctx.fillStyle = isPlaying 
-          ? `hsla(${hue}, 100%, ${70 + nodeIntensity * 20}%, ${0.5 + nodeIntensity * 0.5})`
-          : 'hsla(45, 40%, 45%, 0.3)';
-        ctx.arc(topStrand[i].x, topStrand[i].y, nodeSize, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Bottom strand node (only when playing)
-        if (isPlaying) {
-          const bottomGlow = ctx.createRadialGradient(
-            bottomStrand[i].x, bottomStrand[i].y, 0,
-            bottomStrand[i].x, bottomStrand[i].y, nodeSize * 3
-          );
-          bottomGlow.addColorStop(0, `hsla(${hue - 5}, 100%, 65%, ${nodeIntensity * 0.7})`);
-          bottomGlow.addColorStop(0.5, `hsla(${hue - 5}, 100%, 55%, ${nodeIntensity * 0.25})`);
-          bottomGlow.addColorStop(1, 'transparent');
-          ctx.fillStyle = bottomGlow;
-          ctx.beginPath();
-          ctx.arc(bottomStrand[i].x, bottomStrand[i].y, nodeSize * 3, 0, Math.PI * 2);
-          ctx.fill();
+        for (let i = 0; i <= segments; i++) {
+          const x = (i / segments) * width;
+          const normalizedX = i / segments;
           
+          // Create envelope - fade at edges
+          const envelope = Math.sin(normalizedX * Math.PI) ** 0.5;
+          
+          // Multiple wave components for organic feel
+          const wave1 = Math.sin(phase * strand.frequency + normalizedX * 8 + strand.phaseOffset);
+          const wave2 = Math.sin(phase * strand.frequency * 1.5 + normalizedX * 12 + strand.phaseOffset) * 0.3;
+          const wave3 = Math.sin(phase * strand.frequency * 0.7 + normalizedX * 5 + strand.phaseOffset) * 0.2;
+          
+          // High frequency adds turbulence
+          const turbulence = isPlaying ? Math.sin(phase * 3 + normalizedX * 20) * high * 2 : 0;
+          
+          const combinedWave = (wave1 + wave2 + wave3 + turbulence) * strand.amplitude;
+          const y = centerY + combinedWave * baseAmplitude * envelope;
+          
+          points.push({ x, y });
+        }
+
+        // Calculate strand-specific hue shift (creates gradient across strands)
+        const strandHueOffset = strandIndex * 8 * colorProgress;
+        const strandHue = Math.max(0, baseHue - strandHueOffset);
+        const saturation = isPlaying ? 100 : 30;
+        const lightness = isPlaying ? 55 + intensity * 15 : 40;
+        
+        // Draw strand glow
+        if (isPlaying) {
           ctx.beginPath();
-          ctx.fillStyle = `hsla(${hue - 5}, 100%, ${65 + nodeIntensity * 20}%, ${0.5 + nodeIntensity * 0.5})`;
-          ctx.arc(bottomStrand[i].x, bottomStrand[i].y, nodeSize, 0, Math.PI * 2);
+          ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 1; i < points.length - 1; i++) {
+            const xc = (points[i].x + points[i + 1].x) / 2;
+            const yc = (points[i].y + points[i + 1].y) / 2;
+            ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+          }
+          ctx.strokeStyle = `hsla(${strandHue}, ${saturation}%, ${lightness + 10}%, ${strand.opacity * 0.3 * intensity})`;
+          ctx.lineWidth = 4 + bass * 3;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+
+        // Draw main strand line
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length - 1; i++) {
+          const xc = (points[i].x + points[i + 1].x) / 2;
+          const yc = (points[i].y + points[i + 1].y) / 2;
+          ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+        }
+        
+        // Gradient along the strand
+        const gradient = ctx.createLinearGradient(0, 0, width, 0);
+        const startHue = Math.max(0, strandHue + 10);
+        const endHue = Math.max(0, strandHue - 15 * colorProgress);
+        
+        gradient.addColorStop(0, `hsla(${startHue}, ${saturation}%, ${lightness}%, ${strand.opacity * 0.3})`);
+        gradient.addColorStop(0.3, `hsla(${strandHue}, ${saturation}%, ${lightness}%, ${strand.opacity})`);
+        gradient.addColorStop(0.7, `hsla(${endHue}, ${saturation}%, ${lightness}%, ${strand.opacity})`);
+        gradient.addColorStop(1, `hsla(${endHue}, ${saturation}%, ${lightness}%, ${strand.opacity * 0.3})`);
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = isPlaying ? 1.5 + intensity * 1 : 1;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      });
+
+      // Add bright nodes at wave peaks when intensity is high
+      if (isPlaying && intensity > 0.4) {
+        const nodeCount = Math.floor(3 + intensity * 5);
+        for (let i = 0; i < nodeCount; i++) {
+          const x = 20 + (i / nodeCount) * (width - 40);
+          const waveY = Math.sin(phase + (i / nodeCount) * 8) * baseAmplitude;
+          const y = centerY + waveY * (0.5 + Math.random() * 0.5);
+          const nodeSize = 1 + intensity * 2;
+          const nodeHue = baseHue - Math.random() * 20 * colorProgress;
+          
+          const nodeGlow = ctx.createRadialGradient(x, y, 0, x, y, nodeSize * 3);
+          nodeGlow.addColorStop(0, `hsla(${nodeHue}, 100%, 80%, ${intensity * 0.8})`);
+          nodeGlow.addColorStop(0.5, `hsla(${nodeHue}, 100%, 65%, ${intensity * 0.3})`);
+          nodeGlow.addColorStop(1, 'transparent');
+          ctx.fillStyle = nodeGlow;
+          ctx.beginPath();
+          ctx.arc(x, y, nodeSize * 3, 0, Math.PI * 2);
           ctx.fill();
         }
       }
 
-      // Static dormant line when not playing
-      if (!isPlaying) {
-        ctx.beginPath();
-        ctx.strokeStyle = 'hsla(45, 30%, 40%, 0.2)';
-        ctx.lineWidth = 1;
-        ctx.moveTo(nodeSpacing, centerY);
-        ctx.lineTo(width - nodeSpacing, centerY);
-        ctx.stroke();
-      }
-
-      phaseRef.current += waveSpeed;
+      // Update phase - faster when more intense
+      const speed = isPlaying ? 0.04 + intensity * 0.06 : 0.01;
+      phaseRef.current += speed;
+      
       animationRef.current = requestAnimationFrame(drawVisualization);
     };
 
