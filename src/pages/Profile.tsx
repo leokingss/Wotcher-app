@@ -76,13 +76,12 @@ const Profile = () => {
                  style={{ borderRadius: '50%' }} />
             {/* Inner pulsing glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/60 via-transparent to-primary/40 blur-md animate-blob-morph" 
-                 style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', transform: 'scale(1.08)' }} />
-            <div className="neo-card p-1 relative animate-blob-morph" style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}>
+                 style={{ transform: 'scale(1.08)' }} />
+            <div className="neo-card p-1 relative animate-blob-morph">
               <img
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop"
                 alt="Profile"
-                className="w-[102px] h-[102px] object-cover animate-blob-morph"
-                style={{ borderRadius: '55% 45% 35% 65% / 55% 35% 65% 45%' }}
+                className="w-[102px] h-[102px] object-cover rounded-full"
               />
             </div>
             <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg z-10">
