@@ -138,6 +138,16 @@ const Profile = () => {
               </button>
             </div>
           ))}
+          
+          {/* More Music Expanding Tab */}
+          <button 
+            onClick={() => setActiveTab("music")}
+            className="neo-button mt-2 py-2 px-4 rounded-full flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Music className="w-3.5 h-3.5" />
+            <span>More music</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Tabs - individual icon buttons spread evenly */}
