@@ -1,10 +1,11 @@
 import { useState, useRef } from "react";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import VideoCard from "@/components/VideoCard";
 import FeaturedSongRow from "@/components/FeaturedSongRow";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
 
 const featuredSongs = [
   { 
@@ -52,7 +53,12 @@ const Profile = () => {
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+  const [photoZoom, setPhotoZoom] = useState(1);
+  const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleToggleComments = (itemId: number) => {
     setOpenCommentsId(openCommentsId === itemId ? null : itemId);
@@ -68,21 +74,83 @@ const Profile = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreviewPhoto(e.target?.result as string);
+        setPhotoZoom(1);
+        setPhotoPosition({ x: 0, y: 0 });
       };
       reader.readAsDataURL(file);
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!previewPhoto) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - photoPosition.x, y: e.clientY - photoPosition.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const maxOffset = (photoZoom - 1) * 64; // 64 = half of 128px container
+    const newX = Math.max(-maxOffset, Math.min(maxOffset, e.clientX - dragStart.x));
+    const newY = Math.max(-maxOffset, Math.min(maxOffset, e.clientY - dragStart.y));
+    setPhotoPosition({ x: newX, y: newY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!previewPhoto) return;
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({ x: touch.clientX - photoPosition.x, y: touch.clientY - photoPosition.y });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const maxOffset = (photoZoom - 1) * 64;
+    const newX = Math.max(-maxOffset, Math.min(maxOffset, touch.clientX - dragStart.x));
+    const newY = Math.max(-maxOffset, Math.min(maxOffset, touch.clientY - dragStart.y));
+    setPhotoPosition({ x: newX, y: newY });
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   const handleSavePhoto = () => {
     if (previewPhoto) {
-      setProfilePhoto(previewPhoto);
-      setPreviewPhoto(null);
-      setProfilePhotoDialogOpen(false);
+      // Create a canvas to capture the cropped/zoomed image
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const size = 200;
+      canvas.width = size;
+      canvas.height = size;
+      
+      const img = new window.Image();
+      img.onload = () => {
+        if (ctx) {
+          const scaledSize = size * photoZoom;
+          const offsetX = (size - scaledSize) / 2 + (photoPosition.x / 64) * (scaledSize / 2);
+          const offsetY = (size - scaledSize) / 2 + (photoPosition.y / 64) * (scaledSize / 2);
+          ctx.drawImage(img, offsetX, offsetY, scaledSize, scaledSize);
+          const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          setProfilePhoto(croppedDataUrl);
+        }
+        setPreviewPhoto(null);
+        setPhotoZoom(1);
+        setPhotoPosition({ x: 0, y: 0 });
+        setProfilePhotoDialogOpen(false);
+      };
+      img.src = previewPhoto;
     }
   };
 
   const handleCancelPhoto = () => {
     setPreviewPhoto(null);
+    setPhotoZoom(1);
+    setPhotoPosition({ x: 0, y: 0 });
     setProfilePhotoDialogOpen(false);
   };
 
@@ -279,25 +347,70 @@ const Profile = () => {
           </DialogHeader>
           
           <div className="flex flex-col items-center gap-4 py-4">
-            {/* Preview */}
+            {/* Preview with zoom/drag */}
             <div className="relative">
-              <div className="neo-card p-1 animate-blob-morph" style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}>
-                <img
-                  src={previewPhoto || profilePhoto}
-                  alt="Preview"
-                  className="w-32 h-32 object-cover animate-blob-morph"
+              <div 
+                className="neo-card p-1 animate-blob-morph overflow-hidden cursor-move" 
+                style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div 
+                  className="w-32 h-32 overflow-hidden animate-blob-morph"
                   style={{ borderRadius: '55% 45% 35% 65% / 55% 35% 65% 45%' }}
-                />
+                >
+                  <img
+                    src={previewPhoto || profilePhoto}
+                    alt="Preview"
+                    className="w-full h-full object-cover select-none"
+                    style={{ 
+                      transform: `scale(${photoZoom}) translate(${photoPosition.x / photoZoom}px, ${photoPosition.y / photoZoom}px)`,
+                      transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                    }}
+                    draggable={false}
+                  />
+                </div>
               </div>
               {previewPhoto && (
                 <button 
-                  onClick={() => setPreviewPhoto(null)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive rounded-full flex items-center justify-center text-destructive-foreground"
+                  onClick={() => {
+                    setPreviewPhoto(null);
+                    setPhotoZoom(1);
+                    setPhotoPosition({ x: 0, y: 0 });
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive rounded-full flex items-center justify-center text-destructive-foreground z-10"
                 >
                   <X className="w-3 h-3" />
                 </button>
               )}
             </div>
+
+            {/* Zoom Slider */}
+            {previewPhoto && (
+              <div className="w-full flex items-center gap-3 px-2">
+                <ZoomOut className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <Slider
+                  value={[photoZoom]}
+                  onValueChange={(value) => setPhotoZoom(value[0])}
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  className="flex-1"
+                />
+                <ZoomIn className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </div>
+            )}
+
+            {previewPhoto && (
+              <p className="text-xs text-muted-foreground text-center">
+                Drag to reposition • Use slider to zoom
+              </p>
+            )}
 
             {/* Upload Options */}
             <input 
