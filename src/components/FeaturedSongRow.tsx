@@ -15,16 +15,33 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
-  const phaseRef = useRef(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const dataPointsRef = useRef<number[]>(Array(80).fill(0));
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const audio = audioRef.current;
+    if (!canvas || !audio) return;
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let dataPoints: number[] = Array(100).fill(0);
+    // Setup audio analyzer once
+    if (!audioContextRef.current && isPlaying) {
+      try {
+        audioContextRef.current = new AudioContext();
+        analyserRef.current = audioContextRef.current.createAnalyser();
+        analyserRef.current.fftSize = 256;
+        analyserRef.current.smoothingTimeConstant = 0.7;
+        sourceRef.current = audioContextRef.current.createMediaElementSource(audio);
+        sourceRef.current.connect(analyserRef.current);
+        analyserRef.current.connect(audioContextRef.current.destination);
+      } catch (e) {
+        console.error('Audio context error:', e);
+      }
+    }
 
     const drawSeismograph = () => {
       const width = canvas.width;
@@ -33,21 +50,33 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       
       ctx.clearRect(0, 0, width, height);
       
-      // Shift data left and add new point
-      dataPoints.shift();
+      // Shift data left
+      dataPointsRef.current.shift();
       
       let newPoint = 0;
-      if (isPlaying) {
-        // Create seismograph-like spikes
-        const spike = Math.random() > 0.7 ? (Math.random() - 0.5) * 20 : 0;
-        const tremor = (Math.random() - 0.5) * 8;
-        const baseWave = Math.sin(phaseRef.current * 0.5) * 3;
-        newPoint = spike + tremor + baseWave;
+      
+      if (isPlaying && analyserRef.current) {
+        // Get real audio frequency data
+        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+        analyserRef.current.getByteFrequencyData(dataArray);
+        
+        // Calculate average amplitude from bass and mid frequencies
+        const bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
+        const mid = dataArray.slice(10, 50).reduce((a, b) => a + b, 0) / 40;
+        const high = dataArray.slice(50, 100).reduce((a, b) => a + b, 0) / 50;
+        
+        // Combine frequencies for seismograph effect
+        const intensity = (bass * 0.5 + mid * 0.35 + high * 0.15) / 255;
+        newPoint = (intensity - 0.3) * 25 + (Math.random() - 0.5) * intensity * 8;
+      } else if (isPlaying) {
+        // Fallback animation if audio context fails
+        newPoint = (Math.random() - 0.5) * 10;
       } else {
-        // Gentle flatline with tiny variations
-        newPoint = (Math.random() - 0.5) * 1.5;
+        // Gentle flatline
+        newPoint = (Math.random() - 0.5) * 1;
       }
-      dataPoints.push(newPoint);
+      
+      dataPointsRef.current.push(newPoint);
       
       // Draw the seismograph line
       ctx.beginPath();
@@ -56,8 +85,8 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
       
-      dataPoints.forEach((point, i) => {
-        const x = (i / dataPoints.length) * width;
+      dataPointsRef.current.forEach((point, i) => {
+        const x = (i / dataPointsRef.current.length) * width;
         const y = centerY + point;
         
         if (i === 0) {
@@ -69,14 +98,13 @@ const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogg
       
       ctx.stroke();
       
-      // Add glow effect when playing
+      // Glow effect based on audio intensity
       if (isPlaying) {
-        ctx.strokeStyle = 'hsla(45, 100%, 55%, 0.3)';
+        ctx.strokeStyle = 'hsla(45, 100%, 55%, 0.25)';
         ctx.lineWidth = 4;
         ctx.stroke();
       }
       
-      phaseRef.current += 0.1;
       animationRef.current = requestAnimationFrame(drawSeismograph);
     };
 
