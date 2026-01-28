@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight } from "lucide-react";
+import { useState, useRef } from "react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import VideoCard from "@/components/VideoCard";
 import FeaturedSongRow from "@/components/FeaturedSongRow";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const featuredSongs = [
   { 
@@ -48,6 +49,10 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
+  const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleToggleComments = (itemId: number) => {
     setOpenCommentsId(openCommentsId === itemId ? null : itemId);
@@ -55,6 +60,30 @@ const Profile = () => {
 
   const handleTogglePlay = (songId: number) => {
     setPlayingSongId(playingSongId === songId ? null : songId);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewPhoto(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSavePhoto = () => {
+    if (previewPhoto) {
+      setProfilePhoto(previewPhoto);
+      setPreviewPhoto(null);
+      setProfilePhotoDialogOpen(false);
+    }
+  };
+
+  const handleCancelPhoto = () => {
+    setPreviewPhoto(null);
+    setProfilePhotoDialogOpen(false);
   };
 
   return (
@@ -88,13 +117,16 @@ const Profile = () => {
                  style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', transform: 'scale(1.1)' }} />
             <div className="neo-card p-1 relative animate-blob-morph" style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}>
               <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop"
+                src={profilePhoto}
                 alt="Profile"
                 className="w-[102px] h-[102px] object-cover animate-blob-morph"
                 style={{ borderRadius: '55% 45% 35% 65% / 55% 35% 65% 45%' }}
               />
             </div>
-            <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg z-10">
+            <button 
+              onClick={() => setProfilePhotoDialogOpen(true)}
+              className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg z-10"
+            >
               <Plus className="w-4 h-4" />
             </button>
           </div>
@@ -238,6 +270,81 @@ const Profile = () => {
           </div>
         )}
       </main>
+
+      {/* Profile Photo Dialog */}
+      <Dialog open={profilePhotoDialogOpen} onOpenChange={setProfilePhotoDialogOpen}>
+        <DialogContent className="neo-card border-0 max-w-sm mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center">Change Profile Photo</DialogTitle>
+          </DialogHeader>
+          
+          <div className="flex flex-col items-center gap-4 py-4">
+            {/* Preview */}
+            <div className="relative">
+              <div className="neo-card p-1 animate-blob-morph" style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}>
+                <img
+                  src={previewPhoto || profilePhoto}
+                  alt="Preview"
+                  className="w-32 h-32 object-cover animate-blob-morph"
+                  style={{ borderRadius: '55% 45% 35% 65% / 55% 35% 65% 45%' }}
+                />
+              </div>
+              {previewPhoto && (
+                <button 
+                  onClick={() => setPreviewPhoto(null)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive rounded-full flex items-center justify-center text-destructive-foreground"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+
+            {/* Upload Options */}
+            <input 
+              ref={fileInputRef}
+              type="file" 
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            
+            <div className="flex gap-3 w-full">
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="neo-button flex-1 py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Image className="w-5 h-5" />
+                <span>Gallery</span>
+              </button>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="neo-button flex-1 py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Camera className="w-5 h-5" />
+                <span>Camera</span>
+              </button>
+            </div>
+
+            {/* Action Buttons */}
+            {previewPhoto && (
+              <div className="flex gap-3 w-full pt-2">
+                <button 
+                  onClick={handleCancelPhoto}
+                  className="neo-button flex-1 py-2.5 rounded-xl text-muted-foreground"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleSavePhoto}
+                  className="action-button action-button-primary flex-1"
+                >
+                  Save Photo
+                </button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <BottomNav />
     </div>
