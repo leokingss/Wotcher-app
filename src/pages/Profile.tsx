@@ -293,9 +293,29 @@ const Profile = () => {
         {/* Content based on active tab */}
         {activeTab === "posts" && (
           <div className="grid grid-cols-3 gap-2">
+            {/* Photos */}
             {userPosts.map((post, index) => (
-              <div key={index} className="neo-card p-1 rounded-xl">
+              <div key={`photo-${index}`} className="neo-card p-1 rounded-xl">
                 <img src={post.image} alt="" className="w-full aspect-square object-cover rounded-lg" />
+              </div>
+            ))}
+            {/* Album Covers */}
+            {playlist.map((song) => (
+              <div key={`song-${song.id}`} className="neo-card p-1 rounded-xl relative">
+                <img src={song.cover} alt={song.title} className="w-full aspect-square object-cover rounded-lg" />
+                <div className="absolute bottom-2 left-2 right-2 bg-background/80 backdrop-blur-sm rounded-md px-1.5 py-0.5">
+                  <p className="text-[10px] font-medium truncate">{song.title}</p>
+                </div>
+              </div>
+            ))}
+            {/* Video Thumbnails */}
+            {videos.map((video) => (
+              <div key={`video-${video.id}`} className="neo-card p-1 rounded-xl relative">
+                <img src={video.thumbnail} alt={video.title} className="w-full aspect-square object-cover rounded-lg" />
+                <div className="absolute bottom-2 left-2 right-2 bg-background/80 backdrop-blur-sm rounded-md px-1.5 py-0.5 flex items-center justify-between">
+                  <p className="text-[10px] font-medium truncate flex-1">{video.title}</p>
+                  <span className="text-[9px] text-muted-foreground ml-1">{video.duration}</span>
+                </div>
               </div>
             ))}
           </div>
