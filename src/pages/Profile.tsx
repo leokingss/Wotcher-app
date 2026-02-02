@@ -293,28 +293,56 @@ const Profile = () => {
         {/* Content based on active tab */}
         {activeTab === "posts" && (
           <div className="grid grid-cols-3 gap-2">
-            {/* Photos */}
+            {/* Photos - no indicator needed */}
             {userPosts.map((post, index) => (
-              <div key={`photo-${index}`} className="neo-card p-1 rounded-xl">
-                <img src={post.image} alt="" className="w-full aspect-square object-cover rounded-lg" />
-              </div>
-            ))}
-            {/* Album Covers */}
-            {playlist.map((song) => (
-              <div key={`song-${song.id}`} className="neo-card p-1 rounded-xl relative">
-                <img src={song.cover} alt={song.title} className="w-full aspect-square object-cover rounded-lg" />
-                <div className="absolute bottom-2 left-2 right-2 bg-background/80 backdrop-blur-sm rounded-md px-1.5 py-0.5">
-                  <p className="text-[10px] font-medium truncate">{song.title}</p>
+              <div key={`photo-${index}`} className="neo-card p-1 rounded-xl group cursor-pointer">
+                <div className="relative overflow-hidden rounded-lg">
+                  <img src={post.image} alt="" className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
                 </div>
               </div>
             ))}
-            {/* Video Thumbnails */}
+            {/* Album Covers - with music indicator */}
+            {playlist.map((song) => (
+              <div key={`song-${song.id}`} className="neo-card p-1 rounded-xl relative group cursor-pointer">
+                <div className="relative overflow-hidden rounded-lg">
+                  <img src={song.cover} alt={song.title} className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
+                  {/* Music type indicator */}
+                  <div className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                    <Music className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Title on hover */}
+                  <div className="absolute bottom-0 left-0 right-0 p-1.5 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <p className="text-[10px] font-medium text-white truncate drop-shadow-lg">{song.title}</p>
+                    <p className="text-[9px] text-white/70 truncate">{song.artist}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {/* Video Thumbnails - with video indicator */}
             {videos.map((video) => (
-              <div key={`video-${video.id}`} className="neo-card p-1 rounded-xl relative">
-                <img src={video.thumbnail} alt={video.title} className="w-full aspect-square object-cover rounded-lg" />
-                <div className="absolute bottom-2 left-2 right-2 bg-background/80 backdrop-blur-sm rounded-md px-1.5 py-0.5 flex items-center justify-between">
-                  <p className="text-[10px] font-medium truncate flex-1">{video.title}</p>
-                  <span className="text-[9px] text-muted-foreground ml-1">{video.duration}</span>
+              <div key={`video-${video.id}`} className="neo-card p-1 rounded-xl relative group cursor-pointer">
+                <div className="relative overflow-hidden rounded-lg">
+                  <img src={video.thumbnail} alt={video.title} className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
+                  {/* Video type indicator with duration */}
+                  <div className="absolute top-1.5 right-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-destructive/90 backdrop-blur-sm shadow-lg">
+                    <Film className="w-3 h-3 text-destructive-foreground" />
+                    <span className="text-[9px] font-medium text-destructive-foreground">{video.duration}</span>
+                  </div>
+                  {/* Play button overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-xl">
+                      <div className="w-0 h-0 border-l-[10px] border-l-foreground border-y-[6px] border-y-transparent ml-1" />
+                    </div>
+                  </div>
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Title on hover */}
+                  <div className="absolute bottom-0 left-0 right-0 p-1.5 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <p className="text-[10px] font-medium text-white truncate drop-shadow-lg">{video.title}</p>
+                    <p className="text-[9px] text-white/70">{video.views} views</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -356,6 +384,19 @@ const Profile = () => {
               <span>View all videos</span>
               <ChevronRight className="w-4 h-4" />
             </button>
+          </div>
+        )}
+
+        {activeTab === "photos" && (
+          <div className="grid grid-cols-3 gap-2">
+            {userPosts.map((post, index) => (
+              <div key={`photo-only-${index}`} className="neo-card p-1 rounded-xl group cursor-pointer">
+                <div className="relative overflow-hidden rounded-lg">
+                  <img src={post.image} alt="" className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </main>
