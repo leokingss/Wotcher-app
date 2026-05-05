@@ -108,7 +108,7 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 {editingId === comment.id ? (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <input
                       type="text"
                       value={editText}
@@ -120,11 +120,19 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                       autoFocus
                       className="flex-1 bg-transparent border-b border-border text-sm outline-none"
                     />
-                    <button onClick={() => saveEdit(comment.id)} className="p-1">
-                      <Check className="w-3.5 h-3.5 text-primary" />
+                    <button
+                      onClick={() => saveEdit(comment.id)}
+                      aria-label="Save edit"
+                      className="neo-button-icon w-9 h-9 flex items-center justify-center rounded-full"
+                    >
+                      <Check className="w-4 h-4 text-primary" />
                     </button>
-                    <button onClick={cancelEdit} className="p-1">
-                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    <button
+                      onClick={cancelEdit}
+                      aria-label="Cancel edit"
+                      className="neo-button-icon w-9 h-9 flex items-center justify-center rounded-full"
+                    >
+                      <X className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>
                 ) : (
@@ -136,14 +144,15 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                     )}
                   </p>
                 )}
-                <div className="flex items-center gap-2 mt-0.5">
+                <div className="flex items-center gap-2 mt-1">
                   <p className="text-xs text-muted-foreground">{comment.time}</p>
                   {canEdit(comment) && editingId !== comment.id && (
                     <button
                       onClick={() => startEdit(comment)}
-                      className="flex items-center gap-0.5 text-xs text-primary font-medium"
+                      aria-label="Edit comment"
+                      className="neo-button-icon flex items-center gap-1 px-2 py-1 rounded-full text-[11px] text-primary font-medium min-h-[28px]"
                     >
-                      <Pencil className="w-3 h-3" />
+                      <Pencil className="w-3.5 h-3.5" />
                       Edit
                     </button>
                   )}
