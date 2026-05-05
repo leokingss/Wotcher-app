@@ -66,8 +66,16 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
       <div className="flex items-center gap-3">
         <div className="relative">
           <img src={cover} alt={title} className="w-12 h-12 rounded-lg object-cover" />
-          <button className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
-            <Play className="w-5 h-5 text-white fill-white" />
+          <button
+            onClick={() => toggle({ id, title, artist, cover })}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg"
+          >
+            {isPlaying ? (
+              <Pause className="w-5 h-5 text-white fill-white" />
+            ) : (
+              <Play className="w-5 h-5 text-white fill-white" />
+            )}
           </button>
         </div>
         <div className="flex-1 min-w-0">
