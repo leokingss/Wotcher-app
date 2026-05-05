@@ -46,15 +46,16 @@ const CommentList = ({
               {canEdit(comment) && editingId !== comment.id && (
                 <button
                   onClick={() => onStartEdit(comment)}
-                  className="flex items-center gap-0.5 text-[10px] text-primary font-medium"
+                  aria-label="Edit comment"
+                  className="neo-button-icon flex items-center gap-1 px-2 py-1 rounded-full text-[11px] text-primary font-medium min-h-[28px]"
                 >
-                  <Pencil className="w-2.5 h-2.5" />
+                  <Pencil className="w-3.5 h-3.5" />
                   Edit
                 </button>
               )}
             </div>
             {editingId === comment.id ? (
-              <div className="flex items-center gap-1 mt-0.5">
+              <div className="flex items-center gap-1.5 mt-1">
                 <input
                   type="text"
                   value={editText}
@@ -66,11 +67,19 @@ const CommentList = ({
                   autoFocus
                   className={`flex-1 bg-transparent border-b border-border ${textSize} outline-none`}
                 />
-                <button onClick={() => onSave(comment.id)} className="p-1">
-                  <Check className="w-3 h-3 text-primary" />
+                <button
+                  onClick={() => onSave(comment.id)}
+                  aria-label="Save edit"
+                  className="neo-button-icon w-9 h-9 flex items-center justify-center rounded-full"
+                >
+                  <Check className="w-4 h-4 text-primary" />
                 </button>
-                <button onClick={onCancel} className="p-1">
-                  <X className="w-3 h-3 text-muted-foreground" />
+                <button
+                  onClick={onCancel}
+                  aria-label="Cancel edit"
+                  className="neo-button-icon w-9 h-9 flex items-center justify-center rounded-full"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
             ) : (

@@ -18,14 +18,14 @@
     --popover: 225 25% 92%;
     --popover-foreground: 225 15% 20%;
 
-    --primary: 200 80% 70%;
-    --primary-foreground: 220 15% 15%;
+    --primary: 200 85% 38%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 225 25% 88%;
     --secondary-foreground: 225 15% 25%;
 
     --muted: 225 20% 88%;
-    --muted-foreground: 225 10% 45%;
+    --muted-foreground: 225 10% 35%;
 
     --accent: 280 70% 60%;
     --accent-foreground: 0 0% 100%;
@@ -35,7 +35,7 @@
 
     --border: 225 20% 85%;
     --input: 225 25% 88%;
-    --ring: 200 80% 70%;
+    --ring: 200 85% 38%;
 
     --radius: 1rem;
 
@@ -46,19 +46,19 @@
     --neo-inset-dark: rgba(174, 183, 200, 0.4);
 
     /* Signature accent gradient - light mode (baby blue → soft cyan) */
-    --gradient-signature: linear-gradient(135deg, hsl(200 80% 70%), hsl(185 75% 65%));
+    --gradient-signature: linear-gradient(135deg, hsl(200 85% 38%), hsl(185 80% 38%));
 
     /* Navigation */
     --nav-background: 225 20% 88%;
 
     --sidebar-background: 225 25% 92%;
     --sidebar-foreground: 225 15% 20%;
-    --sidebar-primary: 200 80% 70%;
+    --sidebar-primary: 200 85% 38%;
     --sidebar-primary-foreground: 220 15% 15%;
     --sidebar-accent: 225 25% 88%;
     --sidebar-accent-foreground: 225 15% 20%;
     --sidebar-border: 225 20% 85%;
-    --sidebar-ring: 200 80% 70%;
+    --sidebar-ring: 200 85% 38%;
   }
 
   .dark {
