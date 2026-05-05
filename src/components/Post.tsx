@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
 import CommentSection from "./CommentSection";
+import PostContextMenu from "./PostContextMenu";
 
 interface PostProps {
   username: string;
@@ -58,6 +59,7 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
   };
 
   return (
+    <PostContextMenu label={`@${username}'s post`}>
     <article className="post-card">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
@@ -195,6 +197,7 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
       </AnimatePresence>
       {!showComments && <CommentSection isOpen={false} />}
     </article>
+    </PostContextMenu>
   );
 };
 
