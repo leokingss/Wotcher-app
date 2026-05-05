@@ -62,17 +62,17 @@ const ReactionButton = ({ type, active, count, onClick, showCount = true, size =
             {hammering && (
               <motion.div
                 key="hammer"
-                initial={{ opacity: 0, x: 18, y: -22, rotate: -75, scale: 0.6 }}
+                initial={{ opacity: 0, y: -28, rotate: -60, scale: 0.7 }}
                 animate={{
                   opacity: [0, 1, 1, 1, 0],
-                  x: [18, 6, 2, 6, 18],
-                  y: [-22, -10, -2, -10, -22],
-                  rotate: [-75, -45, 15, -45, -75],
-                  scale: [0.6, 1, 1.05, 1, 0.6],
+                  y: [-28, -20, -10, -20, -28],
+                  rotate: [-60, -30, 0, -30, -60],
+                  scale: [0.7, 1, 1.1, 1, 0.7],
                 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.7, ease: "easeOut", times: [0, 0.3, 0.55, 0.8, 1] }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none origin-bottom-right"
+                style={{ transformOrigin: "50% 100%" }}
+                className="absolute left-1/2 -top-2 -translate-x-1/2 pointer-events-none"
               >
                 <Hammer className={`${hammerSize} text-foreground drop-shadow`} />
               </motion.div>
