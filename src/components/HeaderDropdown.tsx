@@ -80,6 +80,26 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
               )}
             </button>
           </div>
+
+          <div className="border-t border-border pt-4 mt-4">
+            {user ? (
+              <button
+                onClick={async () => { await signOut(); setIsOpen(false); navigate("/"); }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+              >
+                <span>Sign out</span>
+                <LogOut className="w-5 h-5 text-primary" />
+              </button>
+            ) : (
+              <button
+                onClick={() => { setIsOpen(false); navigate("/auth"); }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+              >
+                <span>Sign in</span>
+                <LogIn className="w-5 h-5 text-primary" />
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>
