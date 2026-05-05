@@ -1,13 +1,6 @@
 import { Plus } from "lucide-react";
+import { stories } from "@/data/mockSocial";
 
-const stories = [
-  { id: 1, username: "My Story", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop", isOwn: true, hasStory: false },
-  { id: 2, username: "Lina", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", hasStory: true },
-  { id: 3, username: "Ahmed", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", hasStory: true },
-  { id: 4, username: "Jenny", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", hasStory: true },
-  { id: 5, username: "Linda", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop", hasStory: true },
-  { id: 6, username: "Karim", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop", hasStory: true },
-];
 
 const Stories = () => {
   return (

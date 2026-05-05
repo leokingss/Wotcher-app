@@ -1,5 +1,6 @@
 import { Search as SearchIcon, Image, Music, Film, ShoppingBag } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import { exploreImages } from "@/data/mockSocial";
 
 const categories = [
   { icon: Image, label: "Photos" },
@@ -8,16 +9,6 @@ const categories = [
   { icon: ShoppingBag, label: "Store" },
 ];
 
-const exploreImages = [
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop",
-  "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&h=700&fit=crop",
-  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=500&fit=crop",
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=600&fit=crop",
-];
 
 const Search = () => {
   return (

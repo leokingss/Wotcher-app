@@ -1,17 +1,6 @@
 import { TrendingUp, Sparkles, UserPlus } from "lucide-react";
+import { trendingTags as trending, suggestedUsers as suggested } from "@/data/mockSocial";
 
-const trending = [
-  { tag: "#designsystem", posts: "12.4k posts" },
-  { tag: "#neumorphism", posts: "8.1k posts" },
-  { tag: "#fullstack", posts: "24k posts" },
-  { tag: "#ambient", posts: "3.2k posts" },
-];
-
-const suggested = [
-  { username: "alex.codes", name: "Alex Rivera", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop" },
-  { username: "lina_b", name: "Lina B.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop" },
-  { username: "mr.synth", name: "Synth Master", avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=80&h=80&fit=crop" },
-];
 
 const Sidebar = () => (
   <aside className="hidden lg:block w-72 shrink-0 sticky top-20 self-start space-y-4">

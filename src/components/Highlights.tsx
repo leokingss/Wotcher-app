@@ -1,12 +1,6 @@
 import { Plus } from "lucide-react";
+import { highlights } from "@/data/mockSocial";
 
-const highlights = [
-  { id: 1, label: "Travel", cover: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop" },
-  { id: 2, label: "Music", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop" },
-  { id: 3, label: "Code", cover: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=200&h=200&fit=crop" },
-  { id: 4, label: "Art", cover: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=200&h=200&fit=crop" },
-  { id: 5, label: "Build", cover: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=200&h=200&fit=crop" },
-];
 
 const Highlights = () => (
   <div className="mb-4 -mx-4">
