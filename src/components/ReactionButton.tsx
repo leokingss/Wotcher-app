@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, HeartCrack } from "lucide-react";
+import { Heart, HeartCrack, Hammer } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ReactionButtonProps {
   type: "like" | "dislike";
@@ -11,11 +12,35 @@ interface ReactionButtonProps {
 }
 
 const ReactionButton = ({ type, active, count, onClick, showCount = true, size = "md" }: ReactionButtonProps) => {
-  const Icon = type === "like" ? Heart : HeartCrack;
-  const activeColor = type === "like" ? "fill-red-500 text-red-500" : "fill-red-500 text-red-900";
+  const isDislike = type === "dislike";
+  // For dislike: show whole Heart until "smashed", then swap to HeartCrack
+  const [smashed, setSmashed] = useState(active);
+  const [hammering, setHammering] = useState(false);
+
+  const Icon = isDislike ? (smashed ? HeartCrack : Heart) : Heart;
+  const activeColor = isDislike ? "fill-red-500 text-red-900" : "fill-red-500 text-red-500";
   const iconSize = size === "sm" ? "w-3.5 h-3.5" : "w-5 h-5";
   const padding = size === "sm" ? "p-1.5" : "p-2.5";
   const burstRadius = size === "sm" ? 12 : 18;
+  const hammerSize = size === "sm" ? "w-4 h-4" : "w-6 h-6";
+
+  // Trigger hammer sequence when dislike turns on
+  useEffect(() => {
+    if (!isDislike) return;
+    if (active && !smashed) {
+      setHammering(true);
+      const swap = setTimeout(() => setSmashed(true), 380); // strike moment
+      const end = setTimeout(() => setHammering(false), 700);
+      return () => {
+        clearTimeout(swap);
+        clearTimeout(end);
+      };
+    }
+    if (!active && smashed) {
+      setSmashed(false);
+      setHammering(false);
+    }
+  }, [active, isDislike, smashed]);
 
   return (
     <motion.button
@@ -24,14 +49,40 @@ const ReactionButton = ({ type, active, count, onClick, showCount = true, size =
       className={`neo-button-icon ${padding} flex items-center gap-1.5 relative`}
     >
       <motion.div
-        key={`${active}`}
-        animate={active ? { scale: [1, 1.4, 1] } : { scale: 1 }}
+        key={`${type}-${active}-${smashed}`}
+        animate={active ? (isDislike && smashed ? { x: [0, -2, 2, -1, 0] } : { scale: [1, 1.4, 1] }) : { scale: 1 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
         className="relative"
       >
         <Icon className={`${iconSize} ${active ? activeColor : ""}`} />
+
+        {/* Hammer animation for dislike */}
+        {isDislike && (
+          <AnimatePresence>
+            {hammering && (
+              <motion.div
+                key="hammer"
+                initial={{ opacity: 0, x: 18, y: -22, rotate: -75, scale: 0.6 }}
+                animate={{
+                  opacity: [0, 1, 1, 1, 0],
+                  x: [18, 6, 2, 6, 18],
+                  y: [-22, -10, -2, -10, -22],
+                  rotate: [-75, -45, 15, -45, -75],
+                  scale: [0.6, 1, 1.05, 1, 0.6],
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7, ease: "easeOut", times: [0, 0.3, 0.55, 0.8, 1] }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none origin-bottom-right"
+              >
+                <Hammer className={`${hammerSize} text-foreground drop-shadow`} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
+
+        {/* Burst particles (likes; or dislike crack debris) */}
         <AnimatePresence>
-          {active && (
+          {active && (!isDislike || smashed) && (
             <>
               {[...Array(6)].map((_, i) => {
                 const angle = (i / 6) * Math.PI * 2;

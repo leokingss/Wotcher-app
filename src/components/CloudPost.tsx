@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal, Hammer } from "lucide-react";
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
 import { FeedPost, togglePostReaction } from "@/hooks/usePosts";
@@ -134,11 +134,34 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
                 <motion.button
                   onClick={handleDislike}
                   whileTap={{ scale: 0.85 }}
-                  animate={isDisliked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
-                  transition={{ duration: 0.35 }}
-                  className="neo-button-icon p-2.5"
+                  className="neo-button-icon p-2.5 relative overflow-visible"
                 >
-                  <HeartCrack className={`w-5 h-5 ${isDisliked ? "fill-red-500 text-red-900" : ""}`} />
+                  <motion.div
+                    animate={isDisliked ? { x: [0, -2, 2, -1, 0] } : { scale: 1 }}
+                    transition={{ duration: 0.35 }}
+                  >
+                    <HeartCrack className={`w-5 h-5 ${isDisliked ? "fill-red-500 text-red-900" : ""}`} />
+                  </motion.div>
+                  <AnimatePresence>
+                    {isDisliked && (
+                      <motion.div
+                        key="hammer"
+                        initial={{ opacity: 0, x: 14, y: -18, rotate: -75, scale: 0.6 }}
+                        animate={{
+                          opacity: [0, 1, 1, 1, 0],
+                          x: [14, 4, 0, 4, 14],
+                          y: [-18, -8, -2, -8, -18],
+                          rotate: [-75, -45, 15, -45, -75],
+                          scale: [0.6, 1, 1.1, 1, 0.6],
+                        }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.7, ease: "easeOut", times: [0, 0.3, 0.55, 0.8, 1] }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                      >
+                        <Hammer className="w-6 h-6 text-foreground drop-shadow" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.button>
                 <span className="text-sm font-medium">{dislikeCount}</span>
               </div>
