@@ -99,6 +99,9 @@
     --neo-inset-dark: rgba(20, 20, 20, 0.9);
     --neo-inset-light: rgba(51, 53, 55, 0.6);
 
+    /* Signature accent gradient - dark mode (yellow → warm orange) */
+    --gradient-signature: linear-gradient(135deg, hsl(45 100% 50%), hsl(28 95% 55%));
+
     /* Navigation */
     --nav-background: 220 8% 13%;
 
