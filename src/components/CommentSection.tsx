@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Send, Heart, HeartCrack, Pencil, Check, X } from "lucide-react";
+import { Send, Pencil, Check, X } from "lucide-react";
+import ReactionButton from "./ReactionButton";
 import { useComments } from "@/hooks/useComments";
 import { mockPostComments, RichComment, CURRENT_USER_AVATAR } from "@/data/mockComments";
 
@@ -149,14 +150,8 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => handleLikeComment(comment.id)} className="flex items-center gap-1">
-                  <Heart className={`w-3.5 h-3.5 ${comment.isLiked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
-                  <span className="text-[10px] text-muted-foreground">{comment.likes}</span>
-                </button>
-                <button onClick={() => handleDislikeComment(comment.id)} className="flex items-center gap-1">
-                  <HeartCrack className={`w-3.5 h-3.5 ${comment.isDisliked ? 'fill-red-500 text-red-900' : 'text-muted-foreground'}`} />
-                  <span className="text-[10px] text-muted-foreground">{comment.dislikes}</span>
-                </button>
+                <ReactionButton type="like" active={comment.isLiked} count={comment.likes} size="sm" onClick={() => handleLikeComment(comment.id)} />
+                <ReactionButton type="dislike" active={comment.isDisliked} count={comment.dislikes} size="sm" onClick={() => handleDislikeComment(comment.id)} />
               </div>
             </div>
           ))}
