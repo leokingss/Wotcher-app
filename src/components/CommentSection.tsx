@@ -63,6 +63,33 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [newComment, setNewComment] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+
+  const canEdit = (comment: Comment) =>
+    comment.username === CURRENT_USER &&
+    !!comment.createdAt &&
+    Date.now() - comment.createdAt < EDIT_WINDOW_MS;
+
+  const startEdit = (comment: Comment) => {
+    setEditingId(comment.id);
+    setEditText(comment.text);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const saveEdit = (commentId: number) => {
+    if (!editText.trim()) return;
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === commentId ? { ...c, text: editText.trim(), edited: true } : c
+      )
+    );
+    cancelEdit();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
