@@ -83,25 +83,38 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
           </button>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="font-medium text-sm truncate">{title}</p>
+          <div className="flex items-center gap-2 min-w-0">
+            <p className="font-medium text-sm truncate max-w-[45%]">{title}</p>
             {isPlaying && (
-              <span className="flex items-end gap-0.5 h-3" aria-hidden>
-                {[0, 1, 2, 3].map((i) => (
+              <span className="flex-1 flex items-center justify-center gap-[2px] h-5 min-w-0" aria-hidden>
+                {Array.from({ length: 28 }).map((_, i) => (
                   <motion.span
                     key={i}
-                    className="w-0.5 bg-primary rounded-full"
-                    animate={{ height: ["20%", "100%", "40%", "80%"] }}
-                    transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.12, ease: "easeInOut" }}
-                    style={{ height: "40%" }}
+                    className="w-[2px] bg-primary rounded-full"
+                    animate={{
+                      height: [
+                        `${20 + ((i * 13) % 60)}%`,
+                        `${40 + ((i * 31) % 60)}%`,
+                        `${15 + ((i * 47) % 70)}%`,
+                        `${60 + ((i * 19) % 40)}%`,
+                        `${25 + ((i * 7) % 65)}%`,
+                      ],
+                    }}
+                    transition={{
+                      duration: 1.1,
+                      repeat: Infinity,
+                      delay: i * 0.04,
+                      ease: "easeInOut",
+                    }}
+                    style={{ height: "30%" }}
                   />
                 ))}
               </span>
             )}
+            <span className="text-xs text-muted-foreground shrink-0">{duration}</span>
           </div>
           <p className="text-xs text-muted-foreground truncate">{artist}</p>
         </div>
-        <span className="text-xs text-muted-foreground">{duration}</span>
       </div>
 
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
