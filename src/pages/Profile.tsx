@@ -7,6 +7,9 @@ import VideoCard from "@/components/VideoCard";
 import FeaturedSongRow from "@/components/FeaturedSongRow";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
+import EmptyState from "@/components/EmptyState";
+import PostContextMenu from "@/components/PostContextMenu";
+import { usePlayer } from "@/hooks/usePlayer";
 
 const tabFade = {
   initial: { opacity: 0, y: 6 },
@@ -72,8 +75,12 @@ const Profile = () => {
     setOpenCommentsId(openCommentsId === itemId ? null : itemId);
   };
 
+  const player = usePlayer();
   const handleTogglePlay = (songId: number) => {
-    setPlayingSongId(playingSongId === songId ? null : songId);
+    const next = playingSongId === songId ? null : songId;
+    setPlayingSongId(next);
+    const song = featuredSongs.find((s) => s.id === songId) ?? playlist.find((s) => s.id === songId);
+    if (song) player.toggle({ id: song.id, title: song.title, artist: song.artist, cover: song.cover });
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
