@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, Heart, HeartCrack } from "lucide-react";
+import { Send, Heart, HeartCrack, Pencil, Check, X } from "lucide-react";
 
 interface Comment {
   id: number;
@@ -11,7 +11,12 @@ interface Comment {
   dislikes: number;
   isLiked: boolean;
   isDisliked: boolean;
+  createdAt?: number;
+  edited?: boolean;
 }
+
+const EDIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const CURRENT_USER = "you";
 
 interface CommentSectionProps {
   isOpen: boolean;
@@ -58,6 +63,33 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [newComment, setNewComment] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+
+  const canEdit = (comment: Comment) =>
+    comment.username === CURRENT_USER &&
+    !!comment.createdAt &&
+    Date.now() - comment.createdAt < EDIT_WINDOW_MS;
+
+  const startEdit = (comment: Comment) => {
+    setEditingId(comment.id);
+    setEditText(comment.text);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const saveEdit = (commentId: number) => {
+    if (!editText.trim()) return;
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === commentId ? { ...c, text: editText.trim(), edited: true } : c
+      )
+    );
+    cancelEdit();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +105,7 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
       dislikes: 0,
       isLiked: false,
       isDisliked: false,
+      createdAt: Date.now(),
     };
 
     setComments((prev) => [...prev, comment]);
@@ -163,11 +196,47 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm">
-                  <span className="font-semibold">{comment.username}</span>{" "}
-                  <span className="text-muted-foreground">{comment.text}</span>
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">{comment.time}</p>
+                {editingId === comment.id ? (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEdit(comment.id);
+                        if (e.key === "Escape") cancelEdit();
+                      }}
+                      autoFocus
+                      className="flex-1 bg-transparent border-b border-border text-sm outline-none"
+                    />
+                    <button onClick={() => saveEdit(comment.id)} className="p-1">
+                      <Check className="w-3.5 h-3.5 text-primary" />
+                    </button>
+                    <button onClick={cancelEdit} className="p-1">
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-sm">
+                    <span className="font-semibold">{comment.username}</span>{" "}
+                    <span className="text-muted-foreground">{comment.text}</span>
+                    {comment.edited && (
+                      <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>
+                    )}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-xs text-muted-foreground">{comment.time}</p>
+                  {canEdit(comment) && editingId !== comment.id && (
+                    <button
+                      onClick={() => startEdit(comment)}
+                      className="flex items-center gap-0.5 text-xs text-primary font-medium"
+                    >
+                      <Pencil className="w-3 h-3" />
+                      Edit
+                    </button>
+                  )}
+                </div>
               </div>
               {/* Like/Dislike buttons side by side */}
               <div className="flex items-center gap-3">
