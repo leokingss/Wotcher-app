@@ -58,12 +58,34 @@ const videos = [
 ];
 
 const Profile = () => {
+  const { user, profile, refreshProfile } = useAuth();
+  const { posts: cloudPosts } = usePosts(user?.id);
+  const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ count: f1 }, { count: f2 }] = await Promise.all([
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", user.id),
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", user.id),
+      ]);
+      setFollowers(f1 ?? 0);
+      setFollowing(f2 ?? 0);
+    })();
+  }, [user]);
+
   const [activeTab, setActiveTab] = useState("posts");
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
-  const [profilePhoto, setProfilePhoto] = useState("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
+  const [profilePhoto, setProfilePhoto] = useState(profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
+
+  useEffect(() => {
+    if (profile?.avatar_url) setProfilePhoto(profile.avatar_url);
+  }, [profile?.avatar_url]);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [photoZoom, setPhotoZoom] = useState(1);
   const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
