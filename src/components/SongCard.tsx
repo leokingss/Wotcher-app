@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, HeartCrack, MessageCircle, Send, Bookmark, Play } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, Send, Bookmark, Play, Pencil, Check, X } from "lucide-react";
 
 interface Comment {
   id: number;
@@ -7,7 +7,12 @@ interface Comment {
   avatar: string;
   text: string;
   time: string;
+  createdAt?: number;
+  edited?: boolean;
 }
+
+const EDIT_WINDOW_MS = 60 * 60 * 1000;
+const CURRENT_USER = "you";
 
 interface SongCardProps {
   id: number;
