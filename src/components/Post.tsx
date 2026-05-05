@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
 import CommentSection from "./CommentSection";
+import PostContextMenu from "./PostContextMenu";
 
 interface PostProps {
   username: string;
