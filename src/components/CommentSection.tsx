@@ -120,7 +120,31 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
     );
   };
 
-  if (!isOpen) return null;
+  // Always show latest 2 comments as a preview when not expanded
+  if (!isOpen) {
+    const previewComments = comments.slice(-2);
+    return (
+      <div className="px-4 pb-3">
+        <div className="space-y-2">
+          {previewComments.map((comment) => (
+            <div key={comment.id} className="flex items-start gap-2">
+              <div className="neo-card p-0.5 rounded-full">
+                <img
+                  src={comment.avatar}
+                  alt={comment.username}
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+              </div>
+              <p className="text-xs flex-1 min-w-0">
+                <span className="font-semibold">{comment.username}</span>{" "}
+                <span className="text-muted-foreground">{comment.text}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const displayedComments = showAll ? comments : comments.slice(0, 3);
 
