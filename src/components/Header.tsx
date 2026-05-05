@@ -14,7 +14,7 @@ const Header = ({ activeTab, onTabChange }: HeaderProps) => {
           <Settings className="w-5 h-5" />
         </button>
         
-        <h1 className="watcher-logo">Watcher</h1>
+        <h1 className="watcher-logo text-signature">Watcher</h1>
         
         <HeaderDropdown activeTab={activeTab} onTabChange={onTabChange} />
       </div>

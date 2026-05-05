@@ -174,7 +174,8 @@ const Profile = () => {
       </header>
 
       <main className="max-w-lg mx-auto px-4">
-        {/* Profile Stats */}
+        {/* Profile Stats - hero with grain texture */}
+        <div className="grain-overlay rounded-3xl">
         <div className="flex items-center justify-center gap-8 py-6">
           <div className="text-center">
             <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1">16.8k</p>
@@ -208,11 +209,12 @@ const Profile = () => {
 
         {/* Bio */}
         <div className="text-center mb-4">
-          <h2 className="font-bold text-lg">Adel Dafi <span className="font-normal text-muted-foreground">|</span> <span className="font-normal">Developer</span></h2>
+          <h2 className="font-bold text-lg"><span className="text-signature">Adel Dafi</span> <span className="font-normal text-muted-foreground">|</span> <span className="font-normal">Developer</span></h2>
           <p className="text-sm text-muted-foreground mt-1">
             Developer #web #software #mobileDev | #graphicdesigner<br />
             #Artist | 🇫🇷 | #fullstackdeveloper
           </p>
+        </div>
         </div>
 
         {/* Action Buttons */}
