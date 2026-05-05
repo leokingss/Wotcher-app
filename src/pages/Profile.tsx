@@ -396,55 +396,73 @@ const Profile = () => {
 
         {activeTab === "music" && (
           <motion.div key="music" {...tabFade} className="space-y-3">
-            {playlist.map((song) => (
-              <SongCard
-                key={song.id}
-                {...song}
-                isCommentsOpen={openCommentsId === song.id}
-                onToggleComments={() => handleToggleComments(song.id)}
-              />
-            ))}
-            <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
-              <span>View all music</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            {playlist.length === 0 ? (
+              <EmptyState icon={Music} title="No music yet" description="Tracks you upload will appear here." />
+            ) : (
+              <>
+                {playlist.map((song) => (
+                  <SongCard
+                    key={song.id}
+                    {...song}
+                    isCommentsOpen={openCommentsId === song.id}
+                    onToggleComments={() => handleToggleComments(song.id)}
+                  />
+                ))}
+                <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
+                  <span>View all music</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
           </motion.div>
         )}
 
         {activeTab === "videos" && (
           <motion.div key="videos" {...tabFade} className="space-y-3">
-            {videos.map((video) => (
-              <VideoCard
-                key={video.id}
-                {...video}
-                isCommentsOpen={openCommentsId === video.id}
-                onToggleComments={() => handleToggleComments(video.id)}
-              />
-            ))}
-            <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
-              <span>View all videos</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            {videos.length === 0 ? (
+              <EmptyState icon={Film} title="No videos yet" description="Share your first clip to get the reel rolling." />
+            ) : (
+              <>
+                {videos.map((video) => (
+                  <VideoCard
+                    key={video.id}
+                    {...video}
+                    isCommentsOpen={openCommentsId === video.id}
+                    onToggleComments={() => handleToggleComments(video.id)}
+                  />
+                ))}
+                <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
+                  <span>View all videos</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
           </motion.div>
         )}
 
         {activeTab === "photos" && (
-          <motion.div key="photos" {...tabFade} className="grid grid-cols-3 gap-2">
-            {userPosts.map((post, index) => (
-              <PostContextMenu key={`photo-only-${index}`} label="Photo">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.04 }}
-                  className="neo-card p-1 rounded-xl group cursor-pointer"
-                >
-                  <div className="relative overflow-hidden rounded-lg">
-                    <img src={post.image} alt="" className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </div>
-                </motion.div>
-              </PostContextMenu>
-            ))}
+          <motion.div key="photos" {...tabFade}>
+            {userPosts.length === 0 ? (
+              <EmptyState icon={UserSquare2} title="No photos yet" description="Photos you post will live here." />
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {userPosts.map((post, index) => (
+                  <PostContextMenu key={`photo-only-${index}`} label="Photo">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.04 }}
+                      className="neo-card p-1 rounded-xl group cursor-pointer"
+                    >
+                      <div className="relative overflow-hidden rounded-lg">
+                        <img src={post.image} alt="" className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </motion.div>
+                  </PostContextMenu>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
 
