@@ -43,41 +43,54 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-12 z-50 neo-dropdown min-w-[200px] p-4 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="mb-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Feed Options</p>
-            <div className="space-y-2">
-              {feedOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => {
-                    onTabChange(option.id);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                    activeTab === option.id
-                      ? "neo-button-active text-primary"
-                      : "neo-button-inset hover:text-primary"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
+        <div className="absolute right-0 top-12 z-50 neo-dropdown min-w-[280px] p-5 rounded-3xl animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="mb-5">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-semibold">Visualization</p>
+            <div className="flex items-start justify-between gap-3">
+              {feedOptions.map((option) => {
+                const isActive = activeTab === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => {
+                      onTabChange(option.id);
+                      setIsOpen(false);
+                    }}
+                    className="flex flex-col items-center gap-2 flex-1 group"
+                  >
+                    <span
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-semibold transition-all ${
+                        isActive
+                          ? "neo-card-inset text-primary"
+                          : "neo-button-icon text-foreground group-hover:text-primary"
+                      }`}
+                    >
+                      {option.id}
+                    </span>
+                    <span className={`text-xs ${isActive ? "text-primary font-medium" : "text-muted-foreground"}`}>
+                      {option.label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="border-t border-border pt-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Theme</p>
+          <div className="border-t border-border pt-4 flex items-center justify-between">
+            <span className="text-sm font-medium">{theme === "dark" ? "Dark Theme" : "Light Theme"}</span>
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+              role="switch"
+              aria-checked={theme === "dark"}
+              className="relative w-14 h-8 rounded-full neo-card-inset transition-all"
             >
-              <span>{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
-              {theme === "dark" ? (
-                <Moon className="w-5 h-5 text-primary" />
-              ) : (
-                <Sun className="w-5 h-5 text-primary" />
-              )}
+              <span
+                className={`absolute top-1 w-6 h-6 rounded-full neo-button-icon flex items-center justify-center transition-all duration-300 ease-out ${
+                  theme === "dark" ? "left-7 text-primary" : "left-1 text-primary"
+                }`}
+              >
+                {theme === "dark" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
+              </span>
             </button>
           </div>
 
