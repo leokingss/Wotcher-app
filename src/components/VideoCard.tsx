@@ -41,6 +41,19 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
   const [newComment, setNewComment] = useState("");
   const [commentList, setCommentList] = useState<Comment[]>(mockComments);
   const [commentCount, setCommentCount] = useState(comments);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+
+  const canEdit = (c: Comment) =>
+    c.username === CURRENT_USER && !!c.createdAt && Date.now() - c.createdAt < EDIT_WINDOW_MS;
+
+  const startEdit = (c: Comment) => { setEditingId(c.id); setEditText(c.text); };
+  const cancelEdit = () => { setEditingId(null); setEditText(""); };
+  const saveEdit = (id: number) => {
+    if (!editText.trim()) return;
+    setCommentList(prev => prev.map(c => c.id === id ? { ...c, text: editText.trim(), edited: true } : c));
+    cancelEdit();
+  };
 
   const handleLike = () => {
     if (isDisliked) {
