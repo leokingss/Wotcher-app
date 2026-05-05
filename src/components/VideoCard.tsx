@@ -138,6 +138,33 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
         </button>
       </div>
 
+      {/* Latest 2 comments preview (always visible when closed) */}
+      {!isCommentsOpen && commentList.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+          {commentList.slice(0, 2).map((comment) => (
+            <div key={comment.id} className="flex items-start gap-2">
+              <img
+                src={comment.avatar}
+                alt={comment.username}
+                className="w-6 h-6 rounded-full object-cover"
+              />
+              <p className="text-xs flex-1 min-w-0">
+                <span className="font-semibold">{comment.username}</span>{" "}
+                <span className="text-muted-foreground">{comment.text}</span>
+              </p>
+            </div>
+          ))}
+          {commentList.length > 2 && (
+            <button
+              onClick={onToggleComments}
+              className="text-xs text-primary font-medium"
+            >
+              View all {commentCount} comments
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Expandable Comments Section */}
       {isCommentsOpen && (
         <div className="mt-3 pt-3 border-t border-border/50 animate-fade-in">
