@@ -4,7 +4,7 @@ import { RefreshCw } from "lucide-react";
 import CloudPost from "./CloudPost";
 import EmptyState from "./EmptyState";
 import { usePosts } from "@/hooks/usePosts";
-import { Loader2, ImageIcon } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 
 const THRESHOLD = 70;
 
@@ -57,13 +57,43 @@ const Feed = () => {
       </motion.div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin" />
+        <div className="space-y-6 px-4 pt-2" aria-label="Loading feed">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="neo-card p-4 rounded-3xl space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="neo-skeleton w-10 h-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <div className="neo-skeleton h-3 w-1/3 rounded" />
+                  <div className="neo-skeleton h-2 w-1/4 rounded" />
+                </div>
+              </div>
+              <div className="neo-skeleton aspect-[4/5] w-full rounded-2xl" />
+              <div className="flex gap-3">
+                <div className="neo-skeleton h-8 w-16 rounded-full" />
+                <div className="neo-skeleton h-8 w-16 rounded-full" />
+                <div className="neo-skeleton h-8 w-16 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : posts.length === 0 ? (
         <EmptyState icon={ImageIcon} title="No posts yet" description="Be the first to share something." />
       ) : (
-        posts.map((post) => <CloudPost key={post.id} post={post} onReactionChanged={refresh} />)
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
+        >
+          {posts.map((post) => (
+            <motion.div
+              key={post.id}
+              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <CloudPost post={post} onReactionChanged={refresh} />
+            </motion.div>
+          ))}
+        </motion.div>
       )}
     </div>
   );
