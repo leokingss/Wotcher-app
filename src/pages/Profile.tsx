@@ -195,10 +195,10 @@ const Profile = () => {
         {/* Profile Stats - hero with grain texture */}
         <div className="grain-overlay rounded-3xl">
         <div className="flex items-center justify-center gap-8 py-6">
-          <div className="text-center">
-            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1">16.8k</p>
+          <button onClick={() => setFollowSheet("followers")} className="text-center group">
+            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">16.8k</p>
             <p className="text-xs text-muted-foreground">Followers</p>
-          </div>
+          </button>
           
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-md animate-blob-morph" 
@@ -219,10 +219,10 @@ const Profile = () => {
             </button>
           </div>
           
-          <div className="text-center">
-            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1">99</p>
+          <button onClick={() => setFollowSheet("following")} className="text-center group">
+            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">99</p>
             <p className="text-xs text-muted-foreground">Following</p>
-          </div>
+          </button>
         </div>
 
         {/* Stats chips row */}
@@ -282,6 +282,9 @@ const Profile = () => {
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
         </div>
+
+        {/* Highlights row */}
+        <Highlights />
 
         {/* Tabs - individual icon buttons spread evenly */}
         <div className="flex justify-between mb-4">
