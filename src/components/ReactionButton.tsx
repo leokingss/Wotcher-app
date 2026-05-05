@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, HeartCrack, Hammer } from "lucide-react";
+import { Heart, HeartCrack } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface ReactionButtonProps {
