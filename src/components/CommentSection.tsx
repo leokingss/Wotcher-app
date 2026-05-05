@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Send, Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X } from "lucide-react";
 import ReactionButton from "./ReactionButton";
+import CommentComposer from "./CommentComposer";
+import CommentPreview from "./CommentPreview";
 import { useComments } from "@/hooks/useComments";
-import { mockPostComments, RichComment, CURRENT_USER_AVATAR } from "@/data/mockComments";
+import { mockPostComments, RichComment } from "@/data/mockComments";
 
 interface CommentSectionProps {
   isOpen: boolean;
@@ -26,8 +28,7 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
   const [newComment, setNewComment] = useState("");
   const [showAll, setShowAll] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (!newComment.trim()) return;
     addComment(newComment, { likes: 0, dislikes: 0, isLiked: false, isDisliked: false });
     setNewComment("");
@@ -67,26 +68,9 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
   };
 
   if (!isOpen) {
-    const previewComments = comments.slice(0, 2);
     return (
       <div className="px-4 pb-3">
-        <div className="space-y-2">
-          {previewComments.map((comment) => (
-            <div key={comment.id} className="flex items-start gap-2">
-              <div className="neo-card p-0.5 rounded-full">
-                <img
-                  src={comment.avatar}
-                  alt={comment.username}
-                  className="w-6 h-6 rounded-full object-cover"
-                />
-              </div>
-              <p className="text-xs flex-1 min-w-0">
-                <span className="font-semibold">{comment.username}</span>{" "}
-                <span className="text-muted-foreground">{comment.text}</span>
-              </p>
-            </div>
-          ))}
-        </div>
+        <CommentPreview comments={comments} framed={false} />
       </div>
     );
   }
@@ -171,21 +155,12 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-2 border-t border-border/30">
-          <div className="neo-card p-0.5 rounded-full">
-            <img src={CURRENT_USER_AVATAR} alt="You" className="w-7 h-7 rounded-full object-cover" />
-          </div>
-          <input
-            type="text"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          />
-          <button type="submit" disabled={!newComment.trim()} className="neo-button-icon p-2 disabled:opacity-50">
-            <Send className="w-4 h-4 text-primary" />
-          </button>
-        </form>
+        <CommentComposer
+          value={newComment}
+          onChange={setNewComment}
+          onSubmit={handleSubmit}
+          variant="bordered"
+        />
       </div>
     </div>
   );
