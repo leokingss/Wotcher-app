@@ -287,44 +287,37 @@ const Profile = () => {
         {/* Highlights row */}
         <Highlights />
 
-        {/* Tabs - individual icon buttons spread evenly */}
+        {/* Tabs - icon buttons with sliding active indicator */}
         <div className="flex justify-between mb-4">
-          <button 
-            onClick={() => setActiveTab("posts")}
-            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "posts" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
-          >
-            <Grid3X3 className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => setActiveTab("music")}
-            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "music" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
-          >
-            <Music className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => setActiveTab("videos")}
-            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "videos" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
-          >
-            <Film className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => setActiveTab("photos")}
-            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "photos" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
-          >
-            <UserSquare2 className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => setActiveTab("links")}
-            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "links" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
-          >
-            <LinkIcon className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => setActiveTab("saved")}
-            className={`neo-button-icon w-11 h-11 flex items-center justify-center ${activeTab === "saved" ? "text-primary neo-card-inset" : "text-muted-foreground"}`}
-          >
-            <Bookmark className="w-5 h-5" />
-          </button>
+          {[
+            { id: "posts", Icon: Grid3X3 },
+            { id: "music", Icon: Music },
+            { id: "videos", Icon: Film },
+            { id: "photos", Icon: UserSquare2 },
+            { id: "links", Icon: LinkIcon },
+            { id: "saved", Icon: Bookmark },
+          ].map(({ id, Icon }) => {
+            const isActive = activeTab === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`relative w-11 h-11 flex items-center justify-center rounded-full transition-colors ${
+                  isActive ? "text-primary" : "neo-button-icon text-muted-foreground"
+                }`}
+                aria-pressed={isActive}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="profile-tab-indicator"
+                    className="absolute inset-0 rounded-full neo-card-inset"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <Icon className="w-5 h-5 relative z-10" />
+              </button>
+            );
+          })}
         </div>
 
         {/* Content based on active tab */}
