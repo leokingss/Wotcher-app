@@ -1,15 +1,19 @@
 import { useState, useRef } from "react";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface UploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUploaded?: () => void;
 }
 
 interface MediaFile {
@@ -19,10 +23,12 @@ interface MediaFile {
   type: "image" | "video";
 }
 
-const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
+const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => {
+  const { user } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [caption, setCaption] = useState("");
+  const [posting, setPosting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
