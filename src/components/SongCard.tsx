@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MessageCircle, Send, Bookmark, Play, Pause } from "lucide-react";
+import { motion } from "framer-motion";
 import ReactionButton from "./ReactionButton";
 import { useComments } from "@/hooks/useComments";
 import { mockSongComments, Comment } from "@/data/mockComments";
