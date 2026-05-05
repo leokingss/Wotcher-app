@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, HeartCrack, Hammer } from "lucide-react";
+import { Heart, HeartCrack } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface ReactionButtonProps {
@@ -56,27 +56,43 @@ const ReactionButton = ({ type, active, count, onClick, showCount = true, size =
       >
         <Icon className={`${iconSize} ${active ? activeColor : ""}`} />
 
-        {/* Hammer animation for dislike */}
+        {/* Lightning crack draws across the heart, then heart swaps to HeartCrack */}
         {isDislike && (
           <AnimatePresence>
             {hammering && (
-              <motion.div
-                key="hammer"
-                initial={{ opacity: 0, x: -24, y: -4, rotate: -90, scale: 0.7 }}
-                animate={{
-                  opacity: [0, 1, 1, 1, 0],
-                  x: [-24, -16, -8, -16, -24],
-                  y: [-4, -8, -12, -8, -4],
-                  rotate: [-90, -60, -30, -60, -90],
-                  scale: [0.7, 1, 1.1, 1, 0.7],
-                }}
+              <motion.svg
+                key="crack"
+                viewBox="0 0 24 24"
+                className={`absolute inset-0 ${iconSize} pointer-events-none overflow-visible`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 1, 0] }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.7, ease: "easeOut", times: [0, 0.3, 0.55, 0.8, 1] }}
-                style={{ transformOrigin: "100% 100%" }}
-                className="absolute left-0 top-0 pointer-events-none"
+                transition={{ duration: 0.7, times: [0, 0.15, 0.75, 1] }}
               >
-                <Hammer className={`${hammerSize} text-foreground drop-shadow`} />
-              </motion.div>
+                <motion.path
+                  d="M13 4 L10 11 L14 12 L9 21"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.6}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-red-500"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.38, ease: [0.7, 0, 0.3, 1] }}
+                  style={{ filter: "drop-shadow(0 0 3px rgba(239,68,68,0.7))" }}
+                />
+                <motion.circle
+                  cx="13"
+                  cy="4"
+                  r="0.5"
+                  className="fill-red-500"
+                  initial={{ scale: 0, opacity: 1 }}
+                  animate={{ scale: [0, 6, 8], opacity: [1, 0.6, 0] }}
+                  transition={{ duration: 0.45, ease: "easeOut" }}
+                  style={{ transformOrigin: "13px 4px" }}
+                />
+              </motion.svg>
             )}
           </AnimatePresence>
         )}
