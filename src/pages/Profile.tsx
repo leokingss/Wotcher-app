@@ -213,7 +213,7 @@ const Profile = () => {
             <Settings className="w-5 h-5" />
           </button>
           <button className="neo-button px-4 py-2 rounded-full flex items-center gap-1.5">
-            <span className="font-semibold text-sm">qd019el</span>
+            <span className="font-semibold text-sm">{profile?.username ?? 'you'}</span>
             <ChevronDown className="w-4 h-4" />
           </button>
           <button className="neo-button-icon w-10 h-10 flex items-center justify-center">
@@ -227,7 +227,7 @@ const Profile = () => {
         <div className="grain-overlay rounded-3xl">
         <div className="flex items-center justify-center gap-8 py-6">
           <button onClick={() => setFollowSheet("followers")} className="text-center group">
-            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">16.8k</p>
+            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">{followers}</p>
             <p className="text-xs text-muted-foreground">Followers</p>
           </button>
           
@@ -251,7 +251,7 @@ const Profile = () => {
           </div>
           
           <button onClick={() => setFollowSheet("following")} className="text-center group">
-            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">99</p>
+            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">{following}</p>
             <p className="text-xs text-muted-foreground">Following</p>
           </button>
         </div>
@@ -271,11 +271,10 @@ const Profile = () => {
 
         {/* Bio */}
         <div className="text-center mb-4">
-          <h2 className="font-bold text-lg"><span className="text-signature">Adel Dafi</span> <span className="font-normal text-muted-foreground">|</span> <span className="font-normal">Developer</span></h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Developer #web #software #mobileDev | #graphicdesigner<br />
-            #Artist | 🇫🇷 | #fullstackdeveloper
-          </p>
+          <h2 className="font-bold text-lg">
+            <span className="text-signature">{profile?.display_name ?? profile?.username ?? 'You'}</span>
+          </h2>
+          {profile?.bio && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{profile.bio}</p>}
         </div>
         </div>
 
