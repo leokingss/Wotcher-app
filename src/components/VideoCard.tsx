@@ -1,18 +1,8 @@
 import { useState } from "react";
-import { Heart, HeartCrack, MessageCircle, Send, Bookmark, Play, Pencil, Check, X } from "lucide-react";
-
-interface Comment {
-  id: number;
-  username: string;
-  avatar: string;
-  text: string;
-  time: string;
-  createdAt?: number;
-  edited?: boolean;
-}
-
-const EDIT_WINDOW_MS = 60 * 60 * 1000;
-const CURRENT_USER = "you";
+import { Heart, HeartCrack, MessageCircle, Send, Bookmark, Play } from "lucide-react";
+import { useComments } from "@/hooks/useComments";
+import { mockVideoComments, Comment } from "@/data/mockComments";
+import CommentList from "./CommentList";
 
 interface VideoCardProps {
   id: number;
@@ -26,12 +16,6 @@ interface VideoCardProps {
   onToggleComments: () => void;
 }
 
-const mockComments: Comment[] = [
-  { id: 1, username: "videostar", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop", text: "Great content! 🎬", time: "1h" },
-  { id: 2, username: "filmmaker", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop", text: "Love the editing on this", time: "3h" },
-  { id: 3, username: "creator_hub", avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=50&h=50&fit=crop", text: "Keep up the good work!", time: "1d" },
-];
-
 const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isCommentsOpen, onToggleComments }: VideoCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
@@ -39,66 +23,43 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
   const [likeCount, setLikeCount] = useState(likes);
   const [dislikeCount, setDislikeCount] = useState(0);
   const [newComment, setNewComment] = useState("");
-  const [commentList, setCommentList] = useState<Comment[]>(mockComments);
   const [commentCount, setCommentCount] = useState(comments);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editText, setEditText] = useState("");
 
-  const canEdit = (c: Comment) =>
-    c.username === CURRENT_USER && !!c.createdAt && Date.now() - c.createdAt < EDIT_WINDOW_MS;
-
-  const startEdit = (c: Comment) => { setEditingId(c.id); setEditText(c.text); };
-  const cancelEdit = () => { setEditingId(null); setEditText(""); };
-  const saveEdit = (id: number) => {
-    if (!editText.trim()) return;
-    setCommentList(prev => prev.map(c => c.id === id ? { ...c, text: editText.trim(), edited: true } : c));
-    cancelEdit();
-  };
+  const {
+    comments: commentList,
+    editingId,
+    editText,
+    setEditText,
+    canEdit,
+    startEdit,
+    cancelEdit,
+    saveEdit,
+    addComment,
+  } = useComments<Comment>(mockVideoComments);
 
   const handleLike = () => {
-    if (isDisliked) {
-      setIsDisliked(false);
-      setDislikeCount(prev => prev - 1);
-    }
+    if (isDisliked) { setIsDisliked(false); setDislikeCount(p => p - 1); }
     setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    setLikeCount(p => isLiked ? p - 1 : p + 1);
   };
 
   const handleDislike = () => {
-    if (isLiked) {
-      setIsLiked(false);
-      setLikeCount(prev => prev - 1);
-    }
+    if (isLiked) { setIsLiked(false); setLikeCount(p => p - 1); }
     setIsDisliked(!isDisliked);
-    setDislikeCount(prev => isDisliked ? prev - 1 : prev + 1);
+    setDislikeCount(p => isDisliked ? p - 1 : p + 1);
   };
 
   const handlePostComment = () => {
-    if (newComment.trim()) {
-      const comment: Comment = {
-        id: Date.now(),
-        username: "you",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop",
-        text: newComment.trim(),
-        time: "now",
-        createdAt: Date.now(),
-      };
-      setCommentList([comment, ...commentList]);
-      setCommentCount(prev => prev + 1);
-      setNewComment("");
-    }
+    if (!newComment.trim()) return;
+    addComment(newComment);
+    setCommentCount(p => p + 1);
+    setNewComment("");
   };
 
-  const formatCount = (count: number) => {
-    if (count >= 1000) {
-      return (count / 1000).toFixed(1) + 'k';
-    }
-    return count.toString();
-  };
+  const formatCount = (c: number) => c >= 1000 ? (c / 1000).toFixed(1) + 'k' : c.toString();
 
   return (
     <div className="neo-card p-3 rounded-xl">
-      {/* Video Thumbnail */}
       <div className="relative aspect-video rounded-lg overflow-hidden mb-3">
         <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
         <button className="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -111,37 +72,22 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
         </span>
       </div>
 
-      {/* Video Info */}
       <div className="mb-3">
         <p className="font-medium text-sm truncate">{title}</p>
         <p className="text-xs text-muted-foreground">{views} views</p>
       </div>
-      
-      {/* Actions - matching Post.tsx layout */}
+
       <div className="flex items-center justify-between pt-3 border-t border-border/50">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={handleLike}
-            className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isLiked ? 'like-animation' : ''}`}
-          >
-            <Heart 
-              className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} 
-            />
+          <button onClick={handleLike} className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isLiked ? 'like-animation' : ''}`}>
+            <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
             <span className="text-sm font-medium">{formatCount(likeCount)}</span>
           </button>
-          <button 
-            onClick={handleDislike}
-            className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isDisliked ? 'like-animation' : ''}`}
-          >
-            <HeartCrack 
-              className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-900' : ''}`} 
-            />
+          <button onClick={handleDislike} className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isDisliked ? 'like-animation' : ''}`}>
+            <HeartCrack className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-900' : ''}`} />
             <span className="text-sm font-medium">{dislikeCount}</span>
           </button>
-          <button 
-            onClick={onToggleComments}
-            className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isCommentsOpen ? 'neo-card-inset' : ''}`}
-          >
+          <button onClick={onToggleComments} className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isCommentsOpen ? 'neo-card-inset' : ''}`}>
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm font-medium">{commentCount}</span>
           </button>
@@ -149,24 +95,16 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
             <Send className="w-5 h-5" />
           </button>
         </div>
-        <button 
-          onClick={() => setIsSaved(!isSaved)}
-          className="neo-button-icon p-2.5"
-        >
+        <button onClick={() => setIsSaved(!isSaved)} className="neo-button-icon p-2.5">
           <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-primary text-primary' : ''}`} />
         </button>
       </div>
 
-      {/* Latest 2 comments preview (always visible when closed) */}
       {!isCommentsOpen && commentList.length > 0 && (
         <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
           {commentList.slice(0, 2).map((comment) => (
             <div key={comment.id} className="flex items-start gap-2">
-              <img
-                src={comment.avatar}
-                alt={comment.username}
-                className="w-6 h-6 rounded-full object-cover"
-              />
+              <img src={comment.avatar} alt={comment.username} className="w-6 h-6 rounded-full object-cover" />
               <p className="text-xs flex-1 min-w-0">
                 <span className="font-semibold">{comment.username}</span>{" "}
                 <span className="text-muted-foreground">{comment.text}</span>
@@ -174,82 +112,28 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
             </div>
           ))}
           {commentList.length > 2 && (
-            <button
-              onClick={onToggleComments}
-              className="text-xs text-primary font-medium"
-            >
+            <button onClick={onToggleComments} className="text-xs text-primary font-medium">
               View all {commentCount} comments
             </button>
           )}
         </div>
       )}
 
-      {/* Expandable Comments Section */}
       {isCommentsOpen && (
         <div className="mt-3 pt-3 border-t border-border/50 animate-fade-in">
-          {/* Comments list */}
-          <div className="space-y-3 mb-3">
-            {commentList.slice(0, 3).map((comment) => (
-              <div key={comment.id} className="flex items-start gap-2">
-                <img 
-                  src={comment.avatar} 
-                  alt={comment.username} 
-                  className="w-7 h-7 rounded-full object-cover"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold">{comment.username}</span>
-                    <span className="text-xs text-muted-foreground">{comment.time}</span>
-                    {canEdit(comment) && editingId !== comment.id && (
-                      <button
-                        onClick={() => startEdit(comment)}
-                        className="flex items-center gap-0.5 text-[10px] text-primary font-medium"
-                      >
-                        <Pencil className="w-2.5 h-2.5" />
-                        Edit
-                      </button>
-                    )}
-                  </div>
-                  {editingId === comment.id ? (
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <input
-                        type="text"
-                        value={editText}
-                        onChange={(e) => setEditText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") saveEdit(comment.id);
-                          if (e.key === "Escape") cancelEdit();
-                        }}
-                        autoFocus
-                        className="flex-1 bg-transparent border-b border-border text-xs outline-none"
-                      />
-                      <button onClick={() => saveEdit(comment.id)} className="p-1">
-                        <Check className="w-3 h-3 text-primary" />
-                      </button>
-                      <button onClick={cancelEdit} className="p-1">
-                        <X className="w-3 h-3 text-muted-foreground" />
-                      </button>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-foreground/80">
-                      {comment.text}
-                      {comment.edited && (
-                        <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>
-                      )}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Write comment */}
+          <CommentList
+            comments={commentList}
+            limit={3}
+            canEdit={canEdit}
+            editingId={editingId}
+            editText={editText}
+            onEditTextChange={setEditText}
+            onStartEdit={startEdit}
+            onSave={saveEdit}
+            onCancel={cancelEdit}
+          />
           <div className="flex items-center gap-2 neo-card-inset p-2 rounded-xl">
-            <img 
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop" 
-              alt="You" 
-              className="w-7 h-7 rounded-full object-cover"
-            />
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop" alt="You" className="w-7 h-7 rounded-full object-cover" />
             <input
               type="text"
               placeholder="Add a comment..."
@@ -259,11 +143,7 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               maxLength={500}
             />
-            <button 
-              onClick={handlePostComment}
-              disabled={!newComment.trim()}
-              className={`neo-button-icon p-2 ${newComment.trim() ? 'text-primary' : 'opacity-50'}`}
-            >
+            <button onClick={handlePostComment} disabled={!newComment.trim()} className={`neo-button-icon p-2 ${newComment.trim() ? 'text-primary' : 'opacity-50'}`}>
               <Send className="w-4 h-4" />
             </button>
           </div>
