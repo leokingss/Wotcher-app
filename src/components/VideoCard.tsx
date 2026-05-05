@@ -97,23 +97,12 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
         </button>
       </div>
 
-      {!isCommentsOpen && commentList.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
-          {commentList.slice(0, 2).map((comment) => (
-            <div key={comment.id} className="flex items-start gap-2">
-              <img src={comment.avatar} alt={comment.username} className="w-6 h-6 rounded-full object-cover" />
-              <p className="text-xs flex-1 min-w-0">
-                <span className="font-semibold">{comment.username}</span>{" "}
-                <span className="text-muted-foreground">{comment.text}</span>
-              </p>
-            </div>
-          ))}
-          {commentList.length > 2 && (
-            <button onClick={onToggleComments} className="text-xs text-primary font-medium">
-              View all {commentCount} comments
-            </button>
-          )}
-        </div>
+      {!isCommentsOpen && (
+        <CommentPreview
+          comments={commentList}
+          totalCount={commentCount}
+          onViewAll={onToggleComments}
+        />
       )}
 
       {isCommentsOpen && (
@@ -129,21 +118,11 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
             onSave={saveEdit}
             onCancel={cancelEdit}
           />
-          <div className="flex items-center gap-2 neo-card-inset p-2 rounded-xl">
-            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop" alt="You" className="w-7 h-7 rounded-full object-cover" />
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handlePostComment()}
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              maxLength={500}
-            />
-            <button onClick={handlePostComment} disabled={!newComment.trim()} className={`neo-button-icon p-2 ${newComment.trim() ? 'text-primary' : 'opacity-50'}`}>
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
+          <CommentComposer
+            value={newComment}
+            onChange={setNewComment}
+            onSubmit={handlePostComment}
+          />
         </div>
       )}
     </div>
