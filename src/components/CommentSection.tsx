@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, Heart, HeartCrack } from "lucide-react";
+import { Send, Heart, HeartCrack, Pencil, Check, X } from "lucide-react";
 
 interface Comment {
   id: number;
@@ -11,7 +11,12 @@ interface Comment {
   dislikes: number;
   isLiked: boolean;
   isDisliked: boolean;
+  createdAt?: number;
+  edited?: boolean;
 }
+
+const EDIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const CURRENT_USER = "you";
 
 interface CommentSectionProps {
   isOpen: boolean;
