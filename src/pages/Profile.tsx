@@ -613,6 +613,8 @@ const Profile = () => {
         </DialogContent>
       </Dialog>
 
+      <FollowSheet open={followSheet !== null} onOpenChange={(o) => !o && setFollowSheet(null)} type={followSheet} />
+
       <BottomNav />
     </div>
   );
