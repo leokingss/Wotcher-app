@@ -12,6 +12,11 @@ import PostContextMenu from "@/components/PostContextMenu";
 import FollowSheet from "@/components/FollowSheet";
 import Highlights from "@/components/Highlights";
 import { usePlayer } from "@/hooks/usePlayer";
+import { useAuth } from "@/hooks/useAuth";
+import { usePosts } from "@/hooks/usePosts";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const tabFade = {
   initial: { opacity: 0, y: 6 },
@@ -37,14 +42,7 @@ const featuredSongs = [
   },
 ];
 
-const userPosts = [
-  { image: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" },
-];
+// userPosts loaded from cloud (see usePosts inside component)
 
 const playlist = [
   { id: 1, title: "Midnight Dreams", artist: "Luna Wave", duration: "3:45", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop", likes: 48, comments: 12 },
