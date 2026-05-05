@@ -105,6 +105,7 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
       dislikes: 0,
       isLiked: false,
       isDisliked: false,
+      createdAt: Date.now(),
     };
 
     setComments((prev) => [...prev, comment]);
