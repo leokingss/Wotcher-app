@@ -4,6 +4,8 @@ import ReactionButton from "./ReactionButton";
 import { useComments } from "@/hooks/useComments";
 import { mockSongComments, Comment } from "@/data/mockComments";
 import CommentList from "./CommentList";
+import CommentComposer from "./CommentComposer";
+import CommentPreview from "./CommentPreview";
 import { usePlayer } from "@/hooks/usePlayer";
 
 interface SongCardProps {

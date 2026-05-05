@@ -4,6 +4,8 @@ import ReactionButton from "./ReactionButton";
 import { useComments } from "@/hooks/useComments";
 import { mockVideoComments, Comment } from "@/data/mockComments";
 import CommentList from "./CommentList";
+import CommentComposer from "./CommentComposer";
+import CommentPreview from "./CommentPreview";
 
 interface VideoCardProps {
   id: number;
