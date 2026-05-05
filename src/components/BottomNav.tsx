@@ -42,7 +42,7 @@ const BottomNav = () => {
               return (
                 <button
                   key={item.label}
-                  onClick={() => setUploadDialogOpen(true)}
+                  onClick={() => requireAuth(null) && setUploadDialogOpen(true)}
                   className="neo-button-icon w-11 h-11 flex items-center justify-center rounded-full transition-all text-muted-foreground hover:text-primary hover:scale-105"
                 >
                   <Icon className="w-5 h-5" />
@@ -54,13 +54,14 @@ const BottomNav = () => {
               <Link
                 key={item.path}
                 to={item.path!}
+                onClick={(e) => { if (!requireAuth(item.path)) e.preventDefault(); }}
                 className={`w-11 h-11 flex items-center justify-center rounded-full transition-all ${
-                  isActive 
-                    ? 'neo-card-inset text-primary' 
+                  isActive
+                    ? 'neo-card-inset text-primary'
                     : 'neo-button-icon text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <Icon 
+                <Icon
                   className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : ''}`}
                   fill={isActive ? 'currentColor' : 'none'}
                 />
