@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Heart, HeartCrack, MessageCircle, Send, Bookmark, Play } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, Send, Bookmark, Play, Pause } from "lucide-react";
 import { useComments } from "@/hooks/useComments";
 import { mockSongComments, Comment } from "@/data/mockComments";
 import CommentList from "./CommentList";
+import { usePlayer } from "@/hooks/usePlayer";
 
 interface SongCardProps {
   id: number;
@@ -16,7 +17,7 @@ interface SongCardProps {
   onToggleComments: () => void;
 }
 
-const SongCard = ({ title, artist, duration, cover, likes, comments, isCommentsOpen, onToggleComments }: SongCardProps) => {
+const SongCard = ({ id, title, artist, duration, cover, likes, comments, isCommentsOpen, onToggleComments }: SongCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -24,6 +25,8 @@ const SongCard = ({ title, artist, duration, cover, likes, comments, isCommentsO
   const [dislikeCount, setDislikeCount] = useState(0);
   const [newComment, setNewComment] = useState("");
   const [commentCount, setCommentCount] = useState(comments);
+  const { playingId, toggle } = usePlayer();
+  const isPlaying = playingId === id;
 
   const {
     comments: commentList,
