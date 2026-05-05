@@ -146,17 +146,17 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
                     {isDisliked && (
                       <motion.div
                         key="hammer"
-                        initial={{ opacity: 0, y: -28, rotate: -60, scale: 0.7 }}
+                        initial={{ opacity: 0, x: -28, rotate: -110, scale: 0.7 }}
                         animate={{
                           opacity: [0, 1, 1, 1, 0],
-                          y: [-28, -20, -10, -20, -28],
-                          rotate: [-60, -30, 0, -30, -60],
+                          x: [-28, -18, -6, -18, -28],
+                          rotate: [-110, -70, -20, -70, -110],
                           scale: [0.7, 1, 1.1, 1, 0.7],
                         }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.7, ease: "easeOut", times: [0, 0.3, 0.55, 0.8, 1] }}
-                        style={{ transformOrigin: "50% 100%" }}
-                        className="absolute left-1/2 -top-2 -translate-x-1/2 pointer-events-none"
+                        style={{ transformOrigin: "100% 100%" }}
+                        className="absolute right-1/2 top-1/2 -translate-y-1/2 pointer-events-none"
                       >
                         <Hammer className="w-6 h-6 text-foreground drop-shadow" />
                       </motion.div>
