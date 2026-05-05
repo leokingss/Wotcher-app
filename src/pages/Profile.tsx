@@ -425,19 +425,45 @@ const Profile = () => {
         {activeTab === "photos" && (
           <motion.div key="photos" {...tabFade} className="grid grid-cols-3 gap-2">
             {userPosts.map((post, index) => (
-              <motion.div
-                key={`photo-only-${index}`}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.04 }}
-                className="neo-card p-1 rounded-xl group cursor-pointer"
-              >
-                <div className="relative overflow-hidden rounded-lg">
-                  <img src={post.image} alt="" className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </motion.div>
+              <PostContextMenu key={`photo-only-${index}`} label="Photo">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.04 }}
+                  className="neo-card p-1 rounded-xl group cursor-pointer"
+                >
+                  <div className="relative overflow-hidden rounded-lg">
+                    <img src={post.image} alt="" className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                </motion.div>
+              </PostContextMenu>
             ))}
+          </motion.div>
+        )}
+
+        {activeTab === "links" && (
+          <motion.div key="links" {...tabFade}>
+            <EmptyState
+              icon={LinkIcon}
+              title="No links yet"
+              description="Add links to your portfolio, socials, or anywhere else you want people to find you."
+              action={
+                <button className="action-button action-button-primary text-sm">
+                  Add a link
+                </button>
+              }
+            />
+          </motion.div>
+        )}
+
+        {activeTab === "saved" && (
+          <motion.div key="saved" {...tabFade}>
+            <EmptyState
+              icon={Bookmark}
+              title="Nothing saved"
+              description="Tap the bookmark icon on any post to save it here for later."
+            />
           </motion.div>
         )}
         </AnimatePresence>
