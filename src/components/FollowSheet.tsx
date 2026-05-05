@@ -1,19 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { followUsers as mockUsers } from "@/data/mockSocial";
 
-interface FollowUser {
-  id: number;
-  username: string;
-  name: string;
-  avatar: string;
-}
-
-const mockUsers: FollowUser[] = [
-  { id: 1, username: "sarah_designs", name: "Sarah Lee", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" },
-  { id: 2, username: "mike_photos", name: "Mike Chen", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" },
-  { id: 3, username: "creative_jane", name: "Jane Doe", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop" },
-  { id: 4, username: "djsoul", name: "DJ Soul", avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop" },
-  { id: 5, username: "linda.k", name: "Linda K", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop" },
-];
 
 interface FollowSheetProps {
   open: boolean;
