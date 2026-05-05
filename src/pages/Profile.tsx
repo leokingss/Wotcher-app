@@ -12,6 +12,11 @@ import PostContextMenu from "@/components/PostContextMenu";
 import FollowSheet from "@/components/FollowSheet";
 import Highlights from "@/components/Highlights";
 import { usePlayer } from "@/hooks/usePlayer";
+import { useAuth } from "@/hooks/useAuth";
+import { usePosts } from "@/hooks/usePosts";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const tabFade = {
   initial: { opacity: 0, y: 6 },
@@ -37,14 +42,7 @@ const featuredSongs = [
   },
 ];
 
-const userPosts = [
-  { image: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=400&fit=crop" },
-  { image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" },
-];
+// userPosts loaded from cloud (see usePosts inside component)
 
 const playlist = [
   { id: 1, title: "Midnight Dreams", artist: "Luna Wave", duration: "3:45", cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop", likes: 48, comments: 12 },
@@ -60,12 +58,34 @@ const videos = [
 ];
 
 const Profile = () => {
+  const { user, profile, refreshProfile } = useAuth();
+  const { posts: cloudPosts } = usePosts(user?.id);
+  const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ count: f1 }, { count: f2 }] = await Promise.all([
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", user.id),
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", user.id),
+      ]);
+      setFollowers(f1 ?? 0);
+      setFollowing(f2 ?? 0);
+    })();
+  }, [user]);
+
   const [activeTab, setActiveTab] = useState("posts");
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
-  const [profilePhoto, setProfilePhoto] = useState("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
+  const [profilePhoto, setProfilePhoto] = useState(profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
+
+  useEffect(() => {
+    if (profile?.avatar_url) setProfilePhoto(profile.avatar_url);
+  }, [profile?.avatar_url]);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [photoZoom, setPhotoZoom] = useState(1);
   const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
@@ -148,19 +168,30 @@ const Profile = () => {
       canvas.height = size;
       
       const img = new window.Image();
-      img.onload = () => {
-        if (ctx) {
-          const scaledSize = size * photoZoom;
-          const offsetX = (size - scaledSize) / 2 + (photoPosition.x / 64) * (scaledSize / 2);
-          const offsetY = (size - scaledSize) / 2 + (photoPosition.y / 64) * (scaledSize / 2);
-          ctx.drawImage(img, offsetX, offsetY, scaledSize, scaledSize);
-          const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-          setProfilePhoto(croppedDataUrl);
-        }
+      img.onload = async () => {
+        if (!ctx) return;
+        const scaledSize = size * photoZoom;
+        const offsetX = (size - scaledSize) / 2 + (photoPosition.x / 64) * (scaledSize / 2);
+        const offsetY = (size - scaledSize) / 2 + (photoPosition.y / 64) * (scaledSize / 2);
+        ctx.drawImage(img, offsetX, offsetY, scaledSize, scaledSize);
+        setProfilePhoto(canvas.toDataURL('image/jpeg', 0.9));
         setPreviewPhoto(null);
         setPhotoZoom(1);
         setPhotoPosition({ x: 0, y: 0 });
         setProfilePhotoDialogOpen(false);
+        // Upload to storage
+        if (user) {
+          canvas.toBlob(async (blob) => {
+            if (!blob) return;
+            const path = `${user.id}/avatar-${Date.now()}.jpg`;
+            const { error: upErr } = await supabase.storage.from('avatars').upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+            if (upErr) { toast.error(upErr.message); return; }
+            const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+            await supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('id', user.id);
+            await refreshProfile();
+            toast.success('Profile photo updated');
+          }, 'image/jpeg', 0.9);
+        }
       };
       img.src = previewPhoto;
     }
@@ -182,7 +213,7 @@ const Profile = () => {
             <Settings className="w-5 h-5" />
           </button>
           <button className="neo-button px-4 py-2 rounded-full flex items-center gap-1.5">
-            <span className="font-semibold text-sm">qd019el</span>
+            <span className="font-semibold text-sm">{profile?.username ?? 'you'}</span>
             <ChevronDown className="w-4 h-4" />
           </button>
           <button className="neo-button-icon w-10 h-10 flex items-center justify-center">
@@ -196,7 +227,7 @@ const Profile = () => {
         <div className="grain-overlay rounded-3xl">
         <div className="flex items-center justify-center gap-8 py-6">
           <button onClick={() => setFollowSheet("followers")} className="text-center group">
-            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">16.8k</p>
+            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">{followers}</p>
             <p className="text-xs text-muted-foreground">Followers</p>
           </button>
           
@@ -220,7 +251,7 @@ const Profile = () => {
           </div>
           
           <button onClick={() => setFollowSheet("following")} className="text-center group">
-            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">99</p>
+            <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1 group-hover:text-primary transition-colors">{following}</p>
             <p className="text-xs text-muted-foreground">Following</p>
           </button>
         </div>
@@ -240,11 +271,10 @@ const Profile = () => {
 
         {/* Bio */}
         <div className="text-center mb-4">
-          <h2 className="font-bold text-lg"><span className="text-signature">Adel Dafi</span> <span className="font-normal text-muted-foreground">|</span> <span className="font-normal">Developer</span></h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Developer #web #software #mobileDev | #graphicdesigner<br />
-            #Artist | 🇫🇷 | #fullstackdeveloper
-          </p>
+          <h2 className="font-bold text-lg">
+            <span className="text-signature">{profile?.display_name ?? profile?.username ?? 'You'}</span>
+          </h2>
+          {profile?.bio && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{profile.bio}</p>}
         </div>
         </div>
 

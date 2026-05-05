@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, LogIn } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const feedOptions = [
   { id: 1, label: "Live Feed" },
@@ -16,6 +18,8 @@ interface HeaderDropdownProps {
 const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,6 +79,26 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
                 <Sun className="w-5 h-5 text-primary" />
               )}
             </button>
+          </div>
+
+          <div className="border-t border-border pt-4 mt-4">
+            {user ? (
+              <button
+                onClick={async () => { await signOut(); setIsOpen(false); navigate("/"); }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+              >
+                <span>Sign out</span>
+                <LogOut className="w-5 h-5 text-primary" />
+              </button>
+            ) : (
+              <button
+                onClick={() => { setIsOpen(false); navigate("/auth"); }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+              >
+                <span>Sign in</span>
+                <LogIn className="w-5 h-5 text-primary" />
+              </button>
+            )}
           </div>
         </div>
       )}

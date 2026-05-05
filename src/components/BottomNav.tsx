@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Home, Search, PlusSquare, Heart, User } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import UploadDialog from "./UploadDialog";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const navItems = [
   { icon: Home, path: "/", label: "Home" },
@@ -13,7 +15,19 @@ const navItems = [
 
 const BottomNav = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+
+  const requireAuth = (path: string | null) => {
+    if (!user && (path === null || path === "/profile" || path === "/activity")) {
+      toast.error("Please sign in");
+      navigate("/auth");
+      return false;
+    }
+    return true;
+  };
+
 
   return (
     <>
@@ -28,7 +42,7 @@ const BottomNav = () => {
               return (
                 <button
                   key={item.label}
-                  onClick={() => setUploadDialogOpen(true)}
+                  onClick={() => requireAuth(null) && setUploadDialogOpen(true)}
                   className="neo-button-icon w-11 h-11 flex items-center justify-center rounded-full transition-all text-muted-foreground hover:text-primary hover:scale-105"
                 >
                   <Icon className="w-5 h-5" />
@@ -40,13 +54,14 @@ const BottomNav = () => {
               <Link
                 key={item.path}
                 to={item.path!}
+                onClick={(e) => { if (!requireAuth(item.path)) e.preventDefault(); }}
                 className={`w-11 h-11 flex items-center justify-center rounded-full transition-all ${
-                  isActive 
-                    ? 'neo-card-inset text-primary' 
+                  isActive
+                    ? 'neo-card-inset text-primary'
                     : 'neo-button-icon text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <Icon 
+                <Icon
                   className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : ''}`}
                   fill={isActive ? 'currentColor' : 'none'}
                 />

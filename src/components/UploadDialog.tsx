@@ -1,15 +1,19 @@
 import { useState, useRef } from "react";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface UploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUploaded?: () => void;
 }
 
 interface MediaFile {
@@ -19,10 +23,12 @@ interface MediaFile {
   type: "image" | "video";
 }
 
-const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
+const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => {
+  const { user } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [caption, setCaption] = useState("");
+  const [posting, setPosting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,14 +63,41 @@ const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
     });
   };
 
-  const handlePost = () => {
-    // Here you would handle the actual upload
-    console.log("Posting:", { mediaFiles, caption });
-    // Reset state
-    setMediaFiles([]);
-    setCaption("");
-    setCurrentSlide(0);
-    onOpenChange(false);
+  const handlePost = async () => {
+    if (!user) {
+      toast.error("Please sign in");
+      return;
+    }
+    if (mediaFiles.length === 0) return;
+    setPosting(true);
+    try {
+      const first = mediaFiles[0];
+      const ext = first.file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("media").upload(path, first.file, {
+        contentType: first.file.type,
+        upsert: false,
+      });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+      const { error: insErr } = await supabase.from("posts").insert({
+        user_id: user.id,
+        caption: caption.trim() || null,
+        image_url: urlData.publicUrl,
+        media_type: first.type,
+      });
+      if (insErr) throw insErr;
+      toast.success("Posted!");
+      setMediaFiles([]);
+      setCaption("");
+      setCurrentSlide(0);
+      onOpenChange(false);
+      onUploaded?.();
+    } catch (err: any) {
+      toast.error(err.message ?? "Upload failed");
+    } finally {
+      setPosting(false);
+    }
   };
 
   const handleClose = () => {
@@ -98,9 +131,10 @@ const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
             <DialogTitle className="font-semibold">Create Post</DialogTitle>
             <button
               onClick={handlePost}
-              disabled={mediaFiles.length === 0}
-              className="action-button action-button-primary py-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={mediaFiles.length === 0 || posting}
+              className="action-button action-button-primary py-1.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
+              {posting && <Loader2 className="w-4 h-4 animate-spin" />}
               Post
             </button>
           </div>
