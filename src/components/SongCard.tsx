@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MessageCircle, Send, Bookmark, Play, Pause } from "lucide-react";
+import { motion } from "framer-motion";
 import ReactionButton from "./ReactionButton";
 import { useComments } from "@/hooks/useComments";
 import { mockSongComments, Comment } from "@/data/mockComments";
@@ -82,7 +83,22 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
           </button>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm truncate">{title}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-sm truncate">{title}</p>
+            {isPlaying && (
+              <span className="flex items-end gap-0.5 h-3" aria-hidden>
+                {[0, 1, 2, 3].map((i) => (
+                  <motion.span
+                    key={i}
+                    className="w-0.5 bg-primary rounded-full"
+                    animate={{ height: ["20%", "100%", "40%", "80%"] }}
+                    transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.12, ease: "easeInOut" }}
+                    style={{ height: "40%" }}
+                  />
+                ))}
+              </span>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground truncate">{artist}</p>
         </div>
         <span className="text-xs text-muted-foreground">{duration}</span>
