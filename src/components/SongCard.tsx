@@ -88,14 +88,8 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
 
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
         <div className="flex items-center gap-3">
-          <button onClick={handleLike} className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isLiked ? 'like-animation' : ''}`}>
-            <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-            <span className="text-sm font-medium">{formatCount(likeCount)}</span>
-          </button>
-          <button onClick={handleDislike} className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isDisliked ? 'like-animation' : ''}`}>
-            <HeartCrack className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-900' : ''}`} />
-            <span className="text-sm font-medium">{dislikeCount}</span>
-          </button>
+          <ReactionButton type="like" active={isLiked} count={formatCount(likeCount)} onClick={handleLike} />
+          <ReactionButton type="dislike" active={isDisliked} count={dislikeCount} onClick={handleDislike} />
           <button onClick={onToggleComments} className={`neo-button-icon p-2.5 flex items-center gap-1.5 ${isCommentsOpen ? 'neo-card-inset' : ''}`}>
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm font-medium">{commentCount}</span>
