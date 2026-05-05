@@ -63,6 +63,13 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        display: ['"PP Neue Montreal"', 'Avenir', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['Avenir', '"Avenir Next"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+      },
+      backgroundImage: {
+        signature: 'var(--gradient-signature)',
+      },
       keyframes: {
         "accordion-down": {
           from: {
