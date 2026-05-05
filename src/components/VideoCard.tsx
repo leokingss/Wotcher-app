@@ -80,7 +80,8 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
         username: "you",
         avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop",
         text: newComment.trim(),
-        time: "now"
+        time: "now",
+        createdAt: Date.now(),
       };
       setCommentList([comment, ...commentList]);
       setCommentCount(prev => prev + 1);
