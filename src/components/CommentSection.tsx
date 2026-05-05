@@ -196,11 +196,47 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm">
-                  <span className="font-semibold">{comment.username}</span>{" "}
-                  <span className="text-muted-foreground">{comment.text}</span>
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">{comment.time}</p>
+                {editingId === comment.id ? (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEdit(comment.id);
+                        if (e.key === "Escape") cancelEdit();
+                      }}
+                      autoFocus
+                      className="flex-1 bg-transparent border-b border-border text-sm outline-none"
+                    />
+                    <button onClick={() => saveEdit(comment.id)} className="p-1">
+                      <Check className="w-3.5 h-3.5 text-primary" />
+                    </button>
+                    <button onClick={cancelEdit} className="p-1">
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-sm">
+                    <span className="font-semibold">{comment.username}</span>{" "}
+                    <span className="text-muted-foreground">{comment.text}</span>
+                    {comment.edited && (
+                      <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>
+                    )}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-xs text-muted-foreground">{comment.time}</p>
+                  {canEdit(comment) && editingId !== comment.id && (
+                    <button
+                      onClick={() => startEdit(comment)}
+                      className="flex items-center gap-0.5 text-xs text-primary font-medium"
+                    >
+                      <Pencil className="w-3 h-3" />
+                      Edit
+                    </button>
+                  )}
+                </div>
               </div>
               {/* Like/Dislike buttons side by side */}
               <div className="flex items-center gap-3">
