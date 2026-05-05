@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Slider } from "@/components/ui/slider";
 import EmptyState from "@/components/EmptyState";
 import PostContextMenu from "@/components/PostContextMenu";
+import FollowSheet from "@/components/FollowSheet";
+import Highlights from "@/components/Highlights";
 import { usePlayer } from "@/hooks/usePlayer";
 
 const tabFade = {
@@ -61,6 +63,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
+  const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
