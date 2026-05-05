@@ -168,19 +168,30 @@ const Profile = () => {
       canvas.height = size;
       
       const img = new window.Image();
-      img.onload = () => {
-        if (ctx) {
-          const scaledSize = size * photoZoom;
-          const offsetX = (size - scaledSize) / 2 + (photoPosition.x / 64) * (scaledSize / 2);
-          const offsetY = (size - scaledSize) / 2 + (photoPosition.y / 64) * (scaledSize / 2);
-          ctx.drawImage(img, offsetX, offsetY, scaledSize, scaledSize);
-          const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-          setProfilePhoto(croppedDataUrl);
-        }
+      img.onload = async () => {
+        if (!ctx) return;
+        const scaledSize = size * photoZoom;
+        const offsetX = (size - scaledSize) / 2 + (photoPosition.x / 64) * (scaledSize / 2);
+        const offsetY = (size - scaledSize) / 2 + (photoPosition.y / 64) * (scaledSize / 2);
+        ctx.drawImage(img, offsetX, offsetY, scaledSize, scaledSize);
+        setProfilePhoto(canvas.toDataURL('image/jpeg', 0.9));
         setPreviewPhoto(null);
         setPhotoZoom(1);
         setPhotoPosition({ x: 0, y: 0 });
         setProfilePhotoDialogOpen(false);
+        // Upload to storage
+        if (user) {
+          canvas.toBlob(async (blob) => {
+            if (!blob) return;
+            const path = `${user.id}/avatar-${Date.now()}.jpg`;
+            const { error: upErr } = await supabase.storage.from('avatars').upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+            if (upErr) { toast.error(upErr.message); return; }
+            const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+            await supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('id', user.id);
+            await refreshProfile();
+            toast.success('Profile photo updated');
+          }, 'image/jpeg', 0.9);
+        }
       };
       img.src = previewPhoto;
     }
