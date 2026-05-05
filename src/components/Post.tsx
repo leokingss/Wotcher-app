@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
 import CommentSection from "./CommentSection";
 
@@ -96,25 +97,41 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
-              <button 
+              <motion.button
                 onClick={handleLike}
-                className={`neo-button-icon p-2.5 ${isLiked ? 'like-animation' : ''}`}
+                whileTap={{ scale: 0.85 }}
+                animate={isLiked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
+                transition={{ duration: 0.35 }}
+                className="neo-button-icon p-2.5 relative"
               >
-                <Heart 
-                  className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} 
-                />
-              </button>
+                <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                <AnimatePresence>
+                  {isLiked && [...Array(6)].map((_, i) => {
+                    const angle = (i / 6) * Math.PI * 2;
+                    return (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 1, x: 0, y: 0, scale: 0 }}
+                        animate={{ opacity: 0, x: Math.cos(angle) * 22, y: Math.sin(angle) * 22, scale: 1 }}
+                        transition={{ duration: 0.55, ease: "easeOut" }}
+                        className="absolute top-1/2 left-1/2 w-1 h-1 rounded-full bg-red-500 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                      />
+                    );
+                  })}
+                </AnimatePresence>
+              </motion.button>
               <span className="text-sm font-medium">{formatLikes(likeCount)}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <button 
+              <motion.button
                 onClick={handleDislike}
-                className={`neo-button-icon p-2.5 ${isDisliked ? 'like-animation' : ''}`}
+                whileTap={{ scale: 0.85 }}
+                animate={isDisliked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
+                transition={{ duration: 0.35 }}
+                className="neo-button-icon p-2.5"
               >
-                <HeartCrack 
-                  className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-900' : ''}`} 
-                />
-              </button>
+                <HeartCrack className={`w-5 h-5 ${isDisliked ? 'fill-red-500 text-red-900' : ''}`} />
+              </motion.button>
               <span className="text-sm font-medium">{dislikeCount}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -162,7 +179,21 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
       </div>
 
       {/* Comments Section */}
-      <CommentSection isOpen={showComments} />
+      <AnimatePresence initial={false}>
+        {showComments && (
+          <motion.div
+            key="comments"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 240, damping: 28 }}
+            style={{ overflow: "hidden" }}
+          >
+            <CommentSection isOpen={true} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {!showComments && <CommentSection isOpen={false} />}
     </article>
   );
 };

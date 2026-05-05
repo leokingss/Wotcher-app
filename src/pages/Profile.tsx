@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
@@ -6,6 +7,13 @@ import VideoCard from "@/components/VideoCard";
 import FeaturedSongRow from "@/components/FeaturedSongRow";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
+
+const tabFade = {
+  initial: { opacity: 0, y: 6 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -6 },
+  transition: { duration: 0.2 },
+};
 
 const featuredSongs = [
   { 
@@ -174,7 +182,8 @@ const Profile = () => {
       </header>
 
       <main className="max-w-lg mx-auto px-4">
-        {/* Profile Stats */}
+        {/* Profile Stats - hero with grain texture */}
+        <div className="grain-overlay rounded-3xl">
         <div className="flex items-center justify-center gap-8 py-6">
           <div className="text-center">
             <p className="neo-button px-3 py-1.5 rounded-xl font-bold text-lg mb-1">16.8k</p>
@@ -208,11 +217,12 @@ const Profile = () => {
 
         {/* Bio */}
         <div className="text-center mb-4">
-          <h2 className="font-bold text-lg">Adel Dafi <span className="font-normal text-muted-foreground">|</span> <span className="font-normal">Developer</span></h2>
+          <h2 className="font-bold text-lg"><span className="text-signature">Adel Dafi</span> <span className="font-normal text-muted-foreground">|</span> <span className="font-normal">Developer</span></h2>
           <p className="text-sm text-muted-foreground mt-1">
             Developer #web #software #mobileDev | #graphicdesigner<br />
             #Artist | 🇫🇷 | #fullstackdeveloper
           </p>
+        </div>
         </div>
 
         {/* Action Buttons */}
@@ -291,114 +301,126 @@ const Profile = () => {
         </div>
 
         {/* Content based on active tab */}
+        <AnimatePresence mode="wait">
         {activeTab === "posts" && (
-          <div className="grid grid-cols-3 gap-2">
-            {/* Photos - no indicator needed */}
+          <motion.div key="posts" {...tabFade} className="grid grid-cols-3 gap-2">
             {userPosts.map((post, index) => (
-              <div key={`photo-${index}`} className="neo-card p-1 rounded-xl group cursor-pointer">
+              <motion.div
+                key={`photo-${index}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.03 }}
+                className="neo-card p-1 rounded-xl group cursor-pointer"
+              >
                 <div className="relative overflow-hidden rounded-lg">
                   <img src={post.image} alt="" className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
                 </div>
-              </div>
+              </motion.div>
             ))}
-            {/* Album Covers - with music indicator */}
-            {playlist.map((song) => (
-              <div key={`song-${song.id}`} className="neo-card p-1 rounded-xl relative group cursor-pointer">
+            {playlist.map((song, i) => (
+              <motion.div
+                key={`song-${song.id}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: (userPosts.length + i) * 0.03 }}
+                className="neo-card p-1 rounded-xl relative group cursor-pointer"
+              >
                 <div className="relative overflow-hidden rounded-lg">
                   <img src={song.cover} alt={song.title} className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
-                  {/* Music type indicator */}
                   <div className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
                     <Music className="w-3 h-3 text-primary-foreground" />
                   </div>
-                  {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  {/* Title on hover */}
                   <div className="absolute bottom-0 left-0 right-0 p-1.5 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                     <p className="text-[10px] font-medium text-white truncate drop-shadow-lg">{song.title}</p>
                     <p className="text-[9px] text-white/70 truncate">{song.artist}</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-            {/* Video Thumbnails - with video indicator */}
-            {videos.map((video) => (
-              <div key={`video-${video.id}`} className="neo-card p-1 rounded-xl relative group cursor-pointer">
+            {videos.map((video, i) => (
+              <motion.div
+                key={`video-${video.id}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: (userPosts.length + playlist.length + i) * 0.03 }}
+                className="neo-card p-1 rounded-xl relative group cursor-pointer"
+              >
                 <div className="relative overflow-hidden rounded-lg">
                   <img src={video.thumbnail} alt={video.title} className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
-                  {/* Video type indicator with duration */}
                   <div className="absolute top-1.5 right-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-destructive/90 backdrop-blur-sm shadow-lg">
                     <Film className="w-3 h-3 text-destructive-foreground" />
                     <span className="text-[9px] font-medium text-destructive-foreground">{video.duration}</span>
                   </div>
-                  {/* Play button overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-xl">
                       <div className="w-0 h-0 border-l-[10px] border-l-foreground border-y-[6px] border-y-transparent ml-1" />
                     </div>
                   </div>
-                  {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  {/* Title on hover */}
                   <div className="absolute bottom-0 left-0 right-0 p-1.5 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                     <p className="text-[10px] font-medium text-white truncate drop-shadow-lg">{video.title}</p>
                     <p className="text-[9px] text-white/70">{video.views} views</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {activeTab === "music" && (
-          <div className="space-y-3">
+          <motion.div key="music" {...tabFade} className="space-y-3">
             {playlist.map((song) => (
-              <SongCard 
-                key={song.id} 
-                {...song} 
+              <SongCard
+                key={song.id}
+                {...song}
                 isCommentsOpen={openCommentsId === song.id}
                 onToggleComments={() => handleToggleComments(song.id)}
               />
             ))}
-            
-            {/* Expand option */}
             <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
               <span>View all music</span>
               <ChevronRight className="w-4 h-4" />
             </button>
-          </div>
+          </motion.div>
         )}
 
         {activeTab === "videos" && (
-          <div className="space-y-3">
+          <motion.div key="videos" {...tabFade} className="space-y-3">
             {videos.map((video) => (
-              <VideoCard 
-                key={video.id} 
-                {...video} 
+              <VideoCard
+                key={video.id}
+                {...video}
                 isCommentsOpen={openCommentsId === video.id}
                 onToggleComments={() => handleToggleComments(video.id)}
               />
             ))}
-            
-            {/* Expand option */}
             <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
               <span>View all videos</span>
               <ChevronRight className="w-4 h-4" />
             </button>
-          </div>
+          </motion.div>
         )}
 
         {activeTab === "photos" && (
-          <div className="grid grid-cols-3 gap-2">
+          <motion.div key="photos" {...tabFade} className="grid grid-cols-3 gap-2">
             {userPosts.map((post, index) => (
-              <div key={`photo-only-${index}`} className="neo-card p-1 rounded-xl group cursor-pointer">
+              <motion.div
+                key={`photo-only-${index}`}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.04 }}
+                className="neo-card p-1 rounded-xl group cursor-pointer"
+              >
                 <div className="relative overflow-hidden rounded-lg">
                   <img src={post.image} alt="" className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </main>
 
       {/* Profile Photo Dialog */}

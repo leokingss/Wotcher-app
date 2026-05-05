@@ -376,4 +376,34 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Neumorphic shimmer skeleton */
+  .neo-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: hsl(var(--muted));
+    box-shadow:
+      inset 4px 4px 8px var(--neo-inset-dark),
+      inset -4px -4px 8px var(--neo-inset-light);
+  }
+  .neo-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.06), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.6s infinite;
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
