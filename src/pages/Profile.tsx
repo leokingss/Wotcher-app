@@ -222,6 +222,19 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* Stats chips row */}
+        <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
+          <span className="neo-card-inset px-3 py-1 rounded-full text-[11px] font-medium text-muted-foreground">
+            <span className="text-foreground font-semibold">{userPosts.length + playlist.length + videos.length}</span> posts
+          </span>
+          <span className="neo-card-inset px-3 py-1 rounded-full text-[11px] font-medium text-muted-foreground">
+            <span className="text-foreground font-semibold">{playlist.length}</span> tracks
+          </span>
+          <span className="neo-card-inset px-3 py-1 rounded-full text-[11px] font-medium text-muted-foreground">
+            <span className="text-foreground font-semibold">{videos.length}</span> videos
+          </span>
+        </div>
+
         {/* Bio */}
         <div className="text-center mb-4">
           <h2 className="font-bold text-lg"><span className="text-signature">Adel Dafi</span> <span className="font-normal text-muted-foreground">|</span> <span className="font-normal">Developer</span></h2>
