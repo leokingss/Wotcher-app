@@ -200,8 +200,44 @@ const VideoCard = ({ title, duration, thumbnail, likes, comments, views, isComme
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold">{comment.username}</span>
                     <span className="text-xs text-muted-foreground">{comment.time}</span>
+                    {canEdit(comment) && editingId !== comment.id && (
+                      <button
+                        onClick={() => startEdit(comment)}
+                        className="flex items-center gap-0.5 text-[10px] text-primary font-medium"
+                      >
+                        <Pencil className="w-2.5 h-2.5" />
+                        Edit
+                      </button>
+                    )}
                   </div>
-                  <p className="text-xs text-foreground/80">{comment.text}</p>
+                  {editingId === comment.id ? (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <input
+                        type="text"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEdit(comment.id);
+                          if (e.key === "Escape") cancelEdit();
+                        }}
+                        autoFocus
+                        className="flex-1 bg-transparent border-b border-border text-xs outline-none"
+                      />
+                      <button onClick={() => saveEdit(comment.id)} className="p-1">
+                        <Check className="w-3 h-3 text-primary" />
+                      </button>
+                      <button onClick={cancelEdit} className="p-1">
+                        <X className="w-3 h-3 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-foreground/80">
+                      {comment.text}
+                      {comment.edited && (
+                        <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>
+                      )}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
