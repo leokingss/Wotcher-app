@@ -4,7 +4,7 @@ import { RefreshCw } from "lucide-react";
 import CloudPost from "./CloudPost";
 import EmptyState from "./EmptyState";
 import { usePosts } from "@/hooks/usePosts";
-import { Loader2 } from "lucide-react";
+import { Loader2, ImageIcon } from "lucide-react";
 
 const THRESHOLD = 70;
 
@@ -61,7 +61,7 @@ const Feed = () => {
           <Loader2 className="w-5 h-5 animate-spin" />
         </div>
       ) : posts.length === 0 ? (
-        <EmptyState title="No posts yet" message="Be the first to share something." />
+        <EmptyState icon={ImageIcon} title="No posts yet" description="Be the first to share something." />
       ) : (
         posts.map((post) => <CloudPost key={post.id} post={post} onReactionChanged={refresh} />)
       )}
