@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, LogIn } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const feedOptions = [
   { id: 1, label: "Live Feed" },
@@ -16,6 +18,8 @@ interface HeaderDropdownProps {
 const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
