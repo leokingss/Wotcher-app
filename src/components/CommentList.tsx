@@ -1,0 +1,91 @@
+import { Pencil, Check, X } from "lucide-react";
+import { Comment } from "@/data/mockComments";
+
+interface CommentListProps {
+  comments: Comment[];
+  limit?: number;
+  size?: "sm" | "md";
+  canEdit: (c: Comment) => boolean;
+  editingId: number | null;
+  editText: string;
+  onEditTextChange: (v: string) => void;
+  onStartEdit: (c: Comment) => void;
+  onSave: (id: number) => void;
+  onCancel: () => void;
+}
+
+const CommentList = ({
+  comments,
+  limit,
+  size = "sm",
+  canEdit,
+  editingId,
+  editText,
+  onEditTextChange,
+  onStartEdit,
+  onSave,
+  onCancel,
+}: CommentListProps) => {
+  const list = limit ? comments.slice(0, limit) : comments;
+  const avatarSize = size === "md" ? "w-7 h-7" : "w-7 h-7";
+  const textSize = size === "md" ? "text-sm" : "text-xs";
+
+  return (
+    <div className={size === "md" ? "space-y-3" : "space-y-3 mb-3"}>
+      {list.map((comment) => (
+        <div key={comment.id} className="flex items-start gap-2">
+          <img
+            src={comment.avatar}
+            alt={comment.username}
+            className={`${avatarSize} rounded-full object-cover`}
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className={`${textSize} font-semibold`}>{comment.username}</span>
+              <span className={`${textSize} text-muted-foreground`}>{comment.time}</span>
+              {canEdit(comment) && editingId !== comment.id && (
+                <button
+                  onClick={() => onStartEdit(comment)}
+                  className="flex items-center gap-0.5 text-[10px] text-primary font-medium"
+                >
+                  <Pencil className="w-2.5 h-2.5" />
+                  Edit
+                </button>
+              )}
+            </div>
+            {editingId === comment.id ? (
+              <div className="flex items-center gap-1 mt-0.5">
+                <input
+                  type="text"
+                  value={editText}
+                  onChange={(e) => onEditTextChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") onSave(comment.id);
+                    if (e.key === "Escape") onCancel();
+                  }}
+                  autoFocus
+                  className={`flex-1 bg-transparent border-b border-border ${textSize} outline-none`}
+                />
+                <button onClick={() => onSave(comment.id)} className="p-1">
+                  <Check className="w-3 h-3 text-primary" />
+                </button>
+                <button onClick={onCancel} className="p-1">
+                  <X className="w-3 h-3 text-muted-foreground" />
+                </button>
+              </div>
+            ) : (
+              <p className={`${textSize} text-foreground/80`}>
+                {comment.text}
+                {comment.edited && (
+                  <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>
+                )}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default CommentList;
