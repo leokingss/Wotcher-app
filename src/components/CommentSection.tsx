@@ -1,161 +1,72 @@
 import { useState } from "react";
 import { Send, Heart, HeartCrack, Pencil, Check, X } from "lucide-react";
-
-interface Comment {
-  id: number;
-  username: string;
-  avatar: string;
-  text: string;
-  time: string;
-  likes: number;
-  dislikes: number;
-  isLiked: boolean;
-  isDisliked: boolean;
-  createdAt?: number;
-  edited?: boolean;
-}
-
-const EDIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const CURRENT_USER = "you";
+import { useComments } from "@/hooks/useComments";
+import { mockPostComments, RichComment, CURRENT_USER_AVATAR } from "@/data/mockComments";
 
 interface CommentSectionProps {
   isOpen: boolean;
   postId?: string;
 }
 
-const mockComments: Comment[] = [
-  {
-    id: 1,
-    username: "sarah_designs",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop",
-    text: "This is absolutely stunning! 🔥",
-    time: "2h",
-    likes: 12,
-    dislikes: 0,
-    isLiked: false,
-    isDisliked: false,
-  },
-  {
-    id: 2,
-    username: "mike_photos",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop",
-    text: "Love the composition here",
-    time: "1h",
-    likes: 8,
-    dislikes: 1,
-    isLiked: false,
-    isDisliked: false,
-  },
-  {
-    id: 3,
-    username: "creative_jane",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop",
-    text: "Where was this taken?",
-    time: "45m",
-    likes: 3,
-    dislikes: 0,
-    isLiked: false,
-    isDisliked: false,
-  },
-];
-
 const CommentSection = ({ isOpen }: CommentSectionProps) => {
-  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const {
+    comments,
+    setComments,
+    editingId,
+    editText,
+    setEditText,
+    canEdit,
+    startEdit,
+    cancelEdit,
+    saveEdit,
+    addComment,
+  } = useComments<RichComment>(mockPostComments);
+
   const [newComment, setNewComment] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editText, setEditText] = useState("");
-
-  const canEdit = (comment: Comment) =>
-    comment.username === CURRENT_USER &&
-    !!comment.createdAt &&
-    Date.now() - comment.createdAt < EDIT_WINDOW_MS;
-
-  const startEdit = (comment: Comment) => {
-    setEditingId(comment.id);
-    setEditText(comment.text);
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditText("");
-  };
-
-  const saveEdit = (commentId: number) => {
-    if (!editText.trim()) return;
-    setComments((prev) =>
-      prev.map((c) =>
-        c.id === commentId ? { ...c, text: editText.trim(), edited: true } : c
-      )
-    );
-    cancelEdit();
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-
-    const comment: Comment = {
-      id: Date.now(),
-      username: "you",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop",
-      text: newComment,
-      time: "now",
-      likes: 0,
-      dislikes: 0,
-      isLiked: false,
-      isDisliked: false,
-      createdAt: Date.now(),
-    };
-
-    setComments((prev) => [...prev, comment]);
+    addComment(newComment, { likes: 0, dislikes: 0, isLiked: false, isDisliked: false });
     setNewComment("");
     setShowAll(true);
   };
 
   const handleLikeComment = (commentId: number) => {
     setComments((prev) =>
-      prev.map((comment) => {
-        if (comment.id !== commentId) return comment;
-        
-        if (comment.isLiked) {
-          return { ...comment, isLiked: false, likes: comment.likes - 1 };
-        } else {
-          return {
-            ...comment,
-            isLiked: true,
-            likes: comment.likes + 1,
-            isDisliked: false,
-            dislikes: comment.isDisliked ? comment.dislikes - 1 : comment.dislikes,
-          };
-        }
+      prev.map((c) => {
+        if (c.id !== commentId) return c;
+        if (c.isLiked) return { ...c, isLiked: false, likes: c.likes - 1 };
+        return {
+          ...c,
+          isLiked: true,
+          likes: c.likes + 1,
+          isDisliked: false,
+          dislikes: c.isDisliked ? c.dislikes - 1 : c.dislikes,
+        };
       })
     );
   };
 
   const handleDislikeComment = (commentId: number) => {
     setComments((prev) =>
-      prev.map((comment) => {
-        if (comment.id !== commentId) return comment;
-        
-        if (comment.isDisliked) {
-          return { ...comment, isDisliked: false, dislikes: comment.dislikes - 1 };
-        } else {
-          return {
-            ...comment,
-            isDisliked: true,
-            dislikes: comment.dislikes + 1,
-            isLiked: false,
-            likes: comment.isLiked ? comment.likes - 1 : comment.likes,
-          };
-        }
+      prev.map((c) => {
+        if (c.id !== commentId) return c;
+        if (c.isDisliked) return { ...c, isDisliked: false, dislikes: c.dislikes - 1 };
+        return {
+          ...c,
+          isDisliked: true,
+          dislikes: c.dislikes + 1,
+          isLiked: false,
+          likes: c.isLiked ? c.likes - 1 : c.likes,
+        };
       })
     );
   };
 
-  // Always show latest 2 comments as a preview when not expanded
   if (!isOpen) {
-    const previewComments = comments.slice(-2);
+    const previewComments = comments.slice(0, 2);
     return (
       <div className="px-4 pb-3">
         <div className="space-y-2">
@@ -184,7 +95,6 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
   return (
     <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
       <div className="space-y-3">
-        {/* Comments List */}
         <div className="space-y-3 max-h-48 overflow-y-auto">
           {displayedComments.map((comment) => (
             <div key={comment.id} className="flex items-start gap-2">
@@ -238,47 +148,28 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                   )}
                 </div>
               </div>
-              {/* Like/Dislike buttons side by side */}
               <div className="flex items-center gap-3">
-                <button
-                  onClick={() => handleLikeComment(comment.id)}
-                  className="flex items-center gap-1"
-                >
-                  <Heart
-                    className={`w-3.5 h-3.5 ${comment.isLiked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
-                  />
+                <button onClick={() => handleLikeComment(comment.id)} className="flex items-center gap-1">
+                  <Heart className={`w-3.5 h-3.5 ${comment.isLiked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
                   <span className="text-[10px] text-muted-foreground">{comment.likes}</span>
                 </button>
-                <button
-                  onClick={() => handleDislikeComment(comment.id)}
-                  className="flex items-center gap-1"
-                >
-                  <HeartCrack
-                    className={`w-3.5 h-3.5 ${comment.isDisliked ? 'fill-red-500 text-red-900' : 'text-muted-foreground'}`}
-                  />
+                <button onClick={() => handleDislikeComment(comment.id)} className="flex items-center gap-1">
+                  <HeartCrack className={`w-3.5 h-3.5 ${comment.isDisliked ? 'fill-red-500 text-red-900' : 'text-muted-foreground'}`} />
                   <span className="text-[10px] text-muted-foreground">{comment.dislikes}</span>
                 </button>
               </div>
             </div>
           ))}
           {!showAll && comments.length > 3 && (
-            <button 
-              onClick={() => setShowAll(true)}
-              className="text-xs text-primary font-medium"
-            >
+            <button onClick={() => setShowAll(true)} className="text-xs text-primary font-medium">
               View all {comments.length} comments
             </button>
           )}
         </div>
 
-        {/* Comment Input */}
         <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-2 border-t border-border/30">
           <div className="neo-card p-0.5 rounded-full">
-            <img
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop"
-              alt="You"
-              className="w-7 h-7 rounded-full object-cover"
-            />
+            <img src={CURRENT_USER_AVATAR} alt="You" className="w-7 h-7 rounded-full object-cover" />
           </div>
           <input
             type="text"
@@ -287,11 +178,7 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
             placeholder="Add a comment..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
-          <button
-            type="submit"
-            disabled={!newComment.trim()}
-            className="neo-button-icon p-2 disabled:opacity-50"
-          >
+          <button type="submit" disabled={!newComment.trim()} className="neo-button-icon p-2 disabled:opacity-50">
             <Send className="w-4 h-4 text-primary" />
           </button>
         </form>
