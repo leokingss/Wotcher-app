@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
-import VideoCard from "@/components/VideoCard";
+import MusicFilterChips, { MusicFilter } from "@/components/MusicFilterChips";
 import FeaturedSongRow from "@/components/FeaturedSongRow";
+import VideoCard from "@/components/VideoCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import EmptyState from "@/components/EmptyState";
@@ -48,6 +49,10 @@ const Profile = () => {
   }, [user]);
 
   const [activeTab, setActiveTab] = useState("posts");
+  const [musicFilter, setMusicFilter] = useState<MusicFilter>("featured");
+  // TODO: derive from auth/profile role. For now: own profile + artist toggle.
+  const isOwnProfile = true;
+  const isArtist = true;
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
@@ -390,24 +395,50 @@ const Profile = () => {
 
         {activeTab === "music" && (
           <motion.div key="music" {...tabFade} className="space-y-3">
-            {playlist.length === 0 ? (
-              <EmptyState icon={Music} title="No music yet" description="Tracks you upload will appear here." />
-            ) : (
-              <>
-                {playlist.map((song) => (
-                  <SongCard
-                    key={song.id}
-                    {...song}
-                    isCommentsOpen={openCommentsId === song.id}
-                    onToggleComments={() => handleToggleComments(song.id)}
-                  />
-                ))}
-                <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
-                  <span>View all music</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </>
-            )}
+            <MusicFilterChips
+              active={musicFilter}
+              onChange={setMusicFilter}
+              isOwnProfile={isOwnProfile}
+            />
+            {(() => {
+              // Mock filtering until backend tags songs by type/saved state
+              const filtered =
+                musicFilter === "featured"
+                  ? playlist.slice(0, Math.min(3, playlist.length))
+                  : musicFilter === "releases"
+                  ? playlist
+                  : musicFilter === "singles"
+                  ? playlist.slice(0, Math.ceil(playlist.length / 2))
+                  : []; // saved (own profile only)
+
+              const emptyCopy = {
+                featured: { title: "No featured tracks", desc: "Pin your best work to highlight it here." },
+                releases: { title: "No releases yet", desc: isArtist ? "Upload your first track to get started." : "This artist hasn't released anything yet." },
+                singles: { title: "No singles yet", desc: "Singles you release will appear here." },
+                saved: { title: "Nothing saved yet", desc: "Tap bookmark on any song to save it to your library." },
+              }[musicFilter];
+
+              if (filtered.length === 0) {
+                return <EmptyState icon={musicFilter === "saved" ? Bookmark : Music} title={emptyCopy.title} description={emptyCopy.desc} />;
+              }
+
+              return (
+                <>
+                  {filtered.map((song) => (
+                    <SongCard
+                      key={song.id}
+                      {...song}
+                      isCommentsOpen={openCommentsId === song.id}
+                      onToggleComments={() => handleToggleComments(song.id)}
+                    />
+                  ))}
+                  <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
+                    <span>View all {musicFilter}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </>
+              );
+            })()}
           </motion.div>
         )}
 
