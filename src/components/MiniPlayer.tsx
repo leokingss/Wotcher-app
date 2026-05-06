@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Pause, X } from "lucide-react";
 import { usePlayer } from "@/hooks/usePlayer";
+import StrandWave from "./StrandWave";
 
 const MiniPlayer = () => {
   const { track, stop } = usePlayer();
@@ -23,20 +24,14 @@ const MiniPlayer = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{track.title}</p>
-              <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
+              <div className="flex items-center gap-2 min-w-0">
+                <p className="text-xs text-muted-foreground truncate shrink-0 max-w-[40%]">{track.artist}</p>
+                <div className="flex-1 min-w-0">
+                  <StrandWave isPlaying={true} height={16} />
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="flex items-end gap-0.5 h-4 mr-1" aria-hidden>
-                {[0, 1, 2].map((i) => (
-                  <motion.span
-                    key={i}
-                    className="w-0.5 bg-primary rounded-full"
-                    animate={{ height: ["30%", "100%", "50%"] }}
-                    transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-                    style={{ height: "50%" }}
-                  />
-                ))}
-              </span>
               <button
                 onClick={stop}
                 aria-label="Pause"
