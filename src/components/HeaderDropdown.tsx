@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon, LogOut, LogIn } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import BecomeArtistDialog from "./BecomeArtistDialog";
+import ArtistUploadDialog from "./ArtistUploadDialog";
 
 const feedOptions = [
   { id: 1, label: "Live Feed" },
