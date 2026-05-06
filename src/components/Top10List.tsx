@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SongCard from "./SongCard";
 import { PlaylistItem } from "@/data/mockProfile";
 import { usePlayer } from "@/hooks/usePlayer";
-import ChartPulse from "./ChartPulse";
+import ChartTower from "./ChartTower";
 
 interface Top10ListProps {
   songs: PlaylistItem[];
@@ -41,7 +41,7 @@ const Top10List = ({ songs, openCommentsId, onToggleComments, onAddSong, isOwnPr
           <h3 className="text-lg font-bold mt-0.5">My Top 10</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{top.length}/10 slots filled</p>
         </div>
-        <ChartPulse filled={top.length} />
+        <ChartTower filled={top.length} activeRank={top.findIndex(s => s.id === expandedId) + 1 || 1} />
       </div>
 
       {/* Ordered list — selected song renders as hero, others as compact rows */}
