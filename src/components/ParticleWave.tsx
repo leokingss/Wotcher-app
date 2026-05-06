@@ -58,6 +58,7 @@ const ParticleWave = ({ isPlaying, height = 22, className = "" }: ParticleWavePr
       const baseHue = 45 - colorProgress * 45; // yellow → red
 
       particlesRef.current.forEach((p, i) => {
+        const COUNT = particlesRef.current.length;
         const nx = ((phase * p.speed * 0.06 + i / COUNT + p.seed * 0.001) % 1);
         // Edge fade envelope
         const envelope = Math.sin(nx * Math.PI) ** 0.7;
@@ -115,7 +116,5 @@ const ParticleWave = ({ isPlaying, height = 22, className = "" }: ParticleWavePr
     />
   );
 };
-
-const COUNT = 36;
 
 export default ParticleWave;
