@@ -8,6 +8,7 @@ interface Profile {
   display_name: string | null;
   bio: string | null;
   avatar_url: string | null;
+  account_type: "listener" | "artist";
 }
 
 interface AuthContextValue {
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loadProfile = async (uid: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("id, username, display_name, bio, avatar_url")
+      .select("id, username, display_name, bio, avatar_url, account_type")
       .eq("id", uid)
       .maybeSingle();
     setProfile(data ?? null);

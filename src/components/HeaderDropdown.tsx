@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon, LogOut, LogIn } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import BecomeArtistDialog from "./BecomeArtistDialog";
+import ArtistUploadDialog from "./ArtistUploadDialog";
 
 const feedOptions = [
   { id: 1, label: "Live Feed" },
@@ -17,10 +19,13 @@ interface HeaderDropdownProps {
 
 const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [artistDialogOpen, setArtistDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const isArtist = profile?.account_type === "artist";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -94,6 +99,33 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
             </button>
           </div>
 
+          {user && (
+            <div className="border-t border-border pt-4 mt-4 space-y-2">
+              {isArtist ? (
+                <>
+                  <div className="flex items-center gap-2 px-4 text-xs text-primary font-medium">
+                    <BadgeCheck className="w-4 h-4" /> Artist Account
+                  </div>
+                  <button
+                    onClick={() => { setIsOpen(false); setUploadDialogOpen(true); }}
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+                  >
+                    <span>Release music</span>
+                    <Upload className="w-5 h-5 text-primary" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { setIsOpen(false); setArtistDialogOpen(true); }}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+                >
+                  <span>Become an Artist</span>
+                  <Mic2 className="w-5 h-5 text-primary" />
+                </button>
+              )}
+            </div>
+          )}
+
           <div className="border-t border-border pt-4 mt-4">
             {user ? (
               <button
@@ -115,8 +147,12 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
           </div>
         </div>
       )}
+
+      <BecomeArtistDialog open={artistDialogOpen} onOpenChange={setArtistDialogOpen} />
+      <ArtistUploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} />
     </div>
   );
 };
 
 export default HeaderDropdown;
+

@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      artist_profiles: {
+        Row: {
+          artist_name: string
+          bio: string | null
+          created_at: string
+          external_link: string | null
+          genres: string[]
+          updated_at: string
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          artist_name: string
+          bio?: string | null
+          created_at?: string
+          external_link?: string | null
+          genres?: string[]
+          updated_at?: string
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          artist_name?: string
+          bio?: string | null
+          created_at?: string
+          external_link?: string | null
+          genres?: string[]
+          updated_at?: string
+          user_id?: string
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_reactions: {
         Row: {
           comment_id: string
@@ -256,6 +297,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: Database["public"]["Enums"]["account_type"]
           avatar_url: string | null
           bio: string | null
           created_at: string
@@ -265,6 +307,7 @@ export type Database = {
           username: string
         }
         Insert: {
+          account_type?: Database["public"]["Enums"]["account_type"]
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -274,6 +317,7 @@ export type Database = {
           username: string
         }
         Update: {
+          account_type?: Database["public"]["Enums"]["account_type"]
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -284,16 +328,172 @@ export type Database = {
         }
         Relationships: []
       }
+      track_saves: {
+        Row: {
+          created_at: string
+          top10_rank: number | null
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          top10_rank?: number | null
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          top10_rank?: number | null
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_saves_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "track_saves_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracks: {
+        Row: {
+          artist_id: string
+          audio_url: string
+          cover_url: string | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          release_type: Database["public"]["Enums"]["release_type"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          artist_id: string
+          audio_url: string
+          cover_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          release_type?: Database["public"]["Enums"]["release_type"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          artist_id?: string
+          audio_url?: string
+          cover_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          release_type?: Database["public"]["Enums"]["release_type"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracks_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_saves: {
+        Row: {
+          created_at: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_saves_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_saves_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          artist_id: string
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_artist: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
+      account_type: "listener" | "artist"
       notification_type: "like" | "dislike" | "comment" | "follow"
       reaction_type: "like" | "dislike"
+      release_type: "single" | "ep" | "album"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -421,8 +621,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_type: ["listener", "artist"],
       notification_type: ["like", "dislike", "comment", "follow"],
       reaction_type: ["like", "dislike"],
+      release_type: ["single", "ep", "album"],
     },
   },
 } as const
