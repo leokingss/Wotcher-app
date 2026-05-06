@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MessageCircle, Send, Bookmark, Play, Pause } from "lucide-react";
 import ReactionButton from "./ReactionButton";
-import StrandWave from "./StrandWave";
+import ParticleWave from "./ParticleWave";
 import { useComments } from "@/hooks/useComments";
 import { mockSongComments, Comment } from "@/data/mockComments";
 import CommentList from "./CommentList";
