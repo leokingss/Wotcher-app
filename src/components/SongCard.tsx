@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MessageCircle, Send, Bookmark, Play, Pause } from "lucide-react";
 import ReactionButton from "./ReactionButton";
-import StrandWave from "./StrandWave";
+import ParticleWave from "./ParticleWave";
 import { useComments } from "@/hooks/useComments";
 import { mockSongComments, Comment } from "@/data/mockComments";
 import CommentList from "./CommentList";
@@ -87,7 +87,7 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
             <p className="font-medium text-sm truncate max-w-[45%]">{title}</p>
             {isPlaying && (
               <div className="flex-1 min-w-0">
-                <StrandWave isPlaying={isPlaying} height={20} />
+                <ParticleWave isPlaying={isPlaying} height={20} />
               </div>
             )}
             <span className="text-xs text-muted-foreground shrink-0">{duration}</span>
