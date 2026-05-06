@@ -19,10 +19,13 @@ interface HeaderDropdownProps {
 
 const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [artistDialogOpen, setArtistDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const isArtist = profile?.account_type === "artist";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
