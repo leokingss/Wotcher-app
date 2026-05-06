@@ -87,7 +87,7 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
             <p className="font-medium text-sm truncate max-w-[45%]">{title}</p>
             {isPlaying && (
               <div className="flex-1 min-w-0">
-                <StrandWave isPlaying={isPlaying} height={20} />
+                <ParticleWave isPlaying={isPlaying} height={20} />
               </div>
             )}
             <span className="text-xs text-muted-foreground shrink-0">{duration}</span>
