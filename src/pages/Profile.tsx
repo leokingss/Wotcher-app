@@ -50,7 +50,7 @@ const Profile = () => {
   }, [user]);
 
   const [activeTab, setActiveTab] = useState("posts");
-  const [musicFilter, setMusicFilter] = useState<MusicFilter>("featured");
+  const [musicFilter, setMusicFilter] = useState<MusicFilter>("top10");
   // TODO: derive from auth/profile role. For now: own profile + artist toggle.
   const isOwnProfile = true;
   const isArtist = true;
