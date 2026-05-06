@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MessageCircle, Send, Bookmark, Play, Pause } from "lucide-react";
-import { motion } from "framer-motion";
 import ReactionButton from "./ReactionButton";
+import StrandWave from "./StrandWave";
 import { useComments } from "@/hooks/useComments";
 import { mockSongComments, Comment } from "@/data/mockComments";
 import CommentList from "./CommentList";
@@ -86,30 +86,9 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
           <div className="flex items-center gap-2 min-w-0">
             <p className="font-medium text-sm truncate max-w-[45%]">{title}</p>
             {isPlaying && (
-              <span className="flex-1 flex items-center justify-center gap-[2px] h-5 min-w-0" aria-hidden>
-                {Array.from({ length: 28 }).map((_, i) => (
-                  <motion.span
-                    key={i}
-                    className="w-[2px] bg-primary rounded-full"
-                    animate={{
-                      height: [
-                        `${20 + ((i * 13) % 60)}%`,
-                        `${40 + ((i * 31) % 60)}%`,
-                        `${15 + ((i * 47) % 70)}%`,
-                        `${60 + ((i * 19) % 40)}%`,
-                        `${25 + ((i * 7) % 65)}%`,
-                      ],
-                    }}
-                    transition={{
-                      duration: 1.1,
-                      repeat: Infinity,
-                      delay: i * 0.04,
-                      ease: "easeInOut",
-                    }}
-                    style={{ height: "30%" }}
-                  />
-                ))}
-              </span>
+              <div className="flex-1 min-w-0">
+                <StrandWave isPlaying={isPlaying} height={20} />
+              </div>
             )}
             <span className="text-xs text-muted-foreground shrink-0">{duration}</span>
           </div>
