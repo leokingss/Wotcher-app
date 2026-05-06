@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SongCard from "./SongCard";
 import { PlaylistItem } from "@/data/mockProfile";
 import { usePlayer } from "@/hooks/usePlayer";
+import ChartPulse from "./ChartPulse";
 
 interface Top10ListProps {
   songs: PlaylistItem[];
@@ -34,23 +35,13 @@ const Top10List = ({ songs, openCommentsId, onToggleComments, onAddSong, isOwnPr
   return (
     <div className="space-y-4">
       {/* Header banner */}
-      <div className="neo-card p-4 rounded-2xl flex items-center justify-between">
-        <div>
+      <div className="neo-card p-4 rounded-2xl flex items-center justify-between gap-4 overflow-hidden relative">
+        <div className="relative z-10">
           <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">Personal Chart</p>
           <h3 className="text-lg font-bold mt-0.5">My Top 10</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{top.length}/10 slots filled</p>
         </div>
-        <div className="flex items-end gap-0.5 h-10" aria-hidden>
-          {[40, 65, 90, 55, 75, 45, 80].map((h, i) => (
-            <motion.span
-              key={i}
-              className="w-1 bg-primary rounded-full"
-              animate={{ height: [`${h * 0.4}%`, `${h}%`, `${h * 0.6}%`] }}
-              transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.08, ease: "easeInOut" }}
-              style={{ height: `${h}%` }}
-            />
-          ))}
-        </div>
+        <ChartPulse filled={top.length} />
       </div>
 
       {/* Ordered list — selected song renders as hero, others as compact rows */}
