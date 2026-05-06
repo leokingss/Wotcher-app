@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SongCard from "./SongCard";
 import { PlaylistItem } from "@/data/mockProfile";
 import { usePlayer } from "@/hooks/usePlayer";
+import ChartPulse from "./ChartPulse";
 
 interface Top10ListProps {
   songs: PlaylistItem[];
