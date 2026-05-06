@@ -4,6 +4,7 @@ import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, L
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import MusicFilterChips, { MusicFilter } from "@/components/MusicFilterChips";
+import Top10List from "@/components/Top10List";
 import FeaturedSongRow from "@/components/FeaturedSongRow";
 import VideoCard from "@/components/VideoCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
