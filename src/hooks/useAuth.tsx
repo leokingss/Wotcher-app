@@ -8,6 +8,7 @@ interface Profile {
   display_name: string | null;
   bio: string | null;
   avatar_url: string | null;
+  account_type: "listener" | "artist";
 }
 
 interface AuthContextValue {
