@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
+import MusicFilterChips, { MusicFilter } from "@/components/MusicFilterChips";
+// keep existing import line for FeaturedSongRow below
+import FeaturedSongRow from "@/components/FeaturedSongRow";
 import VideoCard from "@/components/VideoCard";
 import FeaturedSongRow from "@/components/FeaturedSongRow";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
