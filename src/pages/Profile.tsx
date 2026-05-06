@@ -395,24 +395,50 @@ const Profile = () => {
 
         {activeTab === "music" && (
           <motion.div key="music" {...tabFade} className="space-y-3">
-            {playlist.length === 0 ? (
-              <EmptyState icon={Music} title="No music yet" description="Tracks you upload will appear here." />
-            ) : (
-              <>
-                {playlist.map((song) => (
-                  <SongCard
-                    key={song.id}
-                    {...song}
-                    isCommentsOpen={openCommentsId === song.id}
-                    onToggleComments={() => handleToggleComments(song.id)}
-                  />
-                ))}
-                <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
-                  <span>View all music</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </>
-            )}
+            <MusicFilterChips
+              active={musicFilter}
+              onChange={setMusicFilter}
+              isOwnProfile={isOwnProfile}
+            />
+            {(() => {
+              // Mock filtering until backend tags songs by type/saved state
+              const filtered =
+                musicFilter === "featured"
+                  ? playlist.slice(0, Math.min(3, playlist.length))
+                  : musicFilter === "releases"
+                  ? playlist
+                  : musicFilter === "singles"
+                  ? playlist.slice(0, Math.ceil(playlist.length / 2))
+                  : []; // saved (own profile only)
+
+              const emptyCopy = {
+                featured: { title: "No featured tracks", desc: "Pin your best work to highlight it here." },
+                releases: { title: "No releases yet", desc: isArtist ? "Upload your first track to get started." : "This artist hasn't released anything yet." },
+                singles: { title: "No singles yet", desc: "Singles you release will appear here." },
+                saved: { title: "Nothing saved yet", desc: "Tap bookmark on any song to save it to your library." },
+              }[musicFilter];
+
+              if (filtered.length === 0) {
+                return <EmptyState icon={musicFilter === "saved" ? Bookmark : Music} title={emptyCopy.title} description={emptyCopy.desc} />;
+              }
+
+              return (
+                <>
+                  {filtered.map((song) => (
+                    <SongCard
+                      key={song.id}
+                      {...song}
+                      isCommentsOpen={openCommentsId === song.id}
+                      onToggleComments={() => handleToggleComments(song.id)}
+                    />
+                  ))}
+                  <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
+                    <span>View all {musicFilter}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </>
+              );
+            })()}
           </motion.div>
         )}
 
