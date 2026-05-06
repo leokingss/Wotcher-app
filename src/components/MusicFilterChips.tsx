@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export type MusicFilter = "featured" | "releases" | "singles" | "saved";
+export type MusicFilter = "featured" | "releases" | "singles" | "saved" | "top10";
 
 interface MusicFilterChipsProps {
   active: MusicFilter;
@@ -13,11 +13,13 @@ const ALL_CHIPS: { id: MusicFilter; label: string }[] = [
   { id: "releases", label: "Releases" },
   { id: "singles", label: "Singles" },
   { id: "saved", label: "Saved" },
+  { id: "top10", label: "My Top 10" },
 ];
 
 const MusicFilterChips = ({ active, onChange, isOwnProfile = true }: MusicFilterChipsProps) => {
-  // "Saved" only shows on your own profile (your library of songs saved from artists)
-  const chips = ALL_CHIPS.filter((c) => c.id !== "saved" || isOwnProfile);
+  // "Saved" and "My Top 10" only show on your own profile
+  const ownOnly: MusicFilter[] = ["saved", "top10"];
+  const chips = ALL_CHIPS.filter((c) => !ownOnly.includes(c.id) || isOwnProfile);
 
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">

@@ -4,6 +4,7 @@ import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, L
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import MusicFilterChips, { MusicFilter } from "@/components/MusicFilterChips";
+import Top10List from "@/components/Top10List";
 import FeaturedSongRow from "@/components/FeaturedSongRow";
 import VideoCard from "@/components/VideoCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -400,7 +401,14 @@ const Profile = () => {
               onChange={setMusicFilter}
               isOwnProfile={isOwnProfile}
             />
-            {(() => {
+            {musicFilter === "top10" ? (
+              <Top10List
+                songs={playlist}
+                openCommentsId={openCommentsId}
+                onToggleComments={handleToggleComments}
+                isOwnProfile={isOwnProfile}
+              />
+            ) : (() => {
               // Mock filtering until backend tags songs by type/saved state
               const filtered =
                 musicFilter === "featured"
@@ -416,6 +424,7 @@ const Profile = () => {
                 releases: { title: "No releases yet", desc: isArtist ? "Upload your first track to get started." : "This artist hasn't released anything yet." },
                 singles: { title: "No singles yet", desc: "Singles you release will appear here." },
                 saved: { title: "Nothing saved yet", desc: "Tap bookmark on any song to save it to your library." },
+                top10: { title: "Build your Top 10", desc: "Curate your 10 favorite tracks of all time." },
               }[musicFilter];
 
               if (filtered.length === 0) {
