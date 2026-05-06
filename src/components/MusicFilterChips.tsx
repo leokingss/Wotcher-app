@@ -9,11 +9,11 @@ interface MusicFilterChipsProps {
 }
 
 const ALL_CHIPS: { id: MusicFilter; label: string }[] = [
+  { id: "top10", label: "My Top 10" },
   { id: "featured", label: "Featured" },
   { id: "releases", label: "Releases" },
   { id: "singles", label: "Singles" },
   { id: "saved", label: "Saved" },
-  { id: "top10", label: "My Top 10" },
 ];
 
 const MusicFilterChips = ({ active, onChange, isOwnProfile = true }: MusicFilterChipsProps) => {
