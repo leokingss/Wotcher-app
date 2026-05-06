@@ -4,10 +4,8 @@ import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, L
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import MusicFilterChips, { MusicFilter } from "@/components/MusicFilterChips";
-// keep existing import line for FeaturedSongRow below
 import FeaturedSongRow from "@/components/FeaturedSongRow";
 import VideoCard from "@/components/VideoCard";
-import FeaturedSongRow from "@/components/FeaturedSongRow";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import EmptyState from "@/components/EmptyState";
@@ -51,6 +49,10 @@ const Profile = () => {
   }, [user]);
 
   const [activeTab, setActiveTab] = useState("posts");
+  const [musicFilter, setMusicFilter] = useState<MusicFilter>("featured");
+  // TODO: derive from auth/profile role. For now: own profile + artist toggle.
+  const isOwnProfile = true;
+  const isArtist = true;
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
