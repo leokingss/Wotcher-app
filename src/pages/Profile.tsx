@@ -26,6 +26,8 @@ import { useSellerListings } from "@/hooks/useListings";
 import ListingDialog from "@/components/ListingDialog";
 import TimeLeft from "@/components/TimeLeft";
 import { Gavel, Tag } from "lucide-react";
+import SellerRating from "@/components/SellerRating";
+import ShippingAddressDialog from "@/components/ShippingAddressDialog";
 
 const tabFade = {
   initial: { opacity: 0, y: 6 },
