@@ -666,6 +666,13 @@ const Profile = () => {
       </Dialog>
 
       <FollowSheet open={followSheet !== null} onOpenChange={(o) => !o && setFollowSheet(null)} type={followSheet} />
+      <ProfileQRDialog
+        open={qrOpen}
+        onOpenChange={setQrOpen}
+        username={profile?.username ?? "you"}
+        displayName={profile?.display_name ?? undefined}
+        avatarUrl={profilePhoto}
+      />
 
       <BottomNav />
     </div>
