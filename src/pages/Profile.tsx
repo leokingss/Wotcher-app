@@ -20,6 +20,8 @@ import { usePosts } from "@/hooks/usePosts";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import FriendCircleMenu from "@/components/FriendCircleMenu";
 
 const tabFade = {
   initial: { opacity: 0, y: 6 },
@@ -32,29 +34,78 @@ import { featuredSongs, playlist, videos } from "@/data/mockProfile";
 
 
 const Profile = () => {
-  const { user, profile, refreshProfile } = useAuth();
-  const { posts: cloudPosts } = usePosts(user?.id);
+  const { user, profile: myProfile, refreshProfile } = useAuth();
+  const { username: routeUsername } = useParams<{ username?: string }>();
+
+  // Viewed profile (may differ from signed-in user)
+  const [viewedProfile, setViewedProfile] = useState<any>(null);
+  const [viewedLoading, setViewedLoading] = useState(!!routeUsername);
+
+  useEffect(() => {
+    if (!routeUsername) { setViewedProfile(null); return; }
+    setViewedLoading(true);
+    supabase
+      .from("profiles")
+      .select("id, username, display_name, bio, avatar_url, account_type")
+      .eq("username", routeUsername)
+      .maybeSingle()
+      .then(({ data }) => {
+        setViewedProfile(data);
+        setViewedLoading(false);
+      });
+  }, [routeUsername]);
+
+  const profile = routeUsername ? viewedProfile : myProfile;
+  const profileUserId = routeUsername ? viewedProfile?.id : user?.id;
+  const isOwnProfile = !routeUsername || (user && viewedProfile && user.id === viewedProfile.id);
+
+  const { posts: cloudPosts } = usePosts(profileUserId);
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!profileUserId) return;
     (async () => {
       const [{ count: f1 }, { count: f2 }] = await Promise.all([
-        supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", user.id),
-        supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", user.id),
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", profileUserId),
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", profileUserId),
       ]);
       setFollowers(f1 ?? 0);
       setFollowing(f2 ?? 0);
+      if (user && !isOwnProfile) {
+        const { data } = await supabase
+          .from("follows")
+          .select("follower_id")
+          .eq("follower_id", user.id)
+          .eq("following_id", profileUserId)
+          .maybeSingle();
+        setIsFollowing(!!data);
+      }
     })();
-  }, [user]);
+  }, [profileUserId, user, isOwnProfile]);
+
+  const handleFollow = async (circle: string) => {
+    if (!user) { toast.error("Sign in to follow"); return; }
+    if (!profileUserId) return;
+    if (isFollowing) {
+      await supabase.from("follows").delete().eq("follower_id", user.id).eq("following_id", profileUserId);
+      setIsFollowing(false);
+      setFollowers((c) => Math.max(0, c - 1));
+      toast.success("Unfollowed");
+    } else {
+      const { error } = await supabase.from("follows").insert({ follower_id: user.id, following_id: profileUserId });
+      if (error) { toast.error(error.message); return; }
+      setIsFollowing(true);
+      setFollowers((c) => c + 1);
+      toast.success(`Added to ${circle}`);
+    }
+  };
 
   const [activeTab, setActiveTab] = useState("posts");
   const [musicFilter, setMusicFilter] = useState<MusicFilter>("top10");
-  // TODO: derive from auth/profile role. For now: own profile + artist toggle.
-  const isOwnProfile = true;
-  const isArtist = true;
+  const isArtist = profile?.account_type === "artist";
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
@@ -183,6 +234,13 @@ const Profile = () => {
     setProfilePhotoDialogOpen(false);
   };
 
+  if (routeUsername && viewedLoading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading profile…</div>;
+  }
+  if (routeUsername && !viewedProfile) {
+    return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">User not found</div>;
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -240,12 +298,14 @@ const Profile = () => {
                 <span className="text-[10px] font-medium truncate max-w-[120px]">{player.track.title}</span>
               </div>
             )}
-            <button 
-              onClick={() => setProfilePhotoDialogOpen(true)}
-              className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg z-10"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+            {isOwnProfile && (
+              <button
+                onClick={() => setProfilePhotoDialogOpen(true)}
+                className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg z-10"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            )}
           </div>
           
           <button onClick={() => setFollowSheet("following")} className="text-center group">
@@ -278,15 +338,31 @@ const Profile = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-3 justify-center mb-6">
-          <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">
-            Edit profile
-          </button>
-          <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">
-            Statistics
-          </button>
-          <button className="action-button action-button-primary">
-            Contact
-          </button>
+          {isOwnProfile ? (
+            <>
+              <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">Edit profile</button>
+              <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">Statistics</button>
+              <button className="action-button action-button-primary">Contact</button>
+            </>
+          ) : (
+            <>
+              {isFollowing ? (
+                <button onClick={() => handleFollow("")} className="neo-button px-5 py-2 rounded-full text-sm font-medium">
+                  Following
+                </button>
+              ) : (
+                <FriendCircleMenu
+                  username={profile?.username ?? ""}
+                  onSelect={(c) => handleFollow(String(c))}
+                  variant="pill"
+                />
+              )}
+              <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">Message</button>
+              <button className="neo-button-icon w-10 h-10 flex items-center justify-center rounded-full">
+                <Plus className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Featured Songs - stacked vertically */}

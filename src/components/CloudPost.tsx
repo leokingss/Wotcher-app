@@ -76,7 +76,7 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate(`/profile?u=${username}`)}
+              onClick={() => navigate(`/profile/${username}`)}
               className="neo-button-icon p-0.5 shrink-0"
               aria-label={`View ${username}'s profile`}
             >
@@ -84,7 +84,7 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
             </button>
             <div>
               <button
-                onClick={() => navigate(`/profile?u=${username}`)}
+                onClick={() => navigate(`/profile/${username}`)}
                 className="font-semibold text-sm hover:underline text-left"
               >
                 {username}
