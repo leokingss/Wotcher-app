@@ -291,12 +291,14 @@ const Profile = () => {
                 <span className="text-[10px] font-medium truncate max-w-[120px]">{player.track.title}</span>
               </div>
             )}
-            <button 
-              onClick={() => setProfilePhotoDialogOpen(true)}
-              className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg z-10"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+            {isOwnProfile && (
+              <button
+                onClick={() => setProfilePhotoDialogOpen(true)}
+                className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg z-10"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            )}
           </div>
           
           <button onClick={() => setFollowSheet("following")} className="text-center group">
