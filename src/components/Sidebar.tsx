@@ -31,12 +31,7 @@ const Sidebar = () => (
               <p className="text-sm font-semibold truncate">{u.username}</p>
               <p className="text-[11px] text-muted-foreground truncate">{u.name}</p>
             </div>
-            <button
-              aria-label={`Follow ${u.username}`}
-              className="neo-button-icon w-8 h-8 flex items-center justify-center rounded-full text-primary"
-            >
-              <UserPlus className="w-4 h-4" />
-            </button>
+            <FriendCircleMenu username={u.username} />
           </li>
         ))}
       </ul>
