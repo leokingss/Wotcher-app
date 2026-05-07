@@ -40,6 +40,7 @@ import { featuredSongs, playlist, videos } from "@/data/mockProfile";
 const Profile = () => {
   const { user, profile: myProfile, refreshProfile } = useAuth();
   const { username: routeUsername } = useParams<{ username?: string }>();
+  const [searchParams] = useSearchParams();
 
   // Viewed profile (may differ from signed-in user)
   const [viewedProfile, setViewedProfile] = useState<any>(null);
