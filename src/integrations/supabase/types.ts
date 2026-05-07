@@ -87,6 +87,24 @@ export type Database = {
           },
         ]
       }
+      blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       comment_reactions: {
         Row: {
           comment_id: string
@@ -203,6 +221,7 @@ export type Database = {
       }
       listings: {
         Row: {
+          buyer_shipping: Json | null
           created_at: string
           current_bid: number | null
           current_bidder_id: string | null
@@ -212,6 +231,8 @@ export type Database = {
           post_id: string | null
           price: number | null
           seller_id: string
+          shipping_required: boolean
+          sold_at: string | null
           starting_bid: number | null
           status: Database["public"]["Enums"]["listing_status"]
           title: string
@@ -219,6 +240,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          buyer_shipping?: Json | null
           created_at?: string
           current_bid?: number | null
           current_bidder_id?: string | null
@@ -228,6 +250,8 @@ export type Database = {
           post_id?: string | null
           price?: number | null
           seller_id: string
+          shipping_required?: boolean
+          sold_at?: string | null
           starting_bid?: number | null
           status?: Database["public"]["Enums"]["listing_status"]
           title: string
@@ -235,6 +259,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          buyer_shipping?: Json | null
           created_at?: string
           current_bid?: number | null
           current_bidder_id?: string | null
@@ -244,6 +269,8 @@ export type Database = {
           post_id?: string | null
           price?: number | null
           seller_id?: string
+          shipping_required?: boolean
+          sold_at?: string | null
           starting_bid?: number | null
           status?: Database["public"]["Enums"]["listing_status"]
           title?: string
@@ -265,6 +292,8 @@ export type Database = {
           actor_id: string | null
           created_at: string
           id: string
+          listing_id: string | null
+          metadata: Json | null
           post_id: string | null
           read: boolean
           type: Database["public"]["Enums"]["notification_type"]
@@ -274,6 +303,8 @@ export type Database = {
           actor_id?: string | null
           created_at?: string
           id?: string
+          listing_id?: string | null
+          metadata?: Json | null
           post_id?: string | null
           read?: boolean
           type: Database["public"]["Enums"]["notification_type"]
@@ -283,6 +314,8 @@ export type Database = {
           actor_id?: string | null
           created_at?: string
           id?: string
+          listing_id?: string | null
+          metadata?: Json | null
           post_id?: string | null
           read?: boolean
           type?: Database["public"]["Enums"]["notification_type"]
@@ -416,6 +449,114 @@ export type Database = {
           id?: string
           updated_at?: string
           username?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
+      seller_reviews: {
+        Row: {
+          buyer_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          listing_id: string
+          rating: number
+          seller_id: string
+        }
+        Insert: {
+          buyer_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          rating: number
+          seller_id: string
+        }
+        Update: {
+          buyer_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          rating?: number
+          seller_id?: string
+        }
+        Relationships: []
+      }
+      shipping_addresses: {
+        Row: {
+          city: string
+          country: string
+          created_at: string
+          full_name: string
+          id: string
+          is_default: boolean
+          line1: string
+          line2: string | null
+          phone: string | null
+          postal_code: string
+          region: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city: string
+          country: string
+          created_at?: string
+          full_name: string
+          id?: string
+          is_default?: boolean
+          line1: string
+          line2?: string | null
+          phone?: string | null
+          postal_code: string
+          region?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_default?: boolean
+          line1?: string
+          line2?: string | null
+          phone?: string | null
+          postal_code?: string
+          region?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -575,7 +716,14 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      seller_rating_summary: {
+        Row: {
+          avg_rating: number | null
+          review_count: number | null
+          seller_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       is_artist: { Args: { _user_id: string }; Returns: boolean }
@@ -584,7 +732,16 @@ export type Database = {
       account_type: "listener" | "artist"
       listing_status: "active" | "sold" | "ended" | "cancelled"
       listing_type: "fixed" | "auction"
-      notification_type: "like" | "dislike" | "comment" | "follow"
+      notification_type:
+        | "like"
+        | "dislike"
+        | "comment"
+        | "follow"
+        | "outbid"
+        | "auction_won"
+        | "item_sold"
+        | "auction_ending"
+        | "new_listing"
       reaction_type: "like" | "dislike"
       release_type: "single" | "ep" | "album"
     }
@@ -717,7 +874,17 @@ export const Constants = {
       account_type: ["listener", "artist"],
       listing_status: ["active", "sold", "ended", "cancelled"],
       listing_type: ["fixed", "auction"],
-      notification_type: ["like", "dislike", "comment", "follow"],
+      notification_type: [
+        "like",
+        "dislike",
+        "comment",
+        "follow",
+        "outbid",
+        "auction_won",
+        "item_sold",
+        "auction_ending",
+        "new_listing",
+      ],
       reaction_type: ["like", "dislike"],
       release_type: ["single", "ep", "album"],
     },
