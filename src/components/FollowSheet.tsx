@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { followUsers as mockUsers } from "@/data/mockSocial";
-
+import FriendCircleMenu from "./FriendCircleMenu";
 
 interface FollowSheetProps {
   open: boolean;
@@ -26,9 +26,7 @@ const FollowSheet = ({ open, onOpenChange, type }: FollowSheetProps) => {
                 <p className="text-sm font-semibold truncate">{u.username}</p>
                 <p className="text-xs text-muted-foreground truncate">{u.name}</p>
               </div>
-              <button className="action-button action-button-primary text-xs py-1.5 px-4">
-                {type === "followers" ? "Follow" : "Following"}
-              </button>
+              <FriendCircleMenu username={u.username} variant={type === "followers" ? "pill" : "icon"} />
             </div>
           ))}
         </div>
