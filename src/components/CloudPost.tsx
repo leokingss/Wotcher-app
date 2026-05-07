@@ -129,6 +129,8 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
           )}
         </div>
 
+        {listing && <ListingBar listing={listing} onOpen={() => setListingOpen(true)} />}
+
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-4">
