@@ -74,12 +74,25 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
     });
   };
 
+  const computeEndsAt = (): string | null => {
+    if (saleType !== "auction") return null;
+    if (duration === "custom") return customEnd ? new Date(customEnd).toISOString() : null;
+    const ms = duration === "1d" ? 86_400_000 : duration === "3d" ? 3 * 86_400_000 : 7 * 86_400_000;
+    return new Date(Date.now() + ms).toISOString();
+  };
+
   const handlePost = async () => {
     if (!user) {
       toast.error("Please sign in");
       return;
     }
     if (mediaFiles.length === 0) return;
+    if (forSale) {
+      if (!itemTitle.trim()) { toast.error("Add an item title"); return; }
+      if (saleType === "fixed" && !(parseFloat(price) > 0)) { toast.error("Set a price"); return; }
+      if (saleType === "auction" && !(parseFloat(startingBid) >= 0)) { toast.error("Set a starting bid"); return; }
+      if (saleType === "auction" && duration === "custom" && !customEnd) { toast.error("Pick an end date"); return; }
+    }
     setPosting(true);
     try {
       const first = mediaFiles[0];
@@ -91,17 +104,38 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
       });
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
-      const { error: insErr } = await supabase.from("posts").insert({
+      const { data: postRow, error: insErr } = await supabase.from("posts").insert({
         user_id: user.id,
         caption: caption.trim() || null,
         image_url: urlData.publicUrl,
         media_type: first.type,
-      });
+      }).select("id").single();
       if (insErr) throw insErr;
-      toast.success("Posted!");
+
+      if (forSale && postRow) {
+        const endsAt = computeEndsAt();
+        const { error: lErr } = await supabase.from("listings").insert({
+          post_id: postRow.id,
+          seller_id: user.id,
+          type: saleType,
+          title: itemTitle.trim(),
+          description: caption.trim() || null,
+          price: saleType === "fixed" ? parseFloat(price) : null,
+          starting_bid: saleType === "auction" ? parseFloat(startingBid) : null,
+          ends_at: endsAt,
+        });
+        if (lErr) throw lErr;
+      }
+
+      toast.success(forSale ? "Posted & listed for sale!" : "Posted!");
       setMediaFiles([]);
       setCaption("");
       setCurrentSlide(0);
+      setForSale(false);
+      setItemTitle("");
+      setPrice("");
+      setStartingBid("");
+      setCustomEnd("");
       onOpenChange(false);
       onUploaded?.();
     } catch (err: any) {
@@ -115,6 +149,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
     setMediaFiles([]);
     setCaption("");
     setCurrentSlide(0);
+    setForSale(false);
     onOpenChange(false);
   };
 
