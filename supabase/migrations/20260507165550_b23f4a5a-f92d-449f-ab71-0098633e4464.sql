@@ -1,0 +1,1 @@
+ALTER VIEW public.seller_rating_summary SET (security_invoker = true);

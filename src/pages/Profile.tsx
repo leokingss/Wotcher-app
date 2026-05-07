@@ -26,6 +26,8 @@ import { useSellerListings } from "@/hooks/useListings";
 import ListingDialog from "@/components/ListingDialog";
 import TimeLeft from "@/components/TimeLeft";
 import { Gavel, Tag } from "lucide-react";
+import SellerRating from "@/components/SellerRating";
+import ShippingAddressDialog from "@/components/ShippingAddressDialog";
 
 const tabFade = {
   initial: { opacity: 0, y: 6 },
@@ -135,6 +137,7 @@ const Profile = () => {
   const [profilePhoto, setProfilePhoto] = useState(profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
   const { listings: shopListings } = useSellerListings(profileUserId);
   const [openListingId, setOpenListingId] = useState<string | null>(null);
+  const [addressOpen, setAddressOpen] = useState(false);
 
   useEffect(() => {
     if (profile?.avatar_url) setProfilePhoto(profile.avatar_url);
@@ -638,6 +641,22 @@ const Profile = () => {
 
         {activeTab === "shop" && (
           <motion.div key="shop" {...tabFade}>
+            {profileUserId && (
+              <div className="neo-card-inset rounded-2xl p-3 mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Seller rating</span>
+                  <SellerRating sellerId={profileUserId} compact />
+                </div>
+                {isOwnProfile && (
+                  <button
+                    onClick={() => setAddressOpen(true)}
+                    className="text-xs font-semibold text-primary"
+                  >
+                    Address book
+                  </button>
+                )}
+              </div>
+            )}
             {shopListings.length === 0 ? (
               <EmptyState
                 icon={ShoppingBag}
@@ -716,6 +735,7 @@ const Profile = () => {
               </div>
             )}
             <ListingDialog open={!!openListingId} onOpenChange={(o) => !o && setOpenListingId(null)} listingId={openListingId} />
+            <ShippingAddressDialog open={addressOpen} onOpenChange={setAddressOpen} />
           </motion.div>
         )}
 
