@@ -23,6 +23,8 @@ interface MediaFile {
   type: "image" | "video";
 }
 
+type AuctionDuration = "1d" | "3d" | "7d" | "custom";
+
 const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => {
   const { user } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
@@ -30,6 +32,15 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const [caption, setCaption] = useState("");
   const [posting, setPosting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Marketplace state
+  const [forSale, setForSale] = useState(false);
+  const [saleType, setSaleType] = useState<"fixed" | "auction">("fixed");
+  const [itemTitle, setItemTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [startingBid, setStartingBid] = useState("");
+  const [duration, setDuration] = useState<AuctionDuration>("3d");
+  const [customEnd, setCustomEnd] = useState("");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
