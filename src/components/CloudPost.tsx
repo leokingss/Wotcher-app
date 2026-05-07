@@ -255,6 +255,7 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
           )}
         </AnimatePresence>
       </article>
+      <ListingDialog open={listingOpen} onOpenChange={setListingOpen} listingId={listing?.id ?? null} />
     </PostContextMenu>
   );
 };
