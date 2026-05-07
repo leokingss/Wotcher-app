@@ -301,6 +301,7 @@ const Profile = () => {
             { id: "videos", Icon: Film },
             { id: "photos", Icon: UserSquare2 },
             { id: "links", Icon: LinkIcon },
+            { id: "shop", Icon: ShoppingBag },
             { id: "saved", Icon: Bookmark },
           ].map(({ id, Icon }) => {
             const isActive = activeTab === id;
