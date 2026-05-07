@@ -1,5 +1,6 @@
 import { Pencil, Check, X } from "lucide-react";
 import { Comment } from "@/data/mockComments";
+import VoiceNotePlayer from "./VoiceNotePlayer";
 
 interface CommentListProps {
   comments: Comment[];
@@ -83,12 +84,16 @@ const CommentList = ({
                 </button>
               </div>
             ) : (
-              <p className={`${textSize} text-foreground/80`}>
-                {comment.text}
-                {comment.edited && (
-                  <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>
-                )}
-              </p>
+              comment.voiceUrl ? (
+                <div className="mt-1"><VoiceNotePlayer src={comment.voiceUrl} durationSec={comment.voiceDuration} /></div>
+              ) : (
+                <p className={`${textSize} text-foreground/80`}>
+                  {comment.text}
+                  {comment.edited && (
+                    <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>
+                  )}
+                </p>
+              )
             )}
           </div>
         </div>
