@@ -137,6 +137,7 @@ const Profile = () => {
   const [profilePhoto, setProfilePhoto] = useState(profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
   const { listings: shopListings } = useSellerListings(profileUserId);
   const [openListingId, setOpenListingId] = useState<string | null>(null);
+  const [addressOpen, setAddressOpen] = useState(false);
 
   useEffect(() => {
     if (profile?.avatar_url) setProfilePhoto(profile.avatar_url);
