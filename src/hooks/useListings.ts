@@ -19,6 +19,9 @@ export interface Listing {
   status: ListingStatus;
   created_at: string;
   image_url?: string | null;
+  shipping_required?: boolean;
+  sold_at?: string | null;
+  buyer_shipping?: Record<string, any> | null;
 }
 
 export interface Bid {
