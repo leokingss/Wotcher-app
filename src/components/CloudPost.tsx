@@ -4,7 +4,6 @@ import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
 import ListingBar from "./ListingBar";
-import ListingDialog from "./ListingDialog";
 import { FeedPost, togglePostReaction } from "@/hooks/usePosts";
 import { Listing } from "@/hooks/useListings";
 import { supabase } from "@/integrations/supabase/client";
