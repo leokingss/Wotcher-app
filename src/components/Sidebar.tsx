@@ -1,5 +1,6 @@
-import { TrendingUp, Sparkles, UserPlus } from "lucide-react";
+import { TrendingUp, Sparkles } from "lucide-react";
 import { trendingTags as trending, suggestedUsers as suggested } from "@/data/mockSocial";
+import FriendCircleMenu from "./FriendCircleMenu";
 
 
 const Sidebar = () => (
