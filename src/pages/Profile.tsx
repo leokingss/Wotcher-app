@@ -628,16 +628,46 @@ const Profile = () => {
 
         {activeTab === "shop" && (
           <motion.div key="shop" {...tabFade}>
-            <EmptyState
-              icon={ShoppingBag}
-              title="Shop coming soon"
-              description="Showcase merch, vinyl, and exclusive drops here for your fans to buy."
-              action={
-                <button className="action-button action-button-primary text-sm">
-                  Add a product
-                </button>
-              }
-            />
+            {shopListings.length === 0 ? (
+              <EmptyState
+                icon={ShoppingBag}
+                title={isOwnProfile ? "Nothing for sale yet" : "No items for sale"}
+                description={isOwnProfile ? "When you upload a photo, toggle 'List for sale' to add it here." : "This user hasn't listed anything yet."}
+              />
+            ) : (
+              <div className="space-y-3">
+                {shopListings.map((l) => {
+                  const isAuction = l.type === "auction";
+                  const ended = l.ends_at ? new Date(l.ends_at).getTime() <= Date.now() : false;
+                  const display = isAuction ? (l.current_bid ?? l.starting_bid) : l.price;
+                  const fmt = (n?: number | null) => n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(n);
+                  return (
+                    <button
+                      key={l.id}
+                      onClick={() => setOpenListingId(l.id)}
+                      className="w-full neo-card p-3 rounded-2xl flex items-center gap-3 text-left"
+                    >
+                      <div className="neo-button-icon w-11 h-11 flex items-center justify-center shrink-0">
+                        {isAuction ? <Gavel className="w-5 h-5 text-primary" /> : <Tag className="w-5 h-5 text-primary" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{l.title}</p>
+                        <p className="text-[11px] text-muted-foreground capitalize">
+                          {l.status === "sold" ? "Sold" : ended && l.status === "active" ? "Ended" : isAuction ? (l.current_bid ? "Current bid" : "Starting bid") : "Buy now"}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="font-bold tabular-nums">{fmt(display)}</p>
+                        {isAuction && l.ends_at && l.status === "active" && !ended && (
+                          <p className="text-[10px]"><TimeLeft endsAt={l.ends_at} compact /></p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <ListingDialog open={!!openListingId} onOpenChange={(o) => !o && setOpenListingId(null)} listingId={openListingId} />
           </motion.div>
         )}
 
