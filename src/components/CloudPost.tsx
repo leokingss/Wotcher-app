@@ -75,11 +75,20 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
       <article className="post-card">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="neo-button-icon p-0.5">
+            <button
+              onClick={() => navigate(`/profile?u=${username}`)}
+              className="neo-button-icon p-0.5 shrink-0"
+              aria-label={`View ${username}'s profile`}
+            >
               <img src={avatar} alt={username} className="w-10 h-10 rounded-full object-cover" />
-            </div>
+            </button>
             <div>
-              <p className="font-semibold text-sm">{username}</p>
+              <button
+                onClick={() => navigate(`/profile?u=${username}`)}
+                className="font-semibold text-sm hover:underline text-left"
+              >
+                {username}
+              </button>
               {post.location && <p className="text-xs text-muted-foreground">{post.location}</p>}
             </div>
           </div>
