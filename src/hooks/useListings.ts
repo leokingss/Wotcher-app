@@ -115,10 +115,19 @@ export const placeBid = async (listingId: string, bidderId: string, amount: numb
   return supabase.from("bids").insert({ listing_id: listingId, bidder_id: bidderId, amount });
 };
 
-export const buyNow = async (listing: Listing, buyerId: string) => {
-  // No payment integration yet — mark as sold; record buyer in current_bidder_id field.
+export const buyNow = async (
+  listing: Listing,
+  buyerId: string,
+  shippingSnapshot?: Record<string, any> | null,
+) => {
+  // No payment integration yet — mark as sold; record buyer + shipping snapshot.
   return supabase
     .from("listings")
-    .update({ status: "sold", current_bidder_id: buyerId })
+    .update({
+      status: "sold",
+      current_bidder_id: buyerId,
+      sold_at: new Date().toISOString(),
+      buyer_shipping: shippingSnapshot ?? null,
+    })
     .eq("id", listing.id);
 };
