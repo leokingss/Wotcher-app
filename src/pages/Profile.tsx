@@ -638,6 +638,22 @@ const Profile = () => {
 
         {activeTab === "shop" && (
           <motion.div key="shop" {...tabFade}>
+            {profileUserId && (
+              <div className="neo-card-inset rounded-2xl p-3 mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Seller rating</span>
+                  <SellerRating sellerId={profileUserId} compact />
+                </div>
+                {isOwnProfile && (
+                  <button
+                    onClick={() => setAddressOpen(true)}
+                    className="text-xs font-semibold text-primary"
+                  >
+                    Address book
+                  </button>
+                )}
+              </div>
+            )}
             {shopListings.length === 0 ? (
               <EmptyState
                 icon={ShoppingBag}
