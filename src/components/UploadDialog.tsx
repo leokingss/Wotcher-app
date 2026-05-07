@@ -167,9 +167,9 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="neo-card border-0 max-w-md w-[95vw] p-0 rounded-3xl overflow-hidden">
+      <DialogContent className="neo-card border-0 max-w-md w-[95vw] p-0 rounded-3xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
-        <DialogHeader className="px-4 py-3 border-b border-border/50">
+        <DialogHeader className="px-4 py-3 border-b border-border/50 flex-shrink-0">
           <div className="flex items-center justify-between">
             <button onClick={handleClose} className="neo-button-icon p-2">
               <X className="w-5 h-5" />
@@ -186,7 +186,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
           </div>
         </DialogHeader>
 
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 overflow-y-auto">
+
           {/* Media Preview Area */}
           {mediaFiles.length > 0 ? (
             <div className="relative neo-card-inset rounded-2xl overflow-hidden">
