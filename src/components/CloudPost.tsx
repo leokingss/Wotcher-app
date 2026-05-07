@@ -129,7 +129,7 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
           )}
         </div>
 
-        {listing && <ListingBar listing={listing} onOpen={() => setListingOpen(true)} />}
+        {listing && <ListingBar listing={listing} onOpen={() => navigate(`/profile/${username}?listing=${listing.id}`)} />}
 
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-3">
