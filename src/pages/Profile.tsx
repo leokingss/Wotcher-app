@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut, ShoppingBag } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import MusicFilterChips, { MusicFilter } from "@/components/MusicFilterChips";
@@ -301,6 +301,7 @@ const Profile = () => {
             { id: "videos", Icon: Film },
             { id: "photos", Icon: UserSquare2 },
             { id: "links", Icon: LinkIcon },
+            { id: "shop", Icon: ShoppingBag },
             { id: "saved", Icon: Bookmark },
           ].map(({ id, Icon }) => {
             const isActive = activeTab === id;
@@ -509,6 +510,21 @@ const Profile = () => {
               action={
                 <button className="action-button action-button-primary text-sm">
                   Add a link
+                </button>
+              }
+            />
+          </motion.div>
+        )}
+
+        {activeTab === "shop" && (
+          <motion.div key="shop" {...tabFade}>
+            <EmptyState
+              icon={ShoppingBag}
+              title="Shop coming soon"
+              description="Showcase merch, vinyl, and exclusive drops here for your fans to buy."
+              action={
+                <button className="action-button action-button-primary text-sm">
+                  Add a product
                 </button>
               }
             />
