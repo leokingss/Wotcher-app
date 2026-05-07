@@ -329,15 +329,31 @@ const Profile = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-3 justify-center mb-6">
-          <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">
-            Edit profile
-          </button>
-          <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">
-            Statistics
-          </button>
-          <button className="action-button action-button-primary">
-            Contact
-          </button>
+          {isOwnProfile ? (
+            <>
+              <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">Edit profile</button>
+              <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">Statistics</button>
+              <button className="action-button action-button-primary">Contact</button>
+            </>
+          ) : (
+            <>
+              {isFollowing ? (
+                <button onClick={() => handleFollow("")} className="neo-button px-5 py-2 rounded-full text-sm font-medium">
+                  Following
+                </button>
+              ) : (
+                <FriendCircleMenu
+                  username={profile?.username ?? ""}
+                  onSelect={(c) => handleFollow(String(c))}
+                  variant="pill"
+                />
+              )}
+              <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">Message</button>
+              <button className="neo-button-icon w-10 h-10 flex items-center justify-center rounded-full">
+                <Plus className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Featured Songs - stacked vertically */}
