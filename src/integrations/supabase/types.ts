@@ -55,6 +55,38 @@ export type Database = {
           },
         ]
       }
+      bids: {
+        Row: {
+          amount: number
+          bidder_id: string
+          created_at: string
+          id: string
+          listing_id: string
+        }
+        Insert: {
+          amount: number
+          bidder_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+        }
+        Update: {
+          amount?: number
+          bidder_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_reactions: {
         Row: {
           comment_id: string
@@ -165,6 +197,65 @@ export type Database = {
             columns: ["following_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listings: {
+        Row: {
+          created_at: string
+          current_bid: number | null
+          current_bidder_id: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          post_id: string | null
+          price: number | null
+          seller_id: string
+          starting_bid: number | null
+          status: Database["public"]["Enums"]["listing_status"]
+          title: string
+          type: Database["public"]["Enums"]["listing_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_bid?: number | null
+          current_bidder_id?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          post_id?: string | null
+          price?: number | null
+          seller_id: string
+          starting_bid?: number | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          title: string
+          type: Database["public"]["Enums"]["listing_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_bid?: number | null
+          current_bidder_id?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          post_id?: string | null
+          price?: number | null
+          seller_id?: string
+          starting_bid?: number | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["listing_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]
@@ -491,6 +582,8 @@ export type Database = {
     }
     Enums: {
       account_type: "listener" | "artist"
+      listing_status: "active" | "sold" | "ended" | "cancelled"
+      listing_type: "fixed" | "auction"
       notification_type: "like" | "dislike" | "comment" | "follow"
       reaction_type: "like" | "dislike"
       release_type: "single" | "ep" | "album"
@@ -622,6 +715,8 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["listener", "artist"],
+      listing_status: ["active", "sold", "ended", "cancelled"],
+      listing_type: ["fixed", "auction"],
       notification_type: ["like", "dislike", "comment", "follow"],
       reaction_type: ["like", "dislike"],
       release_type: ["single", "ep", "album"],
