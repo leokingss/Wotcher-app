@@ -767,7 +767,7 @@ const Profile = () => {
         </DialogContent>
       </Dialog>
 
-      <FollowSheet open={followSheet !== null} onOpenChange={(o) => !o && setFollowSheet(null)} type={followSheet} />
+      <FollowSheet open={followSheet !== null} onOpenChange={(o) => !o && setFollowSheet(null)} type={followSheet} userId={profileUserId} />
       <ProfileQRDialog
         open={qrOpen}
         onOpenChange={setQrOpen}
