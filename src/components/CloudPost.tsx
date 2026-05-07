@@ -28,6 +28,22 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
   const [dislikeCount, setDislikeCount] = useState(post.dislike_count);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(post.comment_count);
+  const [listing, setListing] = useState<Listing | null>(null);
+  const [listingOpen, setListingOpen] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("listings")
+      .select("*")
+      .eq("post_id", post.id)
+      .in("status", ["active", "sold", "ended"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => { if (active) setListing((data as Listing) ?? null); });
+    return () => { active = false; };
+  }, [post.id]);
 
   const requireAuth = () => {
     if (!user) {
