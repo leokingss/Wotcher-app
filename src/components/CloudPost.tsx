@@ -29,7 +29,6 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(post.comment_count);
   const [listing, setListing] = useState<Listing | null>(null);
-  const [listingOpen, setListingOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
