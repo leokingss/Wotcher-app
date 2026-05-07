@@ -735,6 +735,7 @@ const Profile = () => {
               </div>
             )}
             <ListingDialog open={!!openListingId} onOpenChange={(o) => !o && setOpenListingId(null)} listingId={openListingId} />
+            <ShippingAddressDialog open={addressOpen} onOpenChange={setAddressOpen} />
           </motion.div>
         )}
 
