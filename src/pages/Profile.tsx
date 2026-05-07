@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut, ShoppingBag } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut, ShoppingBag, QrCode } from "lucide-react";
+import ProfileQRDialog from "@/components/ProfileQRDialog";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
 import MusicFilterChips, { MusicFilter } from "@/components/MusicFilterChips";
@@ -58,6 +59,7 @@ const Profile = () => {
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
 
   useEffect(() => {
@@ -193,8 +195,8 @@ const Profile = () => {
             <span className="font-semibold text-sm">{profile?.username ?? 'you'}</span>
             <ChevronDown className="w-4 h-4" />
           </button>
-          <button className="neo-button-icon w-10 h-10 flex items-center justify-center">
-            <Menu className="w-5 h-5" />
+          <button onClick={() => setQrOpen(true)} aria-label="Show profile QR code" className="neo-button-icon w-10 h-10 flex items-center justify-center">
+            <QrCode className="w-5 h-5 text-primary" />
           </button>
         </div>
       </header>
