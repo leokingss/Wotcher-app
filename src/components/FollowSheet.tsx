@@ -1,6 +1,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { followUsers as mockUsers } from "@/data/mockSocial";
 import FriendCircleMenu from "./FriendCircleMenu";
+import { useNavigate } from "react-router-dom";
 
 interface FollowSheetProps {
   open: boolean;
