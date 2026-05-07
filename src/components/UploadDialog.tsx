@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag } from "lucide-react";
 import {
   Dialog,
   DialogContent,
