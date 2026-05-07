@@ -645,32 +645,70 @@ const Profile = () => {
                 description={isOwnProfile ? "When you upload a photo, toggle 'List for sale' to add it here." : "This user hasn't listed anything yet."}
               />
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 {shopListings.map((l) => {
                   const isAuction = l.type === "auction";
                   const ended = l.ends_at ? new Date(l.ends_at).getTime() <= Date.now() : false;
+                  const sold = l.status === "sold";
                   const display = isAuction ? (l.current_bid ?? l.starting_bid) : l.price;
-                  const fmt = (n?: number | null) => n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(n);
+                  const fmt = (n?: number | null) => n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
                   return (
                     <button
                       key={l.id}
                       onClick={() => setOpenListingId(l.id)}
-                      className="w-full neo-card p-3 rounded-2xl flex items-center gap-3 text-left"
+                      className="group relative neo-card p-1.5 rounded-2xl text-left overflow-hidden transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99]"
                     >
-                      <div className="neo-button-icon w-11 h-11 flex items-center justify-center shrink-0">
-                        {isAuction ? <Gavel className="w-5 h-5 text-primary" /> : <Tag className="w-5 h-5 text-primary" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{l.title}</p>
-                        <p className="text-[11px] text-muted-foreground capitalize">
-                          {l.status === "sold" ? "Sold" : ended && l.status === "active" ? "Ended" : isAuction ? (l.current_bid ? "Current bid" : "Starting bid") : "Buy now"}
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="font-bold tabular-nums">{fmt(display)}</p>
-                        {isAuction && l.ends_at && l.status === "active" && !ended && (
-                          <p className="text-[10px]"><TimeLeft endsAt={l.ends_at} compact /></p>
+                      <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-muted">
+                        {l.image_url ? (
+                          <img
+                            src={l.image_url}
+                            alt={l.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            {isAuction ? <Gavel className="w-8 h-8 text-muted-foreground" /> : <Tag className="w-8 h-8 text-muted-foreground" />}
+                          </div>
                         )}
+
+                        {/* gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+                        {/* top chip: type + status */}
+                        <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
+                          <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold backdrop-blur-md ${
+                            sold ? "bg-foreground/80 text-background" :
+                            isAuction ? "bg-primary/90 text-primary-foreground" :
+                            "bg-background/80 text-foreground"
+                          }`}>
+                            {isAuction ? <Gavel className="w-3 h-3" /> : <Tag className="w-3 h-3" />}
+                            {sold ? "SOLD" : isAuction ? "AUCTION" : "BUY NOW"}
+                          </span>
+                          {isAuction && l.ends_at && !sold && !ended && (
+                            <span className="px-2 py-1 rounded-full text-[10px] font-semibold bg-background/80 backdrop-blur-md tabular-nums">
+                              <TimeLeft endsAt={l.ends_at} compact />
+                            </span>
+                          )}
+                          {(ended && !sold) && (
+                            <span className="px-2 py-1 rounded-full text-[10px] font-semibold bg-background/80 backdrop-blur-md">ENDED</span>
+                          )}
+                        </div>
+
+                        {/* bottom: title + price */}
+                        <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+                          <p className="text-xs font-medium truncate opacity-90">{l.title}</p>
+                          <div className="flex items-end justify-between gap-2 mt-0.5">
+                            <div>
+                              <p className="text-[9px] uppercase tracking-wider opacity-70">
+                                {sold ? "Sold for" : isAuction ? (l.current_bid ? "Current bid" : "Starting at") : "Price"}
+                              </p>
+                              <p className="text-lg font-bold tabular-nums leading-tight">{fmt(display)}</p>
+                            </div>
+                            <span className="neo-button-icon !bg-primary/95 !shadow-none w-8 h-8 flex items-center justify-center rounded-full text-primary-foreground">
+                              <ChevronRight className="w-4 h-4" />
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </button>
                   );
