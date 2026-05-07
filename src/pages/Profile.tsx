@@ -116,6 +116,15 @@ const Profile = () => {
   };
 
   const [activeTab, setActiveTab] = useState("posts");
+
+  useEffect(() => {
+    const lid = searchParams.get("listing");
+    if (lid) {
+      setActiveTab("shop");
+      setOpenListingId(lid);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("listing")]);
   const [musicFilter, setMusicFilter] = useState<MusicFilter>("top10");
   const isArtist = profile?.account_type === "artist";
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
