@@ -516,6 +516,21 @@ const Profile = () => {
           </motion.div>
         )}
 
+        {activeTab === "shop" && (
+          <motion.div key="shop" {...tabFade}>
+            <EmptyState
+              icon={ShoppingBag}
+              title="Shop coming soon"
+              description="Showcase merch, vinyl, and exclusive drops here for your fans to buy."
+              action={
+                <button className="action-button action-button-primary text-sm">
+                  Add a product
+                </button>
+              }
+            />
+          </motion.div>
+        )}
+
         {activeTab === "saved" && (
           <motion.div key="saved" {...tabFade}>
             <EmptyState
