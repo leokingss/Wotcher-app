@@ -20,8 +20,12 @@ import { usePosts } from "@/hooks/usePosts";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import FriendCircleMenu from "@/components/FriendCircleMenu";
+import { useSellerListings } from "@/hooks/useListings";
+import ListingDialog from "@/components/ListingDialog";
+import TimeLeft from "@/components/TimeLeft";
+import { Gavel, Tag } from "lucide-react";
 
 const tabFade = {
   initial: { opacity: 0, y: 6 },
@@ -36,6 +40,7 @@ import { featuredSongs, playlist, videos } from "@/data/mockProfile";
 const Profile = () => {
   const { user, profile: myProfile, refreshProfile } = useAuth();
   const { username: routeUsername } = useParams<{ username?: string }>();
+  const [searchParams] = useSearchParams();
 
   // Viewed profile (may differ from signed-in user)
   const [viewedProfile, setViewedProfile] = useState<any>(null);
@@ -111,6 +116,15 @@ const Profile = () => {
   };
 
   const [activeTab, setActiveTab] = useState("posts");
+
+  useEffect(() => {
+    const lid = searchParams.get("listing");
+    if (lid) {
+      setActiveTab("shop");
+      setOpenListingId(lid);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("listing")]);
   const [musicFilter, setMusicFilter] = useState<MusicFilter>("top10");
   const isArtist = profile?.account_type === "artist";
   const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
@@ -119,6 +133,8 @@ const Profile = () => {
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
+  const { listings: shopListings } = useSellerListings(profileUserId);
+  const [openListingId, setOpenListingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile?.avatar_url) setProfilePhoto(profile.avatar_url);
@@ -622,16 +638,46 @@ const Profile = () => {
 
         {activeTab === "shop" && (
           <motion.div key="shop" {...tabFade}>
-            <EmptyState
-              icon={ShoppingBag}
-              title="Shop coming soon"
-              description="Showcase merch, vinyl, and exclusive drops here for your fans to buy."
-              action={
-                <button className="action-button action-button-primary text-sm">
-                  Add a product
-                </button>
-              }
-            />
+            {shopListings.length === 0 ? (
+              <EmptyState
+                icon={ShoppingBag}
+                title={isOwnProfile ? "Nothing for sale yet" : "No items for sale"}
+                description={isOwnProfile ? "When you upload a photo, toggle 'List for sale' to add it here." : "This user hasn't listed anything yet."}
+              />
+            ) : (
+              <div className="space-y-3">
+                {shopListings.map((l) => {
+                  const isAuction = l.type === "auction";
+                  const ended = l.ends_at ? new Date(l.ends_at).getTime() <= Date.now() : false;
+                  const display = isAuction ? (l.current_bid ?? l.starting_bid) : l.price;
+                  const fmt = (n?: number | null) => n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(n);
+                  return (
+                    <button
+                      key={l.id}
+                      onClick={() => setOpenListingId(l.id)}
+                      className="w-full neo-card p-3 rounded-2xl flex items-center gap-3 text-left"
+                    >
+                      <div className="neo-button-icon w-11 h-11 flex items-center justify-center shrink-0">
+                        {isAuction ? <Gavel className="w-5 h-5 text-primary" /> : <Tag className="w-5 h-5 text-primary" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{l.title}</p>
+                        <p className="text-[11px] text-muted-foreground capitalize">
+                          {l.status === "sold" ? "Sold" : ended && l.status === "active" ? "Ended" : isAuction ? (l.current_bid ? "Current bid" : "Starting bid") : "Buy now"}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="font-bold tabular-nums">{fmt(display)}</p>
+                        {isAuction && l.ends_at && l.status === "active" && !ended && (
+                          <p className="text-[10px]"><TimeLeft endsAt={l.ends_at} compact /></p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <ListingDialog open={!!openListingId} onOpenChange={(o) => !o && setOpenListingId(null)} listingId={openListingId} />
           </motion.div>
         )}
 

@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
+import ListingBar from "./ListingBar";
 import { FeedPost, togglePostReaction } from "@/hooks/usePosts";
+import { Listing } from "@/hooks/useListings";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +27,21 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
   const [dislikeCount, setDislikeCount] = useState(post.dislike_count);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(post.comment_count);
+  const [listing, setListing] = useState<Listing | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("listings")
+      .select("*")
+      .eq("post_id", post.id)
+      .in("status", ["active", "sold", "ended"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => { if (active) setListing((data as Listing) ?? null); });
+    return () => { active = false; };
+  }, [post.id]);
 
   const requireAuth = () => {
     if (!user) {
@@ -108,6 +126,8 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
             </div>
           )}
         </div>
+
+        {listing && <ListingBar listing={listing} onOpen={() => navigate(`/profile/${username}?listing=${listing.id}`)} />}
 
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-3">

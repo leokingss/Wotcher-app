@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,8 @@ interface MediaFile {
   type: "image" | "video";
 }
 
+type AuctionDuration = "1d" | "3d" | "7d" | "custom";
+
 const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => {
   const { user } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
@@ -30,6 +32,15 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const [caption, setCaption] = useState("");
   const [posting, setPosting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Marketplace state
+  const [forSale, setForSale] = useState(false);
+  const [saleType, setSaleType] = useState<"fixed" | "auction">("fixed");
+  const [itemTitle, setItemTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [startingBid, setStartingBid] = useState("");
+  const [duration, setDuration] = useState<AuctionDuration>("3d");
+  const [customEnd, setCustomEnd] = useState("");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -63,12 +74,25 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
     });
   };
 
+  const computeEndsAt = (): string | null => {
+    if (saleType !== "auction") return null;
+    if (duration === "custom") return customEnd ? new Date(customEnd).toISOString() : null;
+    const ms = duration === "1d" ? 86_400_000 : duration === "3d" ? 3 * 86_400_000 : 7 * 86_400_000;
+    return new Date(Date.now() + ms).toISOString();
+  };
+
   const handlePost = async () => {
     if (!user) {
       toast.error("Please sign in");
       return;
     }
     if (mediaFiles.length === 0) return;
+    if (forSale) {
+      if (!itemTitle.trim()) { toast.error("Add an item title"); return; }
+      if (saleType === "fixed" && !(parseFloat(price) > 0)) { toast.error("Set a price"); return; }
+      if (saleType === "auction" && !(parseFloat(startingBid) >= 0)) { toast.error("Set a starting bid"); return; }
+      if (saleType === "auction" && duration === "custom" && !customEnd) { toast.error("Pick an end date"); return; }
+    }
     setPosting(true);
     try {
       const first = mediaFiles[0];
@@ -80,17 +104,38 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
       });
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
-      const { error: insErr } = await supabase.from("posts").insert({
+      const { data: postRow, error: insErr } = await supabase.from("posts").insert({
         user_id: user.id,
         caption: caption.trim() || null,
         image_url: urlData.publicUrl,
         media_type: first.type,
-      });
+      }).select("id").single();
       if (insErr) throw insErr;
-      toast.success("Posted!");
+
+      if (forSale && postRow) {
+        const endsAt = computeEndsAt();
+        const { error: lErr } = await supabase.from("listings").insert({
+          post_id: postRow.id,
+          seller_id: user.id,
+          type: saleType,
+          title: itemTitle.trim(),
+          description: caption.trim() || null,
+          price: saleType === "fixed" ? parseFloat(price) : null,
+          starting_bid: saleType === "auction" ? parseFloat(startingBid) : null,
+          ends_at: endsAt,
+        });
+        if (lErr) throw lErr;
+      }
+
+      toast.success(forSale ? "Posted & listed for sale!" : "Posted!");
       setMediaFiles([]);
       setCaption("");
       setCurrentSlide(0);
+      setForSale(false);
+      setItemTitle("");
+      setPrice("");
+      setStartingBid("");
+      setCustomEnd("");
       onOpenChange(false);
       onUploaded?.();
     } catch (err: any) {
@@ -104,6 +149,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
     setMediaFiles([]);
     setCaption("");
     setCurrentSlide(0);
+    setForSale(false);
     onOpenChange(false);
   };
 
@@ -272,6 +318,65 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
               className="w-full bg-transparent resize-none outline-none text-sm min-h-[60px]"
               rows={2}
             />
+          </div>
+
+          {/* For Sale toggle + form */}
+          <div className="neo-card-inset rounded-xl p-3 space-y-3">
+            <label className="flex items-center justify-between cursor-pointer">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">List this item for sale</span>
+              </div>
+              <input
+                type="checkbox"
+                checked={forSale}
+                onChange={(e) => setForSale(e.target.checked)}
+                className="accent-primary w-5 h-5"
+              />
+            </label>
+
+            {forSale && (
+              <div className="space-y-3 pt-1">
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setSaleType("fixed")}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium ${saleType === "fixed" ? "neo-card-inset text-primary" : "neo-button"}`}>
+                    Fixed price
+                  </button>
+                  <button type="button" onClick={() => setSaleType("auction")}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium ${saleType === "auction" ? "neo-card-inset text-primary" : "neo-button"}`}>
+                    Auction
+                  </button>
+                </div>
+
+                <input type="text" value={itemTitle} onChange={(e) => setItemTitle(e.target.value)}
+                  placeholder="Item title (e.g. Vintage vinyl)"
+                  className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm" />
+
+                {saleType === "fixed" ? (
+                  <input type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)}
+                    placeholder="Price (USD)"
+                    className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm" />
+                ) : (
+                  <>
+                    <input type="number" min="0" step="0.01" value={startingBid} onChange={(e) => setStartingBid(e.target.value)}
+                      placeholder="Starting bid (USD)"
+                      className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm" />
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(["1d", "3d", "7d", "custom"] as AuctionDuration[]).map((d) => (
+                        <button key={d} type="button" onClick={() => setDuration(d)}
+                          className={`py-1.5 rounded-lg text-[11px] font-medium ${duration === d ? "neo-card-inset text-primary" : "neo-button"}`}>
+                          {d === "1d" ? "24h" : d === "custom" ? "Custom" : d}
+                        </button>
+                      ))}
+                    </div>
+                    {duration === "custom" && (
+                      <input type="datetime-local" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)}
+                        className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm" />
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Hidden File Input */}
