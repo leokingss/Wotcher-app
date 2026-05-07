@@ -320,6 +320,65 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             />
           </div>
 
+          {/* For Sale toggle + form */}
+          <div className="neo-card-inset rounded-xl p-3 space-y-3">
+            <label className="flex items-center justify-between cursor-pointer">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">List this item for sale</span>
+              </div>
+              <input
+                type="checkbox"
+                checked={forSale}
+                onChange={(e) => setForSale(e.target.checked)}
+                className="accent-primary w-5 h-5"
+              />
+            </label>
+
+            {forSale && (
+              <div className="space-y-3 pt-1">
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setSaleType("fixed")}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium ${saleType === "fixed" ? "neo-card-inset text-primary" : "neo-button"}`}>
+                    Fixed price
+                  </button>
+                  <button type="button" onClick={() => setSaleType("auction")}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium ${saleType === "auction" ? "neo-card-inset text-primary" : "neo-button"}`}>
+                    Auction
+                  </button>
+                </div>
+
+                <input type="text" value={itemTitle} onChange={(e) => setItemTitle(e.target.value)}
+                  placeholder="Item title (e.g. Vintage vinyl)"
+                  className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm" />
+
+                {saleType === "fixed" ? (
+                  <input type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)}
+                    placeholder="Price (USD)"
+                    className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm" />
+                ) : (
+                  <>
+                    <input type="number" min="0" step="0.01" value={startingBid} onChange={(e) => setStartingBid(e.target.value)}
+                      placeholder="Starting bid (USD)"
+                      className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm" />
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(["1d", "3d", "7d", "custom"] as AuctionDuration[]).map((d) => (
+                        <button key={d} type="button" onClick={() => setDuration(d)}
+                          className={`py-1.5 rounded-lg text-[11px] font-medium ${duration === d ? "neo-card-inset text-primary" : "neo-button"}`}>
+                          {d === "1d" ? "24h" : d === "custom" ? "Custom" : d}
+                        </button>
+                      ))}
+                    </div>
+                    {duration === "custom" && (
+                      <input type="datetime-local" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)}
+                        className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm" />
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Hidden File Input */}
           <input
             ref={fileInputRef}
