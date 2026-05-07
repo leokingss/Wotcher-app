@@ -234,6 +234,13 @@ const Profile = () => {
     setProfilePhotoDialogOpen(false);
   };
 
+  if (routeUsername && viewedLoading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading profile…</div>;
+  }
+  if (routeUsername && !viewedProfile) {
+    return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">User not found</div>;
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
