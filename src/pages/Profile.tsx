@@ -213,6 +213,19 @@ const Profile = () => {
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-md animate-blob-morph" 
                  style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', transform: 'scale(1.1)' }} />
+            {player.track && (
+              <span
+                aria-hidden
+                className="absolute -inset-1 rounded-full pointer-events-none animate-spin"
+                style={{
+                  background: "conic-gradient(from 0deg, hsl(var(--primary)), transparent 55%, hsl(var(--primary)))",
+                  animationDuration: "4s",
+                  borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%',
+                  WebkitMask: 'radial-gradient(circle, transparent 60%, #000 62%)',
+                  mask: 'radial-gradient(circle, transparent 60%, #000 62%)',
+                }}
+              />
+            )}
             <div className="neo-card p-1 relative animate-blob-morph" style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}>
               <img
                 src={profilePhoto}
@@ -221,6 +234,12 @@ const Profile = () => {
                 style={{ borderRadius: '55% 45% 35% 65% / 55% 35% 65% 45%' }}
               />
             </div>
+            {player.track && (
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 neo-card px-2 py-0.5 rounded-full flex items-center gap-1 z-10 whitespace-nowrap">
+                <Music className="w-3 h-3 text-primary" />
+                <span className="text-[10px] font-medium truncate max-w-[120px]">{player.track.title}</span>
+              </div>
+            )}
             <button 
               onClick={() => setProfilePhotoDialogOpen(true)}
               className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg z-10"
