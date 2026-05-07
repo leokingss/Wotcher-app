@@ -18,6 +18,7 @@ export interface Listing {
   ends_at: string | null;
   status: ListingStatus;
   created_at: string;
+  image_url?: string | null;
 }
 
 export interface Bid {
@@ -60,10 +61,11 @@ export const useSellerListings = (sellerId?: string | null) => {
     setLoading(true);
     const { data } = await supabase
       .from("listings")
-      .select("*")
+      .select("*, posts:post_id(image_url)")
       .eq("seller_id", sellerId)
       .order("created_at", { ascending: false });
-    setListings((data ?? []) as Listing[]);
+    const rows = (data ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
+    setListings(rows);
     setLoading(false);
   }, [sellerId]);
 
