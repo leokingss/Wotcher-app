@@ -6,6 +6,8 @@ export interface Comment {
   time: string;
   createdAt?: number;
   edited?: boolean;
+  voiceUrl?: string;
+  voiceDuration?: number;
 }
 
 export interface RichComment extends Comment {

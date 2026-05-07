@@ -63,6 +63,12 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
     setNewComment("");
   };
 
+  const handlePostVoice = (blob: Blob, durationSec: number) => {
+    const url = URL.createObjectURL(blob);
+    addComment("🎤 voice note", { voiceUrl: url, voiceDuration: durationSec } as Partial<Comment>);
+    setCommentCount(p => p + 1);
+  };
+
   const formatCount = (c: number) => c >= 1000 ? (c / 1000).toFixed(1) + 'k' : c.toString();
 
   return (
@@ -138,6 +144,7 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
             value={newComment}
             onChange={setNewComment}
             onSubmit={handlePostComment}
+            onSubmitVoice={handlePostVoice}
           />
         </div>
       )}
