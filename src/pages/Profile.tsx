@@ -87,15 +87,22 @@ const Profile = () => {
   }, [profileUserId, user, isOwnProfile]);
 
   const handleFollow = async (circle: string) => {
-    if (!user) { toast.error("Sign in to follow"); return; }
     if (!profileUserId) return;
+    // Re-verify the live session — the cached `user` from context can go stale.
+    const { data: sessionData } = await supabase.auth.getSession();
+    const liveUserId = sessionData.session?.user?.id;
+    if (!liveUserId) {
+      toast.error("Your session expired. Please sign in again.");
+      return;
+    }
     if (isFollowing) {
-      await supabase.from("follows").delete().eq("follower_id", user.id).eq("following_id", profileUserId);
+      const { error } = await supabase.from("follows").delete().eq("follower_id", liveUserId).eq("following_id", profileUserId);
+      if (error) { toast.error(error.message); return; }
       setIsFollowing(false);
       setFollowers((c) => Math.max(0, c - 1));
       toast.success("Unfollowed");
     } else {
-      const { error } = await supabase.from("follows").insert({ follower_id: user.id, following_id: profileUserId });
+      const { error } = await supabase.from("follows").insert({ follower_id: liveUserId, following_id: profileUserId });
       if (error) { toast.error(error.message); return; }
       setIsFollowing(true);
       setFollowers((c) => c + 1);
