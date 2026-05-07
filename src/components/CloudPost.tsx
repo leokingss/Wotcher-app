@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
+import ListingBar from "./ListingBar";
+import ListingDialog from "./ListingDialog";
 import { FeedPost, togglePostReaction } from "@/hooks/usePosts";
+import { Listing } from "@/hooks/useListings";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
