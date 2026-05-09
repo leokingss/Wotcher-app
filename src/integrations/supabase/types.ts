@@ -186,6 +186,60 @@ export type Database = {
           },
         ]
       }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          last_read_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          last_read_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          last_read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string
@@ -283,6 +337,47 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string | null
+          conversation_id: string
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          media_type: string
+          media_url: string | null
+          sender_id: string
+        }
+        Insert: {
+          body?: string | null
+          conversation_id: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          media_type?: string
+          media_url?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string | null
+          conversation_id?: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          media_type?: string
+          media_url?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -726,7 +821,12 @@ export type Database = {
       }
     }
     Functions: {
+      get_or_create_dm: { Args: { _other: string }; Returns: string }
       is_artist: { Args: { _user_id: string }; Returns: boolean }
+      is_conversation_participant: {
+        Args: { _cid: string; _uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       account_type: "listener" | "artist"
@@ -742,6 +842,7 @@ export type Database = {
         | "item_sold"
         | "auction_ending"
         | "new_listing"
+        | "message"
       reaction_type: "like" | "dislike"
       release_type: "single" | "ep" | "album"
     }
@@ -884,6 +985,7 @@ export const Constants = {
         "item_sold",
         "auction_ending",
         "new_listing",
+        "message",
       ],
       reaction_type: ["like", "dislike"],
       release_type: ["single", "ep", "album"],

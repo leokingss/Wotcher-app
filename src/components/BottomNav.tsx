@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import UploadDialog from "./UploadDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 
 const navItems = [
   { icon: Home, path: "/", label: "Home" },
@@ -18,6 +19,7 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const unread = useUnreadNotifications();
 
   const requireAuth = (path: string | null) => {
     if (!user && (path === null || path === "/profile" || path === "/activity")) {
@@ -50,12 +52,13 @@ const BottomNav = () => {
               );
             }
 
+            const showBadge = item.path === "/activity" && unread > 0;
             return (
               <Link
                 key={item.path}
                 to={item.path!}
                 onClick={(e) => { if (!requireAuth(item.path)) e.preventDefault(); }}
-                className={`w-11 h-11 flex items-center justify-center rounded-full transition-all ${
+                className={`relative w-11 h-11 flex items-center justify-center rounded-full transition-all ${
                   isActive
                     ? 'neo-card-inset text-primary'
                     : 'neo-button-icon text-muted-foreground hover:text-foreground'
@@ -65,6 +68,11 @@ const BottomNav = () => {
                   className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : ''}`}
                   fill={isActive ? 'currentColor' : 'none'}
                 />
+                {showBadge && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                    {unread > 99 ? "99+" : unread}
+                  </span>
+                )}
               </Link>
             );
           })}

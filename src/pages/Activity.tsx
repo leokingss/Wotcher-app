@@ -1,108 +1,195 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelative } from "@/lib/time";
-import { Heart, HeartCrack, MessageCircle, UserPlus, Bell } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, Sparkles, Clock, CheckCheck } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
+import { useNavigate } from "react-router-dom";
+
+type NType = "like" | "dislike" | "comment" | "follow" | "outbid" | "auction_won" | "item_sold" | "auction_ending" | "new_listing";
 
 interface Notif {
   id: string;
-  type: "like" | "dislike" | "comment" | "follow";
+  type: NType;
   read: boolean;
   created_at: string;
   post_id: string | null;
-  actor: { username: string; avatar_url: string | null } | null;
+  listing_id: string | null;
+  metadata: any;
+  actor: { id: string; username: string; avatar_url: string | null } | null;
   post: { image_url: string } | null;
+  listing: { title: string; seller_id: string } | null;
 }
 
-const typeIcon = { like: Heart, dislike: HeartCrack, comment: MessageCircle, follow: UserPlus };
-const actionText = {
+const typeIcon: Record<NType, any> = {
+  like: Heart,
+  dislike: HeartCrack,
+  comment: MessageCircle,
+  follow: UserPlus,
+  outbid: Gavel,
+  auction_won: Trophy,
+  item_sold: Tag,
+  auction_ending: Clock,
+  new_listing: Sparkles,
+};
+
+const actionText: Record<NType, string> = {
   like: "liked your post",
   dislike: "disliked your post",
   comment: "commented on your post",
   follow: "started following you",
+  outbid: "outbid you",
+  auction_won: "— you won the auction!",
+  item_sold: "bought your item",
+  auction_ending: "your auction is ending soon",
+  new_listing: "posted a new listing",
+};
+
+const dayLabel = (iso: string) => {
+  const d = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return "Today";
+  if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+  return d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
 };
 
 const Activity = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [notifs, setNotifs] = useState<Notif[]>([]);
 
   const load = async () => {
     if (!user) return;
     const { data } = await supabase
       .from("notifications")
-      .select("id, type, read, created_at, post_id, actor:profiles!notifications_actor_id_fkey(username, avatar_url), post:posts(image_url)")
+      .select("id, type, read, created_at, post_id, listing_id, metadata, actor:profiles!notifications_actor_id_fkey(id, username, avatar_url), post:posts(image_url), listing:listings(title, seller_id)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(100);
     setNotifs((data ?? []) as any);
-    // mark read
-    const unread = (data ?? []).filter((n: any) => !n.read).map((n: any) => n.id);
-    if (unread.length) await supabase.from("notifications").update({ read: true }).in("id", unread);
+  };
+
+  const markAllRead = async () => {
+    if (!user) return;
+    await supabase.from("notifications").update({ read: true }).eq("user_id", user.id).eq("read", false);
+    setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
   useEffect(() => {
     load();
     if (!user) return;
     const ch = supabase
-      .channel("notifs")
+      .channel("notifs-feed")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
         () => load()
       )
       .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
+    return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, Notif[]>();
+    notifs.forEach((n) => {
+      const k = dayLabel(n.created_at);
+      if (!map.has(k)) map.set(k, []);
+      map.get(k)!.push(n);
+    });
+    return Array.from(map.entries());
+  }, [notifs]);
+
+  const handleClick = async (n: Notif) => {
+    if (!n.read) {
+      await supabase.from("notifications").update({ read: true }).eq("id", n.id);
+    }
+    if (n.listing_id && n.listing?.seller_id) {
+      const { data: p } = await supabase.from("profiles").select("username").eq("id", n.listing.seller_id).maybeSingle();
+      if (p?.username) navigate(`/profile/${p.username}?tab=shop`);
+      return;
+    }
+    if (n.type === "follow" && n.actor?.username) {
+      navigate(`/profile/${n.actor.username}`);
+      return;
+    }
+    if (n.post_id && n.actor?.username) {
+      navigate(`/profile/${n.actor.username}`);
+    }
+  };
+
+  const unread = notifs.filter((n) => !n.read).length;
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-center">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
           <h1 className="font-semibold text-lg">Activity</h1>
+          {unread > 0 && (
+            <button
+              onClick={markAllRead}
+              className="neo-button-icon px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 text-primary"
+            >
+              <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+            </button>
+          )}
         </div>
       </header>
 
       <main className="max-w-lg mx-auto px-4">
         {notifs.length === 0 ? (
-          <EmptyState icon={Bell} title="No activity yet" description="Likes, comments and follows will show up here." />
+          <EmptyState icon={Bell} title="No activity yet" description="Likes, comments, follows and marketplace updates will show up here." />
         ) : (
-          <div className="space-y-3 pt-2">
-            {notifs.map((n) => {
-              const Icon = typeIcon[n.type];
-              return (
-                <div key={n.id} className="neo-card flex items-center gap-3 p-3 rounded-2xl">
-                  <div className="neo-button-icon p-0.5 relative">
-                    <img
-                      src={n.actor?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${n.actor?.username}`}
-                      alt={n.actor?.username ?? ""}
-                      className="w-11 h-11 rounded-full object-cover"
-                    />
-                    <div className="absolute -bottom-1 -right-1 neo-card p-1 rounded-full">
-                      <Icon className="w-3 h-3 text-primary" />
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm">
-                      <span className="font-semibold">{n.actor?.username}</span>{" "}
-                      <span className="text-muted-foreground">{actionText[n.type]}</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground">{formatRelative(n.created_at)}</p>
-                  </div>
-                  {n.post?.image_url ? (
-                    <img src={n.post.image_url} alt="" className="w-11 h-11 rounded-lg object-cover" />
-                  ) : n.type === "follow" ? (
-                    <button className="bg-primary text-primary-foreground text-xs py-1.5 px-4 rounded-full font-medium">
-                      Follow
-                    </button>
-                  ) : null}
+          <div className="space-y-6 pt-2">
+            {grouped.map(([day, items]) => (
+              <div key={day}>
+                <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-1">{day}</h2>
+                <div className="space-y-2">
+                  {items.map((n) => {
+                    const Icon = typeIcon[n.type] ?? Bell;
+                    const isMarketplace = ["outbid", "auction_won", "item_sold", "auction_ending", "new_listing"].includes(n.type);
+                    return (
+                      <button
+                        key={n.id}
+                        onClick={() => handleClick(n)}
+                        className={`w-full text-left neo-card flex items-center gap-3 p-3 rounded-2xl transition-all hover:scale-[1.01] ${!n.read ? "ring-1 ring-primary/30" : ""}`}
+                      >
+                        <div className="neo-button-icon p-0.5 relative shrink-0">
+                          <img
+                            src={n.actor?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${n.actor?.username ?? "system"}`}
+                            alt={n.actor?.username ?? ""}
+                            className="w-11 h-11 rounded-full object-cover"
+                          />
+                          <div className={`absolute -bottom-1 -right-1 neo-card p-1 rounded-full ${isMarketplace ? "text-primary" : ""}`}>
+                            <Icon className={`w-3 h-3 ${n.type === "dislike" ? "text-destructive" : isMarketplace ? "text-primary" : "text-primary"}`} />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm">
+                            <span className="font-semibold">{n.actor?.username ?? "Someone"}</span>{" "}
+                            <span className="text-muted-foreground">{actionText[n.type]}</span>
+                            {n.listing?.title && (
+                              <span className="text-foreground font-medium"> · {n.listing.title}</span>
+                            )}
+                            {n.metadata?.amount && (n.type === "outbid") && (
+                              <span className="text-primary font-semibold"> (${Number(n.metadata.amount).toFixed(2)})</span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{formatRelative(n.created_at)}</p>
+                        </div>
+                        {n.post?.image_url ? (
+                          <img src={n.post.image_url} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
+                        ) : !n.read ? (
+                          <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                        ) : null}
+                      </button>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </main>

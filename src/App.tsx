@@ -16,6 +16,8 @@ import Search from "./pages/Search";
 import Activity from "./pages/Activity";
 import Create from "./pages/Create";
 import Auth from "./pages/Auth";
+import Messages from "./pages/Messages";
+import Conversation from "./pages/Conversation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const AnimatedRoutes = () => {
         <Route path="/search" element={<PageTransition><Search /></PageTransition>} />
         <Route path="/activity" element={<PageTransition><ProtectedRoute><Activity /></ProtectedRoute></PageTransition>} />
         <Route path="/create" element={<PageTransition><ProtectedRoute><Create /></ProtectedRoute></PageTransition>} />
+        <Route path="/messages" element={<PageTransition><ProtectedRoute><Messages /></ProtectedRoute></PageTransition>} />
+        <Route path="/messages/:conversationId" element={<PageTransition><ProtectedRoute><Conversation /></ProtectedRoute></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
