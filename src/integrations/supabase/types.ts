@@ -846,6 +846,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       video_saves: {
         Row: {
           created_at: string
@@ -941,6 +962,13 @@ export type Database = {
         Returns: number
       }
       get_or_create_dm: { Args: { _other: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_artist: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _cid: string; _uid: string }
@@ -966,6 +994,7 @@ export type Database = {
     }
     Enums: {
       account_type: "listener" | "artist"
+      app_role: "admin" | "moderator" | "user"
       listing_status: "active" | "sold" | "ended" | "cancelled"
       listing_type: "fixed" | "auction"
       notification_type:
@@ -1109,6 +1138,7 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["listener", "artist"],
+      app_role: ["admin", "moderator", "user"],
       listing_status: ["active", "sold", "ended", "cancelled"],
       listing_type: ["fixed", "auction"],
       notification_type: [
