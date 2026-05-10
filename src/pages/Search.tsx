@@ -1,42 +1,22 @@
-import { useEffect, useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Gavel, Tag } from "lucide-react";
+import { useState } from "react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { exploreImages } from "@/data/mockSocial";
-import { supabase } from "@/integrations/supabase/client";
-import { Listing } from "@/hooks/useListings";
-import TimeLeft from "@/components/TimeLeft";
 import ListingDialog from "@/components/ListingDialog";
+import ShopView from "@/components/ShopView";
 
-type Category = "Photos" | "Music" | "Movies" | "Store";
+type Category = "Photos" | "Music" | "Movies" | "Shop";
 
 const categories: { icon: any; label: Category }[] = [
   { icon: Image, label: "Photos" },
   { icon: Music, label: "Music" },
   { icon: Film, label: "Movies" },
-  { icon: ShoppingBag, label: "Store" },
+  { icon: ShoppingBag, label: "Shop" },
 ];
-
-const fmt = (n?: number | null) =>
-  n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
 const Search = () => {
   const [active, setActive] = useState<Category>("Photos");
-  const [listings, setListings] = useState<Listing[]>([]);
   const [openListingId, setOpenListingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (active !== "Store") return;
-    (async () => {
-      const { data } = await supabase
-        .from("listings")
-        .select("*, posts:post_id(image_url)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(60);
-      const rows = (data ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
-      setListings(rows);
-    })();
-  }, [active]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -82,57 +62,8 @@ const Search = () => {
           })}
         </div>
 
-        {active === "Store" ? (
-          listings.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground text-sm">
-              No items for sale yet.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {listings.map((l) => {
-                const isAuction = l.type === "auction";
-                const display = isAuction ? (l.current_bid ?? l.starting_bid) : l.price;
-                return (
-                  <button
-                    key={l.id}
-                    onClick={() => setOpenListingId(l.id)}
-                    className="group relative neo-card p-1.5 rounded-2xl text-left overflow-hidden transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99]"
-                  >
-                    <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-muted">
-                      {l.image_url ? (
-                        <img src={l.image_url} alt={l.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          {isAuction ? <Gavel className="w-8 h-8 text-muted-foreground" /> : <Tag className="w-8 h-8 text-muted-foreground" />}
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                      <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
-                        <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold backdrop-blur-md ${
-                          isAuction ? "bg-primary/90 text-primary-foreground" : "bg-background/80 text-foreground"
-                        }`}>
-                          {isAuction ? <Gavel className="w-3 h-3" /> : <Tag className="w-3 h-3" />}
-                          {isAuction ? "AUCTION" : "BUY NOW"}
-                        </span>
-                        {isAuction && l.ends_at && (
-                          <span className="px-2 py-1 rounded-full text-[10px] font-semibold bg-background/80 backdrop-blur-md tabular-nums">
-                            <TimeLeft endsAt={l.ends_at} compact />
-                          </span>
-                        )}
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-                        <p className="text-xs font-medium truncate opacity-90">{l.title}</p>
-                        <p className="text-[9px] uppercase tracking-wider opacity-70 mt-0.5">
-                          {isAuction ? (l.current_bid ? "Current bid" : "Starting at") : "Price"}
-                        </p>
-                        <p className="text-lg font-bold tabular-nums leading-tight">{fmt(display)}</p>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )
+        {active === "Shop" ? (
+          <ShopView onOpenListing={setOpenListingId} />
         ) : (
           /* Masonry Grid */
           <div className="columns-2 gap-3 space-y-3">
