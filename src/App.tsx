@@ -37,7 +37,8 @@ const AnimatedRoutes = () => {
         <Route path="/create" element={<PageTransition><ProtectedRoute><Create /></ProtectedRoute></PageTransition>} />
         <Route path="/messages" element={<PageTransition><ProtectedRoute><Messages /></ProtectedRoute></PageTransition>} />
         <Route path="/messages/:conversationId" element={<PageTransition><ProtectedRoute><Conversation /></ProtectedRoute></PageTransition>} />
-        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+        <Route path="/unsubscribe" element={<PageTransition><Unsubscribe /></PageTransition>} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />}
       </Routes>
     </AnimatePresence>
   );
