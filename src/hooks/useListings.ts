@@ -115,7 +115,36 @@ export const useListing = (listingId?: string | null) => {
 };
 
 export const placeBid = async (listingId: string, bidderId: string, amount: number) => {
-  return supabase.from("bids").insert({ listing_id: listingId, bidder_id: bidderId, amount });
+  // Capture the current top bidder BEFORE inserting (DB trigger will overwrite it)
+  const { data: pre } = await supabase
+    .from("listings")
+    .select("current_bidder_id, title")
+    .eq("id", listingId)
+    .maybeSingle();
+  const prevBidderId = pre?.current_bidder_id ?? null;
+  const itemTitle = pre?.title ?? "an auction";
+
+  const result = await supabase.from("bids").insert({ listing_id: listingId, bidder_id: bidderId, amount });
+
+  // If insert succeeded and there was a previous (different) bidder, email them
+  if (!result.error && prevBidderId && prevBidderId !== bidderId) {
+    supabase.functions
+      .invoke("notify-user", {
+        body: {
+          userId: prevBidderId,
+          templateName: "outbid",
+          idempotencyKey: `outbid-${listingId}-${prevBidderId}-${amount}`,
+          templateData: {
+            itemTitle,
+            newBid: Number(amount).toFixed(2),
+            listingUrl: `${window.location.origin}/?listing=${listingId}`,
+          },
+        },
+      })
+      .catch((e) => console.error("outbid email failed", e));
+  }
+
+  return result;
 };
 
 export const buyNow = async (
@@ -124,7 +153,7 @@ export const buyNow = async (
   shippingSnapshot?: Record<string, any> | null,
 ) => {
   // No payment integration yet — mark as sold; record buyer + shipping snapshot.
-  return supabase
+  const result = await supabase
     .from("listings")
     .update({
       status: "sold",
@@ -133,4 +162,25 @@ export const buyNow = async (
       buyer_shipping: shippingSnapshot ?? null,
     })
     .eq("id", listing.id);
+
+  // Email the seller that their item sold
+  if (!result.error && listing.seller_id !== buyerId) {
+    const price = listing.price ?? listing.current_bid ?? null;
+    supabase.functions
+      .invoke("notify-user", {
+        body: {
+          userId: listing.seller_id,
+          templateName: "item-sold",
+          idempotencyKey: `sold-direct-${listing.id}`,
+          templateData: {
+            itemTitle: listing.title,
+            salePrice: price != null ? Number(price).toFixed(2) : undefined,
+            listingUrl: `${window.location.origin}/?listing=${listing.id}`,
+          },
+        },
+      })
+      .catch((e) => console.error("item-sold email failed", e));
+  }
+
+  return result;
 };
