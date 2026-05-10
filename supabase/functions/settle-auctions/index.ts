@@ -65,6 +65,24 @@ Deno.serve(async (req) => {
         listing_id: l.id,
         metadata: { amount: l.current_bid, title: l.title },
       });
+      // Email notifications via notify-user (resolves email + sends)
+      const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+      const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const callNotify = (userId: string, templateName: string, idempotencyKey: string, data: Record<string, unknown>) =>
+        fetch(`${SUPABASE_URL}/functions/v1/notify-user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${SERVICE_KEY}` },
+          body: JSON.stringify({ userId, templateName, idempotencyKey, templateData: data }),
+        }).catch((e) => console.error("notify-user failed", e));
+      const finalBid = l.current_bid != null ? Number(l.current_bid).toFixed(2) : undefined;
+      await Promise.all([
+        callNotify(l.current_bidder_id!, "auction-won", `won-${l.id}`, {
+          itemTitle: l.title, finalBid,
+        }),
+        callNotify(l.seller_id, "item-sold", `sold-${l.id}`, {
+          itemTitle: l.title, salePrice: finalBid,
+        }),
+      ]);
     } else {
       result.settled_ended++;
     }
