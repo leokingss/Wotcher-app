@@ -20,6 +20,7 @@ import Messages from "./pages/Messages";
 import Conversation from "./pages/Conversation";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
+import AdminEmails from "./pages/AdminEmails";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const AnimatedRoutes = () => {
         <Route path="/messages" element={<PageTransition><ProtectedRoute><Messages /></ProtectedRoute></PageTransition>} />
         <Route path="/messages/:conversationId" element={<PageTransition><ProtectedRoute><Conversation /></ProtectedRoute></PageTransition>} />
         <Route path="/unsubscribe" element={<PageTransition><Unsubscribe /></PageTransition>} />
+        <Route path="/admin/emails" element={<PageTransition><ProtectedRoute><AdminEmails /></ProtectedRoute></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
