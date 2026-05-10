@@ -19,6 +19,7 @@ import Auth from "./pages/Auth";
 import Messages from "./pages/Messages";
 import Conversation from "./pages/Conversation";
 import NotFound from "./pages/NotFound";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
