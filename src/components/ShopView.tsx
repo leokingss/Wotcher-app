@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Gavel, Tag, Clock, Sparkles, Users, Star } from "lucide-react";
+import { Gavel, Tag, Clock, Sparkles, Users, Star, ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Listing } from "@/hooks/useListings";
 import TimeLeft from "@/components/TimeLeft";
@@ -12,157 +12,192 @@ interface Props {
   onOpenListing: (id: string) => void;
 }
 
-interface Sections {
-  endingSoon: Listing[];
-  justListed: Listing[];
-  fromFollowing: Listing[];
-  featuredSellers: { seller_id: string; username: string; display_name: string | null; avatar_url: string | null; avg_rating: number; review_count: number }[];
+interface FeaturedSeller {
+  seller_id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  avg_rating: number;
+  review_count: number;
 }
+
+type SectionState<T> = { loading: boolean; data: T[] };
 
 const ShopView = ({ onOpenListing }: Props) => {
   const { user } = useAuth();
-  const [data, setData] = useState<Sections>({ endingSoon: [], justListed: [], fromFollowing: [], featuredSellers: [] });
-  const [loading, setLoading] = useState(true);
+  const [endingSoon, setEndingSoon] = useState<SectionState<Listing>>({ loading: true, data: [] });
+  const [justListed, setJustListed] = useState<SectionState<Listing>>({ loading: true, data: [] });
+  const [fromFollowing, setFromFollowing] = useState<SectionState<Listing>>({ loading: true, data: [] });
+  const [featuredSellers, setFeaturedSellers] = useState<SectionState<FeaturedSeller>>({ loading: true, data: [] });
+
+  const mapImg = (rows: any[]): Listing[] =>
+    (rows ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
 
   useEffect(() => {
+    const nowIso = new Date().toISOString();
+
+    // Ending soon
+    supabase
+      .from("listings")
+      .select("*, posts:post_id(image_url)")
+      .eq("status", "active")
+      .eq("type", "auction")
+      .gt("ends_at", nowIso)
+      .order("ends_at", { ascending: true })
+      .limit(10)
+      .then(({ data }) => setEndingSoon({ loading: false, data: mapImg(data ?? []) }));
+
+    // Just listed
+    supabase
+      .from("listings")
+      .select("*, posts:post_id(image_url)")
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(10)
+      .then(({ data }) => setJustListed({ loading: false, data: mapImg(data ?? []) }));
+
+    // Featured sellers
     (async () => {
-      setLoading(true);
-      const nowIso = new Date().toISOString();
-
-      // Ending soon: active auctions with ends_at in future, soonest first
-      const endingSoonReq = supabase
-        .from("listings")
-        .select("*, posts:post_id(image_url)")
-        .eq("status", "active")
-        .eq("type", "auction")
-        .gt("ends_at", nowIso)
-        .order("ends_at", { ascending: true })
-        .limit(10);
-
-      // Just listed: newest active listings
-      const justListedReq = supabase
-        .from("listings")
-        .select("*, posts:post_id(image_url)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      // From following
-      let fromFollowingReq: Promise<{ data: any[] | null }> = Promise.resolve({ data: [] });
-      if (user) {
-        const followingIds = await supabase
-          .from("follows")
-          .select("following_id")
-          .eq("follower_id", user.id)
-          .then((r) => (r.data ?? []).map((x: any) => x.following_id));
-        if (followingIds.length > 0) {
-          fromFollowingReq = supabase
-            .from("listings")
-            .select("*, posts:post_id(image_url)")
-            .eq("status", "active")
-            .in("seller_id", followingIds)
-            .order("created_at", { ascending: false })
-            .limit(10) as any;
-        }
-      }
-
-      // Featured sellers
-      const featuredReq = supabase
+      const { data: featRows } = await supabase
         .from("seller_rating_summary")
         .select("*")
         .gte("review_count", 1)
         .order("avg_rating", { ascending: false })
         .order("review_count", { ascending: false })
         .limit(6);
-
-      const [endingSoon, justListed, fromFollowing, featured] = await Promise.all([
-        endingSoonReq,
-        justListedReq,
-        fromFollowingReq,
-        featuredReq,
-      ]);
-
-      const mapImg = (rows: any[]) => (rows ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
-
-      let featuredSellers: Sections["featuredSellers"] = [];
-      const featRows = (featured as any).data ?? [];
-      if (featRows.length > 0) {
-        const ids = featRows.map((r: any) => r.seller_id);
-        const { data: profs } = await supabase
-          .from("profiles")
-          .select("id, username, display_name, avatar_url")
-          .in("id", ids);
-        const pm = new Map((profs ?? []).map((p: any) => [p.id, p]));
-        featuredSellers = featRows
-          .map((r: any) => {
-            const p: any = pm.get(r.seller_id);
-            return p
-              ? { seller_id: r.seller_id, username: p.username, display_name: p.display_name, avatar_url: p.avatar_url, avg_rating: Number(r.avg_rating), review_count: r.review_count }
-              : null;
-          })
-          .filter(Boolean);
+      const rows = featRows ?? [];
+      if (rows.length === 0) {
+        setFeaturedSellers({ loading: false, data: [] });
+        return;
       }
+      const ids = rows.map((r: any) => r.seller_id);
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, username, display_name, avatar_url")
+        .in("id", ids);
+      const pm = new Map((profs ?? []).map((p: any) => [p.id, p]));
+      const mapped = rows
+        .map((r: any) => {
+          const p: any = pm.get(r.seller_id);
+          return p
+            ? {
+                seller_id: r.seller_id,
+                username: p.username,
+                display_name: p.display_name,
+                avatar_url: p.avatar_url,
+                avg_rating: Number(r.avg_rating),
+                review_count: r.review_count,
+              }
+            : null;
+        })
+        .filter(Boolean) as FeaturedSeller[];
+      setFeaturedSellers({ loading: false, data: mapped });
+    })();
+  }, []);
 
-      setData({
-        endingSoon: mapImg((endingSoon as any).data ?? []),
-        justListed: mapImg((justListed as any).data ?? []),
-        fromFollowing: mapImg((fromFollowing as any).data ?? []),
-        featuredSellers,
-      });
-      setLoading(false);
+  useEffect(() => {
+    if (!user) {
+      setFromFollowing({ loading: false, data: [] });
+      return;
+    }
+    setFromFollowing({ loading: true, data: [] });
+    (async () => {
+      const followingIds = await supabase
+        .from("follows")
+        .select("following_id")
+        .eq("follower_id", user.id)
+        .then((r) => (r.data ?? []).map((x: any) => x.following_id));
+      if (followingIds.length === 0) {
+        setFromFollowing({ loading: false, data: [] });
+        return;
+      }
+      const { data } = await supabase
+        .from("listings")
+        .select("*, posts:post_id(image_url)")
+        .eq("status", "active")
+        .in("seller_id", followingIds)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      setFromFollowing({ loading: false, data: mapImg(data ?? []) });
     })();
   }, [user?.id]);
 
-  if (loading) {
-    return <div className="text-center py-12 text-sm text-muted-foreground">Loading shop…</div>;
-  }
-
+  const allDone = !endingSoon.loading && !justListed.loading && !fromFollowing.loading && !featuredSellers.loading;
   const allEmpty =
-    data.endingSoon.length === 0 &&
-    data.justListed.length === 0 &&
-    data.fromFollowing.length === 0 &&
-    data.featuredSellers.length === 0;
+    allDone &&
+    endingSoon.data.length === 0 &&
+    justListed.data.length === 0 &&
+    fromFollowing.data.length === 0 &&
+    featuredSellers.data.length === 0;
 
   if (allEmpty) {
-    return <div className="text-center py-16 text-sm text-muted-foreground">No items for sale yet.</div>;
+    return (
+      <div className="flex flex-col items-center justify-center text-center py-16 px-6">
+        <span className="neo-button-icon w-14 h-14 flex items-center justify-center mb-4">
+          <ShoppingBag className="w-6 h-6 text-primary" />
+        </span>
+        <h3 className="font-semibold text-base mb-1">The shop is quiet</h3>
+        <p className="text-sm text-muted-foreground max-w-xs">
+          No items for sale yet. Check back soon or list something of your own.
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-7 pb-2">
-      {data.endingSoon.length > 0 && (
-        <Section icon={Clock} title="Ending soon" subtitle="Don't miss these auctions">
+      <Section icon={Clock} title="Ending soon" subtitle="Don't miss these auctions">
+        {endingSoon.loading ? (
+          <SkeletonRow variant="hero" />
+        ) : endingSoon.data.length === 0 ? (
+          <SectionEmpty text="No live auctions right now." />
+        ) : (
           <HorizontalScroll>
-            {data.endingSoon.map((l) => (
+            {endingSoon.data.map((l) => (
               <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} />
             ))}
           </HorizontalScroll>
-        </Section>
-      )}
+        )}
+      </Section>
 
-      {data.justListed.length > 0 && (
-        <Section icon={Sparkles} title="Just listed" subtitle="Fresh from the marketplace">
+      <Section icon={Sparkles} title="Just listed" subtitle="Fresh from the marketplace">
+        {justListed.loading ? (
+          <SkeletonGrid />
+        ) : justListed.data.length === 0 ? (
+          <SectionEmpty text="Nothing new yet — be the first to list." />
+        ) : (
           <div className="grid grid-cols-2 gap-3">
-            {data.justListed.slice(0, 6).map((l) => (
+            {justListed.data.slice(0, 6).map((l) => (
               <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} />
             ))}
           </div>
-        </Section>
-      )}
+        )}
+      </Section>
 
-      {data.fromFollowing.length > 0 && (
-        <Section icon={Users} title="From people you follow" subtitle="Picks from your circle">
+      <Section icon={Users} title="From people you follow" subtitle="Picks from your circle">
+        {fromFollowing.loading ? (
+          <SkeletonRow variant="compact" />
+        ) : fromFollowing.data.length === 0 ? (
+          <SectionEmpty
+            text={user ? "Follow more sellers to see their listings here." : "Sign in and follow sellers to see picks."}
+          />
+        ) : (
           <HorizontalScroll>
-            {data.fromFollowing.map((l) => (
+            {fromFollowing.data.map((l) => (
               <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} />
             ))}
           </HorizontalScroll>
-        </Section>
-      )}
+        )}
+      </Section>
 
-      {data.featuredSellers.length > 0 && (
-        <Section icon={Star} title="Featured sellers" subtitle="Top-rated in the community">
+      <Section icon={Star} title="Featured sellers" subtitle="Top-rated in the community">
+        {featuredSellers.loading ? (
+          <SkeletonSellers />
+        ) : featuredSellers.data.length === 0 ? (
+          <SectionEmpty text="No rated sellers yet." />
+        ) : (
           <HorizontalScroll>
-            {data.featuredSellers.map((s) => (
+            {featuredSellers.data.map((s) => (
               <a
                 key={s.seller_id}
                 href={`/profile/${s.username}`}
@@ -186,13 +221,23 @@ const ShopView = ({ onOpenListing }: Props) => {
               </a>
             ))}
           </HorizontalScroll>
-        </Section>
-      )}
+        )}
+      </Section>
     </div>
   );
 };
 
-const Section = ({ icon: Icon, title, subtitle, children }: { icon: any; title: string; subtitle: string; children: React.ReactNode }) => (
+const Section = ({
+  icon: Icon,
+  title,
+  subtitle,
+  children,
+}: {
+  icon: any;
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) => (
   <section>
     <div className="flex items-center gap-2 mb-3 px-1">
       <span className="neo-button-icon w-8 h-8 flex items-center justify-center">
@@ -210,6 +255,54 @@ const Section = ({ icon: Icon, title, subtitle, children }: { icon: any; title: 
 const HorizontalScroll = ({ children }: { children: React.ReactNode }) => (
   <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
     {children}
+  </div>
+);
+
+const SectionEmpty = ({ text }: { text: string }) => (
+  <div className="neo-card rounded-2xl py-8 px-4 text-center">
+    <p className="text-xs text-muted-foreground">{text}</p>
+  </div>
+);
+
+const Shimmer = ({ className = "" }: { className?: string }) => (
+  <div className={`relative overflow-hidden bg-muted/60 ${className}`}>
+    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.4s_infinite] bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
+  </div>
+);
+
+const SkeletonRow = ({ variant }: { variant: "hero" | "compact" }) => {
+  const widthClass = variant === "hero" ? "w-56" : "w-40";
+  const aspect = variant === "compact" ? "aspect-square" : "aspect-[4/5]";
+  return (
+    <div className="flex gap-3 overflow-hidden -mx-4 px-4 pb-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className={`shrink-0 neo-card p-1.5 rounded-2xl ${widthClass}`}>
+          <Shimmer className={`${aspect} rounded-xl`} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const SkeletonGrid = () => (
+  <div className="grid grid-cols-2 gap-3">
+    {Array.from({ length: 4 }).map((_, i) => (
+      <div key={i} className="neo-card p-1.5 rounded-2xl">
+        <Shimmer className="aspect-[4/5] rounded-xl" />
+      </div>
+    ))}
+  </div>
+);
+
+const SkeletonSellers = () => (
+  <div className="flex gap-3 overflow-hidden -mx-4 px-4 pb-2">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div key={i} className="shrink-0 w-32 neo-card p-3 rounded-2xl flex flex-col items-center gap-2">
+        <Shimmer className="w-16 h-16 rounded-full" />
+        <Shimmer className="h-3 w-20 rounded" />
+        <Shimmer className="h-2.5 w-12 rounded" />
+      </div>
+    ))}
   </div>
 );
 
