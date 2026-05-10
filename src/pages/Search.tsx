@@ -1,42 +1,22 @@
-import { useEffect, useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Gavel, Tag } from "lucide-react";
+import { useState } from "react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { exploreImages } from "@/data/mockSocial";
-import { supabase } from "@/integrations/supabase/client";
-import { Listing } from "@/hooks/useListings";
-import TimeLeft from "@/components/TimeLeft";
 import ListingDialog from "@/components/ListingDialog";
+import ShopView from "@/components/ShopView";
 
-type Category = "Photos" | "Music" | "Movies" | "Store";
+type Category = "Photos" | "Music" | "Movies" | "Shop";
 
 const categories: { icon: any; label: Category }[] = [
   { icon: Image, label: "Photos" },
   { icon: Music, label: "Music" },
   { icon: Film, label: "Movies" },
-  { icon: ShoppingBag, label: "Store" },
+  { icon: ShoppingBag, label: "Shop" },
 ];
-
-const fmt = (n?: number | null) =>
-  n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
 const Search = () => {
   const [active, setActive] = useState<Category>("Photos");
-  const [listings, setListings] = useState<Listing[]>([]);
   const [openListingId, setOpenListingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (active !== "Store") return;
-    (async () => {
-      const { data } = await supabase
-        .from("listings")
-        .select("*, posts:post_id(image_url)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(60);
-      const rows = (data ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
-      setListings(rows);
-    })();
-  }, [active]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
