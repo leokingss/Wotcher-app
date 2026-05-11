@@ -1,19 +1,23 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import CloudPost from "./CloudPost";
 import EmptyState from "./EmptyState";
-import { usePosts, FeedMode } from "@/hooks/usePosts";
+import { usePosts, FeedMode, FeedPost } from "@/hooks/usePosts";
 import { ImageIcon } from "lucide-react";
+import { FeedFilterState, DEFAULT_FILTER } from "./FeedFilter";
 
 const THRESHOLD = 70;
 
 interface FeedProps {
   mode?: FeedMode;
+  filter?: FeedFilterState;
 }
 
-const Feed = ({ mode = "live" }: FeedProps) => {
+const Feed = ({ mode = "live", filter = DEFAULT_FILTER }: FeedProps) => {
   const { posts, loading, refresh } = usePosts(undefined, mode);
+
+  const filteredPosts = useMemo(() => applyFilter(posts, filter), [posts, filter]);
   const pull = useMotionValue(0);
   const rotate = useTransform(pull, [0, THRESHOLD], [0, 180]);
   const opacity = useTransform(pull, [0, 30, THRESHOLD], [0, 0.6, 1]);
