@@ -20,18 +20,31 @@ export interface FeedPost {
   my_reaction: "like" | "dislike" | null;
 }
 
-export const usePosts = (filterUserId?: string) => {
+export type FeedMode = "live" | "popular" | "algorithm";
+
+export const usePosts = (filterUserId?: string, mode: FeedMode = "live") => {
   const { user } = useAuth();
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchPosts = useCallback(async () => {
+    setLoading(true);
+
+    // Popular looks back 30 days, Live/Algorithm pull recent 50
     let q = supabase
       .from("posts")
       .select("id, user_id, caption, location, image_url, created_at, profile:profiles!posts_user_id_fkey(username, display_name, avatar_url)")
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (filterUserId) q = q.eq("user_id", filterUserId);
+      .order("created_at", { ascending: false });
+
+    if (filterUserId) {
+      q = q.eq("user_id", filterUserId).limit(50);
+    } else if (mode === "popular") {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      q = q.gte("created_at", since).limit(200);
+    } else {
+      q = q.limit(50);
+    }
+
     const { data: postRows } = await q;
     if (!postRows) {
       setPosts([]);
@@ -39,12 +52,19 @@ export const usePosts = (filterUserId?: string) => {
       return;
     }
     const ids = postRows.map((p) => p.id);
-    const [reactions, comments, mine] = await Promise.all([
+
+    // For algorithm mode, also fetch who the viewer follows
+    const followingPromise = (mode === "algorithm" && user)
+      ? supabase.from("follows").select("following_id").eq("follower_id", user.id)
+      : Promise.resolve({ data: [] as any[] });
+
+    const [reactions, comments, mine, follows] = await Promise.all([
       supabase.from("post_reactions").select("post_id, reaction").in("post_id", ids),
       supabase.from("comments").select("post_id").in("post_id", ids),
       user
         ? supabase.from("post_reactions").select("post_id, reaction").in("post_id", ids).eq("user_id", user.id)
         : Promise.resolve({ data: [] as any[] }),
+      followingPromise,
     ]);
     const likeMap = new Map<string, number>();
     const dislikeMap = new Map<string, number>();
@@ -56,19 +76,41 @@ export const usePosts = (filterUserId?: string) => {
     (comments.data ?? []).forEach((c: any) => commentMap.set(c.post_id, (commentMap.get(c.post_id) ?? 0) + 1));
     const myMap = new Map<string, "like" | "dislike">();
     (mine.data ?? []).forEach((r: any) => myMap.set(r.post_id, r.reaction));
+    const followingSet = new Set<string>(((follows.data ?? []) as any[]).map((f) => f.following_id));
 
-    setPosts(
-      postRows.map((p: any) => ({
-        ...p,
-        profile: p.profile,
-        like_count: likeMap.get(p.id) ?? 0,
-        dislike_count: dislikeMap.get(p.id) ?? 0,
-        comment_count: commentMap.get(p.id) ?? 0,
-        my_reaction: myMap.get(p.id) ?? null,
-      }))
-    );
+    let result: FeedPost[] = postRows.map((p: any) => ({
+      ...p,
+      profile: p.profile,
+      like_count: likeMap.get(p.id) ?? 0,
+      dislike_count: dislikeMap.get(p.id) ?? 0,
+      comment_count: commentMap.get(p.id) ?? 0,
+      my_reaction: myMap.get(p.id) ?? null,
+    }));
+
+    if (mode === "popular") {
+      // Hot score: engagement weighted, slight recency boost
+      const score = (p: FeedPost) => {
+        const ageHrs = Math.max(1, (Date.now() - new Date(p.created_at).getTime()) / 36e5);
+        const engagement = p.like_count * 2 + p.comment_count * 3 - p.dislike_count;
+        return engagement / Math.pow(ageHrs, 0.4);
+      };
+      result = [...result].sort((a, b) => score(b) - score(a)).slice(0, 50);
+    } else if (mode === "algorithm") {
+      // Personalized: followed authors + engagement + recency
+      const score = (p: FeedPost) => {
+        const ageHrs = Math.max(1, (Date.now() - new Date(p.created_at).getTime()) / 36e5);
+        const followBoost = followingSet.has(p.user_id) ? 25 : 0;
+        const engagement = p.like_count * 1.5 + p.comment_count * 2 - p.dislike_count * 0.5;
+        const recency = 30 / Math.pow(ageHrs, 0.5);
+        return followBoost + engagement + recency;
+      };
+      result = [...result].sort((a, b) => score(b) - score(a));
+    }
+    // "live" stays in chronological order from the query
+
+    setPosts(result);
     setLoading(false);
-  }, [filterUserId, user]);
+  }, [filterUserId, user, mode]);
 
   useEffect(() => {
     fetchPosts();
