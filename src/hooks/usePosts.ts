@@ -2,12 +2,24 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
+export type PostMediaType = "image" | "video" | "audio";
+
+export interface PostListingSummary {
+  id: string;
+  type: "fixed" | "auction";
+  status: "active" | "sold" | "ended" | "cancelled";
+  price: number | null;
+  current_bid: number | null;
+  ends_at: string | null;
+}
+
 export interface FeedPost {
   id: string;
   user_id: string;
   caption: string | null;
   location: string | null;
   image_url: string;
+  media_type: PostMediaType;
   created_at: string;
   profile: {
     username: string;
@@ -18,6 +30,7 @@ export interface FeedPost {
   dislike_count: number;
   comment_count: number;
   my_reaction: "like" | "dislike" | null;
+  listing: PostListingSummary | null;
 }
 
 export type FeedMode = "live" | "popular" | "algorithm";
@@ -33,7 +46,7 @@ export const usePosts = (filterUserId?: string, mode: FeedMode = "live") => {
     // Popular looks back 30 days, Live/Algorithm pull recent 50
     let q = supabase
       .from("posts")
-      .select("id, user_id, caption, location, image_url, created_at, profile:profiles!posts_user_id_fkey(username, display_name, avatar_url)")
+      .select("id, user_id, caption, location, image_url, media_type, created_at, profile:profiles!posts_user_id_fkey(username, display_name, avatar_url)")
       .order("created_at", { ascending: false });
 
     if (filterUserId) {
@@ -53,18 +66,23 @@ export const usePosts = (filterUserId?: string, mode: FeedMode = "live") => {
     }
     const ids = postRows.map((p) => p.id);
 
-    // For algorithm mode, also fetch who the viewer follows
     const followingPromise = (mode === "algorithm" && user)
       ? supabase.from("follows").select("following_id").eq("follower_id", user.id)
       : Promise.resolve({ data: [] as any[] });
 
-    const [reactions, comments, mine, follows] = await Promise.all([
+    const [reactions, comments, mine, follows, listings] = await Promise.all([
       supabase.from("post_reactions").select("post_id, reaction").in("post_id", ids),
       supabase.from("comments").select("post_id").in("post_id", ids),
       user
         ? supabase.from("post_reactions").select("post_id, reaction").in("post_id", ids).eq("user_id", user.id)
         : Promise.resolve({ data: [] as any[] }),
       followingPromise,
+      supabase
+        .from("listings")
+        .select("id, post_id, type, status, price, current_bid, ends_at, created_at")
+        .in("post_id", ids)
+        .in("status", ["active", "sold", "ended"])
+        .order("created_at", { ascending: false }),
     ]);
     const likeMap = new Map<string, number>();
     const dislikeMap = new Map<string, number>();
@@ -77,14 +95,25 @@ export const usePosts = (filterUserId?: string, mode: FeedMode = "live") => {
     const myMap = new Map<string, "like" | "dislike">();
     (mine.data ?? []).forEach((r: any) => myMap.set(r.post_id, r.reaction));
     const followingSet = new Set<string>(((follows.data ?? []) as any[]).map((f) => f.following_id));
+    const listingMap = new Map<string, PostListingSummary>();
+    ((listings.data ?? []) as any[]).forEach((l) => {
+      if (l.post_id && !listingMap.has(l.post_id)) {
+        listingMap.set(l.post_id, {
+          id: l.id, type: l.type, status: l.status,
+          price: l.price, current_bid: l.current_bid, ends_at: l.ends_at,
+        });
+      }
+    });
 
     let result: FeedPost[] = postRows.map((p: any) => ({
       ...p,
+      media_type: (p.media_type ?? "image") as PostMediaType,
       profile: p.profile,
       like_count: likeMap.get(p.id) ?? 0,
       dislike_count: dislikeMap.get(p.id) ?? 0,
       comment_count: commentMap.get(p.id) ?? 0,
       my_reaction: myMap.get(p.id) ?? null,
+      listing: listingMap.get(p.id) ?? null,
     }));
 
     if (mode === "popular") {
