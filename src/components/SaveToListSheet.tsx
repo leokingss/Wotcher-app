@@ -190,6 +190,7 @@ export const CreateListDialog = ({ open, onOpenChange, onCreated }: CreateProps)
       <DialogContent className="neo-card border-0 max-w-md">
         <DialogHeader>
           <DialogTitle>New list</DialogTitle>
+          <DialogDescription className="text-xs">Name your list and choose who can see it.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 mt-2">
           <div>
