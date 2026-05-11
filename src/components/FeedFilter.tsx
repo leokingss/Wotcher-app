@@ -142,25 +142,16 @@ const FeedFilter = ({ value, onChange }: Props) => {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open feed filter"
-          className={`w-full neo-button rounded-full px-4 h-9 flex items-center gap-2 text-xs font-semibold transition-colors ${
+          className={`w-full neo-button rounded-full h-10 relative flex items-center justify-center gap-2 text-xs font-semibold transition-colors ${
             active ? "text-primary" : "text-foreground"
           }`}
         >
-          <span className={`neo-button-icon w-6 h-6 rounded-full flex items-center justify-center ${active ? "text-primary" : "text-muted-foreground"}`}>
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-          </span>
+          <SlidersHorizontal className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
           <span className="uppercase tracking-wider">Filter</span>
-          <span className="flex items-center gap-1 ml-1 text-muted-foreground normal-case tracking-normal">
-            <ActiveIcon className="w-3.5 h-3.5" />
-            <span className="text-[11px]">{activeCat.label}</span>
-          </span>
-          {active && (
-            <span className="ml-auto flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              <span className="text-[10px] text-primary uppercase">Active</span>
-            </span>
-          )}
-          <ChevronDown className="w-4 h-4 ml-auto text-muted-foreground" />
+          <span className="mx-1 text-muted-foreground/50">·</span>
+          <ActiveIcon className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
+          <span className={active ? "text-primary" : "text-foreground"}>{activeCat.label}</span>
+          {active && <span className="absolute right-4 h-1.5 w-1.5 rounded-full bg-primary" />}
         </button>
       </div>
 
