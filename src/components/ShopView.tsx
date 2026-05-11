@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Gavel, Tag, Clock, Sparkles, Users, Star, ShoppingBag } from "lucide-react";
+import { Gavel, Tag, Clock, Sparkles, Users, Star, ShoppingBag, Heart, Bookmark } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Listing } from "@/hooks/useListings";
 import TimeLeft from "@/components/TimeLeft";
 import { useAuth } from "@/hooks/useAuth";
+import { useFavorites } from "@/hooks/useFavorites";
 
 const fmt = (n?: number | null) =>
   n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -25,10 +26,12 @@ type SectionState<T> = { loading: boolean; data: T[] };
 
 const ShopView = ({ onOpenListing }: Props) => {
   const { user } = useAuth();
+  const { ids: favoriteIds, isFavorite, toggle: toggleFavorite, loaded: favoritesLoaded } = useFavorites();
   const [endingSoon, setEndingSoon] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [justListed, setJustListed] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [fromFollowing, setFromFollowing] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [featuredSellers, setFeaturedSellers] = useState<SectionState<FeaturedSeller>>({ loading: true, data: [] });
+  const [saved, setSaved] = useState<SectionState<Listing>>({ loading: true, data: [] });
 
   const mapImg = (rows: any[]): Listing[] =>
     (rows ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
@@ -122,13 +125,30 @@ const ShopView = ({ onOpenListing }: Props) => {
     })();
   }, [user?.id]);
 
-  const allDone = !endingSoon.loading && !justListed.loading && !fromFollowing.loading && !featuredSellers.loading;
+  // Saved listings — refetch when favorite ids change so newly saved/unsaved appear
+  useEffect(() => {
+    if (!user) { setSaved({ loading: false, data: [] }); return; }
+    if (!favoritesLoaded) return;
+    if (favoriteIds.size === 0) { setSaved({ loading: false, data: [] }); return; }
+    setSaved((s) => ({ ...s, loading: true }));
+    (async () => {
+      const { data } = await supabase
+        .from("listings")
+        .select("*, posts:post_id(image_url)")
+        .in("id", Array.from(favoriteIds))
+        .order("created_at", { ascending: false });
+      setSaved({ loading: false, data: mapImg(data ?? []) });
+    })();
+  }, [user?.id, favoritesLoaded, favoriteIds]);
+
+  const allDone = !endingSoon.loading && !justListed.loading && !fromFollowing.loading && !featuredSellers.loading && !saved.loading;
   const allEmpty =
     allDone &&
     endingSoon.data.length === 0 &&
     justListed.data.length === 0 &&
     fromFollowing.data.length === 0 &&
-    featuredSellers.data.length === 0;
+    featuredSellers.data.length === 0 &&
+    saved.data.length === 0;
 
   if (allEmpty) {
     return (
@@ -144,6 +164,11 @@ const ShopView = ({ onOpenListing }: Props) => {
     );
   }
 
+  const cardProps = (l: Listing) => ({
+    favorited: isFavorite(l.id),
+    onToggleFavorite: () => toggleFavorite(l.id),
+  });
+
   return (
     <div className="space-y-7 pb-2">
       <Section icon={Clock} title="Ending soon" subtitle="Don't miss these auctions">
@@ -154,7 +179,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {endingSoon.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} />
+              <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
             ))}
           </HorizontalScroll>
         )}
@@ -168,9 +193,25 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {justListed.data.slice(0, 6).map((l) => (
-              <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} />
+              <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
             ))}
           </div>
+        )}
+      </Section>
+
+      <Section icon={Bookmark} title="Saved" subtitle="Listings you've favorited">
+        {!user ? (
+          <SectionEmpty text="Sign in to save listings you love." />
+        ) : saved.loading ? (
+          <SkeletonRow variant="compact" />
+        ) : saved.data.length === 0 ? (
+          <SectionEmpty text="Tap the heart on a listing to save it here." />
+        ) : (
+          <HorizontalScroll>
+            {saved.data.map((l) => (
+              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+            ))}
+          </HorizontalScroll>
         )}
       </Section>
 
@@ -184,7 +225,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {fromFollowing.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} />
+              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
             ))}
           </HorizontalScroll>
         )}
@@ -310,10 +351,14 @@ const ListingCard = ({
   listing: l,
   variant,
   onOpen,
+  favorited,
+  onToggleFavorite,
 }: {
   listing: Listing;
   variant: "hero" | "grid" | "compact";
   onOpen: () => void;
+  favorited?: boolean;
+  onToggleFavorite?: () => void;
 }) => {
   const isAuction = l.type === "auction";
   const display = isAuction ? (l.current_bid ?? l.starting_bid) : l.price;
@@ -350,7 +395,28 @@ const ListingCard = ({
             </span>
           )}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+        {onToggleFavorite && (
+          <span
+            role="button"
+            tabIndex={0}
+            aria-label={favorited ? "Remove from saved" : "Save listing"}
+            aria-pressed={!!favorited}
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleFavorite();
+              }
+            }}
+            className="absolute bottom-2 right-2 neo-button-icon w-9 h-9 flex items-center justify-center rounded-full transition-transform active:scale-90 hover:scale-105 cursor-pointer"
+          >
+            <Heart
+              className={`w-4 h-4 transition-colors ${favorited ? "fill-primary text-primary" : "text-white"}`}
+            />
+          </span>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 p-3 pr-14 text-white">
           <p className="text-xs font-medium truncate opacity-90">{l.title}</p>
           <p className="text-[9px] uppercase tracking-wider opacity-70 mt-0.5">
             {isAuction ? (l.current_bid ? "Current bid" : "Starting at") : "Price"}

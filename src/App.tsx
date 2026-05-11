@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import PageTransition from "@/components/PageTransition";
 import MiniPlayer from "@/components/MiniPlayer";
 import { PlayerProvider } from "@/hooks/usePlayer";
+import { FavoritesProvider } from "@/hooks/useFavorites";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
@@ -52,12 +53,14 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <PlayerProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <AnimatedRoutes />
-              <MiniPlayer />
-            </TooltipProvider>
+            <FavoritesProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <AnimatedRoutes />
+                <MiniPlayer />
+              </TooltipProvider>
+            </FavoritesProvider>
           </PlayerProvider>
         </AuthProvider>
       </BrowserRouter>
