@@ -27,31 +27,30 @@ const CameraIconAnim = ({ muted = false }: { muted?: boolean }) => {
   );
 };
 
-// Film icon rotated to landscape with vertical perforation scroll
+// Landscape film icon with rolling sprocket animation
 const FilmIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <div className="relative" style={{ width: 28, height: 16 }}>
+      <div className="relative" style={{ width: 30, height: 14 }}>
         <Film
-          className={muted ? "" : "story-film-rotate"}
-          style={{ color, width: 28, height: 16, position: "relative", zIndex: 1 }}
+          style={{ color, width: 30, height: 14, position: "relative", zIndex: 1 }}
         />
         {!muted && (
           <>
-            {/* Left perforation strip - scrolls vertically */}
+            {/* Top sprocket strip */}
             <div
-              className="absolute top-[3px] bottom-[3px] left-[2px] w-[2px] overflow-hidden"
+              className="absolute top-[1px] left-[4px] right-[4px] h-[2px] overflow-hidden"
               style={{ zIndex: 0 }}
             >
-              <div className="story-film-roll-v" />
+              <div className="story-film-roll-h" />
             </div>
-            {/* Right perforation strip - scrolls vertically */}
+            {/* Bottom sprocket strip */}
             <div
-              className="absolute top-[3px] bottom-[3px] right-[2px] w-[2px] overflow-hidden"
+              className="absolute bottom-[1px] left-[4px] right-[4px] h-[2px] overflow-hidden"
               style={{ zIndex: 0 }}
             >
-              <div className="story-film-roll-v" />
+              <div className="story-film-roll-h" />
             </div>
           </>
         )}
