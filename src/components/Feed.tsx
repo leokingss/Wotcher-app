@@ -5,7 +5,7 @@ import CloudPost from "./CloudPost";
 import EmptyState from "./EmptyState";
 import { usePosts, FeedMode, FeedPost } from "@/hooks/usePosts";
 import { ImageIcon } from "lucide-react";
-import { FeedFilterState, DEFAULT_FILTER } from "./FeedFilter";
+import { FeedFilterState, DEFAULT_FILTER, SHOP_KEYWORDS } from "./FeedFilter";
 
 const THRESHOLD = 70;
 
