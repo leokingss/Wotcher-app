@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { Gavel, Tag, Clock, Sparkles, Users, Star, ShoppingBag, Heart, Bookmark } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Gavel, Tag, Clock, Sparkles, Users, Star, ShoppingBag, Bookmark } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Listing } from "@/hooks/useListings";
 import TimeLeft from "@/components/TimeLeft";
 import { useAuth } from "@/hooks/useAuth";
-import { useFavorites } from "@/hooks/useFavorites";
+import { useSavedLists } from "@/hooks/useSavedLists";
+import SaveButton from "@/components/SaveButton";
 
 const fmt = (n?: number | null) =>
   n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
