@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Header from "@/components/Header";
-import Stories from "@/components/Stories";
 import Feed from "@/components/Feed";
 import BottomNav from "@/components/BottomNav";
 import Sidebar from "@/components/Sidebar";
