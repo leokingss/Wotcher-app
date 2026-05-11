@@ -125,13 +125,30 @@ const ShopView = ({ onOpenListing }: Props) => {
     })();
   }, [user?.id]);
 
-  const allDone = !endingSoon.loading && !justListed.loading && !fromFollowing.loading && !featuredSellers.loading;
+  // Saved listings — refetch when favorite ids change so newly saved/unsaved appear
+  useEffect(() => {
+    if (!user) { setSaved({ loading: false, data: [] }); return; }
+    if (!favoritesLoaded) return;
+    if (favoriteIds.size === 0) { setSaved({ loading: false, data: [] }); return; }
+    setSaved((s) => ({ ...s, loading: true }));
+    (async () => {
+      const { data } = await supabase
+        .from("listings")
+        .select("*, posts:post_id(image_url)")
+        .in("id", Array.from(favoriteIds))
+        .order("created_at", { ascending: false });
+      setSaved({ loading: false, data: mapImg(data ?? []) });
+    })();
+  }, [user?.id, favoritesLoaded, favoriteIds]);
+
+  const allDone = !endingSoon.loading && !justListed.loading && !fromFollowing.loading && !featuredSellers.loading && !saved.loading;
   const allEmpty =
     allDone &&
     endingSoon.data.length === 0 &&
     justListed.data.length === 0 &&
     fromFollowing.data.length === 0 &&
-    featuredSellers.data.length === 0;
+    featuredSellers.data.length === 0 &&
+    saved.data.length === 0;
 
   if (allEmpty) {
     return (
