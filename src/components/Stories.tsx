@@ -183,7 +183,11 @@ const Stories = () => {
                       />
                     </div>
                   </div>
-                  <WaveStrand seed={story.id} muted={watched} />
+                  <StoryMediaIndicator
+                    mediaType={story.mediaType ?? "music"}
+                    seed={story.id}
+                    muted={!!watched}
+                  />
                 </div>
                 <span
                   className={`text-xs font-medium ${
