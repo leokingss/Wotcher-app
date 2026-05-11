@@ -53,12 +53,14 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <PlayerProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <AnimatedRoutes />
-              <MiniPlayer />
-            </TooltipProvider>
+            <FavoritesProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <AnimatedRoutes />
+                <MiniPlayer />
+              </TooltipProvider>
+            </FavoritesProvider>
           </PlayerProvider>
         </AuthProvider>
       </BrowserRouter>
