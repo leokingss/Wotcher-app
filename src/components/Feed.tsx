@@ -84,15 +84,19 @@ const Feed = ({ mode = "live", filter = DEFAULT_FILTER }: FeedProps) => {
             </div>
           ))}
         </div>
-      ) : posts.length === 0 ? (
-        <EmptyState icon={ImageIcon} title="No posts yet" description="Be the first to share something." />
+      ) : filteredPosts.length === 0 ? (
+        <EmptyState
+          icon={ImageIcon}
+          title={posts.length === 0 ? "No posts yet" : "Nothing matches"}
+          description={posts.length === 0 ? "Be the first to share something." : "Try adjusting your filter."}
+        />
       ) : (
         <motion.div
           initial="hidden"
           animate="show"
           variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
         >
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <motion.div
               key={post.id}
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
@@ -105,6 +109,27 @@ const Feed = ({ mode = "live", filter = DEFAULT_FILTER }: FeedProps) => {
       )}
     </div>
   );
+};
+
+const applyFilter = (posts: FeedPost[], f: FeedFilterState): FeedPost[] => {
+  return posts.filter((p) => {
+    if (f.category === "shop" && !p.listing) return false;
+    if (f.category === "music" && p.media_type !== "audio") return false;
+    if (f.category === "video" && p.media_type !== "video") return false;
+    if (f.category === "posts" && (p.listing || p.media_type !== "image")) return false;
+
+    if ((f.category === "all" || f.category === "posts") && p.media_type === "image" && !p.listing) {
+      if (f.posts.hasCaption && !(p.caption && p.caption.trim().length > 0)) return false;
+      if (f.posts.hasLocation && !(p.location && p.location.trim().length > 0)) return false;
+    }
+
+    if (p.listing && (f.category === "all" || f.category === "shop")) {
+      if (!f.shop.types.includes(p.listing.type)) return false;
+      if (!f.shop.statuses.includes(p.listing.status as any)) return false;
+    }
+
+    return true;
+  });
 };
 
 export default Feed;
