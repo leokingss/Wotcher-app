@@ -5,35 +5,109 @@ import {
 import {
   SlidersHorizontal, ChevronDown, Layers, Image as ImageIcon, Music,
   Video, ShoppingBag, MapPin, MessageSquare, Gavel, Tag, X,
+  Sparkles, TrendingUp, Flame, Disc3, Mic2, Camera, Film,
+  Shirt, Watch, Glasses, Palette, Footprints, Gem, Sofa, Book,
+  Smartphone, Heart, Package,
 } from "lucide-react";
 
-export type FeedCategory = "all" | "posts" | "music" | "video" | "shop";
+export type FeedCategory = "all" | "photos" | "music" | "video" | "shop";
+
+export type MusicMood = "new" | "popular" | "trending" | "throwback";
+export type VideoMood = "new" | "popular" | "trending" | "shorts";
+
+export const MUSIC_GENRES = [
+  "Hip-Hop", "R&B", "Pop", "Rock", "Electronic", "Jazz", "Classical",
+  "Country", "Latin", "Afrobeats", "K-Pop", "Indie", "Lo-Fi", "Reggae",
+] as const;
+export type MusicGenre = (typeof MUSIC_GENRES)[number];
+
+export const VIDEO_GENRES = [
+  "Vlog", "Tutorial", "Comedy", "Music Video", "Live", "Performance",
+  "Travel", "Food", "Sports", "Gaming", "Fashion", "Documentary",
+] as const;
+export type VideoGenre = (typeof VIDEO_GENRES)[number];
+
+export const SHOP_CATEGORIES = [
+  { id: "clothing", label: "Clothing", icon: Shirt },
+  { id: "shoes", label: "Shoes", icon: Footprints },
+  { id: "watches", label: "Watches", icon: Watch },
+  { id: "glasses", label: "Glasses", icon: Glasses },
+  { id: "jewelry", label: "Jewelry", icon: Gem },
+  { id: "paintings", label: "Paintings", icon: Palette },
+  { id: "furniture", label: "Furniture", icon: Sofa },
+  { id: "books", label: "Books", icon: Book },
+  { id: "tech", label: "Tech", icon: Smartphone },
+  { id: "beauty", label: "Beauty", icon: Heart },
+  { id: "other", label: "Other", icon: Package },
+] as const;
+export type ShopCategoryId = (typeof SHOP_CATEGORIES)[number]["id"];
+
+// Keyword match map per shop category
+const SHOP_KEYWORDS: Record<ShopCategoryId, string[]> = {
+  clothing: ["shirt", "tee", "jacket", "coat", "dress", "pants", "jeans", "hoodie", "sweater", "skirt", "suit", "clothing", "apparel", "wear"],
+  shoes: ["shoe", "sneaker", "boot", "heel", "loafer", "sandal", "trainer", "cleat"],
+  watches: ["watch", "rolex", "omega", "timepiece", "chronograph"],
+  glasses: ["glass", "sunglass", "eyewear", "frame", "lens", "shades"],
+  jewelry: ["jewelry", "ring", "necklace", "bracelet", "earring", "chain", "pendant", "gold", "silver", "diamond"],
+  paintings: ["painting", "art", "canvas", "print", "drawing", "sketch", "watercolor", "oil"],
+  furniture: ["chair", "table", "sofa", "lamp", "desk", "bed", "shelf", "furniture", "stool"],
+  books: ["book", "novel", "magazine", "comic", "manga"],
+  tech: ["phone", "laptop", "camera", "tablet", "console", "headphone", "speaker", "gadget", "tech", "electronic"],
+  beauty: ["beauty", "makeup", "perfume", "skincare", "fragrance", "cosmetic"],
+  other: [],
+};
 
 export interface FeedFilterState {
   category: FeedCategory;
-  posts: { hasCaption: boolean; hasLocation: boolean };
-  music: { onlyTracks: boolean };
-  video: { onlyVideos: boolean };
+  photos: {
+    hasCaption: boolean;
+    hasLocation: boolean;
+    onlyFollowing: boolean;
+    onlyWithComments: boolean;
+  };
+  music: {
+    moods: MusicMood[];
+    genres: MusicGenre[];
+  };
+  video: {
+    moods: VideoMood[];
+    genres: VideoGenre[];
+  };
   shop: {
     types: ("auction" | "fixed")[];
     statuses: ("active" | "sold" | "ended")[];
+    categories: ShopCategoryId[];
   };
 }
 
 export const DEFAULT_FILTER: FeedFilterState = {
   category: "all",
-  posts: { hasCaption: false, hasLocation: false },
-  music: { onlyTracks: true },
-  video: { onlyVideos: true },
-  shop: { types: ["auction", "fixed"], statuses: ["active"] },
+  photos: { hasCaption: false, hasLocation: false, onlyFollowing: false, onlyWithComments: false },
+  music: { moods: [], genres: [] },
+  video: { moods: [], genres: [] },
+  shop: { types: ["auction", "fixed"], statuses: ["active"], categories: [] },
 };
 
 const CATS: { id: FeedCategory; label: string; icon: any }[] = [
   { id: "all", label: "All", icon: Layers },
-  { id: "posts", label: "Posts", icon: ImageIcon },
+  { id: "photos", label: "Photos", icon: ImageIcon },
   { id: "music", label: "Music", icon: Music },
   { id: "video", label: "Video", icon: Video },
   { id: "shop", label: "Shop", icon: ShoppingBag },
+];
+
+const MUSIC_MOODS: { id: MusicMood; label: string; icon: any }[] = [
+  { id: "new", label: "New releases", icon: Sparkles },
+  { id: "popular", label: "Popular", icon: Flame },
+  { id: "trending", label: "Trending", icon: TrendingUp },
+  { id: "throwback", label: "Throwbacks", icon: Disc3 },
+];
+
+const VIDEO_MOODS: { id: VideoMood; label: string; icon: any }[] = [
+  { id: "new", label: "New", icon: Sparkles },
+  { id: "popular", label: "Popular", icon: Flame },
+  { id: "trending", label: "Trending", icon: TrendingUp },
+  { id: "shorts", label: "Shorts", icon: Film },
 ];
 
 interface Props {
@@ -43,8 +117,11 @@ interface Props {
 
 const isDefault = (f: FeedFilterState) =>
   f.category === "all" &&
-  !f.posts.hasCaption && !f.posts.hasLocation &&
-  f.shop.types.length === 2 && f.shop.statuses.length === 1 && f.shop.statuses[0] === "active";
+  !f.photos.hasCaption && !f.photos.hasLocation && !f.photos.onlyFollowing && !f.photos.onlyWithComments &&
+  f.music.moods.length === 0 && f.music.genres.length === 0 &&
+  f.video.moods.length === 0 && f.video.genres.length === 0 &&
+  f.shop.types.length === 2 && f.shop.statuses.length === 1 && f.shop.statuses[0] === "active" &&
+  f.shop.categories.length === 0;
 
 const FeedFilter = ({ value, onChange }: Props) => {
   const [open, setOpen] = useState(false);
@@ -54,8 +131,9 @@ const FeedFilter = ({ value, onChange }: Props) => {
 
   const reset = () => onChange(DEFAULT_FILTER);
 
-  const toggleArr = <T,>(arr: T[], v: T): T[] =>
-    arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
+  function toggleArr<T>(arr: T[], v: T): T[] {
+    return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
+  }
 
   return (
     <>
@@ -82,14 +160,14 @@ const FeedFilter = ({ value, onChange }: Props) => {
               <span className="text-[10px] text-primary uppercase">Active</span>
             </span>
           )}
-          <ChevronDown className={`w-4 h-4 ml-auto text-muted-foreground transition-transform ${active ? "" : ""}`} />
+          <ChevronDown className="w-4 h-4 ml-auto text-muted-foreground" />
         </button>
       </div>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="bottom"
-          className="rounded-t-3xl border-0 neo-card p-0 sm:max-w-lg sm:mx-auto sm:left-0 sm:right-0 sm:inset-x-0 flex flex-col max-h-[90dvh] h-[90dvh] sm:h-auto sm:max-h-[85dvh]"
+          className="rounded-t-3xl border-0 neo-card p-0 sm:max-w-lg sm:mx-auto sm:left-0 sm:right-0 sm:inset-x-0 flex flex-col max-h-[92dvh] h-[92dvh] sm:h-auto sm:max-h-[88dvh]"
         >
           <SheetHeader className="text-left space-y-1 px-5 pt-5 pb-3 shrink-0 border-b border-border/40">
             <SheetTitle className="flex items-center gap-2 text-base">
@@ -130,52 +208,101 @@ const FeedFilter = ({ value, onChange }: Props) => {
               </div>
             </section>
 
-            {/* Sub-filters per category */}
-            {(value.category === "all" || value.category === "posts") && (
-              <SubSection title="Posts">
+            {/* Photos */}
+            {(value.category === "all" || value.category === "photos") && (
+              <SubSection title="Photos" icon={Camera}>
                 <Toggle
                   icon={MessageSquare}
                   label="Only with captions"
                   desc="Skip image-only posts"
-                  active={value.posts.hasCaption}
-                  onClick={() => onChange({ ...value, posts: { ...value.posts, hasCaption: !value.posts.hasCaption } })}
+                  active={value.photos.hasCaption}
+                  onClick={() => onChange({ ...value, photos: { ...value.photos, hasCaption: !value.photos.hasCaption } })}
                 />
                 <Toggle
                   icon={MapPin}
                   label="Only with location"
                   desc="Posts tagged with a place"
-                  active={value.posts.hasLocation}
-                  onClick={() => onChange({ ...value, posts: { ...value.posts, hasLocation: !value.posts.hasLocation } })}
+                  active={value.photos.hasLocation}
+                  onClick={() => onChange({ ...value, photos: { ...value.photos, hasLocation: !value.photos.hasLocation } })}
+                />
+                <Toggle
+                  icon={Heart}
+                  label="People I follow"
+                  desc="Hide everyone else"
+                  active={value.photos.onlyFollowing}
+                  onClick={() => onChange({ ...value, photos: { ...value.photos, onlyFollowing: !value.photos.onlyFollowing } })}
+                />
+                <Toggle
+                  icon={MessageSquare}
+                  label="Has comments"
+                  desc="Conversations only"
+                  active={value.photos.onlyWithComments}
+                  onClick={() => onChange({ ...value, photos: { ...value.photos, onlyWithComments: !value.photos.onlyWithComments } })}
                 />
               </SubSection>
             )}
 
+            {/* Music */}
             {(value.category === "all" || value.category === "music") && (
-              <SubSection title="Music">
-                <Toggle
-                  icon={Music}
-                  label="Only music posts"
-                  desc="Tracks, releases, audio uploads"
-                  active={value.music.onlyTracks}
-                  onClick={() => onChange({ ...value, music: { onlyTracks: !value.music.onlyTracks } })}
-                />
+              <SubSection title="Music" icon={Mic2}>
+                <p className="text-[11px] text-muted-foreground -mb-1">Vibe</p>
+                <div className="flex flex-wrap gap-2">
+                  {MUSIC_MOODS.map((m) => (
+                    <Chip
+                      key={m.id}
+                      icon={m.icon}
+                      label={m.label}
+                      active={value.music.moods.includes(m.id)}
+                      onClick={() => onChange({ ...value, music: { ...value.music, moods: toggleArr(value.music.moods, m.id) } })}
+                    />
+                  ))}
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">Genres</p>
+                <div className="flex flex-wrap gap-2">
+                  {MUSIC_GENRES.map((g) => (
+                    <Chip
+                      key={g}
+                      label={g}
+                      active={value.music.genres.includes(g)}
+                      onClick={() => onChange({ ...value, music: { ...value.music, genres: toggleArr(value.music.genres, g) } })}
+                    />
+                  ))}
+                </div>
               </SubSection>
             )}
 
+            {/* Video */}
             {(value.category === "all" || value.category === "video") && (
-              <SubSection title="Video">
-                <Toggle
-                  icon={Video}
-                  label="Only video posts"
-                  desc="Clips & uploads"
-                  active={value.video.onlyVideos}
-                  onClick={() => onChange({ ...value, video: { onlyVideos: !value.video.onlyVideos } })}
-                />
+              <SubSection title="Video" icon={Film}>
+                <p className="text-[11px] text-muted-foreground -mb-1">Vibe</p>
+                <div className="flex flex-wrap gap-2">
+                  {VIDEO_MOODS.map((m) => (
+                    <Chip
+                      key={m.id}
+                      icon={m.icon}
+                      label={m.label}
+                      active={value.video.moods.includes(m.id)}
+                      onClick={() => onChange({ ...value, video: { ...value.video, moods: toggleArr(value.video.moods, m.id) } })}
+                    />
+                  ))}
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">Categories</p>
+                <div className="flex flex-wrap gap-2">
+                  {VIDEO_GENRES.map((g) => (
+                    <Chip
+                      key={g}
+                      label={g}
+                      active={value.video.genres.includes(g)}
+                      onClick={() => onChange({ ...value, video: { ...value.video, genres: toggleArr(value.video.genres, g) } })}
+                    />
+                  ))}
+                </div>
               </SubSection>
             )}
 
+            {/* Shop */}
             {(value.category === "all" || value.category === "shop") && (
-              <SubSection title="Shop">
+              <SubSection title="Shop" icon={ShoppingBag}>
                 <p className="text-[11px] text-muted-foreground -mb-1">Listing type</p>
                 <div className="grid grid-cols-2 gap-2">
                   <Chip
@@ -199,6 +326,18 @@ const FeedFilter = ({ value, onChange }: Props) => {
                       label={s[0].toUpperCase() + s.slice(1)}
                       active={value.shop.statuses.includes(s)}
                       onClick={() => onChange({ ...value, shop: { ...value.shop, statuses: toggleArr(value.shop.statuses, s) } })}
+                    />
+                  ))}
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">Categories</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {SHOP_CATEGORIES.map((c) => (
+                    <Chip
+                      key={c.id}
+                      icon={c.icon}
+                      label={c.label}
+                      active={value.shop.categories.includes(c.id)}
+                      onClick={() => onChange({ ...value, shop: { ...value.shop, categories: toggleArr(value.shop.categories, c.id) } })}
                     />
                   ))}
                 </div>
@@ -228,9 +367,12 @@ const FeedFilter = ({ value, onChange }: Props) => {
   );
 };
 
-const SubSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const SubSection = ({ title, icon: Icon, children }: { title: string; icon?: any; children: React.ReactNode }) => (
   <section className="space-y-2">
-    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+    <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      {Icon && <Icon className="w-3.5 h-3.5" />}
+      {title}
+    </p>
     <div className="space-y-2">{children}</div>
   </section>
 );
@@ -269,4 +411,5 @@ const Chip = ({ icon: Icon, label, active, onClick }: any) => (
   </button>
 );
 
+export { SHOP_KEYWORDS };
 export default FeedFilter;
