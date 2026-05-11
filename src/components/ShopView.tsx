@@ -27,12 +27,21 @@ type SectionState<T> = { loading: boolean; data: T[] };
 
 const ShopView = ({ onOpenListing }: Props) => {
   const { user } = useAuth();
-  const { ids: favoriteIds, isFavorite, toggle: toggleFavorite, loaded: favoritesLoaded } = useFavorites();
+  const { savedIndex, loaded: savedLoaded } = useSavedLists();
   const [endingSoon, setEndingSoon] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [justListed, setJustListed] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [fromFollowing, setFromFollowing] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [featuredSellers, setFeaturedSellers] = useState<SectionState<FeaturedSeller>>({ loading: true, data: [] });
   const [saved, setSaved] = useState<SectionState<Listing>>({ loading: true, data: [] });
+
+  const savedListingIds = useMemo(() => {
+    const ids = new Set<string>();
+    savedIndex.forEach((_, key) => {
+      if (key.startsWith("listing:")) ids.add(key.slice("listing:".length));
+    });
+    return ids;
+  }, [savedIndex]);
+
 
   const mapImg = (rows: any[]): Listing[] =>
     (rows ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
