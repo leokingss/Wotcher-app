@@ -1,6 +1,12 @@
 import { Plus, Music, Film, Camera } from "lucide-react";
 import { stories } from "@/data/mockSocial";
 
+/**
+ * Direction the film perforations appear to roll in the story icon.
+ * Flip this between "left" and "right" to change the rolling direction.
+ */
+export const FILM_ROLL_DIRECTION: "left" | "right" = "right";
+
 // Animated Music icon (profile page style)
 const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
@@ -27,8 +33,17 @@ const CameraIconAnim = ({ muted = false }: { muted?: boolean }) => {
   );
 };
 
-// Landscape film icon with a rolling fill animation across the frame
-const FilmIconAnim = ({ muted = false }: { muted?: boolean }) => {
+// Landscape film icon with a rolling fill animation across the frame.
+// The wrapper is rotated 90deg so an inner vertical scroll reads as a
+// horizontal roll. To roll "right", we scroll the inner pattern downward
+// (positive Y); to roll "left", we scroll it upward (negative Y).
+const FilmIconAnim = ({
+  muted = false,
+  direction = FILM_ROLL_DIRECTION,
+}: {
+  muted?: boolean;
+  direction?: "left" | "right";
+}) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
@@ -44,7 +59,11 @@ const FilmIconAnim = ({ muted = false }: { muted?: boolean }) => {
             className="absolute inset-[3px] overflow-hidden rounded-[2px]"
             style={{ zIndex: 0 }}
           >
-            <div className="story-film-fill" />
+            <div
+              className={
+                direction === "right" ? "story-film-fill-right" : "story-film-fill-left"
+              }
+            />
           </div>
         )}
       </div>
