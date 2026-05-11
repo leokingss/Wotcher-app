@@ -116,16 +116,32 @@ const applyFilter = (posts: FeedPost[], f: FeedFilterState): FeedPost[] => {
     if (f.category === "shop" && !p.listing) return false;
     if (f.category === "music" && p.media_type !== "audio") return false;
     if (f.category === "video" && p.media_type !== "video") return false;
-    if (f.category === "posts" && (p.listing || p.media_type !== "image")) return false;
+    if (f.category === "photos" && (p.listing || p.media_type !== "image")) return false;
 
-    if ((f.category === "all" || f.category === "posts") && p.media_type === "image" && !p.listing) {
-      if (f.posts.hasCaption && !(p.caption && p.caption.trim().length > 0)) return false;
-      if (f.posts.hasLocation && !(p.location && p.location.trim().length > 0)) return false;
+    if ((f.category === "all" || f.category === "photos") && p.media_type === "image" && !p.listing) {
+      if (f.photos.hasCaption && !(p.caption && p.caption.trim().length > 0)) return false;
+      if (f.photos.hasLocation && !(p.location && p.location.trim().length > 0)) return false;
+      if (f.photos.onlyWithComments && p.comment_count <= 0) return false;
+      // onlyFollowing requires follow data we don't have here — best-effort skipped
     }
 
     if (p.listing && (f.category === "all" || f.category === "shop")) {
       if (!f.shop.types.includes(p.listing.type)) return false;
       if (!f.shop.statuses.includes(p.listing.status as any)) return false;
+      if (f.shop.categories.length > 0) {
+        const hay = `${p.listing.title ?? ""} ${p.caption ?? ""}`.toLowerCase();
+        const matches = f.shop.categories.some((cat) => {
+          const kws = SHOP_KEYWORDS[cat] ?? [];
+          if (cat === "other") {
+            // matches when no other category matched
+            const otherCats = f.shop.categories.filter((c) => c !== "other");
+            const anyOther = otherCats.some((c) => (SHOP_KEYWORDS[c] ?? []).some((k) => hay.includes(k)));
+            return !anyOther;
+          }
+          return kws.some((k) => hay.includes(k));
+        });
+        if (!matches) return false;
+      }
     }
 
     return true;
