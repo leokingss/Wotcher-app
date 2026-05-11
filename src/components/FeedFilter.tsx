@@ -146,10 +146,7 @@ const FeedFilter = ({ value, onChange }: Props) => {
             active ? "text-primary" : "text-foreground"
           }`}
         >
-          <span className="flex items-center gap-2">
-            <SlidersHorizontal className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
-            <span className="text-xs uppercase tracking-wider">Filter</span>
-          </span>
+          <SlidersHorizontal className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
           <span className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
             <ActiveIcon className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
             <span>{activeCat.label}</span>
