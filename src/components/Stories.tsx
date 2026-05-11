@@ -57,7 +57,7 @@ const Stories = () => {
                   key={story.id}
                   className="flex flex-col items-center gap-2 flex-shrink-0 group"
                 >
-                  <div className="w-[72px] h-[112px] rounded-full neo-inset flex flex-col items-center justify-center">
+                  <div className="w-[72px] h-[112px] rounded-full neo-card-inset flex flex-col items-center justify-center">
                     <div className="neo-button-icon w-10 h-10 flex items-center justify-center">
                       <Plus className="w-5 h-5 text-primary" strokeWidth={2.5} />
                     </div>
@@ -78,7 +78,7 @@ const Stories = () => {
               >
                 <div
                   className={`w-[72px] h-[112px] rounded-full flex flex-col items-center pt-2 transition-transform active:scale-95 ${
-                    watched ? "neo-inset opacity-60" : "neo-button-icon"
+                    watched ? "neo-card-inset opacity-60" : "neo-button-icon"
                   }`}
                 >
                   <div
