@@ -739,13 +739,9 @@ const Profile = () => {
           </motion.div>
         )}
 
-        {activeTab === "saved" && (
+        {activeTab === "saved" && profileUserId && (
           <motion.div key="saved" {...tabFade}>
-            <EmptyState
-              icon={Bookmark}
-              title="Nothing saved"
-              description="Tap the bookmark icon on any post to save it here for later."
-            />
+            <ProfileSavedTab profileUserId={profileUserId} isOwner={!!isOwnProfile} />
           </motion.div>
         )}
         </AnimatePresence>
