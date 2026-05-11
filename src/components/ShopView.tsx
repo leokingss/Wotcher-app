@@ -26,10 +26,12 @@ type SectionState<T> = { loading: boolean; data: T[] };
 
 const ShopView = ({ onOpenListing }: Props) => {
   const { user } = useAuth();
+  const { ids: favoriteIds, isFavorite, toggle: toggleFavorite, loaded: favoritesLoaded } = useFavorites();
   const [endingSoon, setEndingSoon] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [justListed, setJustListed] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [fromFollowing, setFromFollowing] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [featuredSellers, setFeaturedSellers] = useState<SectionState<FeaturedSeller>>({ loading: true, data: [] });
+  const [saved, setSaved] = useState<SectionState<Listing>>({ loading: true, data: [] });
 
   const mapImg = (rows: any[]): Listing[] =>
     (rows ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
