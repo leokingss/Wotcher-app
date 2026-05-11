@@ -414,8 +414,6 @@ const Profile = () => {
           </button>
         </div>
 
-        {/* Highlights row */}
-        <Highlights />
 
         {/* Tabs - icon buttons with sliding active indicator */}
         <div className="flex justify-between mb-4">
