@@ -175,11 +175,6 @@ const ShopView = ({ onOpenListing }: Props) => {
     );
   }
 
-  const cardProps = (l: Listing) => ({
-    favorited: isFavorite(l.id),
-    onToggleFavorite: () => toggleFavorite(l.id),
-  });
-
   return (
     <div className="space-y-7 pb-2">
       <Section icon={Clock} title="Ending soon" subtitle="Don't miss these auctions">
