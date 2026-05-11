@@ -9,7 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import PageTransition from "@/components/PageTransition";
 import MiniPlayer from "@/components/MiniPlayer";
 import { PlayerProvider } from "@/hooks/usePlayer";
-import { FavoritesProvider } from "@/hooks/useFavorites";
+import { SavedListsProvider } from "@/hooks/useSavedLists";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
