@@ -8,7 +8,7 @@ const seedBars = (seed: number, count = 7) => {
   let s = seed * 9301 + 49297;
   for (let i = 0; i < count; i++) {
     s = (s * 9301 + 49297) % 233280;
-    out.push(0.35 + (s / 233280) * 0.65); // 0.35 - 1.0
+    out.push(0.35 + (s / 233280) * 0.65);
   }
   return out;
 };
@@ -43,6 +43,93 @@ const WaveStrand = ({ seed, muted = false }: { seed: number; muted?: boolean }) 
       })}
     </div>
   );
+};
+
+// Photo: stacked photo frames with a subtle shimmer sweep
+const PhotoStack = ({ muted = false }: { muted?: boolean }) => {
+  const color = muted ? "hsl(var(--muted-foreground) / 0.45)" : "hsl(45, 100%, 50%)";
+  return (
+    <div className="relative h-7 mt-2 w-full flex items-center justify-center overflow-hidden">
+      <div className="relative w-8 h-5">
+        <div
+          className="absolute inset-0 rounded-[3px] -rotate-[10deg] -translate-x-[3px]"
+          style={{ border: `1.2px solid ${color}`, opacity: 0.5 }}
+        />
+        <div
+          className="absolute inset-0 rounded-[3px] rotate-[8deg] translate-x-[3px]"
+          style={{ border: `1.2px solid ${color}`, opacity: 0.7 }}
+        />
+        <div
+          className="absolute inset-0 rounded-[3px] flex items-center justify-center overflow-hidden"
+          style={{ border: `1.4px solid ${color}` }}
+        >
+          <div className="w-1 h-1 rounded-full" style={{ background: color }} />
+          {!muted && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "linear-gradient(110deg, transparent 35%, hsla(45,100%,80%,0.6) 50%, transparent 65%)",
+                backgroundSize: "220% 100%",
+                animation: "story-shimmer 2.2s linear infinite",
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Video: scrolling film strip with a centered play triangle
+const VideoStrip = ({ muted = false }: { muted?: boolean }) => {
+  const color = muted ? "hsl(var(--muted-foreground) / 0.5)" : "hsl(45, 100%, 50%)";
+  return (
+    <div className="relative h-7 mt-2 w-full flex items-center justify-center overflow-hidden">
+      <div
+        className="absolute inset-x-2 h-4 rounded-[2px] overflow-hidden"
+        style={{ border: `1px solid ${color}`, opacity: muted ? 0.55 : 0.9 }}
+      >
+        <div
+          className="flex gap-[3px] h-full items-center px-[2px] w-[200%]"
+          style={{ animation: muted ? "none" : "story-strip 1.6s linear infinite" }}
+        >
+          {Array.from({ length: 28 }).map((_, i) => (
+            <div
+              key={i}
+              className="w-[3px] h-[3px] rounded-[1px] flex-shrink-0"
+              style={{ background: color }}
+            />
+          ))}
+        </div>
+      </div>
+      <div
+        className="relative z-10"
+        style={{
+          width: 0,
+          height: 0,
+          borderLeft: `5px solid ${muted ? "hsl(var(--muted-foreground) / 0.75)" : "hsl(10,100%,55%)"}`,
+          borderTop: "3.5px solid transparent",
+          borderBottom: "3.5px solid transparent",
+          filter: muted ? "none" : "drop-shadow(0 0 3px hsla(45,100%,55%,0.6))",
+        }}
+      />
+    </div>
+  );
+};
+
+const StoryMediaIndicator = ({
+  mediaType,
+  seed,
+  muted,
+}: {
+  mediaType: "music" | "photo" | "video";
+  seed: number;
+  muted: boolean;
+}) => {
+  if (mediaType === "photo") return <PhotoStack muted={muted} />;
+  if (mediaType === "video") return <VideoStrip muted={muted} />;
+  return <WaveStrand seed={seed} muted={muted} />;
 };
 
 const Stories = () => {
