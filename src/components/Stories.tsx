@@ -1,4 +1,4 @@
-import { Plus, Music, Film, ShoppingBag } from "lucide-react";
+import { Plus, Music, Film, Camera } from "lucide-react";
 import { stories } from "@/data/mockSocial";
 
 // Animated Music icon (profile page style)
@@ -14,28 +14,47 @@ const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
   );
 };
 
-// Animated Film/Movie icon (profile page style)
-const FilmIconAnim = ({ muted = false }: { muted?: boolean }) => {
+// Animated Camera icon with flashing bulb effect
+const CameraIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <Film
-        className={muted ? "" : "story-icon-pulse"}
+      <Camera
+        className={muted ? "" : "story-icon-flash"}
         style={{ color, width: 22, height: 22 }}
       />
     </div>
   );
 };
 
-// Animated ShoppingBag icon (profile page style)
-const ShopIconAnim = ({ muted = false }: { muted?: boolean }) => {
+// Film icon with rolling perforations effect (icon stays still)
+const FilmIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <ShoppingBag
-        className={muted ? "" : "story-icon-sway"}
-        style={{ color, width: 22, height: 22 }}
-      />
+      <div className="relative" style={{ width: 26, height: 18 }}>
+        <Film
+          style={{ color, width: 26, height: 18, position: "relative", zIndex: 1 }}
+        />
+        {!muted && (
+          <>
+            {/* Top perforation strip */}
+            <div
+              className="absolute top-[2px] left-[5px] right-[5px] h-[2px] overflow-hidden"
+              style={{ zIndex: 0 }}
+            >
+              <div className="story-film-roll-top" />
+            </div>
+            {/* Bottom perforation strip */}
+            <div
+              className="absolute bottom-[2px] left-[5px] right-[5px] h-[2px] overflow-hidden"
+              style={{ zIndex: 0 }}
+            >
+              <div className="story-film-roll-bottom" />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };
@@ -47,7 +66,7 @@ const StoryMediaIndicator = ({
   mediaType: "music" | "photo" | "video";
   muted: boolean;
 }) => {
-  if (mediaType === "photo") return <ShopIconAnim muted={muted} />;
+  if (mediaType === "photo") return <CameraIconAnim muted={muted} />;
   if (mediaType === "video") return <FilmIconAnim muted={muted} />;
   return <MusicIconAnim muted={muted} />;
 };
