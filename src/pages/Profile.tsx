@@ -14,7 +14,7 @@ import EmptyState from "@/components/EmptyState";
 import ProfileSavedTab from "@/components/ProfileSavedTab";
 import PostContextMenu from "@/components/PostContextMenu";
 import FollowSheet from "@/components/FollowSheet";
-import Highlights from "@/components/Highlights";
+
 import { usePlayer } from "@/hooks/usePlayer";
 import { useAuth } from "@/hooks/useAuth";
 import { usePosts } from "@/hooks/usePosts";
@@ -414,8 +414,6 @@ const Profile = () => {
           </button>
         </div>
 
-        {/* Highlights row */}
-        <Highlights />
 
         {/* Tabs - icon buttons with sliding active indicator */}
         <div className="flex justify-between mb-4">
