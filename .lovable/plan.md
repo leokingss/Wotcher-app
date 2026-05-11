@@ -1,60 +1,60 @@
-Building the engagement loop in 4 batches. Each batch is self-contained so you can stop after any of them.
+## Saved lists across posts & listings
 
-## Batch 1 — Notifications UI upgrade
+### What you'll get
 
-- Unread badge on the bottom-nav bell (red dot + count).
-- Rebuild `Activity` page: group by day, support all new types (`outbid`, `auction_won`, `item_sold`, `new_listing`, `auction_ending_soon`).
-- Each row deep-links: post → opens post, listing → opens seller's shopping tab, follow → opens profile.
-- Realtime: badge and list update live via the existing `notifications` channel.
-- Add a "Mark all read" action.
+- A **Save** (bookmark) icon at the bottom-right of every post and every shop listing.
+- Tapping it opens a **"Save to…" sheet** that shows your existing lists and a **"+ Create new list"** option.
+- When creating a list you choose:
+  - **Name** (required)
+  - **Visibility:** Public · Private (only me) · Shared (private + pick which followers can view)
+- A new **Saved** tab on your profile shows all your lists. Visitors only see lists they're allowed to see.
+- Opening a list shows its saved posts and listings in one unified grid, with the option to remove items.
+- Old `listing_favorites` data migrates into an auto-created **"Favorites"** list so nothing is lost.
 
-## Batch 2 — Direct messages (text + voice + media)
+### Visibility rules
 
-New tables (migration):
-- `conversations` (id, created_at, last_message_at)
-- `conversation_participants` (conversation_id, user_id) — composite PK, RLS so a user only sees their own conversations.
-- `messages` (id, conversation_id, sender_id, body text, media_url, media_type enum `text|voice|image|video`, duration_seconds, created_at, read_at)
-- RPC `get_or_create_dm(other_user uuid)` returns conversation id (security definer).
-- Trigger: on new message, insert a `notifications` row (`type='message'`) for the other participant unless they're actively in the chat.
+- **Public** — anyone can see the list and its contents.
+- **Private** — only the owner.
+- **Shared** — owner + the followers explicitly granted access.
 
-New storage bucket `dm-media` (private, RLS: only conversation participants can read).
+Counts are always public on the profile (e.g. "12 lists"); private list contents are not.
 
-UI:
-- New `/messages` route → inbox list (last message preview, unread dot, avatar, timestamp).
-- New `/messages/:conversationId` route → chat view.
-  - Reuses `StrandWave` for voice notes, reuses voice recorder pattern from `CommentComposer`.
-  - Image/video upload via paperclip, previewed inline.
-  - Realtime via Supabase channel filtered on `conversation_id`.
-- "Message" button on profile pages opens or creates the DM.
-- Inbox entry point: paper-plane icon in the `Header` next to the dropdown, with unread badge.
+### Where things live
 
-## Batch 3 — Email notifications
+- **Save icon:** appears on `Post` (bottom-right of card actions) and on `ListingCard` (replaces the existing heart on listings, since the heart was a single‑list shortcut).
+- **Save sheet:** shared component used from both surfaces.
+- **Profile → Saved tab:** new tab next to existing tabs. List cards show cover collage (up to 4 thumbnails), name, visibility badge, item count.
+- **List detail page:** `/list/:id` shows items + (for owner) edit/delete/share controls.
 
-Will trigger the email domain setup dialog if no domain exists yet (prerequisite).
+### Technical details
 
-After domain is configured, scaffold transactional emails for:
-- `auction_won` — "You won {item}! Confirm shipping address."
-- `item_sold` — "Your {item} sold. Buyer shipping details inside."
-- `outbid` — "You've been outbid on {item}. Current bid: {amount}."
-- `auction_ending_soon` — "1 hour left on {item}."
+**New tables**
 
-Wire the existing `settle-auctions` edge function and the `notify_outbid` trigger to also call `send-transactional-email`. Add a per-user email-preferences toggle (honour `suppressed_emails`).
+- `saved_lists` — `id, owner_id, name, visibility ('public'|'private'|'shared'), cover_url, created_at, updated_at`
+- `saved_list_members` — `list_id, user_id` (followers granted view access on shared lists)
+- `saved_items` — `list_id, item_type ('post'|'listing'), item_id, added_at` (PK on list_id+item_type+item_id)
 
-## Batch 4 — Shop tab polish (Search page)
+**RLS**
 
-- Add a new "Shop" top-level chip on `/search` (currently it's a tab inside) so it's a first-class destination.
-- Sections: **Ending soon** (auctions sorted by `ends_at` ascending), **Just listed** (newest), **From people you follow**, **Featured sellers** (top-rated via `seller_rating_summary`).
-- Modern card grid with hover preview of bid/time-left.
+- Lists are visible if: `visibility='public'` OR `owner_id = auth.uid()` OR (`visibility='shared'` AND viewer is in `saved_list_members`). Implemented via a `can_view_list(_list uuid, _viewer uuid)` SECURITY DEFINER function to avoid recursion.
+- `saved_items` mirrors the parent list's visibility via the same function.
+- Only the owner can insert/update/delete lists, members, and items.
+- `saved_list_members`: only the list owner can add/remove rows; the granted user can read their own grant.
 
-## Technical details
+**Migration**
 
-- All DM realtime uses `supabase.channel('dm:'+conversationId).on('postgres_changes', ...)`.
-- Voice recorder: MediaRecorder API → upload to `dm-media/{conversationId}/{uuid}.webm`, store signed URL.
-- Notification badge: subscribe once at `BottomNav` and `Header` level via a new `useUnreadNotifications` hook (single shared query).
-- Email: uses Lovable Emails queue (`enqueue_email` RPC), templates in `_shared/email-templates/`.
+- One‑time SQL: for every user with rows in `listing_favorites`, create a "Favorites" list (private) and copy entries into `saved_items` as `item_type='listing'`. Then we can keep `listing_favorites` around for now (deprecated) and switch the UI to the new system.
 
-## Build order
+**Hook & components**
 
-I'll start with **Batch 1 (Notifications UI)** since it's the smallest and unblocks visual feedback for everything else, then move to Batch 2 (DMs) which is the largest. After Batch 2 I'll check in before doing Batch 3 (which needs your email domain) and Batch 4.
+- Replace `useFavorites` with `useSavedLists` (lists, items by list, membership grants, mutations).
+- New components: `SaveButton`, `SaveToListSheet`, `CreateListDialog` (with follower multiselect for shared visibility), `ListCard`, `ListDetail` page, `ProfileSavedTab`.
+- Shop tab's existing "Saved" section is removed (replaced by the profile Saved tab).
 
-Approve to proceed.
+### Out of scope (for this pass)
+
+- Reordering items inside a list.
+- Collaborative lists (multiple editors).
+- Notifying followers when granted access.
+
+Approve this and I'll build it end‑to‑end.
