@@ -11,6 +11,7 @@ export interface PostListingSummary {
   price: number | null;
   current_bid: number | null;
   ends_at: string | null;
+  title: string | null;
 }
 
 export interface FeedPost {
