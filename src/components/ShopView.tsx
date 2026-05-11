@@ -351,10 +351,14 @@ const ListingCard = ({
   listing: l,
   variant,
   onOpen,
+  favorited,
+  onToggleFavorite,
 }: {
   listing: Listing;
   variant: "hero" | "grid" | "compact";
   onOpen: () => void;
+  favorited?: boolean;
+  onToggleFavorite?: () => void;
 }) => {
   const isAuction = l.type === "auction";
   const display = isAuction ? (l.current_bid ?? l.starting_bid) : l.price;
@@ -391,7 +395,28 @@ const ListingCard = ({
             </span>
           )}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+        {onToggleFavorite && (
+          <span
+            role="button"
+            tabIndex={0}
+            aria-label={favorited ? "Remove from saved" : "Save listing"}
+            aria-pressed={!!favorited}
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleFavorite();
+              }
+            }}
+            className="absolute bottom-2 right-2 neo-button-icon w-9 h-9 flex items-center justify-center rounded-full transition-transform active:scale-90 hover:scale-105 cursor-pointer"
+          >
+            <Heart
+              className={`w-4 h-4 transition-colors ${favorited ? "fill-primary text-primary" : "text-white"}`}
+            />
+          </span>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 p-3 pr-14 text-white">
           <p className="text-xs font-medium truncate opacity-90">{l.title}</p>
           <p className="text-[9px] uppercase tracking-wider opacity-70 mt-0.5">
             {isAuction ? (l.current_bid ? "Current bid" : "Starting at") : "Price"}
