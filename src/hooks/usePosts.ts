@@ -2,12 +2,24 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
+export type PostMediaType = "image" | "video" | "audio";
+
+export interface PostListingSummary {
+  id: string;
+  type: "fixed" | "auction";
+  status: "active" | "sold" | "ended" | "cancelled";
+  price: number | null;
+  current_bid: number | null;
+  ends_at: string | null;
+}
+
 export interface FeedPost {
   id: string;
   user_id: string;
   caption: string | null;
   location: string | null;
   image_url: string;
+  media_type: PostMediaType;
   created_at: string;
   profile: {
     username: string;
@@ -18,6 +30,7 @@ export interface FeedPost {
   dislike_count: number;
   comment_count: number;
   my_reaction: "like" | "dislike" | null;
+  listing: PostListingSummary | null;
 }
 
 export type FeedMode = "live" | "popular" | "algorithm";
