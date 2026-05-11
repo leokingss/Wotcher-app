@@ -24,14 +24,14 @@ const WaveStrand = ({ seed, muted = false }: { seed: number; muted?: boolean }) 
   }, [muted]);
 
   return (
-    <div className="flex items-end justify-center gap-[2px] h-7 mt-2">
+    <div className="flex items-end justify-center gap-[2px] h-4 mt-1.5">
       {base.map((h, i) => {
         const wobble = muted ? 0 : Math.sin((phase + i) * 0.9) * 0.15;
         const height = Math.max(0.18, Math.min(1, h + wobble));
         return (
           <div
             key={i}
-            className="w-[3px] rounded-full transition-[height] duration-200"
+            className="w-[2px] rounded-full transition-[height] duration-200"
             style={{
               height: `${height * 100}%`,
               background: muted
@@ -45,75 +45,52 @@ const WaveStrand = ({ seed, muted = false }: { seed: number; muted?: boolean }) 
   );
 };
 
-// Photo: stacked photo frames with a subtle shimmer sweep
+// Photo: tiny camera with a flashing bulb
 const PhotoStack = ({ muted = false }: { muted?: boolean }) => {
-  const color = muted ? "hsl(var(--muted-foreground) / 0.45)" : "hsl(45, 100%, 50%)";
+  const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
+  const flash = muted ? "hsl(var(--muted-foreground) / 0.6)" : "hsl(45, 100%, 75%)";
   return (
-    <div className="relative h-7 mt-2 w-full flex items-center justify-center overflow-hidden">
-      <div className="relative w-8 h-5">
-        <div
-          className="absolute inset-0 rounded-[3px] -rotate-[10deg] -translate-x-[3px]"
-          style={{ border: `1.2px solid ${color}`, opacity: 0.5 }}
+    <div className="relative h-4 mt-1.5 w-full flex items-center justify-center">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <rect
+          x="1"
+          y="0.5"
+          width="2"
+          height="1.5"
+          rx="0.3"
+          fill={flash}
+          style={{ animation: muted ? "none" : "story-flash 1.4s ease-in-out infinite" }}
         />
-        <div
-          className="absolute inset-0 rounded-[3px] rotate-[8deg] translate-x-[3px]"
-          style={{ border: `1.2px solid ${color}`, opacity: 0.7 }}
-        />
-        <div
-          className="absolute inset-0 rounded-[3px] flex items-center justify-center overflow-hidden"
-          style={{ border: `1.4px solid ${color}` }}
-        >
-          <div className="w-1 h-1 rounded-full" style={{ background: color }} />
-          {!muted && (
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  "linear-gradient(110deg, transparent 35%, hsla(45,100%,80%,0.6) 50%, transparent 65%)",
-                backgroundSize: "220% 100%",
-                animation: "story-shimmer 2.2s linear infinite",
-              }}
-            />
-          )}
-        </div>
-      </div>
+        <rect x="0.5" y="2.5" width="15" height="9" rx="1.2" stroke={color} strokeWidth="1" fill="none" />
+        <rect x="10" y="3.5" width="2" height="1" rx="0.2" fill={color} />
+        <circle cx="8" cy="7.2" r="2.4" stroke={color} strokeWidth="0.9" fill="none" />
+        <circle cx="8" cy="7.2" r="1" fill={color} opacity="0.8" />
+      </svg>
     </div>
   );
 };
 
-// Video: scrolling film strip with a centered play triangle
+// Video: tiny film reel rotating
 const VideoStrip = ({ muted = false }: { muted?: boolean }) => {
-  const color = muted ? "hsl(var(--muted-foreground) / 0.5)" : "hsl(45, 100%, 50%)";
+  const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
-    <div className="relative h-7 mt-2 w-full flex items-center justify-center overflow-hidden">
-      <div
-        className="absolute inset-x-2 h-4 rounded-[2px] overflow-hidden"
-        style={{ border: `1px solid ${color}`, opacity: muted ? 0.55 : 0.9 }}
-      >
-        <div
-          className="flex gap-[3px] h-full items-center px-[2px] w-[200%]"
-          style={{ animation: muted ? "none" : "story-strip 1.6s linear infinite" }}
-        >
-          {Array.from({ length: 28 }).map((_, i) => (
-            <div
-              key={i}
-              className="w-[3px] h-[3px] rounded-[1px] flex-shrink-0"
-              style={{ background: color }}
-            />
-          ))}
-        </div>
-      </div>
-      <div
-        className="relative z-10"
+    <div className="relative h-4 mt-1.5 w-full flex items-center justify-center">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 14 14"
         style={{
-          width: 0,
-          height: 0,
-          borderLeft: `5px solid ${muted ? "hsl(var(--muted-foreground) / 0.75)" : "hsl(10,100%,55%)"}`,
-          borderTop: "3.5px solid transparent",
-          borderBottom: "3.5px solid transparent",
-          filter: muted ? "none" : "drop-shadow(0 0 3px hsla(45,100%,55%,0.6))",
+          animation: muted ? "none" : "story-spin 2.4s linear infinite",
+          filter: muted ? "none" : "drop-shadow(0 0 2px hsla(45,100%,55%,0.5))",
         }}
-      />
+      >
+        <circle cx="7" cy="7" r="6" stroke={color} strokeWidth="1" fill="none" />
+        <circle cx="7" cy="7" r="1.2" fill={color} />
+        <circle cx="7" cy="2.6" r="0.9" fill={color} />
+        <circle cx="7" cy="11.4" r="0.9" fill={color} />
+        <circle cx="2.6" cy="7" r="0.9" fill={color} />
+        <circle cx="11.4" cy="7" r="0.9" fill={color} />
+      </svg>
     </div>
   );
 };
