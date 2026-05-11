@@ -22,6 +22,7 @@ import Conversation from "./pages/Conversation";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import AdminEmails from "./pages/AdminEmails";
+import ListDetail from "./pages/ListDetail";
 
 const queryClient = new QueryClient();
 
