@@ -357,14 +357,10 @@ const ListingCard = ({
   listing: l,
   variant,
   onOpen,
-  favorited,
-  onToggleFavorite,
 }: {
   listing: Listing;
   variant: "hero" | "grid" | "compact";
   onOpen: () => void;
-  favorited?: boolean;
-  onToggleFavorite?: () => void;
 }) => {
   const isAuction = l.type === "auction";
   const display = isAuction ? (l.current_bid ?? l.starting_bid) : l.price;
@@ -375,62 +371,50 @@ const ListingCard = ({
   const aspect = variant === "compact" ? "aspect-square" : "aspect-[4/5]";
 
   return (
-    <button
-      onClick={onOpen}
-      className={`group relative neo-card p-1.5 rounded-2xl text-left overflow-hidden transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99] ${widthClass}`}
-    >
-      <div className={`relative ${aspect} rounded-xl overflow-hidden bg-muted`}>
-        {l.image_url ? (
-          <img src={l.image_url} alt={l.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            {isAuction ? <Gavel className="w-8 h-8 text-muted-foreground" /> : <Tag className="w-8 h-8 text-muted-foreground" />}
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-        <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
-          <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold backdrop-blur-md ${
-            isAuction ? "bg-primary/90 text-primary-foreground" : "bg-background/80 text-foreground"
-          }`}>
-            {isAuction ? <Gavel className="w-3 h-3" /> : <Tag className="w-3 h-3" />}
-            {isAuction ? "AUCTION" : "BUY NOW"}
-          </span>
-          {isAuction && l.ends_at && (
-            <span className="px-2 py-1 rounded-full text-[10px] font-semibold bg-background/80 backdrop-blur-md tabular-nums">
-              <TimeLeft endsAt={l.ends_at} compact />
-            </span>
+    <div className={`relative ${widthClass}`}>
+      <button
+        onClick={onOpen}
+        className="group relative neo-card p-1.5 rounded-2xl text-left overflow-hidden transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99] w-full"
+      >
+        <div className={`relative ${aspect} rounded-xl overflow-hidden bg-muted`}>
+          {l.image_url ? (
+            <img src={l.image_url} alt={l.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              {isAuction ? <Gavel className="w-8 h-8 text-muted-foreground" /> : <Tag className="w-8 h-8 text-muted-foreground" />}
+            </div>
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+          <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
+            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold backdrop-blur-md ${
+              isAuction ? "bg-primary/90 text-primary-foreground" : "bg-background/80 text-foreground"
+            }`}>
+              {isAuction ? <Gavel className="w-3 h-3" /> : <Tag className="w-3 h-3" />}
+              {isAuction ? "AUCTION" : "BUY NOW"}
+            </span>
+            {isAuction && l.ends_at && (
+              <span className="px-2 py-1 rounded-full text-[10px] font-semibold bg-background/80 backdrop-blur-md tabular-nums">
+                <TimeLeft endsAt={l.ends_at} compact />
+              </span>
+            )}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 p-3 pr-14 text-white">
+            <p className="text-xs font-medium truncate opacity-90">{l.title}</p>
+            <p className="text-[9px] uppercase tracking-wider opacity-70 mt-0.5">
+              {isAuction ? (l.current_bid ? "Current bid" : "Starting at") : "Price"}
+            </p>
+            <p className="text-lg font-bold tabular-nums leading-tight">{fmt(display)}</p>
+          </div>
         </div>
-        {onToggleFavorite && (
-          <span
-            role="button"
-            tabIndex={0}
-            aria-label={favorited ? "Remove from saved" : "Save listing"}
-            aria-pressed={!!favorited}
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                e.stopPropagation();
-                onToggleFavorite();
-              }
-            }}
-            className="absolute bottom-2 right-2 neo-button-icon w-9 h-9 flex items-center justify-center rounded-full transition-transform active:scale-90 hover:scale-105 cursor-pointer"
-          >
-            <Heart
-              className={`w-4 h-4 transition-colors ${favorited ? "fill-primary text-primary" : "text-white"}`}
-            />
-          </span>
-        )}
-        <div className="absolute bottom-0 left-0 right-0 p-3 pr-14 text-white">
-          <p className="text-xs font-medium truncate opacity-90">{l.title}</p>
-          <p className="text-[9px] uppercase tracking-wider opacity-70 mt-0.5">
-            {isAuction ? (l.current_bid ? "Current bid" : "Starting at") : "Price"}
-          </p>
-          <p className="text-lg font-bold tabular-nums leading-tight">{fmt(display)}</p>
-        </div>
-      </div>
-    </button>
+      </button>
+      <SaveButton
+        itemType="listing"
+        itemId={l.id}
+        itemTitle={l.title}
+        className="absolute bottom-3.5 right-3.5 w-9 h-9 rounded-full"
+        iconClassName="w-4 h-4 text-white"
+      />
+    </div>
   );
 };
 
