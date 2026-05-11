@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Header from "@/components/Header";
+import Stories from "@/components/Stories";
 import Feed from "@/components/Feed";
 import BottomNav from "@/components/BottomNav";
 import Sidebar from "@/components/Sidebar";
@@ -17,6 +18,7 @@ const Index = () => {
       <main className="pt-4 pb-24">
         <div className="max-w-6xl mx-auto px-0 lg:px-6 lg:flex lg:gap-8 lg:items-start">
           <div className="flex-1 min-w-0">
+            <Stories />
             <FeedFilter value={filter} onChange={setFilter} />
             <Feed mode={TAB_TO_MODE[activeTab]} filter={filter} />
           </div>
