@@ -135,21 +135,22 @@ const ShopView = ({ onOpenListing }: Props) => {
     })();
   }, [user?.id]);
 
-  // Saved listings — refetch when favorite ids change so newly saved/unsaved appear
+  // Saved listings — derived from saved lists across all of the user's lists
   useEffect(() => {
     if (!user) { setSaved({ loading: false, data: [] }); return; }
-    if (!favoritesLoaded) return;
-    if (favoriteIds.size === 0) { setSaved({ loading: false, data: [] }); return; }
+    if (!savedLoaded) return;
+    if (savedListingIds.size === 0) { setSaved({ loading: false, data: [] }); return; }
     setSaved((s) => ({ ...s, loading: true }));
     (async () => {
       const { data } = await supabase
         .from("listings")
         .select("*, posts:post_id(image_url)")
-        .in("id", Array.from(favoriteIds))
+        .in("id", Array.from(savedListingIds))
         .order("created_at", { ascending: false });
       setSaved({ loading: false, data: mapImg(data ?? []) });
     })();
-  }, [user?.id, favoritesLoaded, favoriteIds]);
+  }, [user?.id, savedLoaded, savedListingIds]);
+
 
   const allDone = !endingSoon.loading && !justListed.loading && !fromFollowing.loading && !featuredSellers.loading && !saved.loading;
   const allEmpty =
