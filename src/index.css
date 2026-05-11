@@ -445,8 +445,7 @@
     animation: story-icon-flash 1.8s ease-in-out infinite;
     transform-origin: center;
   }
-  .story-film-roll-top,
-  .story-film-roll-bottom {
+  .story-film-roll-h {
     width: 200%;
     height: 100%;
     background-image: repeating-linear-gradient(
@@ -454,9 +453,9 @@
       hsl(45, 100%, 50%) 0px,
       hsl(45, 100%, 50%) 2px,
       transparent 2px,
-      transparent 6px
+      transparent 5px
     );
-    animation: story-film-roll 1.2s linear infinite;
+    animation: story-film-roll 0.8s linear infinite;
   }
 
   /* Respect reduced motion */
