@@ -24,14 +24,14 @@ const WaveStrand = ({ seed, muted = false }: { seed: number; muted?: boolean }) 
   }, [muted]);
 
   return (
-    <div className="flex items-end justify-center gap-[2px] h-4 mt-1.5">
+    <div className="flex items-end justify-center gap-[2px] h-7 mt-2">
       {base.map((h, i) => {
         const wobble = muted ? 0 : Math.sin((phase + i) * 0.9) * 0.15;
         const height = Math.max(0.18, Math.min(1, h + wobble));
         return (
           <div
             key={i}
-            className="w-[2px] rounded-full transition-[height] duration-200"
+            className="w-[3px] rounded-full transition-[height] duration-200"
             style={{
               height: `${height * 100}%`,
               background: muted
@@ -45,13 +45,13 @@ const WaveStrand = ({ seed, muted = false }: { seed: number; muted?: boolean }) 
   );
 };
 
-// Photo: tiny camera with a flashing bulb
+// Photo: camera with a flashing bulb
 const PhotoStack = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   const flash = muted ? "hsl(var(--muted-foreground) / 0.6)" : "hsl(45, 100%, 75%)";
   return (
-    <div className="relative h-4 mt-1.5 w-full flex items-center justify-center">
-      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+    <div className="relative h-7 mt-2 w-full flex items-center justify-center">
+      <svg width="28" height="22" viewBox="0 0 16 12" fill="none">
         <rect
           x="1"
           y="0.5"
@@ -70,26 +70,44 @@ const PhotoStack = ({ muted = false }: { muted?: boolean }) => {
   );
 };
 
-// Video: tiny film reel rotating
+// Video: side-view cinema camera with spinning reels on top
 const VideoStrip = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
+  const accent = muted ? "hsl(var(--muted-foreground) / 0.7)" : "hsl(10,100%,55%)";
   return (
-    <div className="relative h-4 mt-1.5 w-full flex items-center justify-center">
+    <div className="relative h-7 mt-2 w-full flex items-center justify-center">
       <svg
-        width="14"
-        height="14"
-        viewBox="0 0 14 14"
-        style={{
-          animation: muted ? "none" : "story-spin 2.4s linear infinite",
-          filter: muted ? "none" : "drop-shadow(0 0 2px hsla(45,100%,55%,0.5))",
-        }}
+        width="30"
+        height="22"
+        viewBox="0 0 30 22"
+        fill="none"
+        style={{ filter: muted ? "none" : "drop-shadow(0 0 2px hsla(45,100%,55%,0.4))" }}
       >
-        <circle cx="7" cy="7" r="6" stroke={color} strokeWidth="1" fill="none" />
-        <circle cx="7" cy="7" r="1.2" fill={color} />
-        <circle cx="7" cy="2.6" r="0.9" fill={color} />
-        <circle cx="7" cy="11.4" r="0.9" fill={color} />
-        <circle cx="2.6" cy="7" r="0.9" fill={color} />
-        <circle cx="11.4" cy="7" r="0.9" fill={color} />
+        {/* Two film reels on top */}
+        <g style={{ transformOrigin: "8px 5px", animation: muted ? "none" : "story-spin 2.4s linear infinite" }}>
+          <circle cx="8" cy="5" r="4" stroke={color} strokeWidth="1" fill="none" />
+          <circle cx="8" cy="5" r="0.9" fill={color} />
+          <circle cx="8" cy="2.2" r="0.6" fill={color} />
+          <circle cx="8" cy="7.8" r="0.6" fill={color} />
+          <circle cx="5.2" cy="5" r="0.6" fill={color} />
+          <circle cx="10.8" cy="5" r="0.6" fill={color} />
+        </g>
+        <g style={{ transformOrigin: "17px 5px", animation: muted ? "none" : "story-spin 2.4s linear infinite" }}>
+          <circle cx="17" cy="5" r="3" stroke={color} strokeWidth="1" fill="none" />
+          <circle cx="17" cy="5" r="0.7" fill={color} />
+          <circle cx="17" cy="3" r="0.5" fill={color} />
+          <circle cx="17" cy="7" r="0.5" fill={color} />
+          <circle cx="15" cy="5" r="0.5" fill={color} />
+          <circle cx="19" cy="5" r="0.5" fill={color} />
+        </g>
+        {/* Camera body */}
+        <rect x="3" y="10" width="18" height="9" rx="1.4" stroke={color} strokeWidth="1" fill="none" />
+        {/* Lens barrel */}
+        <rect x="21" y="12" width="3" height="5" stroke={color} strokeWidth="1" fill="none" />
+        <circle cx="26.2" cy="14.5" r="2.5" stroke={color} strokeWidth="1" fill="none" />
+        <circle cx="26.2" cy="14.5" r="1" fill={accent} />
+        {/* Viewfinder */}
+        <rect x="5" y="12.2" width="2.4" height="1.8" rx="0.3" fill={color} />
       </svg>
     </div>
   );
