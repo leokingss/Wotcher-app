@@ -1,130 +1,55 @@
-import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Plus, Music, Film, ShoppingBag } from "lucide-react";
 import { stories } from "@/data/mockSocial";
 
-// Deterministic pseudo-random heights per story so bars feel unique but stable
-const seedBars = (seed: number, count = 7) => {
-  const out: number[] = [];
-  let s = seed * 9301 + 49297;
-  for (let i = 0; i < count; i++) {
-    s = (s * 9301 + 49297) % 233280;
-    out.push(0.35 + (s / 233280) * 0.65);
-  }
-  return out;
-};
-
-const WaveStrand = ({ seed, muted = false }: { seed: number; muted?: boolean }) => {
-  const base = seedBars(seed);
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    if (muted) return;
-    const id = setInterval(() => setPhase((p) => p + 1), 220);
-    return () => clearInterval(id);
-  }, [muted]);
-
+// Animated Music icon (profile page style)
+const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
+  const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
-    <div className="flex items-end justify-center gap-[2px] h-7 mt-2">
-      {base.map((h, i) => {
-        const wobble = muted ? 0 : Math.sin((phase + i) * 0.9) * 0.15;
-        const height = Math.max(0.18, Math.min(1, h + wobble));
-        return (
-          <div
-            key={i}
-            className="w-[3px] rounded-full transition-[height] duration-200"
-            style={{
-              height: `${height * 100}%`,
-              background: muted
-                ? "hsl(var(--muted-foreground) / 0.35)"
-                : "linear-gradient(to top, hsl(45,100%,50%), hsl(10,100%,55%))",
-            }}
-          />
-        );
-      })}
+    <div className="relative h-7 mt-2 w-full flex items-center justify-center">
+      <Music
+        className={muted ? "" : "story-icon-bounce"}
+        style={{ color, width: 22, height: 22 }}
+      />
     </div>
   );
 };
 
-// Photo: camera with a flashing bulb
-const PhotoStack = ({ muted = false }: { muted?: boolean }) => {
+// Animated Film/Movie icon (profile page style)
+const FilmIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
-  const flash = muted ? "hsl(var(--muted-foreground) / 0.6)" : "hsl(45, 100%, 75%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <svg width="28" height="22" viewBox="0 0 16 12" fill="none">
-        <rect
-          x="1"
-          y="0.5"
-          width="2"
-          height="1.5"
-          rx="0.3"
-          fill={flash}
-          style={{ animation: muted ? "none" : "story-flash 1.4s ease-in-out infinite" }}
-        />
-        <rect x="0.5" y="2.5" width="15" height="9" rx="1.2" stroke={color} strokeWidth="1" fill="none" />
-        <rect x="10" y="3.5" width="2" height="1" rx="0.2" fill={color} />
-        <circle cx="8" cy="7.2" r="2.4" stroke={color} strokeWidth="0.9" fill="none" />
-        <circle cx="8" cy="7.2" r="1" fill={color} opacity="0.8" />
-      </svg>
+      <Film
+        className={muted ? "" : "story-icon-pulse"}
+        style={{ color, width: 22, height: 22 }}
+      />
     </div>
   );
 };
 
-// Video: side-view cinema camera with spinning reels on top
-const VideoStrip = ({ muted = false }: { muted?: boolean }) => {
+// Animated ShoppingBag icon (profile page style)
+const ShopIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
-  const accent = muted ? "hsl(var(--muted-foreground) / 0.7)" : "hsl(10,100%,55%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <svg
-        width="30"
-        height="22"
-        viewBox="0 0 30 22"
-        fill="none"
-        style={{ filter: muted ? "none" : "drop-shadow(0 0 2px hsla(45,100%,55%,0.4))" }}
-      >
-        {/* Two film reels on top */}
-        <g style={{ transformOrigin: "8px 5px", animation: muted ? "none" : "story-spin 2.4s linear infinite" }}>
-          <circle cx="8" cy="5" r="4" stroke={color} strokeWidth="1" fill="none" />
-          <circle cx="8" cy="5" r="0.9" fill={color} />
-          <circle cx="8" cy="2.2" r="0.6" fill={color} />
-          <circle cx="8" cy="7.8" r="0.6" fill={color} />
-          <circle cx="5.2" cy="5" r="0.6" fill={color} />
-          <circle cx="10.8" cy="5" r="0.6" fill={color} />
-        </g>
-        <g style={{ transformOrigin: "17px 5px", animation: muted ? "none" : "story-spin 2.4s linear infinite" }}>
-          <circle cx="17" cy="5" r="3" stroke={color} strokeWidth="1" fill="none" />
-          <circle cx="17" cy="5" r="0.7" fill={color} />
-          <circle cx="17" cy="3" r="0.5" fill={color} />
-          <circle cx="17" cy="7" r="0.5" fill={color} />
-          <circle cx="15" cy="5" r="0.5" fill={color} />
-          <circle cx="19" cy="5" r="0.5" fill={color} />
-        </g>
-        {/* Camera body */}
-        <rect x="3" y="10" width="18" height="9" rx="1.4" stroke={color} strokeWidth="1" fill="none" />
-        {/* Lens barrel */}
-        <rect x="21" y="12" width="3" height="5" stroke={color} strokeWidth="1" fill="none" />
-        <circle cx="26.2" cy="14.5" r="2.5" stroke={color} strokeWidth="1" fill="none" />
-        <circle cx="26.2" cy="14.5" r="1" fill={accent} />
-        {/* Viewfinder */}
-        <rect x="5" y="12.2" width="2.4" height="1.8" rx="0.3" fill={color} />
-      </svg>
+      <ShoppingBag
+        className={muted ? "" : "story-icon-sway"}
+        style={{ color, width: 22, height: 22 }}
+      />
     </div>
   );
 };
 
 const StoryMediaIndicator = ({
   mediaType,
-  seed,
   muted,
 }: {
   mediaType: "music" | "photo" | "video";
-  seed: number;
   muted: boolean;
 }) => {
-  if (mediaType === "photo") return <PhotoStack muted={muted} />;
-  if (mediaType === "video") return <VideoStrip muted={muted} />;
-  return <WaveStrand seed={seed} muted={muted} />;
+  if (mediaType === "photo") return <ShopIconAnim muted={muted} />;
+  if (mediaType === "video") return <FilmIconAnim muted={muted} />;
+  return <MusicIconAnim muted={muted} />;
 };
 
 const Stories = () => {
@@ -180,7 +105,6 @@ const Stories = () => {
                   </div>
                   <StoryMediaIndicator
                     mediaType={story.mediaType ?? "music"}
-                    seed={story.id}
                     muted={!!watched}
                   />
                 </div>

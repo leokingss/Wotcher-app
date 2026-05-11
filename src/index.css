@@ -416,6 +416,32 @@
     to   { transform: rotate(360deg); }
   }
 
+  @keyframes story-icon-bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    40% { transform: translateY(-3px) scale(1.15); }
+    60% { transform: translateY(1px) scale(0.95); }
+  }
+  @keyframes story-icon-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.12); opacity: 0.85; }
+  }
+  @keyframes story-icon-sway {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+  }
+  .story-icon-bounce {
+    animation: story-icon-bounce 1.6s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+  .story-icon-pulse {
+    animation: story-icon-pulse 1.8s ease-in-out infinite;
+    transform-origin: center;
+  }
+  .story-icon-sway {
+    animation: story-icon-sway 2s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+
   /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
