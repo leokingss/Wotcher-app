@@ -11,6 +11,7 @@ export interface PostListingSummary {
   price: number | null;
   current_bid: number | null;
   ends_at: string | null;
+  title: string | null;
 }
 
 export interface FeedPost {
@@ -79,7 +80,7 @@ export const usePosts = (filterUserId?: string, mode: FeedMode = "live") => {
       followingPromise,
       supabase
         .from("listings")
-        .select("id, post_id, type, status, price, current_bid, ends_at, created_at")
+        .select("id, post_id, type, status, price, current_bid, ends_at, title, created_at")
         .in("post_id", ids)
         .in("status", ["active", "sold", "ended"])
         .order("created_at", { ascending: false }),
@@ -101,6 +102,7 @@ export const usePosts = (filterUserId?: string, mode: FeedMode = "live") => {
         listingMap.set(l.post_id, {
           id: l.id, type: l.type, status: l.status,
           price: l.price, current_bid: l.current_bid, ends_at: l.ends_at,
+          title: l.title ?? null,
         });
       }
     });
