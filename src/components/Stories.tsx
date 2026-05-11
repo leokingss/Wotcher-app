@@ -95,7 +95,7 @@ const StoryMediaIndicator = ({
 }) => {
   if (mediaType === "photo") return <ShopIconAnim muted={muted} />;
   if (mediaType === "video") return <FilmIconAnim muted={muted} />;
-  return <WaveStrand seed={seed} muted={muted} />;
+  return <MusicIconAnim muted={muted} />;
 };
 
 const Stories = () => {
