@@ -142,13 +142,20 @@ const FeedFilter = ({ value, onChange }: Props) => {
           type="button"
           onClick={() => setOpen(true)}
           aria-label={`Open feed filter — currently ${activeCat.label}`}
-          className={`w-full neo-button rounded-full h-10 relative flex items-center justify-center gap-2 text-sm font-semibold transition-colors ${
+          className={`w-full neo-button rounded-full h-10 relative flex items-center px-4 text-sm font-semibold transition-colors ${
             active ? "text-primary" : "text-foreground"
           }`}
         >
-          <ActiveIcon className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
-          <span>{activeCat.label}</span>
-          {active && <span className="absolute right-4 h-1.5 w-1.5 rounded-full bg-primary" />}
+          <span className="flex items-center gap-2">
+            <SlidersHorizontal className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
+            <span className="text-xs uppercase tracking-wider">Filter</span>
+          </span>
+          <span className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+            <ActiveIcon className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
+            <span>{activeCat.label}</span>
+            {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+          </span>
+          <ChevronDown className="ml-auto w-4 h-4 text-muted-foreground" />
         </button>
       </div>
 
