@@ -53,14 +53,14 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <PlayerProvider>
-            <FavoritesProvider>
+            <SavedListsProvider>
               <TooltipProvider>
                 <Toaster />
                 <Sonner />
                 <AnimatedRoutes />
                 <MiniPlayer />
               </TooltipProvider>
-            </FavoritesProvider>
+            </SavedListsProvider>
           </PlayerProvider>
         </AuthProvider>
       </BrowserRouter>
