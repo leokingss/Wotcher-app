@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { Gavel, Tag, Clock, Sparkles, Users, Star, ShoppingBag, Heart, Bookmark } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Gavel, Tag, Clock, Sparkles, Users, Star, ShoppingBag, Bookmark } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Listing } from "@/hooks/useListings";
 import TimeLeft from "@/components/TimeLeft";
 import { useAuth } from "@/hooks/useAuth";
-import { useFavorites } from "@/hooks/useFavorites";
+import { useSavedLists } from "@/hooks/useSavedLists";
+import SaveButton from "@/components/SaveButton";
 
 const fmt = (n?: number | null) =>
   n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -26,12 +27,21 @@ type SectionState<T> = { loading: boolean; data: T[] };
 
 const ShopView = ({ onOpenListing }: Props) => {
   const { user } = useAuth();
-  const { ids: favoriteIds, isFavorite, toggle: toggleFavorite, loaded: favoritesLoaded } = useFavorites();
+  const { savedIndex, loaded: savedLoaded } = useSavedLists();
   const [endingSoon, setEndingSoon] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [justListed, setJustListed] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [fromFollowing, setFromFollowing] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [featuredSellers, setFeaturedSellers] = useState<SectionState<FeaturedSeller>>({ loading: true, data: [] });
   const [saved, setSaved] = useState<SectionState<Listing>>({ loading: true, data: [] });
+
+  const savedListingIds = useMemo(() => {
+    const ids = new Set<string>();
+    savedIndex.forEach((_, key) => {
+      if (key.startsWith("listing:")) ids.add(key.slice("listing:".length));
+    });
+    return ids;
+  }, [savedIndex]);
+
 
   const mapImg = (rows: any[]): Listing[] =>
     (rows ?? []).map((l: any) => ({ ...l, image_url: l.posts?.image_url ?? null })) as Listing[];
@@ -125,21 +135,22 @@ const ShopView = ({ onOpenListing }: Props) => {
     })();
   }, [user?.id]);
 
-  // Saved listings — refetch when favorite ids change so newly saved/unsaved appear
+  // Saved listings — derived from saved lists across all of the user's lists
   useEffect(() => {
     if (!user) { setSaved({ loading: false, data: [] }); return; }
-    if (!favoritesLoaded) return;
-    if (favoriteIds.size === 0) { setSaved({ loading: false, data: [] }); return; }
+    if (!savedLoaded) return;
+    if (savedListingIds.size === 0) { setSaved({ loading: false, data: [] }); return; }
     setSaved((s) => ({ ...s, loading: true }));
     (async () => {
       const { data } = await supabase
         .from("listings")
         .select("*, posts:post_id(image_url)")
-        .in("id", Array.from(favoriteIds))
+        .in("id", Array.from(savedListingIds))
         .order("created_at", { ascending: false });
       setSaved({ loading: false, data: mapImg(data ?? []) });
     })();
-  }, [user?.id, favoritesLoaded, favoriteIds]);
+  }, [user?.id, savedLoaded, savedListingIds]);
+
 
   const allDone = !endingSoon.loading && !justListed.loading && !fromFollowing.loading && !featuredSellers.loading && !saved.loading;
   const allEmpty =
@@ -164,11 +175,6 @@ const ShopView = ({ onOpenListing }: Props) => {
     );
   }
 
-  const cardProps = (l: Listing) => ({
-    favorited: isFavorite(l.id),
-    onToggleFavorite: () => toggleFavorite(l.id),
-  });
-
   return (
     <div className="space-y-7 pb-2">
       <Section icon={Clock} title="Ending soon" subtitle="Don't miss these auctions">
@@ -179,7 +185,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {endingSoon.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+              <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} />
             ))}
           </HorizontalScroll>
         )}
@@ -193,7 +199,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {justListed.data.slice(0, 6).map((l) => (
-              <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+              <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} />
             ))}
           </div>
         )}
@@ -205,11 +211,11 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : saved.loading ? (
           <SkeletonRow variant="compact" />
         ) : saved.data.length === 0 ? (
-          <SectionEmpty text="Tap the heart on a listing to save it here." />
+          <SectionEmpty text="Tap the bookmark on a listing to save it here." />
         ) : (
           <HorizontalScroll>
             {saved.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} />
             ))}
           </HorizontalScroll>
         )}
@@ -225,7 +231,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {fromFollowing.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} />
             ))}
           </HorizontalScroll>
         )}
@@ -351,14 +357,10 @@ const ListingCard = ({
   listing: l,
   variant,
   onOpen,
-  favorited,
-  onToggleFavorite,
 }: {
   listing: Listing;
   variant: "hero" | "grid" | "compact";
   onOpen: () => void;
-  favorited?: boolean;
-  onToggleFavorite?: () => void;
 }) => {
   const isAuction = l.type === "auction";
   const display = isAuction ? (l.current_bid ?? l.starting_bid) : l.price;
@@ -369,62 +371,50 @@ const ListingCard = ({
   const aspect = variant === "compact" ? "aspect-square" : "aspect-[4/5]";
 
   return (
-    <button
-      onClick={onOpen}
-      className={`group relative neo-card p-1.5 rounded-2xl text-left overflow-hidden transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99] ${widthClass}`}
-    >
-      <div className={`relative ${aspect} rounded-xl overflow-hidden bg-muted`}>
-        {l.image_url ? (
-          <img src={l.image_url} alt={l.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            {isAuction ? <Gavel className="w-8 h-8 text-muted-foreground" /> : <Tag className="w-8 h-8 text-muted-foreground" />}
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-        <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
-          <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold backdrop-blur-md ${
-            isAuction ? "bg-primary/90 text-primary-foreground" : "bg-background/80 text-foreground"
-          }`}>
-            {isAuction ? <Gavel className="w-3 h-3" /> : <Tag className="w-3 h-3" />}
-            {isAuction ? "AUCTION" : "BUY NOW"}
-          </span>
-          {isAuction && l.ends_at && (
-            <span className="px-2 py-1 rounded-full text-[10px] font-semibold bg-background/80 backdrop-blur-md tabular-nums">
-              <TimeLeft endsAt={l.ends_at} compact />
-            </span>
+    <div className={`relative ${widthClass}`}>
+      <button
+        onClick={onOpen}
+        className="group relative neo-card p-1.5 rounded-2xl text-left overflow-hidden transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99] w-full"
+      >
+        <div className={`relative ${aspect} rounded-xl overflow-hidden bg-muted`}>
+          {l.image_url ? (
+            <img src={l.image_url} alt={l.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              {isAuction ? <Gavel className="w-8 h-8 text-muted-foreground" /> : <Tag className="w-8 h-8 text-muted-foreground" />}
+            </div>
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+          <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
+            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold backdrop-blur-md ${
+              isAuction ? "bg-primary/90 text-primary-foreground" : "bg-background/80 text-foreground"
+            }`}>
+              {isAuction ? <Gavel className="w-3 h-3" /> : <Tag className="w-3 h-3" />}
+              {isAuction ? "AUCTION" : "BUY NOW"}
+            </span>
+            {isAuction && l.ends_at && (
+              <span className="px-2 py-1 rounded-full text-[10px] font-semibold bg-background/80 backdrop-blur-md tabular-nums">
+                <TimeLeft endsAt={l.ends_at} compact />
+              </span>
+            )}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 p-3 pr-14 text-white">
+            <p className="text-xs font-medium truncate opacity-90">{l.title}</p>
+            <p className="text-[9px] uppercase tracking-wider opacity-70 mt-0.5">
+              {isAuction ? (l.current_bid ? "Current bid" : "Starting at") : "Price"}
+            </p>
+            <p className="text-lg font-bold tabular-nums leading-tight">{fmt(display)}</p>
+          </div>
         </div>
-        {onToggleFavorite && (
-          <span
-            role="button"
-            tabIndex={0}
-            aria-label={favorited ? "Remove from saved" : "Save listing"}
-            aria-pressed={!!favorited}
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                e.stopPropagation();
-                onToggleFavorite();
-              }
-            }}
-            className="absolute bottom-2 right-2 neo-button-icon w-9 h-9 flex items-center justify-center rounded-full transition-transform active:scale-90 hover:scale-105 cursor-pointer"
-          >
-            <Heart
-              className={`w-4 h-4 transition-colors ${favorited ? "fill-primary text-primary" : "text-white"}`}
-            />
-          </span>
-        )}
-        <div className="absolute bottom-0 left-0 right-0 p-3 pr-14 text-white">
-          <p className="text-xs font-medium truncate opacity-90">{l.title}</p>
-          <p className="text-[9px] uppercase tracking-wider opacity-70 mt-0.5">
-            {isAuction ? (l.current_bid ? "Current bid" : "Starting at") : "Price"}
-          </p>
-          <p className="text-lg font-bold tabular-nums leading-tight">{fmt(display)}</p>
-        </div>
-      </div>
-    </button>
+      </button>
+      <SaveButton
+        itemType="listing"
+        itemId={l.id}
+        itemTitle={l.title}
+        className="absolute bottom-3.5 right-3.5 w-9 h-9 rounded-full"
+        iconClassName="w-4 h-4 text-white"
+      />
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, Send, MoreHorizontal } from "lucide-react";
+import SaveButton from "./SaveButton";
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
 import ListingBar from "./ListingBar";
@@ -21,7 +22,7 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(post.my_reaction === "like");
   const [isDisliked, setIsDisliked] = useState(post.my_reaction === "dislike");
-  const [isSaved, setIsSaved] = useState(false);
+  
   const [showHeart, setShowHeart] = useState(false);
   const [likeCount, setLikeCount] = useState(post.like_count);
   const [dislikeCount, setDislikeCount] = useState(post.dislike_count);
@@ -225,9 +226,8 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
                 <Send className="w-5 h-5" />
               </button>
             </div>
-            <button onClick={() => setIsSaved(!isSaved)} className="neo-button-icon p-2.5">
-              <Bookmark className={`w-5 h-5 ${isSaved ? "fill-primary text-primary" : ""}`} />
-            </button>
+            <SaveButton itemType="post" itemId={post.id} itemTitle={post.caption ?? undefined} className="p-2.5 rounded-full" />
+
           </div>
 
           {post.caption && (
