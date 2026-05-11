@@ -407,6 +407,14 @@
     0%   { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
+  @keyframes story-flash {
+    0%, 60%, 100% { opacity: 0.35; filter: none; }
+    70%, 80%      { opacity: 1; filter: drop-shadow(0 0 3px hsla(45,100%,75%,0.95)); }
+  }
+  @keyframes story-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
 
   /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
