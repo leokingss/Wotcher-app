@@ -164,6 +164,11 @@ const ShopView = ({ onOpenListing }: Props) => {
     );
   }
 
+  const cardProps = (l: Listing) => ({
+    favorited: isFavorite(l.id),
+    onToggleFavorite: () => toggleFavorite(l.id),
+  });
+
   return (
     <div className="space-y-7 pb-2">
       <Section icon={Clock} title="Ending soon" subtitle="Don't miss these auctions">
@@ -174,7 +179,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {endingSoon.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} />
+              <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
             ))}
           </HorizontalScroll>
         )}
@@ -188,9 +193,25 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {justListed.data.slice(0, 6).map((l) => (
-              <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} />
+              <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
             ))}
           </div>
+        )}
+      </Section>
+
+      <Section icon={Bookmark} title="Saved" subtitle="Listings you've favorited">
+        {!user ? (
+          <SectionEmpty text="Sign in to save listings you love." />
+        ) : saved.loading ? (
+          <SkeletonRow variant="compact" />
+        ) : saved.data.length === 0 ? (
+          <SectionEmpty text="Tap the heart on a listing to save it here." />
+        ) : (
+          <HorizontalScroll>
+            {saved.data.map((l) => (
+              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+            ))}
+          </HorizontalScroll>
         )}
       </Section>
 
@@ -204,7 +225,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {fromFollowing.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} />
+              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
             ))}
           </HorizontalScroll>
         )}
