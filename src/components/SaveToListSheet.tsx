@@ -33,12 +33,18 @@ const SaveToListSheet = ({ open, onOpenChange, itemType, itemId, itemTitle }: Pr
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="rounded-t-3xl border-0 neo-card max-h-[80vh] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
+        <SheetContent
+          side="bottom"
+          className="rounded-t-3xl border-0 neo-card max-h-[85vh] overflow-y-auto p-5 pb-8 sm:max-w-lg sm:mx-auto sm:left-0 sm:right-0 sm:inset-x-0"
+        >
+          <SheetHeader className="text-left space-y-1">
+            <SheetTitle className="flex items-center gap-2 text-base">
               <Bookmark className="w-5 h-5 text-primary" />
               Save {itemTitle ? `"${itemTitle}"` : ""} to…
             </SheetTitle>
+            <SheetDescription className="text-xs">
+              Pick a list or create a new one.
+            </SheetDescription>
           </SheetHeader>
 
           {!user ? (
