@@ -211,7 +211,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : saved.loading ? (
           <SkeletonRow variant="compact" />
         ) : saved.data.length === 0 ? (
-          <SectionEmpty text="Tap the heart on a listing to save it here." />
+          <SectionEmpty text="Tap the bookmark on a listing to save it here." />
         ) : (
           <HorizontalScroll>
             {saved.data.map((l) => (
