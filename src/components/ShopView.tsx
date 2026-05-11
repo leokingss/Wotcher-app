@@ -185,7 +185,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {endingSoon.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+              <ListingCard key={l.id} listing={l} variant="hero" onOpen={() => onOpenListing(l.id)} />
             ))}
           </HorizontalScroll>
         )}
@@ -199,7 +199,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {justListed.data.slice(0, 6).map((l) => (
-              <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+              <ListingCard key={l.id} listing={l} variant="grid" onOpen={() => onOpenListing(l.id)} />
             ))}
           </div>
         )}
@@ -215,7 +215,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {saved.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} />
             ))}
           </HorizontalScroll>
         )}
@@ -231,7 +231,7 @@ const ShopView = ({ onOpenListing }: Props) => {
         ) : (
           <HorizontalScroll>
             {fromFollowing.data.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} {...cardProps(l)} />
+              <ListingCard key={l.id} listing={l} variant="compact" onOpen={() => onOpenListing(l.id)} />
             ))}
           </HorizontalScroll>
         )}
