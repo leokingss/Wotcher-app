@@ -35,9 +35,9 @@ const SaveToListSheet = ({ open, onOpenChange, itemType, itemId, itemTitle }: Pr
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
           side="bottom"
-          className="rounded-t-3xl border-0 neo-card max-h-[85vh] overflow-y-auto p-5 pb-8 sm:max-w-lg sm:mx-auto sm:left-0 sm:right-0 sm:inset-x-0"
+          className="rounded-t-3xl border-0 neo-card p-0 sm:max-w-lg sm:mx-auto sm:left-0 sm:right-0 sm:inset-x-0 flex flex-col max-h-[90dvh] h-[90dvh] sm:h-auto sm:max-h-[85dvh]"
         >
-          <SheetHeader className="text-left space-y-1">
+          <SheetHeader className="text-left space-y-1 px-5 pt-5 pb-3 shrink-0 border-b border-border/40">
             <SheetTitle className="flex items-center gap-2 text-base">
               <Bookmark className="w-5 h-5 text-primary" />
               Save {itemTitle ? `"${itemTitle}"` : ""} to…
@@ -47,59 +47,61 @@ const SaveToListSheet = ({ open, onOpenChange, itemType, itemId, itemTitle }: Pr
             </SheetDescription>
           </SheetHeader>
 
-          {!user ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">Sign in to save items.</div>
-          ) : !loaded ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">Loading lists…</div>
-          ) : (
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setCreateOpen(true)}
-                className="w-full neo-button rounded-2xl px-4 py-3 flex items-center gap-3 text-left"
-              >
-                <span className="neo-button-icon w-9 h-9 flex items-center justify-center">
-                  <Plus className="w-4 h-4 text-primary" />
-                </span>
-                <span className="font-semibold text-sm">Create new list</span>
-              </button>
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
+            {!user ? (
+              <div className="py-10 text-center text-sm text-muted-foreground">Sign in to save items.</div>
+            ) : !loaded ? (
+              <div className="py-10 text-center text-sm text-muted-foreground">Loading lists…</div>
+            ) : (
+              <div className="space-y-2">
+                <button
+                  onClick={() => setCreateOpen(true)}
+                  className="w-full neo-button rounded-2xl px-4 py-3 flex items-center gap-3 text-left"
+                >
+                  <span className="neo-button-icon w-9 h-9 flex items-center justify-center">
+                    <Plus className="w-4 h-4 text-primary" />
+                  </span>
+                  <span className="font-semibold text-sm">Create new list</span>
+                </button>
 
-              {myLists.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-6">
-                  You don't have any lists yet. Create one to start saving.
-                </p>
-              ) : (
-                myLists.map((l) => {
-                  const inList = inListIds.has(l.id);
-                  return (
-                    <button
-                      key={l.id}
-                      onClick={() => handleToggle(l.id)}
-                      className={`w-full neo-card rounded-2xl px-4 py-3 flex items-center gap-3 text-left transition-colors ${
-                        inList ? "ring-1 ring-primary/40" : ""
-                      }`}
-                    >
-                      <span className="neo-button-icon w-9 h-9 flex items-center justify-center">
-                        <VisibilityIcon visibility={l.visibility} />
-                      </span>
-                      <span className="flex-1 min-w-0">
-                        <span className="block font-semibold text-sm truncate">{l.name}</span>
-                        <span className="block text-[11px] text-muted-foreground capitalize">
-                          {l.visibility}
-                        </span>
-                      </span>
-                      <span
-                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                          inList ? "bg-primary text-primary-foreground" : "neo-button-icon"
+                {myLists.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-6">
+                    You don't have any lists yet. Create one to start saving.
+                  </p>
+                ) : (
+                  myLists.map((l) => {
+                    const inList = inListIds.has(l.id);
+                    return (
+                      <button
+                        key={l.id}
+                        onClick={() => handleToggle(l.id)}
+                        className={`w-full neo-card rounded-2xl px-4 py-3 flex items-center gap-3 text-left transition-colors ${
+                          inList ? "ring-1 ring-primary/40" : ""
                         }`}
                       >
-                        {inList && <Check className="w-4 h-4" />}
-                      </span>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          )}
+                        <span className="neo-button-icon w-9 h-9 flex items-center justify-center">
+                          <VisibilityIcon visibility={l.visibility} />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block font-semibold text-sm truncate">{l.name}</span>
+                          <span className="block text-[11px] text-muted-foreground capitalize">
+                            {l.visibility}
+                          </span>
+                        </span>
+                        <span
+                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                            inList ? "bg-primary text-primary-foreground" : "neo-button-icon"
+                          }`}
+                        >
+                          {inList && <Check className="w-4 h-4" />}
+                        </span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
         </SheetContent>
       </Sheet>
 
