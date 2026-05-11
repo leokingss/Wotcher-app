@@ -27,32 +27,25 @@ const CameraIconAnim = ({ muted = false }: { muted?: boolean }) => {
   );
 };
 
-// Landscape film icon with rolling sprocket animation
+// Landscape film icon with a rolling fill animation across the frame
 const FilmIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <div className="relative" style={{ width: 30, height: 14 }}>
+      <div
+        className="relative"
+        style={{ width: 22, height: 22, transform: "rotate(90deg)" }}
+      >
         <Film
-          style={{ color, width: 30, height: 14, position: "relative", zIndex: 1 }}
+          style={{ color, width: 22, height: 22, position: "relative", zIndex: 1 }}
         />
         {!muted && (
-          <>
-            {/* Top sprocket strip */}
-            <div
-              className="absolute top-[1px] left-[4px] right-[4px] h-[2px] overflow-hidden"
-              style={{ zIndex: 0 }}
-            >
-              <div className="story-film-roll-h" />
-            </div>
-            {/* Bottom sprocket strip */}
-            <div
-              className="absolute bottom-[1px] left-[4px] right-[4px] h-[2px] overflow-hidden"
-              style={{ zIndex: 0 }}
-            >
-              <div className="story-film-roll-h" />
-            </div>
-          </>
+          <div
+            className="absolute inset-[3px] overflow-hidden rounded-[2px]"
+            style={{ zIndex: 0 }}
+          >
+            <div className="story-film-fill" />
+          </div>
         )}
       </div>
     </div>
