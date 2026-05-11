@@ -3,13 +3,17 @@ import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import CloudPost from "./CloudPost";
 import EmptyState from "./EmptyState";
-import { usePosts } from "@/hooks/usePosts";
+import { usePosts, FeedMode } from "@/hooks/usePosts";
 import { ImageIcon } from "lucide-react";
 
 const THRESHOLD = 70;
 
-const Feed = () => {
-  const { posts, loading, refresh } = usePosts();
+interface FeedProps {
+  mode?: FeedMode;
+}
+
+const Feed = ({ mode = "live" }: FeedProps) => {
+  const { posts, loading, refresh } = usePosts(undefined, mode);
   const pull = useMotionValue(0);
   const rotate = useTransform(pull, [0, THRESHOLD], [0, 180]);
   const opacity = useTransform(pull, [0, 30, THRESHOLD], [0, 0.6, 1]);
