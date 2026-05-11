@@ -430,8 +430,12 @@
     80% { opacity: 0.3; filter: drop-shadow(0 0 4px hsla(45,100%,65%,0.9)); }
   }
   @keyframes story-film-roll {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+  @keyframes story-film-rotate {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(-90deg); }
   }
   .story-icon-bounce {
     animation: story-icon-bounce 1.6s ease-in-out infinite;
@@ -445,12 +449,15 @@
     animation: story-icon-flash 1.8s ease-in-out infinite;
     transform-origin: center;
   }
-  .story-film-roll-top,
-  .story-film-roll-bottom {
-    width: 200%;
-    height: 100%;
+  .story-film-rotate {
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+  .story-film-roll-v {
+    width: 100%;
+    height: 200%;
     background-image: repeating-linear-gradient(
-      90deg,
+      0deg,
       hsl(45, 100%, 50%) 0px,
       hsl(45, 100%, 50%) 2px,
       transparent 2px,
