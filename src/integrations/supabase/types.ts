@@ -682,6 +682,91 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_items: {
+        Row: {
+          added_at: string
+          item_id: string
+          item_type: Database["public"]["Enums"]["saved_item_type"]
+          list_id: string
+        }
+        Insert: {
+          added_at?: string
+          item_id: string
+          item_type: Database["public"]["Enums"]["saved_item_type"]
+          list_id: string
+        }
+        Update: {
+          added_at?: string
+          item_id?: string
+          item_type?: Database["public"]["Enums"]["saved_item_type"]
+          list_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_items_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "saved_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_list_members: {
+        Row: {
+          created_at: string
+          list_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          list_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          list_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_list_members_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "saved_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_lists: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["list_visibility"]
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["list_visibility"]
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["list_visibility"]
+        }
+        Relationships: []
+      }
       seller_reviews: {
         Row: {
           buyer_id: string
@@ -971,6 +1056,10 @@ export type Database = {
       }
     }
     Functions: {
+      can_view_list: {
+        Args: { _list: string; _viewer: string }
+        Returns: boolean
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -990,6 +1079,10 @@ export type Database = {
       is_artist: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _cid: string; _uid: string }
+        Returns: boolean
+      }
+      is_list_owner: {
+        Args: { _list: string; _viewer: string }
         Returns: boolean
       }
       move_to_dlq: {
@@ -1013,6 +1106,7 @@ export type Database = {
     Enums: {
       account_type: "listener" | "artist"
       app_role: "admin" | "moderator" | "user"
+      list_visibility: "public" | "private" | "shared"
       listing_status: "active" | "sold" | "ended" | "cancelled"
       listing_type: "fixed" | "auction"
       notification_type:
@@ -1028,6 +1122,7 @@ export type Database = {
         | "message"
       reaction_type: "like" | "dislike"
       release_type: "single" | "ep" | "album"
+      saved_item_type: "post" | "listing"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1157,6 +1252,7 @@ export const Constants = {
     Enums: {
       account_type: ["listener", "artist"],
       app_role: ["admin", "moderator", "user"],
+      list_visibility: ["public", "private", "shared"],
       listing_status: ["active", "sold", "ended", "cancelled"],
       listing_type: ["fixed", "auction"],
       notification_type: [
@@ -1173,6 +1269,7 @@ export const Constants = {
       ],
       reaction_type: ["like", "dislike"],
       release_type: ["single", "ep", "album"],
+      saved_item_type: ["post", "listing"],
     },
   },
 } as const
