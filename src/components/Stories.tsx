@@ -1,49 +1,5 @@
 import { Plus, Music, Film, ShoppingBag } from "lucide-react";
-import { useEffect, useState } from "react";
 import { stories } from "@/data/mockSocial";
-
-// Deterministic pseudo-random heights per story so bars feel unique but stable
-const seedBars = (seed: number, count = 7) => {
-  const out: number[] = [];
-  let s = seed * 9301 + 49297;
-  for (let i = 0; i < count; i++) {
-    s = (s * 9301 + 49297) % 233280;
-    out.push(0.35 + (s / 233280) * 0.65);
-  }
-  return out;
-};
-
-const WaveStrand = ({ seed, muted = false }: { seed: number; muted?: boolean }) => {
-  const base = seedBars(seed);
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    if (muted) return;
-    const id = setInterval(() => setPhase((p) => p + 1), 220);
-    return () => clearInterval(id);
-  }, [muted]);
-
-  return (
-    <div className="flex items-end justify-center gap-[2px] h-7 mt-2">
-      {base.map((h, i) => {
-        const wobble = muted ? 0 : Math.sin((phase + i) * 0.9) * 0.15;
-        const height = Math.max(0.18, Math.min(1, h + wobble));
-        return (
-          <div
-            key={i}
-            className="w-[3px] rounded-full transition-[height] duration-200"
-            style={{
-              height: `${height * 100}%`,
-              background: muted
-                ? "hsl(var(--muted-foreground) / 0.35)"
-                : "linear-gradient(to top, hsl(45,100%,50%), hsl(10,100%,55%))",
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-};
 
 // Animated Music icon (profile page style)
 const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
@@ -86,11 +42,9 @@ const ShopIconAnim = ({ muted = false }: { muted?: boolean }) => {
 
 const StoryMediaIndicator = ({
   mediaType,
-  seed,
   muted,
 }: {
   mediaType: "music" | "photo" | "video";
-  seed: number;
   muted: boolean;
 }) => {
   if (mediaType === "photo") return <ShopIconAnim muted={muted} />;
@@ -151,7 +105,6 @@ const Stories = () => {
                   </div>
                   <StoryMediaIndicator
                     mediaType={story.mediaType ?? "music"}
-                    seed={story.id}
                     muted={!!watched}
                   />
                 </div>
