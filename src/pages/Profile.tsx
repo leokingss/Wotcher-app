@@ -11,6 +11,7 @@ import VideoCard from "@/components/VideoCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import EmptyState from "@/components/EmptyState";
+import ProfileSavedTab from "@/components/ProfileSavedTab";
 import PostContextMenu from "@/components/PostContextMenu";
 import FollowSheet from "@/components/FollowSheet";
 import Highlights from "@/components/Highlights";
