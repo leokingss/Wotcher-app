@@ -27,30 +27,31 @@ const CameraIconAnim = ({ muted = false }: { muted?: boolean }) => {
   );
 };
 
-// Film icon with rolling perforations effect (icon stays still)
+// Film icon rotated to landscape with vertical perforation scroll
 const FilmIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <div className="relative" style={{ width: 26, height: 18 }}>
+      <div className="relative" style={{ width: 28, height: 16 }}>
         <Film
-          style={{ color, width: 26, height: 18, position: "relative", zIndex: 1 }}
+          className={muted ? "" : "story-film-rotate"}
+          style={{ color, width: 28, height: 16, position: "relative", zIndex: 1 }}
         />
         {!muted && (
           <>
-            {/* Top perforation strip */}
+            {/* Left perforation strip - scrolls vertically */}
             <div
-              className="absolute top-[2px] left-[5px] right-[5px] h-[2px] overflow-hidden"
+              className="absolute top-[3px] bottom-[3px] left-[2px] w-[2px] overflow-hidden"
               style={{ zIndex: 0 }}
             >
-              <div className="story-film-roll-top" />
+              <div className="story-film-roll-v" />
             </div>
-            {/* Bottom perforation strip */}
+            {/* Right perforation strip - scrolls vertically */}
             <div
-              className="absolute bottom-[2px] left-[5px] right-[5px] h-[2px] overflow-hidden"
+              className="absolute top-[3px] bottom-[3px] right-[2px] w-[2px] overflow-hidden"
               style={{ zIndex: 0 }}
             >
-              <div className="story-film-roll-bottom" />
+              <div className="story-film-roll-v" />
             </div>
           </>
         )}
