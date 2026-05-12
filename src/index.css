@@ -473,6 +473,33 @@
     animation: story-film-roll-left 0.35s linear infinite;
   }
 
+  /* Moving sprocket-hole squares along the film edges */
+  @keyframes story-film-sprockets-right {
+    0%   { background-position: 0 0; }
+    100% { background-position: 6px 0; }
+  }
+  @keyframes story-film-sprockets-left {
+    0%   { background-position: 0 0; }
+    100% { background-position: -6px 0; }
+  }
+  .story-film-sprockets-right,
+  .story-film-sprockets-left {
+    background-image: repeating-linear-gradient(
+      90deg,
+      hsl(220, 15%, 8%) 0px,
+      hsl(220, 15%, 8%) 3px,
+      transparent 3px,
+      transparent 6px
+    );
+    background-size: 6px 100%;
+  }
+  .story-film-sprockets-right {
+    animation: story-film-sprockets-right 0.35s linear infinite;
+  }
+  .story-film-sprockets-left {
+    animation: story-film-sprockets-left 0.35s linear infinite;
+  }
+
   /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

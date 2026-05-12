@@ -55,16 +55,31 @@ const FilmIconAnim = ({
           style={{ color, width: 22, height: 22, position: "relative", zIndex: 1 }}
         />
         {!muted && (
-          <div
-            className="absolute inset-[3px] overflow-hidden rounded-[2px]"
-            style={{ zIndex: 0 }}
-          >
+          <>
+            <div
+              className="absolute inset-[3px] overflow-hidden rounded-[2px]"
+              style={{ zIndex: 0 }}
+            >
+              <div
+                className={
+                  direction === "right" ? "story-film-fill-right" : "story-film-fill-left"
+                }
+              />
+            </div>
+            {/* Moving sprocket squares on top & bottom edges (in rotated frame) */}
             <div
               className={
-                direction === "right" ? "story-film-fill-right" : "story-film-fill-left"
+                direction === "right" ? "story-film-sprockets-right" : "story-film-sprockets-left"
               }
+              style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, zIndex: 2 }}
             />
-          </div>
+            <div
+              className={
+                direction === "right" ? "story-film-sprockets-right" : "story-film-sprockets-left"
+              }
+              style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, zIndex: 2 }}
+            />
+          </>
         )}
       </div>
     </div>
