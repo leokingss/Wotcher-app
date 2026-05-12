@@ -433,11 +433,11 @@
      negative Y scroll reads as left. */
   @keyframes story-film-roll-right {
     0%   { background-position: 0 0; }
-    100% { background-position: 0 12px; }
+    100% { background-position: 0 14px; }
   }
   @keyframes story-film-roll-left {
     0%   { background-position: 0 0; }
-    100% { background-position: 0 -12px; }
+    100% { background-position: 0 -14px; }
   }
   .story-icon-bounce {
     animation: story-icon-bounce 1.6s ease-in-out infinite;
