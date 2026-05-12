@@ -45,17 +45,19 @@ const FilmIconAnim = ({
   direction?: "left" | "right";
 }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
+  const sprocketClass =
+    direction === "right" ? "story-film-sprockets-right" : "story-film-sprockets-left";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <div
-        className="relative"
-        style={{ width: 22, height: 22, transform: "rotate(90deg)" }}
-      >
-        <Film
-          style={{ color, width: 22, height: 22, position: "relative", zIndex: 1 }}
-        />
-        {!muted && (
-          <>
+      <div className="relative" style={{ width: 22, height: 22 }}>
+        <div
+          className="absolute inset-0"
+          style={{ transform: "rotate(90deg)" }}
+        >
+          <Film
+            style={{ color, width: 22, height: 22, position: "relative", zIndex: 1 }}
+          />
+          {!muted && (
             <div
               className="absolute inset-[3px] overflow-hidden rounded-[2px]"
               style={{ zIndex: 0 }}
@@ -66,18 +68,18 @@ const FilmIconAnim = ({
                 }
               />
             </div>
-            {/* Moving sprocket squares on top & bottom edges (in rotated frame) */}
+          )}
+        </div>
+        {!muted && (
+          <>
+            {/* Moving sprocket squares on screen-top & screen-bottom edges */}
             <div
-              className={
-                direction === "right" ? "story-film-sprockets-right" : "story-film-sprockets-left"
-              }
-              style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, zIndex: 2 }}
+              className={sprocketClass}
+              style={{ position: "absolute", top: 1, left: 2, right: 2, height: 2.5, zIndex: 3 }}
             />
             <div
-              className={
-                direction === "right" ? "story-film-sprockets-right" : "story-film-sprockets-left"
-              }
-              style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, zIndex: 2 }}
+              className={sprocketClass}
+              style={{ position: "absolute", bottom: 1, left: 2, right: 2, height: 2.5, zIndex: 3 }}
             />
           </>
         )}
