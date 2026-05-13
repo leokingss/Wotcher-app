@@ -27,7 +27,7 @@ import Logos from "./pages/Logos";
 import { useNotificationToasts } from "@/hooks/useNotificationToasts";
 import ErrorBanner from "@/components/ErrorBanner";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
