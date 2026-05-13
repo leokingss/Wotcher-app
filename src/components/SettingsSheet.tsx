@@ -49,6 +49,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import SavedPostsView from "@/components/SavedPostsView";
 import ArchiveView from "@/components/ArchiveView";
+import ActivityView from "@/components/ActivityView";
 
 interface SettingsSheetProps {
   open: boolean;
@@ -62,6 +63,7 @@ type SettingsPage =
   | "account"
   | "saved"
   | "archive"
+  | "activity"
   | "comments"
   | "posts"
   | "blocked"
@@ -138,7 +140,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
       items: [
         { icon: Bookmark, label: "Saved", sublabel: "Posts, songs and lists you saved", action: () => goTo("saved") },
         { icon: Archive, label: "Archive", sublabel: "Stories and posts archived", action: () => goTo("archive") },
-        { icon: Activity, label: "Your activity", sublabel: "Time spent, likes given, history", badge: "12h this week" },
+        { icon: Activity, label: "Your activity", sublabel: "Posts, comments, videos and stories you've shared", action: () => goTo("activity") },
       ],
     },
     {
@@ -459,6 +461,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
     account: "Account center",
     saved: "Saved",
     archive: "Archive",
+    activity: "Your activity",
     comments: "Comments",
     posts: "Posts",
     blocked: "Blocked accounts",
@@ -479,6 +482,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   else if (page === "data") body = renderGroups(dataGroups);
   else if (page === "saved") body = <SavedPostsView />;
   else if (page === "archive") body = <ArchiveView />;
+  else if (page === "activity") body = <ActivityView />;
   else {
     const info = simpleListPages[page];
     body = (
