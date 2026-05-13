@@ -881,6 +881,8 @@ const Profile = () => {
         avatarUrl={profilePhoto}
       />
 
+      <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
+
       <BottomNav />
     </div>
   );
