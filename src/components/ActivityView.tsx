@@ -248,30 +248,41 @@ const ActivityView = () => {
             comments.length === 0 ? (
               <EmptyState icon={MessageCircle} title="No comments yet" description="Comments you write will show here." />
             ) : (
-              <ul className="space-y-2">
-                {comments.map((c) => (
-                  <li key={c.id} className="neo-card-inset rounded-2xl p-3 flex items-center gap-3">
-                    <Link to={`/post/${c.post_id}`} className="neo-button-icon w-12 h-12 flex-shrink-0 overflow-hidden rounded-full">
-                      {c.postPreview?.image_url ? (
-                        <img src={c.postPreview.image_url} alt="post" className="w-full h-full object-cover" />
-                      ) : (
-                        <MessageCircle className="w-4 h-4 m-auto text-muted-foreground" />
-                      )}
-                    </Link>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground line-clamp-2">{c.text}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(c.created_at)}</p>
-                    </div>
-                    <button
-                      onClick={() => askDelete("comments", c.id, c.text.slice(0, 40))}
-                      className="neo-button-icon w-9 h-9 flex items-center justify-center flex-shrink-0"
-                      aria-label="Delete comment"
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <>
+                <ul className="space-y-2">
+                  {comments.map((c) => (
+                    <li key={c.id} className="neo-card-inset rounded-2xl p-3 flex items-center gap-3">
+                      <Link to={`/post/${c.post_id}`} className="neo-button-icon w-12 h-12 flex-shrink-0 overflow-hidden rounded-full">
+                        {c.postPreview?.image_url ? (
+                          <img src={c.postPreview.image_url} alt="post" className="w-full h-full object-cover" />
+                        ) : (
+                          <MessageCircle className="w-4 h-4 m-auto text-muted-foreground" />
+                        )}
+                      </Link>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground line-clamp-2">{c.text}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(c.created_at)}</p>
+                      </div>
+                      <button
+                        onClick={() => askDelete("comments", c.id, c.text.slice(0, 40))}
+                        className="neo-button-icon w-9 h-9 flex items-center justify-center flex-shrink-0"
+                        aria-label="Delete comment permanently"
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {commentsHasMore ? (
+                  <div ref={sentinelRef} className="flex items-center justify-center py-6">
+                    {commentsLoadingMore && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                  </div>
+                ) : (
+                  <p className="text-center text-[11px] text-muted-foreground py-6">
+                    You've reached the end · {commentsTotal} comment{commentsTotal === 1 ? "" : "s"}
+                  </p>
+                )}
+              </>
             )
           )}
 
