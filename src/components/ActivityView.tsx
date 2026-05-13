@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MessageCircle, Video, Camera, Grid3X3, Trash2, Heart, Play, Music } from "lucide-react";
+import { MessageCircle, Video, Camera, Grid3X3, Trash2, Heart, Play, Music, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import EmptyState from "@/components/EmptyState";
