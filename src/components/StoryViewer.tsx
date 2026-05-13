@@ -9,6 +9,8 @@ interface StoryViewerProps {
   open: boolean;
   onClose: () => void;
   onWatched?: (storyId: number) => void;
+  /** Optional list of stories to display. Falls back to default mock stories. */
+  list?: StoryItem[];
 }
 
 const TypeIcon = ({ type }: { type?: string }) => {
@@ -17,9 +19,11 @@ const TypeIcon = ({ type }: { type?: string }) => {
   return <Music className="w-3.5 h-3.5" />;
 };
 
-const StoryViewer = ({ startId, open, onClose, onWatched }: StoryViewerProps) => {
-  // Real (non-own) stories with frames
-  const list: StoryItem[] = defaultStories.filter((s) => !s.isOwn && s.frames && s.frames.length > 0);
+const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: StoryViewerProps) => {
+  // Real (frame-bearing) stories
+  const list: StoryItem[] = (listProp ?? defaultStories).filter(
+    (s) => s.frames && s.frames.length > 0,
+  );
   const [storyIdx, setStoryIdx] = useState(() => Math.max(0, list.findIndex((s) => s.id === startId)));
   const [frameIdx, setFrameIdx] = useState(0);
   const [progress, setProgress] = useState(0);
