@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Music, Camera } from "lucide-react";
-import { stories as baseStories } from "@/data/mockSocial";
+import { stories as baseStories, type StoryItem } from "@/data/mockSocial";
 import StoryViewer from "./StoryViewer";
+import StoryComposer from "./StoryComposer";
+import { useAuth } from "@/hooks/useAuth";
 
 const WATCHED_KEY = "watcher:watched-stories";
 const loadWatched = (): number[] => {
@@ -9,6 +12,25 @@ const loadWatched = (): number[] => {
 };
 const saveWatched = (ids: number[]) => {
   try { localStorage.setItem(WATCHED_KEY, JSON.stringify(ids)); } catch {}
+};
+
+const MY_STORIES_KEY = (uid: string) => `watcher:my-stories:${uid}`;
+const loadMyStories = (uid: string): StoryItem[] => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(MY_STORIES_KEY(uid)) ?? "[]");
+    return raw
+      .filter((s: any) => Array.isArray(s.frames) && s.frames.length > 0)
+      .map((s: any) => ({
+        id: s.id,
+        username: s.username ?? "You",
+        avatar: s.avatar,
+        hasStory: true,
+        mediaType: s.mediaType ?? "photo",
+        frames: s.frames,
+      })) as StoryItem[];
+  } catch {
+    return [];
+  }
 };
 
 // Animated Music icon (profile page style)
