@@ -54,6 +54,7 @@ import { supabase } from "@/integrations/supabase/client";
 import SavedPostsView from "@/components/SavedPostsView";
 import ArchiveView from "@/components/ArchiveView";
 import ActivityView from "@/components/ActivityView";
+import ErrorBanner from "@/components/ErrorBanner";
 interface SettingsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
