@@ -7,31 +7,30 @@ import { stories } from "@/data/mockSocial";
  */
 export const FILM_ROLL_DIRECTION: "left" | "right" = "right";
 
-// Animated Music icon with bouncing equalizer bars
+// Animated Music icon with rolling white squares inside, like film sprockets
 const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      {muted ? (
-        <Music style={{ color, width: 22, height: 22 }} />
-      ) : (
-        <div className="relative flex items-end gap-[2px]" style={{ height: 20 }}>
-          <div className="music-bar" style={{ background: color, width: 4, borderRadius: 2 }} />
-          <div className="music-bar" style={{ background: color, width: 4, borderRadius: 2, animationDelay: "0.15s" }} />
-          <div className="music-bar" style={{ background: color, width: 4, borderRadius: 2, animationDelay: "0.3s" }} />
-          <Music
-            className="absolute"
-            style={{
-              color: "hsl(var(--background))",
-              width: 14,
-              height: 14,
-              left: "50%",
-              top: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          />
-        </div>
-      )}
+      <div className="relative" style={{ width: 22, height: 22 }}>
+        <Music
+          style={{ color, width: 22, height: 22, position: "relative", zIndex: 1 }}
+        />
+        {!muted && (
+          <>
+            {/* Rolling white squares across the top of the music note */}
+            <div
+              className="music-sprockets"
+              style={{ position: "absolute", top: 2, left: 2, right: 2, height: 2.5, zIndex: 3 }}
+            />
+            {/* Rolling white squares across the bottom */}
+            <div
+              className="music-sprockets"
+              style={{ position: "absolute", bottom: 2, left: 2, right: 2, height: 2.5, zIndex: 3 }}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 };
