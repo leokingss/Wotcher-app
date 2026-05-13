@@ -11,8 +11,18 @@ import v10 from "@/assets/logo-v10.png";
 import v11 from "@/assets/logo-v11.png";
 import v12 from "@/assets/logo-v12.png";
 import v13 from "@/assets/logo-v13.png";
+import h1 from "@/assets/logo-hand-1.png";
+import h2 from "@/assets/logo-hand-2.png";
+import h3 from "@/assets/logo-hand-3.png";
+import h4 from "@/assets/logo-hand-4.png";
+import h5 from "@/assets/logo-hand-5.png";
 
 const logos = [
+  { src: h1, label: "H1 — Hand + Spiral Eye (app icon)" },
+  { src: h2, label: "H2 — Hand + Spiral (mark only)" },
+  { src: h3, label: "H3 — Outline Hand + Eye" },
+  { src: h4, label: "H4 — Waving Hand + Spiral" },
+  { src: h5, label: "H5 — Equalizer Hand + Eye" },
   { src: c1, label: "1 — Eye + W fusion" },
   { src: c2, label: "2 — Sonic Eye" },
   { src: c3, label: "3 — Waving Hand Eye" },
