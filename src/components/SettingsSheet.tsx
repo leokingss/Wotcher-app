@@ -49,6 +49,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import SavedPostsView from "@/components/SavedPostsView";
 import ArchiveView from "@/components/ArchiveView";
+import ActivityView from "@/components/ActivityView";
 
 interface SettingsSheetProps {
   open: boolean;
@@ -139,7 +140,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
       items: [
         { icon: Bookmark, label: "Saved", sublabel: "Posts, songs and lists you saved", action: () => goTo("saved") },
         { icon: Archive, label: "Archive", sublabel: "Stories and posts archived", action: () => goTo("archive") },
-        { icon: Activity, label: "Your activity", sublabel: "Time spent, likes given, history", badge: "12h this week" },
+        { icon: Activity, label: "Your activity", sublabel: "Posts, comments, videos and stories you've shared", action: () => goTo("activity") },
       ],
     },
     {
