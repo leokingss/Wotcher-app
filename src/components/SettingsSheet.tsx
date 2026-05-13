@@ -431,6 +431,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
       title: "Storage",
       items: [
         { icon: Trash2, label: "Clear cache", sublabel: "124 MB" },
+        { icon: RefreshCw, label: "Hard refresh", sublabel: "Clear local state and reload", action: handleHardRefresh },
         { icon: Download, label: "Download original media", toggle: { value: false, onChange: () => {} } },
       ],
     },
