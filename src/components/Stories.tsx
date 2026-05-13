@@ -85,6 +85,19 @@ const StoryMediaIndicator = ({
 };
 
 const Stories = () => {
+  const [watchedIds, setWatchedIds] = useState<number[]>(() => loadWatched());
+  const [openId, setOpenId] = useState<number | null>(null);
+
+  useEffect(() => { saveWatched(watchedIds); }, [watchedIds]);
+
+  const stories = baseStories.map((s) =>
+    s.isOwn ? s : { ...s, watched: s.watched || watchedIds.includes(s.id) }
+  );
+
+  const handleOpen = (id: number) => setOpenId(id);
+  const handleWatched = (id: number) =>
+    setWatchedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+
   return (
     <div className="py-4">
       <div className="max-w-lg mx-auto">
@@ -110,9 +123,11 @@ const Stories = () => {
             }
 
             const watched = story.watched;
+            const hasFrames = (story.frames?.length ?? 0) > 0;
             return (
               <button
                 key={story.id}
+                onClick={() => hasFrames && handleOpen(story.id)}
                 className="flex flex-col items-center gap-2 flex-shrink-0 group"
               >
                 <div
@@ -152,6 +167,13 @@ const Stories = () => {
           })}
         </div>
       </div>
+
+      <StoryViewer
+        startId={openId ?? 0}
+        open={openId !== null}
+        onClose={() => setOpenId(null)}
+        onWatched={handleWatched}
+      />
     </div>
   );
 };
