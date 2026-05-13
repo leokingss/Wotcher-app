@@ -13,7 +13,7 @@ const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
       <Music
-        className={muted ? "" : "story-icon-bounce"}
+        className={muted ? "" : "story-icon-jiggle"}
         style={{ color, width: 22, height: 22 }}
       />
     </div>

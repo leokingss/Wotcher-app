@@ -416,10 +416,12 @@
     to   { transform: rotate(360deg); }
   }
 
-  @keyframes story-icon-bounce {
-    0%, 100% { transform: translateY(0) scale(1); }
-    40% { transform: translateY(-3px) scale(1.15); }
-    60% { transform: translateY(1px) scale(0.95); }
+  @keyframes story-icon-jiggle {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(-12deg); }
+    40% { transform: rotate(10deg); }
+    60% { transform: rotate(-6deg); }
+    80% { transform: rotate(4deg); }
   }
   @keyframes story-icon-pulse {
     0%, 100% { transform: scale(1); opacity: 1; }
@@ -439,8 +441,8 @@
     0%   { background-position: 0 0; }
     100% { background-position: 0 -14px; }
   }
-  .story-icon-bounce {
-    animation: story-icon-bounce 1.6s ease-in-out infinite;
+  .story-icon-jiggle {
+    animation: story-icon-jiggle 1.4s ease-in-out infinite;
     transform-origin: center bottom;
   }
   .story-icon-pulse {
@@ -467,10 +469,10 @@
     background-size: 100% 7px;
   }
   .story-film-fill-right {
-    animation: story-film-roll-right 0.35s linear infinite;
+    animation: story-film-roll-right 0.7s linear infinite;
   }
   .story-film-fill-left {
-    animation: story-film-roll-left 0.35s linear infinite;
+    animation: story-film-roll-left 0.7s linear infinite;
   }
 
   /* Moving sprocket-hole squares along the film edges */
@@ -494,10 +496,10 @@
     background-size: 6px 100%;
   }
   .story-film-sprockets-right {
-    animation: story-film-sprockets-right 0.35s linear infinite;
+    animation: story-film-sprockets-right 0.7s linear infinite;
   }
   .story-film-sprockets-left {
-    animation: story-film-sprockets-left 0.35s linear infinite;
+    animation: story-film-sprockets-left 0.7s linear infinite;
   }
 
   /* Respect reduced motion */
