@@ -143,13 +143,25 @@ const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: Stor
     <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center" role="dialog" aria-modal>
       {/* Media */}
       <div className="relative w-full h-full max-w-md mx-auto overflow-hidden">
-        <img
-          key={`${story.id}-${frameIdx}`}
-          src={frame.url}
-          alt={frame.caption ?? story.username}
-          className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-200"
-          draggable={false}
-        />
+        {/^.*\.(mp4|webm|mov|m4v)(\?|$)/i.test(frame.url) ? (
+          <video
+            key={`${story.id}-${frameIdx}`}
+            src={frame.url}
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
+            muted
+            playsInline
+            loop
+          />
+        ) : (
+          <img
+            key={`${story.id}-${frameIdx}`}
+            src={frame.url}
+            alt={frame.caption ?? story.username}
+            className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-200"
+            draggable={false}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70 pointer-events-none" />
 
         {/* Progress bars */}
