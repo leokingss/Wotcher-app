@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MessageCircle, Video, Camera, Grid3X3, Trash2, Heart, Play, Music } from "lucide-react";
+import { MessageCircle, Video, Camera, Grid3X3, Trash2, Heart, Play, Music, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import EmptyState from "@/components/EmptyState";
@@ -92,35 +92,78 @@ const ActivityView = () => {
   const [confirm, setConfirm] = useState<{ kind: Tab; id: string; label?: string } | null>(null);
   const [tick, setTick] = useState(0);
 
+  // Comments infinite scroll state
+  const COMMENTS_PAGE = 20;
+  const [commentsTotal, setCommentsTotal] = useState(0);
+  const [commentsHasMore, setCommentsHasMore] = useState(true);
+  const [commentsLoadingMore, setCommentsLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  const hydrateComments = async (rows: CommentRow[]): Promise<CommentRow[]> => {
+    const postIds = [...new Set(rows.map((c) => c.post_id))];
+    if (postIds.length === 0) return rows;
+    const { data: previews } = await supabase.from("posts").select("id, image_url").in("id", postIds);
+    const map = new Map((previews ?? []).map((p: any) => [p.id, { image_url: p.image_url }]));
+    return rows.map((c) => ({ ...c, postPreview: map.get(c.post_id) ?? null }));
+  };
+
+  const loadMoreComments = useCallback(async () => {
+    if (!user || commentsLoadingMore || !commentsHasMore) return;
+    setCommentsLoadingMore(true);
+    const from = comments.length;
+    const to = from + COMMENTS_PAGE - 1;
+    const { data } = await supabase
+      .from("comments")
+      .select("id, text, created_at, post_id")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    const rows = (data ?? []) as CommentRow[];
+    const hydrated = await hydrateComments(rows);
+    setComments((prev) => [...prev, ...hydrated]);
+    setCommentsHasMore(rows.length === COMMENTS_PAGE);
+    setCommentsLoadingMore(false);
+  }, [user, comments.length, commentsLoadingMore, commentsHasMore]);
+
   useEffect(() => {
     if (!user) return;
     (async () => {
       setLoading(true);
-      const [postsRes, commentsRes, videosRes] = await Promise.all([
+      const [postsRes, commentsRes, commentsCount, videosRes] = await Promise.all([
         supabase.from("posts").select("id, image_url, caption, media_type, created_at").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("comments").select("id, text, created_at, post_id").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("comments").select("id, text, created_at, post_id").eq("user_id", user.id).order("created_at", { ascending: false }).range(0, COMMENTS_PAGE - 1),
+        supabase.from("comments").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("videos").select("id, title, thumbnail_url, created_at, duration_seconds").eq("artist_id", user.id).order("created_at", { ascending: false }),
       ]);
       setPosts((postsRes.data ?? []) as PostRow[]);
-      const cmts = (commentsRes.data ?? []) as CommentRow[];
-      // Hydrate post previews for comments
-      const postIds = [...new Set(cmts.map((c) => c.post_id))];
-      if (postIds.length > 0) {
-        const { data: previews } = await supabase.from("posts").select("id, image_url").in("id", postIds);
-        const map = new Map((previews ?? []).map((p: any) => [p.id, { image_url: p.image_url }]));
-        setComments(cmts.map((c) => ({ ...c, postPreview: map.get(c.post_id) ?? null })));
-      } else {
-        setComments(cmts);
-      }
+      const firstPage = (commentsRes.data ?? []) as CommentRow[];
+      setComments(await hydrateComments(firstPage));
+      setCommentsTotal(commentsCount.count ?? firstPage.length);
+      setCommentsHasMore(firstPage.length === COMMENTS_PAGE);
       setVideos((videosRes.data ?? []) as VideoRow[]);
       setStories(getMyPostedStories(user.id));
       setLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tick]);
 
+  // IntersectionObserver for infinite scroll on comments tab
+  useEffect(() => {
+    if (tab !== "comments" || !sentinelRef.current || !commentsHasMore) return;
+    const el = sentinelRef.current;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMoreComments();
+      },
+      { rootMargin: "200px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [tab, commentsHasMore, loadMoreComments]);
+
   const counts = useMemo(
-    () => ({ posts: posts.length, comments: comments.length, videos: videos.length, stories: stories.length }),
-    [posts, comments, videos, stories]
+    () => ({ posts: posts.length, comments: commentsTotal, videos: videos.length, stories: stories.length }),
+    [posts, commentsTotal, videos, stories]
   );
 
   const performDelete = async () => {
@@ -136,8 +179,14 @@ const ActivityView = () => {
       toast.error(error.message ?? "Could not delete");
       return;
     }
-    toast.success("Deleted");
-    setTick((t) => t + 1);
+    toast.success("Deleted permanently");
+    if (kind === "comments") {
+      // Optimistic local removal so we don't lose scroll/pagination
+      setComments((prev) => prev.filter((c) => c.id !== id));
+      setCommentsTotal((n) => Math.max(0, n - 1));
+    } else {
+      setTick((t) => t + 1);
+    }
   };
 
   const askDelete = (kind: Tab, id: string, label?: string) => setConfirm({ kind, id, label });
@@ -199,30 +248,41 @@ const ActivityView = () => {
             comments.length === 0 ? (
               <EmptyState icon={MessageCircle} title="No comments yet" description="Comments you write will show here." />
             ) : (
-              <ul className="space-y-2">
-                {comments.map((c) => (
-                  <li key={c.id} className="neo-card-inset rounded-2xl p-3 flex items-center gap-3">
-                    <Link to={`/post/${c.post_id}`} className="neo-button-icon w-12 h-12 flex-shrink-0 overflow-hidden rounded-full">
-                      {c.postPreview?.image_url ? (
-                        <img src={c.postPreview.image_url} alt="post" className="w-full h-full object-cover" />
-                      ) : (
-                        <MessageCircle className="w-4 h-4 m-auto text-muted-foreground" />
-                      )}
-                    </Link>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground line-clamp-2">{c.text}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(c.created_at)}</p>
-                    </div>
-                    <button
-                      onClick={() => askDelete("comments", c.id, c.text.slice(0, 40))}
-                      className="neo-button-icon w-9 h-9 flex items-center justify-center flex-shrink-0"
-                      aria-label="Delete comment"
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <>
+                <ul className="space-y-2">
+                  {comments.map((c) => (
+                    <li key={c.id} className="neo-card-inset rounded-2xl p-3 flex items-center gap-3">
+                      <Link to={`/post/${c.post_id}`} className="neo-button-icon w-12 h-12 flex-shrink-0 overflow-hidden rounded-full">
+                        {c.postPreview?.image_url ? (
+                          <img src={c.postPreview.image_url} alt="post" className="w-full h-full object-cover" />
+                        ) : (
+                          <MessageCircle className="w-4 h-4 m-auto text-muted-foreground" />
+                        )}
+                      </Link>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground line-clamp-2">{c.text}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(c.created_at)}</p>
+                      </div>
+                      <button
+                        onClick={() => askDelete("comments", c.id, c.text.slice(0, 40))}
+                        className="neo-button-icon w-9 h-9 flex items-center justify-center flex-shrink-0"
+                        aria-label="Delete comment permanently"
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {commentsHasMore ? (
+                  <div ref={sentinelRef} className="flex items-center justify-center py-6">
+                    {commentsLoadingMore && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                  </div>
+                ) : (
+                  <p className="text-center text-[11px] text-muted-foreground py-6">
+                    You've reached the end · {commentsTotal} comment{commentsTotal === 1 ? "" : "s"}
+                  </p>
+                )}
+              </>
             )
           )}
 
