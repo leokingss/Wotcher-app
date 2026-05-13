@@ -177,6 +177,19 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
     toast.success("Signed out");
   };
 
+  const handleHardRefresh = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      toast.success("Cache cleared — reloading app");
+      setTimeout(() => {
+        window.location.reload();
+      }, 400);
+    } catch {
+      toast.error("Could not clear cache");
+    }
+  };
+
   const goTo = (p: SettingsPage) => setPage(p);
   const back = () => setPage("main");
 
