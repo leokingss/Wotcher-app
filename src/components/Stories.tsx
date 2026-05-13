@@ -1,5 +1,15 @@
+import { useEffect, useState } from "react";
 import { Plus, Music, Camera } from "lucide-react";
-import { stories } from "@/data/mockSocial";
+import { stories as baseStories } from "@/data/mockSocial";
+import StoryViewer from "./StoryViewer";
+
+const WATCHED_KEY = "watcher:watched-stories";
+const loadWatched = (): number[] => {
+  try { return JSON.parse(localStorage.getItem(WATCHED_KEY) ?? "[]"); } catch { return []; }
+};
+const saveWatched = (ids: number[]) => {
+  try { localStorage.setItem(WATCHED_KEY, JSON.stringify(ids)); } catch {}
+};
 
 // Animated Music icon (profile page style)
 const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
