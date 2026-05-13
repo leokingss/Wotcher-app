@@ -508,6 +508,7 @@
     100% { background-position: -10px 0; }
   }
   .music-sprockets {
+    background-color: hsl(45, 100%, 50%);
     background-image: repeating-linear-gradient(
       90deg,
       hsl(0, 0%, 100%) 0px,
