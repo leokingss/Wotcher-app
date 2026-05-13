@@ -194,4 +194,6 @@ export const useNotificationToasts = () => {
 
     return () => { supabase.removeChannel(ch); };
   }, [user, navigate, location.pathname, settings]);
+
+  return { fetchError, retrySettings: loadSettings };
 };
