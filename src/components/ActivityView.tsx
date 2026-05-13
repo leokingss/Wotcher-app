@@ -166,28 +166,106 @@ const ActivityView = () => {
     [posts, commentsTotal, videos, stories]
   );
 
+  // Pending deletes (soft-delete with 60s undo window)
+  const pendingRef = useRef<Map<string, { timer: number; restore: () => void; commit: () => Promise<void> }>>(new Map());
+
   const performDelete = async () => {
     if (!confirm || !user) return;
-    const { kind, id } = confirm;
-    let error: any = null;
-    if (kind === "posts") ({ error } = await supabase.from("posts").delete().eq("id", id));
-    else if (kind === "comments") ({ error } = await supabase.from("comments").delete().eq("id", id));
-    else if (kind === "videos") ({ error } = await supabase.from("videos").delete().eq("id", id));
-    else if (kind === "stories") removeMyPostedStory(user.id, id);
+    const { kind, id, label } = confirm;
     setConfirm(null);
-    if (error) {
-      toast.error(error.message ?? "Could not delete");
-      return;
-    }
-    toast.success("Deleted permanently");
-    if (kind === "comments") {
-      // Optimistic local removal so we don't lose scroll/pagination
+
+    const key = `${kind}:${id}`;
+    let restore: () => void = () => {};
+    let commit: () => Promise<void> = async () => {};
+
+    if (kind === "posts") {
+      const snapshot = posts.find((p) => p.id === id);
+      const idx = posts.findIndex((p) => p.id === id);
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+      restore = () => snapshot && setPosts((prev) => {
+        const next = [...prev];
+        next.splice(Math.min(idx, next.length), 0, snapshot);
+        return next;
+      });
+      commit = async () => { await supabase.from("posts").delete().eq("id", id); };
+    } else if (kind === "comments") {
+      const snapshot = comments.find((c) => c.id === id);
+      const idx = comments.findIndex((c) => c.id === id);
       setComments((prev) => prev.filter((c) => c.id !== id));
       setCommentsTotal((n) => Math.max(0, n - 1));
-    } else {
-      setTick((t) => t + 1);
+      restore = () => snapshot && setComments((prev) => {
+        const next = [...prev];
+        next.splice(Math.min(idx, next.length), 0, snapshot);
+        return next;
+      });
+      commit = async () => { await supabase.from("comments").delete().eq("id", id); };
+      // adjust total back on restore
+      const origRestore = restore;
+      restore = () => { origRestore(); setCommentsTotal((n) => n + 1); };
+    } else if (kind === "videos") {
+      const snapshot = videos.find((v) => v.id === id);
+      const idx = videos.findIndex((v) => v.id === id);
+      setVideos((prev) => prev.filter((v) => v.id !== id));
+      restore = () => snapshot && setVideos((prev) => {
+        const next = [...prev];
+        next.splice(Math.min(idx, next.length), 0, snapshot);
+        return next;
+      });
+      commit = async () => { await supabase.from("videos").delete().eq("id", id); };
+    } else if (kind === "stories") {
+      const snapshot = stories.find((s) => s.id === id);
+      const idx = stories.findIndex((s) => s.id === id);
+      setStories((prev) => prev.filter((s) => s.id !== id));
+      restore = () => {
+        if (!snapshot) return;
+        const current = getMyPostedStories(user.id);
+        if (!current.find((s) => s.id === snapshot.id)) {
+          const next = [...current];
+          next.splice(Math.min(idx, next.length), 0, snapshot);
+          localStorage.setItem(`watcher:my-stories:${user.id}`, JSON.stringify(next));
+        }
+        setStories(getMyPostedStories(user.id));
+      };
+      commit = async () => { removeMyPostedStory(user.id, id); };
     }
+
+    const finalize = async () => {
+      pendingRef.current.delete(key);
+      try { await commit(); } catch (e: any) {
+        toast.error(e?.message ?? "Could not delete");
+        restore();
+      }
+    };
+
+    const timer = window.setTimeout(finalize, 60_000);
+    pendingRef.current.set(key, { timer, restore, commit });
+
+    toast(`${label ? `"${label.slice(0, 30)}" ` : ""}deleted`, {
+      duration: 60_000,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          const entry = pendingRef.current.get(key);
+          if (!entry) return;
+          clearTimeout(entry.timer);
+          pendingRef.current.delete(key);
+          entry.restore();
+          toast.success("Restored");
+        },
+      },
+    });
   };
+
+  // On unmount, commit any pending deletes immediately so they aren't lost
+  useEffect(() => {
+    return () => {
+      pendingRef.current.forEach(({ timer, commit }) => {
+        clearTimeout(timer);
+        commit().catch(() => {});
+      });
+      pendingRef.current.clear();
+    };
+  }, []);
 
   const askDelete = (kind: Tab, id: string, label?: string) => setConfirm({ kind, id, label });
 
