@@ -54,6 +54,7 @@ import { supabase } from "@/integrations/supabase/client";
 import SavedPostsView from "@/components/SavedPostsView";
 import ArchiveView from "@/components/ArchiveView";
 import ActivityView from "@/components/ActivityView";
+import ErrorBanner from "@/components/ErrorBanner";
 interface SettingsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -97,6 +98,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   const { user, signOut, profile } = useAuth();
   const [page, setPage] = useState<SettingsPage>("main");
   const [search, setSearch] = useState("");
+  const [settingsFetchError, setSettingsFetchError] = useState<string | null>(null);
 
   // Notification settings — DB-backed
   interface NotifSettings {
@@ -116,21 +118,33 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
     toast_volume: 100,
   });
 
-  useEffect(() => {
+  const loadSettings = () => {
     if (!user) return;
+    setSettingsFetchError(null);
     supabase
       .from("notification_settings")
       .select("toast_likes, toast_comments, toast_follows, toast_dms, toast_auctions, toast_volume")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          setSettingsFetchError("Could not load notification settings.");
+          return;
+        }
         if (data) setNotifSettings(data as NotifSettings);
         else {
-          supabase.from("notification_settings").insert({ user_id: user.id }).then(({ error }) => {
-            if (error) console.error("create notification_settings", error);
+          supabase.from("notification_settings").insert({ user_id: user.id }).then(({ error: insertErr }) => {
+            if (insertErr) {
+              console.error("create notification_settings", insertErr);
+              setSettingsFetchError("Could not create notification settings.");
+            }
           });
         }
       });
+  };
+
+  useEffect(() => {
+    loadSettings();
   }, [user]);
 
   const updateNotif = async (patch: Partial<NotifSettings>) => {
@@ -593,6 +607,14 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
             </div>
           )}
         </SheetHeader>
+
+        {settingsFetchError && page === "notifications" && (
+          <ErrorBanner
+            message={settingsFetchError}
+            onReload={loadSettings}
+            onDismiss={() => setSettingsFetchError(null)}
+          />
+        )}
 
         <div className="flex-1 overflow-y-auto pt-4">{body}</div>
       </SheetContent>

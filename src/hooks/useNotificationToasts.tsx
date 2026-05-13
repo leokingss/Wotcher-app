@@ -74,18 +74,28 @@ export const useNotificationToasts = () => {
     toast_auctions: true,
     toast_volume: 100,
   });
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  // Load settings on mount
-  useEffect(() => {
+  const loadSettings = () => {
     if (!user) return;
+    setFetchError(null);
     supabase
       .from("notification_settings")
       .select("toast_likes, toast_comments, toast_follows, toast_dms, toast_auctions, toast_volume")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          setFetchError("Could not load notification settings.");
+          return;
+        }
         if (data) setSettings(data as NotifSettings);
       });
+  };
+
+  // Load settings on mount
+  useEffect(() => {
+    loadSettings();
   }, [user]);
 
   useEffect(() => {
@@ -184,4 +194,6 @@ export const useNotificationToasts = () => {
 
     return () => { supabase.removeChannel(ch); };
   }, [user, navigate, location.pathname, settings]);
+
+  return { fetchError, retrySettings: loadSettings };
 };
