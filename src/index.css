@@ -505,17 +505,17 @@
   /* Rolling white squares inside music icon — same motion as film sprockets */
   @keyframes music-sprockets-roll {
     0%   { background-position: 0 0; }
-    100% { background-position: -8px 0; }
+    100% { background-position: -10px 0; }
   }
   .music-sprockets {
     background-image: repeating-linear-gradient(
       90deg,
       hsl(0, 0%, 100%) 0px,
-      hsl(0, 0%, 100%) 4px,
-      transparent 4px,
-      transparent 8px
+      hsl(0, 0%, 100%) 5px,
+      transparent 5px,
+      transparent 10px
     );
-    background-size: 8px 100%;
+    background-size: 10px 100%;
     animation: music-sprockets-roll 0.7s linear infinite;
   }
 
