@@ -101,7 +101,7 @@ const StoryArchiveView = ({ userId }: { userId: string }) => {
                 key={s.key}
                 onClick={() => setSort(s.key)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                  active ? "neo-button-pressed text-primary" : "neo-button-icon text-foreground"
+                  active ? "neo-button-active text-primary" : "neo-button-icon text-foreground"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />

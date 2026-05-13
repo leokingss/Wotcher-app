@@ -111,7 +111,7 @@ const ArchiveView = () => {
             key={t}
             onClick={() => setTab(t)}
             className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${
-              tab === t ? "neo-button-pressed text-primary" : "text-muted-foreground"
+              tab === t ? "neo-button-active text-primary" : "text-muted-foreground"
             }`}
           >
             {t === "posts" ? "Posts" : "Stories"}
