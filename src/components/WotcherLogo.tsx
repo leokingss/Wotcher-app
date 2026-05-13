@@ -9,17 +9,16 @@ const WotcherLogo = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <motion.img
-        src={wotcherLogo}
-        alt="Wotcher"
-        className="h-12 w-auto select-none"
-        draggable={false}
-        animate={{ y: [0, -2, 0] }}
-        transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+      <motion.div
+        className="h-20 w-20 rounded-2xl bg-cover bg-top bg-no-repeat"
         style={{
+          backgroundImage: `url(${wotcherLogo})`,
           filter:
             "drop-shadow(2px 2px 4px var(--neo-shadow-dark)) drop-shadow(-1px -1px 2px var(--neo-shadow-light))",
         }}
+        animate={{ y: [0, -3, 0] }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+        aria-label="Wotcher"
       />
     </motion.div>
   );
