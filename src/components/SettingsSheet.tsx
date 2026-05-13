@@ -461,6 +461,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
     account: "Account center",
     saved: "Saved",
     archive: "Archive",
+    activity: "Your activity",
     comments: "Comments",
     posts: "Posts",
     blocked: "Blocked accounts",
@@ -481,6 +482,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   else if (page === "data") body = renderGroups(dataGroups);
   else if (page === "saved") body = <SavedPostsView />;
   else if (page === "archive") body = <ArchiveView />;
+  else if (page === "activity") body = <ActivityView />;
   else {
     const info = simpleListPages[page];
     body = (
