@@ -47,6 +47,8 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import SavedPostsView from "@/components/SavedPostsView";
+import ArchiveView from "@/components/ArchiveView";
 
 interface SettingsSheetProps {
   open: boolean;
