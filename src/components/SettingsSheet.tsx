@@ -47,6 +47,8 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import SavedPostsView from "@/components/SavedPostsView";
+import ArchiveView from "@/components/ArchiveView";
 
 interface SettingsSheetProps {
   open: boolean;
@@ -381,8 +383,6 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   ];
 
   const simpleListPages: Record<string, { title: string; description: string }> = {
-    saved: { title: "Saved", description: "All your saved posts, songs and lists live here. Browse them by collection or chronological order." },
-    archive: { title: "Archive", description: "Stories archive, posts archive, and live archive. Items here are only visible to you." },
     blocked: { title: "Blocked accounts", description: "You haven't blocked anyone. Blocked users can't see your posts or message you." },
     "close-friends": { title: "Close friends", description: "Add people to your close friends list. Share stories and posts with only this group." },
     language: { title: "Language", description: "Choose your app language. Currently set to English." },
@@ -477,6 +477,8 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   else if (page === "posts") body = renderGroups(postsGroups);
   else if (page === "account") body = renderGroups(accountGroups);
   else if (page === "data") body = renderGroups(dataGroups);
+  else if (page === "saved") body = <SavedPostsView />;
+  else if (page === "archive") body = <ArchiveView />;
   else {
     const info = simpleListPages[page];
     body = (
