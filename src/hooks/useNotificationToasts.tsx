@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Heart, HeartCrack, MessageCircle, UserPlus, Gavel, Trophy, Tag, Clock, Sparkles, Bell } from "lucide-react";
@@ -34,20 +34,62 @@ const actionText: Record<string, string> = {
   message: "sent you a message",
 };
 
+const settingsMap: Record<string, keyof NotifSettings> = {
+  like: "toast_likes",
+  dislike: "toast_likes",
+  comment: "toast_comments",
+  follow: "toast_follows",
+  message: "toast_dms",
+  outbid: "toast_auctions",
+  auction_won: "toast_auctions",
+  item_sold: "toast_auctions",
+  auction_ending: "toast_auctions",
+  new_listing: "toast_auctions",
+};
+
+interface NotifSettings {
+  toast_likes: boolean;
+  toast_comments: boolean;
+  toast_follows: boolean;
+  toast_dms: boolean;
+  toast_auctions: boolean;
+  toast_volume: number;
+}
+
 /**
  * Subscribes to the current user's notifications table and shows a sonner toast
- * for each new row. Suppressed when the user is already on the destination page
- * (Activity for general notifs, Messages for DMs) so nothing is double-surfaced.
+ * for each new row. Respects notification settings (type toggles + volume).
+ * Suppressed when the user is already on the destination page.
  */
 export const useNotificationToasts = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const initRef = useRef<number>(0);
+  const [settings, setSettings] = useState<NotifSettings>({
+    toast_likes: true,
+    toast_comments: true,
+    toast_follows: true,
+    toast_dms: true,
+    toast_auctions: true,
+    toast_volume: 100,
+  });
+
+  // Load settings on mount
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("notification_settings")
+      .select("toast_likes, toast_comments, toast_follows, toast_dms, toast_auctions, toast_volume")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setSettings(data as NotifSettings);
+      });
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
-    // Treat anything older than mount-time-2s as "already-seen" history
     initRef.current = Date.now() - 2000;
 
     const ch = supabase
@@ -60,6 +102,11 @@ export const useNotificationToasts = () => {
           if (!n) return;
           const created = new Date(n.created_at).getTime();
           if (created < initRef.current) return;
+
+          // Respect type toggles + volume
+          const settingKey = settingsMap[n.type];
+          if (settingKey && !settings[settingKey]) return;
+          if (settings.toast_volume === 0) return;
 
           // Suppress if user is viewing the relevant page already
           const path = location.pathname;
@@ -136,5 +183,5 @@ export const useNotificationToasts = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(ch); };
-  }, [user, navigate, location.pathname]);
+  }, [user, navigate, location.pathname, settings]);
 };
