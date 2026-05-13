@@ -1,4 +1,4 @@
-import { Plus, Music, Film, Camera } from "lucide-react";
+import { Plus, Music, Camera } from "lucide-react";
 import { stories } from "@/data/mockSocial";
 
 /**
