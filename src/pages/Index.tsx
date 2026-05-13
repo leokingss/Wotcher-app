@@ -13,7 +13,7 @@ const Index = () => {
   const [filter, setFilter] = useState<FeedFilterState>(DEFAULT_FILTER);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-14">
       <Header activeTab={activeTab} onTabChange={(t) => setActiveTab(t as 1 | 2 | 3)} />
       <main className="pt-4 pb-24">
         <div className="max-w-6xl mx-auto px-0 lg:px-6 lg:flex lg:gap-8 lg:items-start">
