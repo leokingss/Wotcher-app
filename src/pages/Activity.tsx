@@ -55,10 +55,32 @@ const dayLabel = (iso: string) => {
   return d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
 };
 
+type FilterCat = "all" | "social" | "marketplace" | "unread";
+type TimeRange = "all" | "today" | "week" | "month";
+
+const CATS: { id: FilterCat; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "unread", label: "Unread" },
+  { id: "social", label: "Social" },
+  { id: "marketplace", label: "Marketplace" },
+];
+
+const TIMES: { id: TimeRange; label: string }[] = [
+  { id: "all", label: "Anytime" },
+  { id: "today", label: "Today" },
+  { id: "week", label: "This week" },
+  { id: "month", label: "This month" },
+];
+
+const SOCIAL_TYPES: NType[] = ["like", "dislike", "comment", "follow"];
+const MARKET_TYPES: NType[] = ["outbid", "auction_won", "item_sold", "auction_ending", "new_listing"];
+
 const Activity = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [notifs, setNotifs] = useState<Notif[]>([]);
+  const [cat, setCat] = useState<FilterCat>("all");
+  const [time, setTime] = useState<TimeRange>("all");
 
   const load = async () => {
     if (!user) return;
@@ -92,15 +114,39 @@ const Activity = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  const filtered = useMemo(() => {
+    const now = Date.now();
+    const cutoff: Record<TimeRange, number> = {
+      all: 0,
+      today: 24 * 60 * 60 * 1000,
+      week: 7 * 24 * 60 * 60 * 1000,
+      month: 30 * 24 * 60 * 60 * 1000,
+    };
+    return notifs.filter((n) => {
+      if (cat === "unread" && n.read) return false;
+      if (cat === "social" && !SOCIAL_TYPES.includes(n.type)) return false;
+      if (cat === "marketplace" && !MARKET_TYPES.includes(n.type)) return false;
+      if (time !== "all" && now - new Date(n.created_at).getTime() > cutoff[time]) return false;
+      return true;
+    });
+  }, [notifs, cat, time]);
+
   const grouped = useMemo(() => {
     const map = new Map<string, Notif[]>();
-    notifs.forEach((n) => {
+    filtered.forEach((n) => {
       const k = dayLabel(n.created_at);
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(n);
     });
     return Array.from(map.entries());
-  }, [notifs]);
+  }, [filtered]);
+
+  const toggleRead = async (e: React.MouseEvent, n: Notif) => {
+    e.stopPropagation();
+    const next = !n.read;
+    setNotifs((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: next } : x)));
+    await supabase.from("notifications").update({ read: next }).eq("id", n.id);
+  };
 
   const handleClick = async (n: Notif) => {
     if (!n.read) {
@@ -138,9 +184,43 @@ const Activity = () => {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4">
+      <div className="max-w-lg mx-auto px-4 pt-2 space-y-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+          {CATS.map((c) => {
+            const count = c.id === "unread" ? unread : undefined;
+            const active = cat === c.id;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setCat(c.id)}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${active ? "neo-button-icon text-primary" : "neo-card text-muted-foreground"}`}
+              >
+                {c.label}{count !== undefined && count > 0 ? ` · ${count}` : ""}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+          {TIMES.map((t) => {
+            const active = time === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTime(t.id)}
+                className={`shrink-0 px-3 py-1 rounded-full text-[11px] transition-all ${active ? "neo-button-icon text-foreground" : "text-muted-foreground"}`}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <main className="max-w-lg mx-auto px-4 pt-3">
         {notifs.length === 0 ? (
           <EmptyState icon={Bell} title="No activity yet" description="Likes, comments, follows and marketplace updates will show up here." />
+        ) : filtered.length === 0 ? (
+          <EmptyState icon={Bell} title="Nothing here" description="No notifications match these filters." />
         ) : (
           <div className="space-y-6 pt-2">
             {grouped.map(([day, items]) => (
@@ -149,12 +229,12 @@ const Activity = () => {
                 <div className="space-y-2">
                   {items.map((n) => {
                     const Icon = typeIcon[n.type] ?? Bell;
-                    const isMarketplace = ["outbid", "auction_won", "item_sold", "auction_ending", "new_listing"].includes(n.type);
+                    const isMarketplace = MARKET_TYPES.includes(n.type);
                     return (
-                      <button
+                      <div
                         key={n.id}
                         onClick={() => handleClick(n)}
-                        className={`w-full text-left neo-card flex items-center gap-3 p-3 rounded-2xl transition-all hover:scale-[1.01] ${!n.read ? "ring-1 ring-primary/30" : ""}`}
+                        className={`w-full text-left neo-card flex items-center gap-3 p-3 rounded-2xl transition-all hover:scale-[1.01] cursor-pointer ${!n.read ? "ring-1 ring-primary/30" : ""}`}
                       >
                         <div className="neo-button-icon p-0.5 relative shrink-0">
                           <img
@@ -163,7 +243,7 @@ const Activity = () => {
                             className="w-11 h-11 rounded-full object-cover"
                           />
                           <div className={`absolute -bottom-1 -right-1 neo-card p-1 rounded-full ${isMarketplace ? "text-primary" : ""}`}>
-                            <Icon className={`w-3 h-3 ${n.type === "dislike" ? "text-destructive" : isMarketplace ? "text-primary" : "text-primary"}`} />
+                            <Icon className={`w-3 h-3 ${n.type === "dislike" ? "text-destructive" : "text-primary"}`} />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -179,12 +259,21 @@ const Activity = () => {
                           </p>
                           <p className="text-xs text-muted-foreground">{formatRelative(n.created_at)}</p>
                         </div>
-                        {n.post?.image_url ? (
+                        <button
+                          onClick={(e) => toggleRead(e, n)}
+                          aria-label={n.read ? "Mark as unread" : "Mark as read"}
+                          className="neo-button-icon p-2 rounded-full shrink-0"
+                        >
+                          {n.read ? (
+                            <span className="block w-2 h-2 rounded-full bg-muted-foreground/40" />
+                          ) : (
+                            <span className="block w-2 h-2 rounded-full bg-primary" />
+                          )}
+                        </button>
+                        {n.post?.image_url && (
                           <img src={n.post.image_url} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
-                        ) : !n.read ? (
-                          <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-                        ) : null}
-                      </button>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
