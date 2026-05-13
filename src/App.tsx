@@ -24,11 +24,13 @@ import Unsubscribe from "./pages/Unsubscribe";
 import AdminEmails from "./pages/AdminEmails";
 import ListDetail from "./pages/ListDetail";
 import Logos from "./pages/Logos";
+import { useNotificationToasts } from "@/hooks/useNotificationToasts";
 
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  useNotificationToasts();
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
