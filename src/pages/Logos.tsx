@@ -43,7 +43,7 @@ const Logos = () => (
     <div className="max-w-5xl mx-auto">
       <h1 className="watcher-logo text-signature text-center mb-2">Watcher</h1>
       <p className="text-center text-sm text-muted-foreground mb-8">
-        13 logo concepts — tap a number to tell me which to refine
+        5 refined hand + spiral concepts (top) — plus the original 13 below
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {logos.map((l, i) => (
