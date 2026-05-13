@@ -12,7 +12,7 @@ const WotcherLogo = () => {
       <motion.img
         src={wotcherLogoIcon}
         alt="Wotcher"
-        className="h-11 w-auto select-none"
+        className="h-9 w-auto select-none"
         draggable={false}
         animate={{ y: [0, -3, 0] }}
         transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
