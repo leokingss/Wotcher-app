@@ -487,6 +487,45 @@ export type Database = {
           },
         ]
       }
+      notification_settings: {
+        Row: {
+          created_at: string
+          id: string
+          toast_auctions: boolean
+          toast_comments: boolean
+          toast_dms: boolean
+          toast_follows: boolean
+          toast_likes: boolean
+          toast_volume: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          toast_auctions?: boolean
+          toast_comments?: boolean
+          toast_dms?: boolean
+          toast_follows?: boolean
+          toast_likes?: boolean
+          toast_volume?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          toast_auctions?: boolean
+          toast_comments?: boolean
+          toast_dms?: boolean
+          toast_follows?: boolean
+          toast_likes?: boolean
+          toast_volume?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string | null
