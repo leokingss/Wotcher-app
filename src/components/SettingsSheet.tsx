@@ -92,7 +92,7 @@ interface SettingsGroup {
 
 const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   const { theme, toggleTheme } = useTheme();
-  const { signOut, profile } = useAuth();
+  const { user, signOut, profile } = useAuth();
   const [page, setPage] = useState<SettingsPage>("main");
   const [search, setSearch] = useState("");
 
