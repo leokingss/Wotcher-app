@@ -95,7 +95,8 @@ export const useNotificationToasts = () => {
       .select("toast_likes, toast_comments, toast_follows, toast_dms, toast_auctions, toast_volume")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data, error }) => {
+      .then(
+        ({ data, error }) => {
         if (error) {
           setToastState((current) => ({ ...normalizeToastState(current), fetchError: "Could not load notification settings." }));
           return;
@@ -103,10 +104,11 @@ export const useNotificationToasts = () => {
         if (data) {
           setToastState({ settings: data as NotifSettings, fetchError: null });
         }
-      })
-      .catch(() => {
-        setToastState((current) => ({ ...normalizeToastState(current), fetchError: "Could not load notification settings." }));
-      });
+        },
+        () => {
+          setToastState((current) => ({ ...normalizeToastState(current), fetchError: "Could not load notification settings." }));
+        }
+      );
   };
 
   // Load settings on mount
