@@ -21,12 +21,12 @@ const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
             {/* Rolling white squares across the top of the music note */}
             <div
               className="music-sprockets"
-              style={{ position: "absolute", top: 4, left: 2, right: 2, height: 3, zIndex: 3 }}
+              style={{ position: "absolute", top: 3, left: 1, right: 1, height: 4, zIndex: 3 }}
             />
             {/* Rolling white squares across the bottom */}
             <div
               className="music-sprockets"
-              style={{ position: "absolute", bottom: 4, left: 2, right: 2, height: 3, zIndex: 3 }}
+              style={{ position: "absolute", bottom: 3, left: 1, right: 1, height: 4, zIndex: 3 }}
             />
           </>
         )}
