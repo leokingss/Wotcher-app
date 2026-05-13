@@ -62,6 +62,7 @@ type SettingsPage =
   | "account"
   | "saved"
   | "archive"
+  | "activity"
   | "comments"
   | "posts"
   | "blocked"
