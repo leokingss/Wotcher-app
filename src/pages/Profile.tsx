@@ -135,6 +135,7 @@ const Profile = () => {
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop");
   const { listings: shopListings } = useSellerListings(profileUserId);
   const [openListingId, setOpenListingId] = useState<string | null>(null);
