@@ -10,7 +10,7 @@ const WotcherLogo = () => {
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <motion.div
-        className="h-16 w-16 rounded-2xl bg-cover bg-top bg-no-repeat"
+        className="h-20 w-20 rounded-2xl bg-cover bg-top bg-no-repeat"
         style={{
           backgroundImage: `url(${wotcherLogo})`,
           filter:
