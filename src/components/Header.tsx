@@ -16,7 +16,7 @@ const Header = ({ activeTab, onTabChange }: HeaderProps) => {
   const unread = useUnreadMessages();
 
   return (
-    <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md">
       <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
         <button
           onClick={() => user ? navigate("/messages") : navigate("/auth")}
