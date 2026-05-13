@@ -25,6 +25,7 @@ import AdminEmails from "./pages/AdminEmails";
 import ListDetail from "./pages/ListDetail";
 import Logos from "./pages/Logos";
 import { useNotificationToasts } from "@/hooks/useNotificationToasts";
+import ErrorBanner from "@/components/ErrorBanner";
 
 const queryClient = new QueryClient();
 
