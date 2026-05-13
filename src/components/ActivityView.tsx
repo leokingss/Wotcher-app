@@ -179,8 +179,14 @@ const ActivityView = () => {
       toast.error(error.message ?? "Could not delete");
       return;
     }
-    toast.success("Deleted");
-    setTick((t) => t + 1);
+    toast.success("Deleted permanently");
+    if (kind === "comments") {
+      // Optimistic local removal so we don't lose scroll/pagination
+      setComments((prev) => prev.filter((c) => c.id !== id));
+      setCommentsTotal((n) => Math.max(0, n - 1));
+    } else {
+      setTick((t) => t + 1);
+    }
   };
 
   const askDelete = (kind: Tab, id: string, label?: string) => setConfirm({ kind, id, label });
