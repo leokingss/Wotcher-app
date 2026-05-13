@@ -55,10 +55,32 @@ const dayLabel = (iso: string) => {
   return d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
 };
 
+type FilterCat = "all" | "social" | "marketplace" | "unread";
+type TimeRange = "all" | "today" | "week" | "month";
+
+const CATS: { id: FilterCat; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "unread", label: "Unread" },
+  { id: "social", label: "Social" },
+  { id: "marketplace", label: "Marketplace" },
+];
+
+const TIMES: { id: TimeRange; label: string }[] = [
+  { id: "all", label: "Anytime" },
+  { id: "today", label: "Today" },
+  { id: "week", label: "This week" },
+  { id: "month", label: "This month" },
+];
+
+const SOCIAL_TYPES: NType[] = ["like", "dislike", "comment", "follow"];
+const MARKET_TYPES: NType[] = ["outbid", "auction_won", "item_sold", "auction_ending", "new_listing"];
+
 const Activity = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [notifs, setNotifs] = useState<Notif[]>([]);
+  const [cat, setCat] = useState<FilterCat>("all");
+  const [time, setTime] = useState<TimeRange>("all");
 
   const load = async () => {
     if (!user) return;
