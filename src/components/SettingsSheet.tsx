@@ -42,6 +42,7 @@ import {
   Wifi,
   Trash2,
   Gavel,
+  RefreshCw,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -174,6 +175,19 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
     handleClose();
     await signOut();
     toast.success("Signed out");
+  };
+
+  const handleHardRefresh = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      toast.success("Cache cleared — reloading app");
+      setTimeout(() => {
+        window.location.reload();
+      }, 400);
+    } catch {
+      toast.error("Could not clear cache");
+    }
   };
 
   const goTo = (p: SettingsPage) => setPage(p);
@@ -417,6 +431,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
       title: "Storage",
       items: [
         { icon: Trash2, label: "Clear cache", sublabel: "124 MB" },
+        { icon: RefreshCw, label: "Hard refresh", sublabel: "Clear local state and reload", action: handleHardRefresh },
         { icon: Download, label: "Download original media", toggle: { value: false, onChange: () => {} } },
       ],
     },
