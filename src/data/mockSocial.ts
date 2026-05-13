@@ -1,5 +1,12 @@
 export type StoryMediaType = "music" | "photo" | "video";
 
+export interface StoryFrame {
+  url: string;
+  caption?: string;
+  trackTitle?: string;
+  trackArtist?: string;
+}
+
 export interface StoryItem {
   id: number;
   username: string;
@@ -8,15 +15,30 @@ export interface StoryItem {
   hasStory?: boolean;
   watched?: boolean;
   mediaType?: StoryMediaType;
+  frames?: StoryFrame[];
 }
 
 export const stories: StoryItem[] = [
   { id: 1, username: "My Story", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop", isOwn: true, hasStory: false },
-  { id: 2, username: "Lina", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", hasStory: true, mediaType: "music" },
-  { id: 3, username: "Ahmed", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", hasStory: true, mediaType: "photo" },
-  { id: 4, username: "Jenny", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", hasStory: true, watched: true, mediaType: "video" },
-  { id: 5, username: "Linda", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop", hasStory: true, mediaType: "video" },
-  { id: 6, username: "Karim", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop", hasStory: true, watched: true, mediaType: "photo" },
+  { id: 2, username: "Lina", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", hasStory: true, mediaType: "music", frames: [
+    { url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=1400&fit=crop", trackTitle: "Velvet Hours", trackArtist: "Lina" },
+    { url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=1400&fit=crop", caption: "Studio sessions tonight" },
+  ]},
+  { id: 3, username: "Ahmed", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", hasStory: true, mediaType: "photo", frames: [
+    { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=1400&fit=crop", caption: "Golden hour" },
+    { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=1400&fit=crop" },
+    { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=1400&fit=crop", caption: "On the road" },
+  ]},
+  { id: 4, username: "Jenny", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", hasStory: true, watched: true, mediaType: "video", frames: [
+    { url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=1400&fit=crop", caption: "Behind the scenes" },
+  ]},
+  { id: 5, username: "Linda", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop", hasStory: true, mediaType: "video", frames: [
+    { url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=1400&fit=crop", caption: "Late night code" },
+    { url: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=1400&fit=crop" },
+  ]},
+  { id: 6, username: "Karim", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop", hasStory: true, watched: true, mediaType: "photo", frames: [
+    { url: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=1400&fit=crop", caption: "Gallery night" },
+  ]},
 ];
 
 export interface Highlight {
