@@ -162,8 +162,8 @@ const ActivityView = () => {
   }, [tab, commentsHasMore, loadMoreComments]);
 
   const counts = useMemo(
-    () => ({ posts: posts.length, comments: comments.length, videos: videos.length, stories: stories.length }),
-    [posts, comments, videos, stories]
+    () => ({ posts: posts.length, comments: commentsTotal, videos: videos.length, stories: stories.length }),
+    [posts, commentsTotal, videos, stories]
   );
 
   const performDelete = async () => {
