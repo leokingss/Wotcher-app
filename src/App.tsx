@@ -75,6 +75,7 @@ const App = () => (
                 <Toaster />
                 <Sonner />
                 <AnimatedRoutes />
+                <DevPanel />
                 <MiniPlayer />
               </TooltipProvider>
             </SavedListsProvider>
