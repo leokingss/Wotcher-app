@@ -1,5 +1,15 @@
+import { useEffect, useState } from "react";
 import { Plus, Music, Camera } from "lucide-react";
-import { stories } from "@/data/mockSocial";
+import { stories as baseStories } from "@/data/mockSocial";
+import StoryViewer from "./StoryViewer";
+
+const WATCHED_KEY = "watcher:watched-stories";
+const loadWatched = (): number[] => {
+  try { return JSON.parse(localStorage.getItem(WATCHED_KEY) ?? "[]"); } catch { return []; }
+};
+const saveWatched = (ids: number[]) => {
+  try { localStorage.setItem(WATCHED_KEY, JSON.stringify(ids)); } catch {}
+};
 
 // Animated Music icon (profile page style)
 const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
@@ -75,6 +85,19 @@ const StoryMediaIndicator = ({
 };
 
 const Stories = () => {
+  const [watchedIds, setWatchedIds] = useState<number[]>(() => loadWatched());
+  const [openId, setOpenId] = useState<number | null>(null);
+
+  useEffect(() => { saveWatched(watchedIds); }, [watchedIds]);
+
+  const stories = baseStories.map((s) =>
+    s.isOwn ? s : { ...s, watched: s.watched || watchedIds.includes(s.id) }
+  );
+
+  const handleOpen = (id: number) => setOpenId(id);
+  const handleWatched = (id: number) =>
+    setWatchedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+
   return (
     <div className="py-4">
       <div className="max-w-lg mx-auto">
@@ -100,9 +123,11 @@ const Stories = () => {
             }
 
             const watched = story.watched;
+            const hasFrames = (story.frames?.length ?? 0) > 0;
             return (
               <button
                 key={story.id}
+                onClick={() => hasFrames && handleOpen(story.id)}
                 className="flex flex-col items-center gap-2 flex-shrink-0 group"
               >
                 <div
@@ -142,6 +167,13 @@ const Stories = () => {
           })}
         </div>
       </div>
+
+      <StoryViewer
+        startId={openId ?? 0}
+        open={openId !== null}
+        onClose={() => setOpenId(null)}
+        onWatched={handleWatched}
+      />
     </div>
   );
 };
