@@ -18,15 +18,10 @@ const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
         />
         {!muted && (
           <>
-            {/* Rolling white squares across the top of the music note */}
+            {/* Rolling white squares across the middle of the music note */}
             <div
               className="music-sprockets"
-              style={{ position: "absolute", top: 3, left: 1, right: 1, height: 4, zIndex: 3 }}
-            />
-            {/* Rolling white squares across the bottom */}
-            <div
-              className="music-sprockets"
-              style={{ position: "absolute", bottom: 3, left: 1, right: 1, height: 4, zIndex: 3 }}
+              style={{ position: "absolute", top: "50%", left: 1, right: 1, height: 5, transform: "translateY(-50%)", zIndex: 3 }}
             />
           </>
         )}
