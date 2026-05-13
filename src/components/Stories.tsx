@@ -34,15 +34,6 @@ const VideoIconAnim = ({ muted = false }: { muted?: boolean }) => {
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
       <div className="relative" style={{ width: 22, height: 22 }}>
-        {!muted && (
-          <>
-            <span className="video-ping-ring" style={{ position: "absolute", inset: -4 }} />
-            <span
-              className="video-ping-ring"
-              style={{ position: "absolute", inset: -4, animationDelay: "0.4s" }}
-            />
-          </>
-        )}
         <svg
           width="22"
           height="22"
