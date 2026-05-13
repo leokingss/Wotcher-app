@@ -608,6 +608,14 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
           )}
         </SheetHeader>
 
+        {settingsFetchError && page === "notifications" && (
+          <ErrorBanner
+            message={settingsFetchError}
+            onReload={loadSettings}
+            onDismiss={() => setSettingsFetchError(null)}
+          />
+        )}
+
         <div className="flex-1 overflow-y-auto pt-4">{body}</div>
       </SheetContent>
     </Sheet>
