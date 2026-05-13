@@ -92,31 +92,74 @@ const ActivityView = () => {
   const [confirm, setConfirm] = useState<{ kind: Tab; id: string; label?: string } | null>(null);
   const [tick, setTick] = useState(0);
 
+  // Comments infinite scroll state
+  const COMMENTS_PAGE = 20;
+  const [commentsTotal, setCommentsTotal] = useState(0);
+  const [commentsHasMore, setCommentsHasMore] = useState(true);
+  const [commentsLoadingMore, setCommentsLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  const hydrateComments = async (rows: CommentRow[]): Promise<CommentRow[]> => {
+    const postIds = [...new Set(rows.map((c) => c.post_id))];
+    if (postIds.length === 0) return rows;
+    const { data: previews } = await supabase.from("posts").select("id, image_url").in("id", postIds);
+    const map = new Map((previews ?? []).map((p: any) => [p.id, { image_url: p.image_url }]));
+    return rows.map((c) => ({ ...c, postPreview: map.get(c.post_id) ?? null }));
+  };
+
+  const loadMoreComments = useCallback(async () => {
+    if (!user || commentsLoadingMore || !commentsHasMore) return;
+    setCommentsLoadingMore(true);
+    const from = comments.length;
+    const to = from + COMMENTS_PAGE - 1;
+    const { data } = await supabase
+      .from("comments")
+      .select("id, text, created_at, post_id")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    const rows = (data ?? []) as CommentRow[];
+    const hydrated = await hydrateComments(rows);
+    setComments((prev) => [...prev, ...hydrated]);
+    setCommentsHasMore(rows.length === COMMENTS_PAGE);
+    setCommentsLoadingMore(false);
+  }, [user, comments.length, commentsLoadingMore, commentsHasMore]);
+
   useEffect(() => {
     if (!user) return;
     (async () => {
       setLoading(true);
-      const [postsRes, commentsRes, videosRes] = await Promise.all([
+      const [postsRes, commentsRes, commentsCount, videosRes] = await Promise.all([
         supabase.from("posts").select("id, image_url, caption, media_type, created_at").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("comments").select("id, text, created_at, post_id").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("comments").select("id, text, created_at, post_id").eq("user_id", user.id).order("created_at", { ascending: false }).range(0, COMMENTS_PAGE - 1),
+        supabase.from("comments").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("videos").select("id, title, thumbnail_url, created_at, duration_seconds").eq("artist_id", user.id).order("created_at", { ascending: false }),
       ]);
       setPosts((postsRes.data ?? []) as PostRow[]);
-      const cmts = (commentsRes.data ?? []) as CommentRow[];
-      // Hydrate post previews for comments
-      const postIds = [...new Set(cmts.map((c) => c.post_id))];
-      if (postIds.length > 0) {
-        const { data: previews } = await supabase.from("posts").select("id, image_url").in("id", postIds);
-        const map = new Map((previews ?? []).map((p: any) => [p.id, { image_url: p.image_url }]));
-        setComments(cmts.map((c) => ({ ...c, postPreview: map.get(c.post_id) ?? null })));
-      } else {
-        setComments(cmts);
-      }
+      const firstPage = (commentsRes.data ?? []) as CommentRow[];
+      setComments(await hydrateComments(firstPage));
+      setCommentsTotal(commentsCount.count ?? firstPage.length);
+      setCommentsHasMore(firstPage.length === COMMENTS_PAGE);
       setVideos((videosRes.data ?? []) as VideoRow[]);
       setStories(getMyPostedStories(user.id));
       setLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tick]);
+
+  // IntersectionObserver for infinite scroll on comments tab
+  useEffect(() => {
+    if (tab !== "comments" || !sentinelRef.current || !commentsHasMore) return;
+    const el = sentinelRef.current;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMoreComments();
+      },
+      { rootMargin: "200px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [tab, commentsHasMore, loadMoreComments]);
 
   const counts = useMemo(
     () => ({ posts: posts.length, comments: comments.length, videos: videos.length, stories: stories.length }),
