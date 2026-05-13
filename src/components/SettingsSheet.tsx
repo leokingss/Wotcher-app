@@ -96,13 +96,57 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   const [page, setPage] = useState<SettingsPage>("main");
   const [search, setSearch] = useState("");
 
+  // Notification settings — DB-backed
+  interface NotifSettings {
+    toast_likes: boolean;
+    toast_comments: boolean;
+    toast_follows: boolean;
+    toast_dms: boolean;
+    toast_auctions: boolean;
+    toast_volume: number;
+  }
+  const [notifSettings, setNotifSettings] = useState<NotifSettings>({
+    toast_likes: true,
+    toast_comments: true,
+    toast_follows: true,
+    toast_dms: true,
+    toast_auctions: true,
+    toast_volume: 100,
+  });
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("notification_settings")
+      .select("toast_likes, toast_comments, toast_follows, toast_dms, toast_auctions, toast_volume")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setNotifSettings(data as NotifSettings);
+        else {
+          supabase.from("notification_settings").insert({ user_id: user.id }).then(({ error }) => {
+            if (error) console.error("create notification_settings", error);
+          });
+        }
+      });
+  }, [user]);
+
+  const updateNotif = async (patch: Partial<NotifSettings>) => {
+    if (!user) return;
+    setNotifSettings((prev) => ({ ...prev, ...patch }));
+    const { error } = await supabase
+      .from("notification_settings")
+      .update(patch)
+      .eq("user_id", user.id);
+    if (error) {
+      console.error("update notification_settings", error);
+      toast.error("Could not save setting");
+    }
+  };
+
   // Mock toggle states
   const [notifPosts, setNotifPosts] = useState(true);
   const [notifStories, setNotifStories] = useState(true);
-  const [notifComments, setNotifComments] = useState(true);
-  const [notifMessages, setNotifMessages] = useState(true);
-  const [notifLikes, setNotifLikes] = useState(false);
-  const [notifFollows, setNotifFollows] = useState(true);
   const [notifPause, setNotifPause] = useState(false);
 
   const [privatePofile, setPrivateProfile] = useState(false);
@@ -120,7 +164,6 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   const [allowComments, setAllowComments] = useState(true);
   const [hideOffensive, setHideOffensive] = useState(true);
   const [manualFilter, setManualFilter] = useState(false);
-
   const handleClose = () => {
     onOpenChange(false);
     setTimeout(() => setPage("main"), 250);
