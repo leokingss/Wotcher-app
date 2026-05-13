@@ -477,6 +477,8 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   else if (page === "posts") body = renderGroups(postsGroups);
   else if (page === "account") body = renderGroups(accountGroups);
   else if (page === "data") body = renderGroups(dataGroups);
+  else if (page === "saved") body = <SavedPostsView />;
+  else if (page === "archive") body = <ArchiveView />;
   else {
     const info = simpleListPages[page];
     body = (
