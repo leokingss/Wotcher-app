@@ -1,11 +1,5 @@
-import { Plus, Music, Film, Camera } from "lucide-react";
+import { Plus, Music, Camera } from "lucide-react";
 import { stories } from "@/data/mockSocial";
-
-/**
- * Direction the film perforations appear to roll in the story icon.
- * Flip this between "left" and "right" to change the rolling direction.
- */
-export const FILM_ROLL_DIRECTION: "left" | "right" = "right";
 
 // Animated Music icon (profile page style)
 const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
@@ -33,56 +27,45 @@ const CameraIconAnim = ({ muted = false }: { muted?: boolean }) => {
   );
 };
 
-// Landscape film icon with a rolling fill animation across the frame.
-// The wrapper is rotated 90deg so an inner vertical scroll reads as a
-// horizontal roll. To roll "right", we scroll the inner pattern downward
-// (positive Y); to roll "left", we scroll it upward (negative Y).
-const FilmIconAnim = ({
-  muted = false,
-  direction = FILM_ROLL_DIRECTION,
-}: {
-  muted?: boolean;
-  direction?: "left" | "right";
-}) => {
+// Animated Video icon — custom SVG video camera with a pulsing red REC dot
+// and expanding broadcast rings.
+const VideoIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
-  const sprocketClass =
-    direction === "right" ? "story-film-sprockets-right" : "story-film-sprockets-left";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
       <div className="relative" style={{ width: 22, height: 22 }}>
-        <div
-          className="absolute inset-0"
-          style={{ transform: "rotate(90deg)" }}
-        >
-          <Film
-            style={{ color, width: 22, height: 22, position: "relative", zIndex: 1 }}
-          />
-          {!muted && (
-            <div
-              className="absolute inset-[3px] overflow-hidden rounded-[2px]"
-              style={{ zIndex: 0 }}
-            >
-              <div
-                className={
-                  direction === "right" ? "story-film-fill-right" : "story-film-fill-left"
-                }
-              />
-            </div>
-          )}
-        </div>
         {!muted && (
           <>
-            {/* Moving sprocket squares on screen-top & screen-bottom edges */}
-            <div
-              className="story-film-sprockets-right"
-              style={{ position: "absolute", top: 1, left: 2, right: 2, height: 2.5, zIndex: 3 }}
-            />
-            <div
-              className="story-film-sprockets-right"
-              style={{ position: "absolute", bottom: 1, left: 2, right: 2, height: 2.5, zIndex: 3 }}
+            <span className="video-ping-ring" style={{ position: "absolute", inset: -4 }} />
+            <span
+              className="video-ping-ring"
+              style={{ position: "absolute", inset: -4, animationDelay: "0.4s" }}
             />
           </>
         )}
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 22 22"
+          fill="none"
+          style={{ color, position: "relative", zIndex: 1 }}
+        >
+          {/* Camera body */}
+          <rect x="1" y="5" width="13" height="12" rx="2.5" stroke="currentColor" strokeWidth="1.8" />
+          {/* Lens housing */}
+          <path
+            d="M14 8L20 5.5V16.5L14 14Z"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* Viewfinder bump */}
+          <rect x="5" y="2.5" width="5" height="2.5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+          {/* REC dot */}
+          {!muted && (
+            <circle cx="16.5" cy="4" r="2" fill="#ef4444" className="video-rec-dot" />
+          )}
+        </svg>
       </div>
     </div>
   );
@@ -96,7 +79,7 @@ const StoryMediaIndicator = ({
   muted: boolean;
 }) => {
   if (mediaType === "photo") return <CameraIconAnim muted={muted} />;
-  if (mediaType === "video") return <FilmIconAnim muted={muted} />;
+  if (mediaType === "video") return <VideoIconAnim muted={muted} />;
   return <MusicIconAnim muted={muted} />;
 };
 
