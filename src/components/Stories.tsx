@@ -7,15 +7,29 @@ import { stories } from "@/data/mockSocial";
  */
 export const FILM_ROLL_DIRECTION: "left" | "right" = "right";
 
-// Animated Music icon (profile page style)
+// Animated Music icon with rolling white squares inside, like film sprockets
 const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
   return (
     <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-      <Music
-        className={muted ? "" : "story-icon-jiggle"}
-        style={{ color, width: 22, height: 22 }}
-      />
+      <div className="relative" style={{ width: 22, height: 22 }}>
+        <Music
+          style={{ color, width: 22, height: 22, position: "relative", zIndex: 1 }}
+        />
+        {!muted && (
+          <>
+            {/* Rolling white squares across top & bottom like film sprockets */}
+            <div
+              className="music-sprockets"
+              style={{ position: "absolute", top: 2, left: 1, right: 1, height: 5, zIndex: 3 }}
+            />
+            <div
+              className="music-sprockets"
+              style={{ position: "absolute", bottom: 2, left: 1, right: 1, height: 5, zIndex: 3 }}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 };
