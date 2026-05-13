@@ -5,7 +5,6 @@ import Feed from "@/components/Feed";
 import BottomNav from "@/components/BottomNav";
 import Sidebar from "@/components/Sidebar";
 import FeedFilter, { FeedFilterState, DEFAULT_FILTER } from "@/components/FeedFilter";
-import FeedLogoBanner from "@/components/FeedLogoBanner";
 
 const TAB_TO_MODE = { 1: "live", 2: "popular", 3: "algorithm" } as const;
 
@@ -19,7 +18,6 @@ const Index = () => {
       <main className="pt-4 pb-24">
         <div className="max-w-6xl mx-auto px-0 lg:px-6 lg:flex lg:gap-8 lg:items-start">
           <div className="flex-1 min-w-0">
-            <FeedLogoBanner />
             <Stories />
             <FeedFilter value={filter} onChange={setFilter} />
             <Feed mode={TAB_TO_MODE[activeTab]} filter={filter} />
