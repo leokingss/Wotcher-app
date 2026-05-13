@@ -31,9 +31,17 @@ const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-  useNotificationToasts();
+  const { fetchError, retrySettings } = useNotificationToasts();
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <>
+      {fetchError && (
+        <ErrorBanner
+          message={fetchError}
+          onReload={retrySettings}
+          onDismiss={() => retrySettings()}
+        />
+      )}
+      <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
