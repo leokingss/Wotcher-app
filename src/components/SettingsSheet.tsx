@@ -437,7 +437,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
       <button
         key={idx}
         onClick={item.action}
-        disabled={!item.action && !item.toggle}
+        disabled={!item.action && !item.toggle && !item.slider}
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors disabled:cursor-default text-left"
       >
         <div className="neo-button-icon w-9 h-9 flex items-center justify-center flex-shrink-0">
@@ -447,6 +447,17 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
           <p className={`text-sm font-medium truncate ${colorClass}`}>{item.label}</p>
           {item.sublabel && (
             <p className="text-xs text-muted-foreground truncate">{item.sublabel}</p>
+          )}
+          {item.slider && (
+            <div className="mt-2 pr-2">
+              <Slider
+                value={item.slider.value}
+                onValueChange={item.slider.onChange}
+                max={100}
+                step={5}
+                className="w-full [&_[role=slider]]:bg-primary"
+              />
+            </div>
           )}
         </div>
         {item.badge && (
@@ -460,7 +471,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
             onCheckedChange={item.toggle.onChange}
             onClick={(e) => e.stopPropagation()}
           />
-        ) : item.action ? (
+        ) : item.action && !item.slider ? (
           <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         ) : null}
       </button>
