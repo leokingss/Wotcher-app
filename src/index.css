@@ -502,6 +502,16 @@
     animation: story-film-sprockets-left 0.7s linear infinite;
   }
 
+  /* Animated music equalizer bars inside music icon */
+  @keyframes music-bar-bounce {
+    0%, 100% { height: 4px; }
+    50% { height: 18px; }
+  }
+  .music-bar {
+    height: 4px;
+    animation: music-bar-bounce 0.55s ease-in-out infinite alternate;
+  }
+
   /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
