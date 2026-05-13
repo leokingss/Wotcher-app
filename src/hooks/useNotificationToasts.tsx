@@ -56,6 +56,24 @@ interface NotifSettings {
   toast_volume: number;
 }
 
+const defaultSettings: NotifSettings = {
+  toast_likes: true,
+  toast_comments: true,
+  toast_follows: true,
+  toast_dms: true,
+  toast_auctions: true,
+  toast_volume: 100,
+};
+
+type ToastHookState =
+  | { settings: NotifSettings; fetchError: string | null }
+  | NotifSettings;
+
+const normalizeToastState = (state: ToastHookState): { settings: NotifSettings; fetchError: string | null } => {
+  if ("settings" in state) return state;
+  return { settings: state, fetchError: null };
+};
+
 /**
  * Subscribes to the current user's notifications table and shows a sonner toast
  * for each new row. Respects notification settings (type toggles + volume).
@@ -66,19 +84,12 @@ export const useNotificationToasts = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const initRef = useRef<number>(0);
-  const [settings, setSettings] = useState<NotifSettings>({
-    toast_likes: true,
-    toast_comments: true,
-    toast_follows: true,
-    toast_dms: true,
-    toast_auctions: true,
-    toast_volume: 100,
-  });
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [toastState, setToastState] = useState<ToastHookState>({ settings: defaultSettings, fetchError: null });
+  const { settings, fetchError } = normalizeToastState(toastState);
 
   const loadSettings = () => {
     if (!user) return;
-    setFetchError(null);
+    setToastState((current) => ({ ...normalizeToastState(current), fetchError: null }));
     supabase
       .from("notification_settings")
       .select("toast_likes, toast_comments, toast_follows, toast_dms, toast_auctions, toast_volume")
@@ -86,10 +97,15 @@ export const useNotificationToasts = () => {
       .maybeSingle()
       .then(({ data, error }) => {
         if (error) {
-          setFetchError("Could not load notification settings.");
+          setToastState((current) => ({ ...normalizeToastState(current), fetchError: "Could not load notification settings." }));
           return;
         }
-        if (data) setSettings(data as NotifSettings);
+        if (data) {
+          setToastState({ settings: data as NotifSettings, fetchError: null });
+        }
+      })
+      .catch(() => {
+        setToastState((current) => ({ ...normalizeToastState(current), fetchError: "Could not load notification settings." }));
       });
   };
 
