@@ -9,6 +9,8 @@ interface StoryViewerProps {
   open: boolean;
   onClose: () => void;
   onWatched?: (storyId: number) => void;
+  /** Optional list of stories to display. Falls back to default mock stories. */
+  list?: StoryItem[];
 }
 
 const TypeIcon = ({ type }: { type?: string }) => {
@@ -17,9 +19,11 @@ const TypeIcon = ({ type }: { type?: string }) => {
   return <Music className="w-3.5 h-3.5" />;
 };
 
-const StoryViewer = ({ startId, open, onClose, onWatched }: StoryViewerProps) => {
-  // Real (non-own) stories with frames
-  const list: StoryItem[] = defaultStories.filter((s) => !s.isOwn && s.frames && s.frames.length > 0);
+const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: StoryViewerProps) => {
+  // Real (frame-bearing) stories
+  const list: StoryItem[] = (listProp ?? defaultStories).filter(
+    (s) => s.frames && s.frames.length > 0,
+  );
   const [storyIdx, setStoryIdx] = useState(() => Math.max(0, list.findIndex((s) => s.id === startId)));
   const [frameIdx, setFrameIdx] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -139,13 +143,25 @@ const StoryViewer = ({ startId, open, onClose, onWatched }: StoryViewerProps) =>
     <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center" role="dialog" aria-modal>
       {/* Media */}
       <div className="relative w-full h-full max-w-md mx-auto overflow-hidden">
-        <img
-          key={`${story.id}-${frameIdx}`}
-          src={frame.url}
-          alt={frame.caption ?? story.username}
-          className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-200"
-          draggable={false}
-        />
+        {/^.*\.(mp4|webm|mov|m4v)(\?|$)/i.test(frame.url) ? (
+          <video
+            key={`${story.id}-${frameIdx}`}
+            src={frame.url}
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
+            muted
+            playsInline
+            loop
+          />
+        ) : (
+          <img
+            key={`${story.id}-${frameIdx}`}
+            src={frame.url}
+            alt={frame.caption ?? story.username}
+            className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-200"
+            draggable={false}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70 pointer-events-none" />
 
         {/* Progress bars */}
