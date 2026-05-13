@@ -273,7 +273,11 @@ const Profile = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
         <div className="max-w-lg mx-auto px-4 h-16 flex items-center justify-between">
-          <button className="neo-button-icon w-10 h-10 flex items-center justify-center">
+          <button
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Open settings"
+            className="neo-button-icon w-10 h-10 flex items-center justify-center"
+          >
             <Settings className="w-5 h-5" />
           </button>
           <button className="neo-button px-4 py-2 rounded-full flex items-center gap-1.5">
