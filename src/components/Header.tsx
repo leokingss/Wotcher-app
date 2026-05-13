@@ -1,6 +1,7 @@
 import { Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import HeaderDropdown from "./HeaderDropdown";
+import WotcherLogo from "./WotcherLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
@@ -30,7 +31,7 @@ const Header = ({ activeTab, onTabChange }: HeaderProps) => {
           )}
         </button>
 
-        <h1 className="watcher-logo text-signature">Watcher</h1>
+        <WotcherLogo />
 
         <HeaderDropdown activeTab={activeTab} onTabChange={onTabChange} />
       </div>
