@@ -42,6 +42,7 @@ import {
   Wifi,
   Trash2,
   Gavel,
+  RefreshCw,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
