@@ -74,11 +74,11 @@ const FilmIconAnim = ({
           <>
             {/* Moving sprocket squares on screen-top & screen-bottom edges */}
             <div
-              className={sprocketClass}
+              className="story-film-sprockets-right"
               style={{ position: "absolute", top: 1, left: 2, right: 2, height: 2.5, zIndex: 3 }}
             />
             <div
-              className={sprocketClass}
+              className="story-film-sprockets-right"
               style={{ position: "absolute", bottom: 1, left: 2, right: 2, height: 2.5, zIndex: 3 }}
             />
           </>
