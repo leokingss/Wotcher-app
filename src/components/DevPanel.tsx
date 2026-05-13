@@ -131,7 +131,7 @@ const DevPanel = () => {
       const tables = ["profiles", "posts", "notifications", "conversations", "messages"];
       const results = await Promise.allSettled(
         tables.map((table) =>
-          supabase.from(table).select("count", { count: "exact", head: true })
+          (supabase.from as any)(table).select("count", { count: "exact", head: true })
         )
       );
       const succeeded = results.filter((r) => r.status === "fulfilled").length;
