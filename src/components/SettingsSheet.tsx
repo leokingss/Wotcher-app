@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -41,16 +41,18 @@ import {
   Volume2,
   Wifi,
   Trash2,
+  Gavel,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import SavedPostsView from "@/components/SavedPostsView";
 import ArchiveView from "@/components/ArchiveView";
 import ActivityView from "@/components/ActivityView";
-
 interface SettingsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -79,6 +81,7 @@ interface SettingsItem {
   sublabel?: string;
   action?: () => void;
   toggle?: { value: boolean; onChange: (v: boolean) => void };
+  slider?: { value: number[]; onChange: (v: number[]) => void };
   destructive?: boolean;
   badge?: string;
 }
@@ -90,17 +93,61 @@ interface SettingsGroup {
 
 const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   const { theme, toggleTheme } = useTheme();
-  const { signOut, profile } = useAuth();
+  const { user, signOut, profile } = useAuth();
   const [page, setPage] = useState<SettingsPage>("main");
   const [search, setSearch] = useState("");
+
+  // Notification settings — DB-backed
+  interface NotifSettings {
+    toast_likes: boolean;
+    toast_comments: boolean;
+    toast_follows: boolean;
+    toast_dms: boolean;
+    toast_auctions: boolean;
+    toast_volume: number;
+  }
+  const [notifSettings, setNotifSettings] = useState<NotifSettings>({
+    toast_likes: true,
+    toast_comments: true,
+    toast_follows: true,
+    toast_dms: true,
+    toast_auctions: true,
+    toast_volume: 100,
+  });
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("notification_settings")
+      .select("toast_likes, toast_comments, toast_follows, toast_dms, toast_auctions, toast_volume")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setNotifSettings(data as NotifSettings);
+        else {
+          supabase.from("notification_settings").insert({ user_id: user.id }).then(({ error }) => {
+            if (error) console.error("create notification_settings", error);
+          });
+        }
+      });
+  }, [user]);
+
+  const updateNotif = async (patch: Partial<NotifSettings>) => {
+    if (!user) return;
+    setNotifSettings((prev) => ({ ...prev, ...patch }));
+    const { error } = await supabase
+      .from("notification_settings")
+      .update(patch)
+      .eq("user_id", user.id);
+    if (error) {
+      console.error("update notification_settings", error);
+      toast.error("Could not save setting");
+    }
+  };
 
   // Mock toggle states
   const [notifPosts, setNotifPosts] = useState(true);
   const [notifStories, setNotifStories] = useState(true);
-  const [notifComments, setNotifComments] = useState(true);
-  const [notifMessages, setNotifMessages] = useState(true);
-  const [notifLikes, setNotifLikes] = useState(false);
-  const [notifFollows, setNotifFollows] = useState(true);
   const [notifPause, setNotifPause] = useState(false);
 
   const [privatePofile, setPrivateProfile] = useState(false);
@@ -118,7 +165,6 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
   const [allowComments, setAllowComments] = useState(true);
   const [hideOffensive, setHideOffensive] = useState(true);
   const [manualFilter, setManualFilter] = useState(false);
-
   const handleClose = () => {
     onOpenChange(false);
     setTimeout(() => setPage("main"), 250);
@@ -204,39 +250,31 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
 
   const notificationGroups: SettingsGroup[] = [
     {
-      title: "Pause all",
+      title: "Toast types",
       items: [
-        { icon: Clock, label: "Pause notifications", sublabel: notifPause ? "On for 1 hour" : "Off", toggle: { value: notifPause, onChange: setNotifPause } },
+        { icon: Heart, label: "Likes", toggle: { value: notifSettings.toast_likes, onChange: (v) => updateNotif({ toast_likes: v }) } },
+        { icon: MessageCircle, label: "Comments", toggle: { value: notifSettings.toast_comments, onChange: (v) => updateNotif({ toast_comments: v }) } },
+        { icon: Users, label: "Follows", toggle: { value: notifSettings.toast_follows, onChange: (v) => updateNotif({ toast_follows: v }) } },
+        { icon: MessageCircle, label: "Direct messages", toggle: { value: notifSettings.toast_dms, onChange: (v) => updateNotif({ toast_dms: v }) } },
+        { icon: Gavel, label: "Auctions", toggle: { value: notifSettings.toast_auctions, onChange: (v) => updateNotif({ toast_auctions: v }) } },
+      ],
+    },
+    {
+      title: "In-app sounds",
+      items: [
+        {
+          icon: Volume2,
+          label: "Toast volume",
+          sublabel: `${notifSettings.toast_volume}%`,
+          slider: { value: [notifSettings.toast_volume], onChange: ([v]) => updateNotif({ toast_volume: v }) },
+        },
       ],
     },
     {
       title: "Posts, stories and comments",
       items: [
-        { icon: Heart, label: "Likes", toggle: { value: notifLikes, onChange: setNotifLikes } },
-        { icon: MessageCircle, label: "Comments", toggle: { value: notifComments, onChange: setNotifComments } },
         { icon: Grid3X3, label: "Posts from people you follow", toggle: { value: notifPosts, onChange: setNotifPosts } },
         { icon: Activity, label: "Story replies & reactions", toggle: { value: notifStories, onChange: setNotifStories } },
-      ],
-    },
-    {
-      title: "Following and followers",
-      items: [
-        { icon: Users, label: "New followers", toggle: { value: notifFollows, onChange: setNotifFollows } },
-        { icon: Star, label: "Close friends activity", toggle: { value: true, onChange: () => {} } },
-      ],
-    },
-    {
-      title: "Messages and calls",
-      items: [
-        { icon: MessageCircle, label: "Direct messages", toggle: { value: notifMessages, onChange: setNotifMessages } },
-        { icon: Bell, label: "Group activity", toggle: { value: true, onChange: () => {} } },
-      ],
-    },
-    {
-      title: "Music & artists",
-      items: [
-        { icon: Music, label: "New track from followed artists", toggle: { value: true, onChange: () => {} } },
-        { icon: Star, label: "Top 10 chart updates", toggle: { value: true, onChange: () => {} } },
       ],
     },
     {
@@ -399,7 +437,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
       <button
         key={idx}
         onClick={item.action}
-        disabled={!item.action && !item.toggle}
+        disabled={!item.action && !item.toggle && !item.slider}
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors disabled:cursor-default text-left"
       >
         <div className="neo-button-icon w-9 h-9 flex items-center justify-center flex-shrink-0">
@@ -409,6 +447,17 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
           <p className={`text-sm font-medium truncate ${colorClass}`}>{item.label}</p>
           {item.sublabel && (
             <p className="text-xs text-muted-foreground truncate">{item.sublabel}</p>
+          )}
+          {item.slider && (
+            <div className="mt-2 pr-2">
+              <Slider
+                value={item.slider.value}
+                onValueChange={item.slider.onChange}
+                max={100}
+                step={5}
+                className="w-full [&_[role=slider]]:bg-primary"
+              />
+            </div>
           )}
         </div>
         {item.badge && (
@@ -422,7 +471,7 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
             onCheckedChange={item.toggle.onChange}
             onClick={(e) => e.stopPropagation()}
           />
-        ) : item.action ? (
+        ) : item.action && !item.slider ? (
           <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         ) : null}
       </button>
