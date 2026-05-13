@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import AdminEmails from "./pages/AdminEmails";
 import ListDetail from "./pages/ListDetail";
+import Logos from "./pages/Logos";
 
 const queryClient = new QueryClient();
 
