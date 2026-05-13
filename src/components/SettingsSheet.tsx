@@ -81,6 +81,7 @@ interface SettingsItem {
   sublabel?: string;
   action?: () => void;
   toggle?: { value: boolean; onChange: (v: boolean) => void };
+  slider?: { value: number[]; onChange: (v: number[]) => void };
   destructive?: boolean;
   badge?: string;
 }
