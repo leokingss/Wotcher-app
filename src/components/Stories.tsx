@@ -85,7 +85,7 @@ const StoryMediaIndicator = ({
   muted: boolean;
 }) => {
   if (mediaType === "photo") return <CameraIconAnim muted={muted} />;
-  if (mediaType === "video") return <FilmIconAnim muted={muted} />;
+  if (mediaType === "video") return <VideoIconAnim muted={muted} />;
   return <MusicIconAnim muted={muted} />;
 };
 
