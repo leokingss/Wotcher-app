@@ -1,0 +1,11 @@
+# Watcher
+
+> A social media and music discovery platform where fans follow artists, share stories, discover trending tracks, and build personal Top 10 charts.
+
+Watcher is a neumorphic-themed social platform built for music lovers and creators. Users can browse a live feed of posts, stories, songs, and videos; follow their favorite artists; save tracks into ranked lists; and interact through comments, likes, and voice notes. Artists can upgrade their accounts to upload music and videos directly.
+
+## Pages
+
+- [Home](/): Live feed of stories, posts, songs, and videos with filterable content tabs.
+- [Search](/search): Discover users, artists, songs, and trending content across categories.
+- [Profile](/profile): Personal profile with posts, music, videos, saved lists, and Top 10 chart.
