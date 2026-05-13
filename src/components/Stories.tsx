@@ -1,12 +1,6 @@
 import { Plus, Music, Camera } from "lucide-react";
 import { stories } from "@/data/mockSocial";
 
-/**
- * Direction the film perforations appear to roll in the story icon.
- * Flip this between "left" and "right" to change the rolling direction.
- */
-export const FILM_ROLL_DIRECTION: "left" | "right" = "right";
-
 // Animated Music icon (profile page style)
 const MusicIconAnim = ({ muted = false }: { muted?: boolean }) => {
   const color = muted ? "hsl(var(--muted-foreground) / 0.55)" : "hsl(45, 100%, 50%)";
