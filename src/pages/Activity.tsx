@@ -114,15 +114,39 @@ const Activity = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  const filtered = useMemo(() => {
+    const now = Date.now();
+    const cutoff: Record<TimeRange, number> = {
+      all: 0,
+      today: 24 * 60 * 60 * 1000,
+      week: 7 * 24 * 60 * 60 * 1000,
+      month: 30 * 24 * 60 * 60 * 1000,
+    };
+    return notifs.filter((n) => {
+      if (cat === "unread" && n.read) return false;
+      if (cat === "social" && !SOCIAL_TYPES.includes(n.type)) return false;
+      if (cat === "marketplace" && !MARKET_TYPES.includes(n.type)) return false;
+      if (time !== "all" && now - new Date(n.created_at).getTime() > cutoff[time]) return false;
+      return true;
+    });
+  }, [notifs, cat, time]);
+
   const grouped = useMemo(() => {
     const map = new Map<string, Notif[]>();
-    notifs.forEach((n) => {
+    filtered.forEach((n) => {
       const k = dayLabel(n.created_at);
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(n);
     });
     return Array.from(map.entries());
-  }, [notifs]);
+  }, [filtered]);
+
+  const toggleRead = async (e: React.MouseEvent, n: Notif) => {
+    e.stopPropagation();
+    const next = !n.read;
+    setNotifs((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: next } : x)));
+    await supabase.from("notifications").update({ read: next }).eq("id", n.id);
+  };
 
   const handleClick = async (n: Notif) => {
     if (!n.read) {
