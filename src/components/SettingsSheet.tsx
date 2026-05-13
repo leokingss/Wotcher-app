@@ -250,39 +250,31 @@ const SettingsSheet = ({ open, onOpenChange }: SettingsSheetProps) => {
 
   const notificationGroups: SettingsGroup[] = [
     {
-      title: "Pause all",
+      title: "Toast types",
       items: [
-        { icon: Clock, label: "Pause notifications", sublabel: notifPause ? "On for 1 hour" : "Off", toggle: { value: notifPause, onChange: setNotifPause } },
+        { icon: Heart, label: "Likes", toggle: { value: notifSettings.toast_likes, onChange: (v) => updateNotif({ toast_likes: v }) } },
+        { icon: MessageCircle, label: "Comments", toggle: { value: notifSettings.toast_comments, onChange: (v) => updateNotif({ toast_comments: v }) } },
+        { icon: Users, label: "Follows", toggle: { value: notifSettings.toast_follows, onChange: (v) => updateNotif({ toast_follows: v }) } },
+        { icon: MessageCircle, label: "Direct messages", toggle: { value: notifSettings.toast_dms, onChange: (v) => updateNotif({ toast_dms: v }) } },
+        { icon: Gavel, label: "Auctions", toggle: { value: notifSettings.toast_auctions, onChange: (v) => updateNotif({ toast_auctions: v }) } },
+      ],
+    },
+    {
+      title: "In-app sounds",
+      items: [
+        {
+          icon: Volume2,
+          label: "Toast volume",
+          sublabel: `${notifSettings.toast_volume}%`,
+          slider: { value: [notifSettings.toast_volume], onChange: ([v]) => updateNotif({ toast_volume: v }) },
+        },
       ],
     },
     {
       title: "Posts, stories and comments",
       items: [
-        { icon: Heart, label: "Likes", toggle: { value: notifLikes, onChange: setNotifLikes } },
-        { icon: MessageCircle, label: "Comments", toggle: { value: notifComments, onChange: setNotifComments } },
         { icon: Grid3X3, label: "Posts from people you follow", toggle: { value: notifPosts, onChange: setNotifPosts } },
         { icon: Activity, label: "Story replies & reactions", toggle: { value: notifStories, onChange: setNotifStories } },
-      ],
-    },
-    {
-      title: "Following and followers",
-      items: [
-        { icon: Users, label: "New followers", toggle: { value: notifFollows, onChange: setNotifFollows } },
-        { icon: Star, label: "Close friends activity", toggle: { value: true, onChange: () => {} } },
-      ],
-    },
-    {
-      title: "Messages and calls",
-      items: [
-        { icon: MessageCircle, label: "Direct messages", toggle: { value: notifMessages, onChange: setNotifMessages } },
-        { icon: Bell, label: "Group activity", toggle: { value: true, onChange: () => {} } },
-      ],
-    },
-    {
-      title: "Music & artists",
-      items: [
-        { icon: Music, label: "New track from followed artists", toggle: { value: true, onChange: () => {} } },
-        { icon: Star, label: "Top 10 chart updates", toggle: { value: true, onChange: () => {} } },
       ],
     },
     {
