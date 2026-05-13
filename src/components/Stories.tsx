@@ -78,7 +78,7 @@ const Stories = () => {
   return (
     <div className="py-4">
       <div className="max-w-lg mx-auto">
-        <div className="flex gap-3 overflow-x-auto hide-scrollbar px-4 pb-2 pt-1">
+        <div className="flex gap-3 overflow-x-auto hide-scrollbar items-start px-4 py-4">
           {stories.map((story) => {
             if (story.isOwn) {
               return (
