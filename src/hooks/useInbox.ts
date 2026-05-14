@@ -9,6 +9,7 @@ export interface InboxItem {
   other: { id: string; username: string; display_name: string | null; avatar_url: string | null } | null;
   last_message: { body: string | null; media_type: string; sender_id: string; created_at: string } | null;
   unread: boolean;
+  unread_count: number;
 }
 
 export const useInbox = () => {
