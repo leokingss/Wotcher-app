@@ -95,8 +95,6 @@ const Messages = () => {
           </div>
         )}
       </main>
-
-      <BottomNav />
     </div>
   );
 };

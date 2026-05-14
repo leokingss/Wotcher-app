@@ -83,7 +83,6 @@ const Search = () => {
       </div>
 
       <ListingDialog open={!!openListingId} onOpenChange={(o) => !o && setOpenListingId(null)} listingId={openListingId} />
-      <BottomNav />
     </div>
   );
 };

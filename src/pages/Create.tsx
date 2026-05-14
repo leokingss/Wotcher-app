@@ -70,8 +70,6 @@ const Create = () => {
           ))}
         </div>
       </main>
-
-      <BottomNav />
     </div>
   );
 };
