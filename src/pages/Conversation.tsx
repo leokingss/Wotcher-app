@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Send, Mic, Square, Trash2, Play, Pause, Paperclip, Image as ImageIcon, Film } from "lucide-react";
+import { ArrowLeft, Send, Mic, Square, Trash2, Play, Pause, Paperclip, Image as ImageIcon, Film, Phone, Video as VideoIcon } from "lucide-react";
 import { useConversation } from "@/hooks/useConversation";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelative } from "@/lib/time";
 import { toast } from "sonner";
+import CallOverlay from "@/components/CallOverlay";
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
