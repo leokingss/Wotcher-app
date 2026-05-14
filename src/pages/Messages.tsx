@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageCircle, Plus } from "lucide-react";
-import BottomNav from "@/components/BottomNav";
 import { useInbox, startDMByUsername } from "@/hooks/useInbox";
 import { formatRelative } from "@/lib/time";
 import EmptyState from "@/components/EmptyState";
@@ -96,8 +95,6 @@ const Messages = () => {
           </div>
         )}
       </main>
-
-      <BottomNav />
     </div>
   );
 };

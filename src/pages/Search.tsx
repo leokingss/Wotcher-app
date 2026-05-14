@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Search as SearchIcon, Image, Music, Film, ShoppingBag } from "lucide-react";
-import BottomNav from "@/components/BottomNav";
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
@@ -84,7 +83,6 @@ const Search = () => {
       </div>
 
       <ListingDialog open={!!openListingId} onOpenChange={(o) => !o && setOpenListingId(null)} listingId={openListingId} />
-      <BottomNav />
     </div>
   );
 };

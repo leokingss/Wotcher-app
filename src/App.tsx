@@ -11,6 +11,7 @@ import MiniPlayer from "@/components/MiniPlayer";
 import { PlayerProvider } from "@/hooks/usePlayer";
 import { SavedListsProvider } from "@/hooks/useSavedLists";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import BottomNav from "@/components/BottomNav";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
@@ -32,6 +33,7 @@ export const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const hideNav = location.pathname === "/auth";
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
@@ -50,6 +52,7 @@ const AnimatedRoutes = () => {
         <Route path="/logos" element={<PageTransition><Logos /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
+      {!hideNav && <BottomNav />}
     </AnimatePresence>
   );
 };
