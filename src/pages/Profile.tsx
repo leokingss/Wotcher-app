@@ -46,6 +46,18 @@ const Profile = () => {
   const { user, profile: myProfile, refreshProfile } = useAuth();
   const { username: routeUsername } = useParams<{ username?: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const handleMessage = async () => {
+    if (!user) { navigate("/auth"); return; }
+    if (!profileUserId) return;
+    try {
+      const cid = await getOrCreateDM(profileUserId);
+      navigate(`/messages/${cid}`);
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not open chat");
+    }
+  };
 
   // Viewed profile (may differ from signed-in user)
   const [viewedProfile, setViewedProfile] = useState<any>(null);
