@@ -33,6 +33,7 @@ export const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const hideNav = location.pathname === "/auth";
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
@@ -51,6 +52,7 @@ const AnimatedRoutes = () => {
         <Route path="/logos" element={<PageTransition><Logos /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
+      {!hideNav && <BottomNav />}
     </AnimatePresence>
   );
 };
