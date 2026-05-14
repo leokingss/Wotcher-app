@@ -98,8 +98,28 @@ const Conversation = () => {
               </div>
             </button>
           )}
+          <div className="ml-auto flex items-center gap-1.5">
+            <button
+              onClick={() => other && setCall("audio")}
+              disabled={!other}
+              className="neo-button-icon p-2 rounded-full"
+              aria-label="Voice call"
+            >
+              <Phone className="w-4 h-4 text-primary" />
+            </button>
+            <button
+              onClick={() => other && setCall("video")}
+              disabled={!other}
+              className="neo-button-icon p-2 rounded-full"
+              aria-label="Video call"
+            >
+              <VideoIcon className="w-4 h-4 text-primary" />
+            </button>
+          </div>
         </div>
       </header>
+
+      <CallOverlay open={!!call} mode={call ?? "audio"} other={other} onClose={() => setCall(null)} />
 
       <main ref={scrollerRef} className="flex-1 max-w-lg w-full mx-auto px-4 py-4 overflow-y-auto space-y-2">
         {loading ? (
