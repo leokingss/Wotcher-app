@@ -86,7 +86,11 @@ const Messages = () => {
                   </div>
                   <p className={`text-xs truncate ${it.unread ? "text-foreground font-medium" : "text-muted-foreground"}`}>{previewFor(it.last_message)}</p>
                 </div>
-                {it.unread && <span className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />}
+                {it.unread_count > 0 && (
+                  <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center shrink-0">
+                    {it.unread_count > 99 ? "99+" : it.unread_count}
+                  </span>
+                )}
               </Link>
             ))}
           </div>

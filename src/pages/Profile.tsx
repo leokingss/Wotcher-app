@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { getOrCreateDM } from "@/hooks/useInbox";
+import { useUnreadFromUser } from "@/hooks/useUnreadFromUser";
 import FriendCircleMenu from "@/components/FriendCircleMenu";
 import { useSellerListings } from "@/hooks/useListings";
 import ListingDialog from "@/components/ListingDialog";
@@ -80,6 +81,7 @@ const Profile = () => {
   const profile = routeUsername ? viewedProfile : myProfile;
   const profileUserId = routeUsername ? viewedProfile?.id : user?.id;
   const isOwnProfile = !routeUsername || (user && viewedProfile && user.id === viewedProfile.id);
+  const unreadFromProfile = useUnreadFromUser(!isOwnProfile ? profileUserId : null);
 
   const { posts: cloudPosts } = usePosts(profileUserId);
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
@@ -403,7 +405,14 @@ const Profile = () => {
                   variant="pill"
                 />
               )}
-              <button onClick={handleMessage} className="neo-button px-5 py-2 rounded-full text-sm font-medium">Message</button>
+              <button onClick={handleMessage} className="neo-button px-5 py-2 rounded-full text-sm font-medium relative">
+                Message
+                {unreadFromProfile > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                    {unreadFromProfile > 9 ? "9+" : unreadFromProfile}
+                  </span>
+                )}
+              </button>
               <button className="neo-button-icon w-10 h-10 flex items-center justify-center rounded-full">
                 <Plus className="w-4 h-4" />
               </button>
