@@ -11,6 +11,7 @@ import MiniPlayer from "@/components/MiniPlayer";
 import { PlayerProvider } from "@/hooks/usePlayer";
 import { SavedListsProvider } from "@/hooks/useSavedLists";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import BottomNav from "@/components/BottomNav";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
