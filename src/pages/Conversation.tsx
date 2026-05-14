@@ -16,6 +16,7 @@ const Conversation = () => {
   const { messages, other, loading, sendText, sendMedia } = useConversation(conversationId);
 
   const [text, setText] = useState("");
+  const [call, setCall] = useState<null | "audio" | "video">(null);
   const [recording, setRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const recorderRef = useRef<MediaRecorder | null>(null);
