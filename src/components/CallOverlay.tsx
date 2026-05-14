@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, PhoneOff, Video, VideoOff, Mic, MicOff, RotateCcw, Sparkles } from "lucide-react";
+import { PhoneOff, Video, VideoOff, Mic, MicOff, RotateCcw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -10,6 +10,8 @@ interface Props {
   onClose: () => void;
 }
 
+type CallState = "calling" | "connected" | "ended";
+
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
 const CallOverlay = ({ open, mode, other, onClose }: Props) => {
@@ -17,7 +19,8 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
   const streamRef = useRef<MediaStream | null>(null);
   const [muted, setMuted] = useState(false);
   const [camOff, setCamOff] = useState(mode === "audio");
-  const [connected, setConnected] = useState(false);
+  const [state, setState] = useState<CallState>("calling");
+  const [endedReason, setEndedReason] = useState<"hangup" | "declined" | "failed">("hangup");
   const [elapsed, setElapsed] = useState(0);
   const [facing, setFacing] = useState<"user" | "environment">("user");
   const [filter, setFilter] = useState(0);
@@ -30,8 +33,24 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
     { name: "Vivid", style: "saturate(2) contrast(1.15)" },
   ];
 
+  const stopStream = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  };
+
+  // Reset on open
   useEffect(() => {
     if (!open) return;
+    setState("calling");
+    setElapsed(0);
+    setMuted(false);
+    setCamOff(mode === "audio");
+    setEndedReason("hangup");
+  }, [open, mode]);
+
+  // Acquire media + simulate connection
+  useEffect(() => {
+    if (!open || state === "ended") return;
     let stopped = false;
     (async () => {
       try {
@@ -44,25 +63,38 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
         if (videoRef.current && mode === "video") videoRef.current.srcObject = stream;
       } catch {
         toast.error("Mic / camera access denied");
-        onClose();
+        setEndedReason("failed");
+        setState("ended");
       }
     })();
-    const t = setTimeout(() => setConnected(true), 1800);
+    const t = setTimeout(() => setState((s) => (s === "calling" ? "connected" : s)), 1800);
     return () => {
       stopped = true;
       clearTimeout(t);
-      streamRef.current?.getTracks().forEach((tr) => tr.stop());
-      streamRef.current = null;
-      setConnected(false);
-      setElapsed(0);
+      stopStream();
     };
-  }, [open, mode, facing, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, mode, facing]);
 
+  // Tick elapsed while connected
   useEffect(() => {
-    if (!connected) return;
+    if (state !== "connected") return;
     const i = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(i);
-  }, [connected]);
+  }, [state]);
+
+  // Auto-close shortly after ended
+  useEffect(() => {
+    if (state !== "ended") return;
+    stopStream();
+    const t = setTimeout(() => onClose(), 1600);
+    return () => clearTimeout(t);
+  }, [state, onClose]);
+
+  const hangUp = () => {
+    setEndedReason(state === "calling" ? "declined" : "hangup");
+    setState("ended");
+  };
 
   const toggleMute = () => {
     const next = !muted;
@@ -74,6 +106,18 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
     setCamOff(next);
     streamRef.current?.getVideoTracks().forEach((t) => (t.enabled = !next));
   };
+
+  const statusLabel =
+    state === "calling" ? (mode === "video" ? "Ringing video…" : "Calling…")
+    : state === "connected" ? `Live · ${fmt(elapsed)}`
+    : endedReason === "failed" ? "Call failed"
+    : endedReason === "declined" ? "Call cancelled"
+    : `Call ended · ${fmt(elapsed)}`;
+
+  const dotClass =
+    state === "calling" ? "bg-yellow-500 animate-pulse"
+    : state === "connected" ? "bg-primary animate-pulse"
+    : "bg-destructive";
 
   return (
     <AnimatePresence>
@@ -96,9 +140,9 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
             />
           </div>
 
-          {/* Video preview / avatar */}
+          {/* Video / avatar area */}
           <div className="relative flex-1 flex items-center justify-center">
-            {mode === "video" && !camOff ? (
+            {mode === "video" && !camOff && state !== "ended" ? (
               <video
                 ref={videoRef}
                 autoPlay
@@ -109,11 +153,15 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
               />
             ) : null}
 
-            {(mode === "audio" || camOff) && (
+            {(mode === "audio" || camOff || state === "ended") && (
               <div className="relative z-10 flex flex-col items-center gap-4">
                 <motion.div
-                  animate={{ scale: connected ? [1, 1.06, 1] : [1, 1.15, 1] }}
-                  transition={{ duration: connected ? 2.4 : 1.2, repeat: Infinity }}
+                  animate={
+                    state === "ended"
+                      ? { scale: 1, opacity: 0.6 }
+                      : { scale: state === "connected" ? [1, 1.06, 1] : [1, 1.15, 1] }
+                  }
+                  transition={{ duration: state === "connected" ? 2.4 : 1.2, repeat: state === "ended" ? 0 : Infinity }}
                   className="neo-button-icon p-1 rounded-full"
                 >
                   <img
@@ -123,8 +171,8 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
                   />
                 </motion.div>
                 <p className="text-2xl font-bold">{other?.display_name || other?.username}</p>
-                <p className="text-sm text-muted-foreground">
-                  {connected ? fmt(elapsed) : mode === "video" ? "Ringing video…" : "Calling…"}
+                <p className={`text-sm ${state === "ended" ? "text-destructive" : "text-muted-foreground"}`}>
+                  {statusLabel}
                 </p>
               </div>
             )}
@@ -132,10 +180,10 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
             {/* Top status bar */}
             <div className="absolute top-0 left-0 right-0 p-4 z-20 flex items-center justify-between">
               <div className="neo-card-inset px-3 py-1.5 rounded-full flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${connected ? "bg-primary" : "bg-yellow-500"} animate-pulse`} />
-                <span className="text-xs font-medium">{connected ? `Live · ${fmt(elapsed)}` : "Connecting"}</span>
+                <span className={`w-2 h-2 rounded-full ${dotClass}`} />
+                <span className="text-xs font-medium">{statusLabel}</span>
               </div>
-              {mode === "video" && (
+              {mode === "video" && state !== "ended" && (
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setFilter((f) => (f + 1) % filters.length)}
@@ -157,28 +205,44 @@ const CallOverlay = ({ open, mode, other, onClose }: Props) => {
 
           {/* Controls */}
           <div className="relative z-20 p-6 pb-10 flex items-center justify-center gap-5">
-            <button
-              onClick={toggleMute}
-              className={`neo-button-icon w-14 h-14 rounded-full flex items-center justify-center ${muted ? "bg-destructive/20" : ""}`}
-            >
-              {muted ? <MicOff className="w-5 h-5 text-destructive" /> : <Mic className="w-5 h-5 text-primary" />}
-            </button>
-
-            {mode === "video" && (
+            {state === "ended" ? (
               <button
-                onClick={toggleCam}
-                className={`neo-button-icon w-14 h-14 rounded-full flex items-center justify-center ${camOff ? "bg-destructive/20" : ""}`}
+                onClick={onClose}
+                className="neo-button px-6 py-3 rounded-full text-sm font-semibold"
               >
-                {camOff ? <VideoOff className="w-5 h-5 text-destructive" /> : <Video className="w-5 h-5 text-primary" />}
+                Close
               </button>
-            )}
+            ) : (
+              <>
+                <button
+                  onClick={toggleMute}
+                  disabled={state !== "connected"}
+                  className={`neo-button-icon w-14 h-14 rounded-full flex items-center justify-center disabled:opacity-50 ${muted ? "bg-destructive/20" : ""}`}
+                  aria-label={muted ? "Unmute" : "Mute"}
+                >
+                  {muted ? <MicOff className="w-5 h-5 text-destructive" /> : <Mic className="w-5 h-5 text-primary" />}
+                </button>
 
-            <button
-              onClick={onClose}
-              className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center shadow-lg shadow-destructive/40 hover:scale-105 active:scale-95 transition"
-            >
-              <PhoneOff className="w-6 h-6 text-white" />
-            </button>
+                {mode === "video" && (
+                  <button
+                    onClick={toggleCam}
+                    disabled={state !== "connected"}
+                    className={`neo-button-icon w-14 h-14 rounded-full flex items-center justify-center disabled:opacity-50 ${camOff ? "bg-destructive/20" : ""}`}
+                    aria-label={camOff ? "Camera on" : "Camera off"}
+                  >
+                    {camOff ? <VideoOff className="w-5 h-5 text-destructive" /> : <Video className="w-5 h-5 text-primary" />}
+                  </button>
+                )}
+
+                <button
+                  onClick={hangUp}
+                  className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center shadow-lg shadow-destructive/40 hover:scale-105 active:scale-95 transition"
+                  aria-label={state === "calling" ? "Cancel call" : "Hang up"}
+                >
+                  <PhoneOff className="w-6 h-6 text-white" />
+                </button>
+              </>
+            )}
           </div>
         </motion.div>
       )}
