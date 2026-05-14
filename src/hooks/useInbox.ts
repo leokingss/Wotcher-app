@@ -51,24 +51,32 @@ export const useInbox = () => {
       .order("created_at", { ascending: false });
 
     const lastByConv = new Map<string, any>();
-    (msgs ?? []).forEach((m) => { if (!lastByConv.has(m.conversation_id)) lastByConv.set(m.conversation_id, m); });
+    const unreadByConv = new Map<string, number>();
+    const readByConv = new Map<string, string>();
+    (parts ?? []).forEach((p) => readByConv.set(p.conversation_id, p.last_read_at));
+    (msgs ?? []).forEach((m) => {
+      if (!lastByConv.has(m.conversation_id)) lastByConv.set(m.conversation_id, m);
+      const lr = readByConv.get(m.conversation_id);
+      if (m.sender_id !== user.id && new Date(m.created_at) > new Date(lr ?? 0)) {
+        unreadByConv.set(m.conversation_id, (unreadByConv.get(m.conversation_id) ?? 0) + 1);
+      }
+    });
 
     const otherByConv = new Map<string, any>();
     (others ?? []).forEach((o: any) => { otherByConv.set(o.conversation_id, o.profile); });
 
-    const readByConv = new Map<string, string>();
-    (parts ?? []).forEach((p) => readByConv.set(p.conversation_id, p.last_read_at));
-
     const result: InboxItem[] = (convs ?? []).map((c) => {
       const lm = lastByConv.get(c.id);
       const lr = readByConv.get(c.id);
+      const uc = unreadByConv.get(c.id) ?? 0;
       return {
         conversation_id: c.id,
         last_message_at: c.last_message_at,
         last_read_at: lr ?? c.last_message_at,
         other: otherByConv.get(c.id) ?? null,
         last_message: lm ?? null,
-        unread: !!lm && lm.sender_id !== user.id && new Date(lm.created_at) > new Date(lr ?? 0),
+        unread: uc > 0,
+        unread_count: uc,
       };
     });
     setItems(result);
