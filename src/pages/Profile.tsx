@@ -403,7 +403,7 @@ const Profile = () => {
                   variant="pill"
                 />
               )}
-              <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">Message</button>
+              <button onClick={handleMessage} className="neo-button px-5 py-2 rounded-full text-sm font-medium">Message</button>
               <button className="neo-button-icon w-10 h-10 flex items-center justify-center rounded-full">
                 <Plus className="w-4 h-4" />
               </button>
