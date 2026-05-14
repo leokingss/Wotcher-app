@@ -1,6 +1,5 @@
 import { X, Camera, LayoutGrid } from "lucide-react";
 import { Link } from "react-router-dom";
-import BottomNav from "@/components/BottomNav";
 
 const recentPhotos = [
   "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=200&h=200&fit=crop",
