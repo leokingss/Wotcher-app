@@ -22,7 +22,8 @@ import { usePosts } from "@/hooks/usePosts";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { getOrCreateDM } from "@/hooks/useInbox";
 import FriendCircleMenu from "@/components/FriendCircleMenu";
 import { useSellerListings } from "@/hooks/useListings";
 import ListingDialog from "@/components/ListingDialog";
@@ -45,6 +46,18 @@ const Profile = () => {
   const { user, profile: myProfile, refreshProfile } = useAuth();
   const { username: routeUsername } = useParams<{ username?: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const handleMessage = async () => {
+    if (!user) { navigate("/auth"); return; }
+    if (!profileUserId) return;
+    try {
+      const cid = await getOrCreateDM(profileUserId);
+      navigate(`/messages/${cid}`);
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not open chat");
+    }
+  };
 
   // Viewed profile (may differ from signed-in user)
   const [viewedProfile, setViewedProfile] = useState<any>(null);
@@ -390,7 +403,7 @@ const Profile = () => {
                   variant="pill"
                 />
               )}
-              <button className="neo-button px-5 py-2 rounded-full text-sm font-medium">Message</button>
+              <button onClick={handleMessage} className="neo-button px-5 py-2 rounded-full text-sm font-medium">Message</button>
               <button className="neo-button-icon w-10 h-10 flex items-center justify-center rounded-full">
                 <Plus className="w-4 h-4" />
               </button>
