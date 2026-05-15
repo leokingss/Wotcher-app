@@ -18,6 +18,7 @@ import Search from "./pages/Search";
 import Activity from "./pages/Activity";
 import Create from "./pages/Create";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Messages from "./pages/Messages";
 import Conversation from "./pages/Conversation";
 import NotFound from "./pages/NotFound";
