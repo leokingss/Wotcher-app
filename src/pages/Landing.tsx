@@ -1,16 +1,9 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
 import wotcherLanding from "@/assets/wotcher-landing.png";
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-
-  useEffect(() => {
-    if (!loading && user) navigate("/home", { replace: true });
-  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background px-6 py-10">
