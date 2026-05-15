@@ -152,16 +152,13 @@ export const buyNow = async (
   buyerId: string,
   shippingSnapshot?: Record<string, any> | null,
 ) => {
-  // No payment integration yet — mark as sold; record buyer + shipping snapshot.
-  const result = await supabase
-    .from("listings")
-    .update({
-      status: "sold",
-      current_bidder_id: buyerId,
-      sold_at: new Date().toISOString(),
-      buyer_shipping: shippingSnapshot ?? null,
-    })
-    .eq("id", listing.id);
+  // No payment integration yet — atomic mark-as-sold via SECURITY DEFINER RPC
+  // (buyers don't have direct UPDATE on listings).
+  const { data, error } = await supabase.rpc("buy_listing", {
+    _listing_id: listing.id,
+    _shipping: shippingSnapshot ?? null,
+  });
+  const result = { data, error } as { data: any; error: any };
 
   // Email the seller that their item sold
   if (!result.error && listing.seller_id !== buyerId) {
