@@ -216,6 +216,30 @@
       inset -4px -4px 8px var(--neo-shadow-light);
   }
 
+  .neo-story-preview {
+    background: hsl(var(--background));
+    border-radius: 1.75rem;
+    box-shadow:
+      8px 8px 18px var(--neo-shadow-dark),
+      -7px -7px 16px var(--neo-shadow-light),
+      inset 1px 1px 2px hsl(var(--foreground) / 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+
+  .neo-story-preview:hover {
+    box-shadow:
+      6px 6px 13px var(--neo-shadow-dark),
+      -5px -5px 12px var(--neo-shadow-light),
+      inset 1px 1px 2px hsl(var(--foreground) / 0.03);
+  }
+
+  .neo-story-preview:active,
+  .neo-story-preview--watched {
+    box-shadow:
+      inset 7px 7px 14px var(--neo-shadow-dark),
+      inset -6px -6px 12px var(--neo-shadow-light);
+  }
+
   .neo-input {
     background: hsl(var(--background));
     border-radius: 1rem;
