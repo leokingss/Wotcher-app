@@ -7,11 +7,12 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background px-6 py-10">
+      {/* Centered logo */}
       <div className="flex-1 flex items-center justify-center">
         <motion.img
           src={wotcherLanding}
           alt="Wotcher"
-          className="w-full max-w-xs sm:max-w-sm h-auto select-none"
+          className="w-[78%] max-w-[420px] h-auto select-none"
           draggable={false}
           initial={{ opacity: 0, y: 12, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -19,21 +20,22 @@ const Landing = () => {
         />
       </div>
 
+      {/* Buttons positioned between logo bottom and page bottom */}
       <motion.div
-        className="w-full max-w-sm mx-auto space-y-3 pb-6"
+        className="w-full max-w-sm mx-auto space-y-3 pb-10"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
         <button
           onClick={() => navigate("/auth?mode=signin")}
-          className="action-button action-button-primary w-full"
+          className="action-button action-button-primary w-full py-3 text-base"
         >
           Sign in
         </button>
         <button
           onClick={() => navigate("/auth?mode=signup")}
-          className="action-button w-full"
+          className="action-button action-button-outline w-full py-3 text-base"
         >
           Create an account
         </button>
