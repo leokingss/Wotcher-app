@@ -18,6 +18,7 @@ import Search from "./pages/Search";
 import Activity from "./pages/Activity";
 import Create from "./pages/Create";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Messages from "./pages/Messages";
 import Conversation from "./pages/Conversation";
 import NotFound from "./pages/NotFound";
@@ -35,12 +36,13 @@ export const queryClient = new QueryClient();
 const AnimatedRoutes = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const hideNav = !user || location.pathname === "/auth";
+  const hideNav = !user || location.pathname === "/auth" || location.pathname === "/reset-password";
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Root /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
         <Route path="/profile" element={<PageTransition><ProtectedRoute><Profile /></ProtectedRoute></PageTransition>} />
         <Route path="/profile/:username" element={<PageTransition><Profile /></PageTransition>} />
         <Route path="/search" element={<PageTransition><Search /></PageTransition>} />
