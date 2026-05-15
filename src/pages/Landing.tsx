@@ -49,7 +49,7 @@ const Landing = () => {
             background: "var(--gradient-signature)",
             color: "hsl(var(--primary-foreground))",
             boxShadow:
-              "8px 8px 14px var(--neo-shadow-dark), -6px -6px 9px var(--neo-shadow-light)",
+              "8px 8px 14px var(--neo-shadow-dark), -6px -6px 11px var(--neo-shadow-light)",
           }}
         >
           Sign in
