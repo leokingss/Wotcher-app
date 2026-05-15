@@ -400,6 +400,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
             onChange={handlePick}
             className="hidden"
           />
+          </>)}
         </div>
       </DialogContent>
     </Dialog>
