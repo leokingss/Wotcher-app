@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/hooks/useTheme";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import PageTransition from "@/components/PageTransition";
 import MiniPlayer from "@/components/MiniPlayer";
 import { PlayerProvider } from "@/hooks/usePlayer";
