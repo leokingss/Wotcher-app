@@ -1095,6 +1095,14 @@ export type Database = {
       }
     }
     Functions: {
+      buy_listing: {
+        Args: { _listing_id: string; _shipping: Json }
+        Returns: {
+          price: number
+          seller_id: string
+          title: string
+        }[]
+      }
       can_view_list: {
         Args: { _list: string; _viewer: string }
         Returns: boolean
