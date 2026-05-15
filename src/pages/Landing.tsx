@@ -18,15 +18,6 @@ const Landing = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         />
-        <motion.h1
-          className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight"
-          style={{ fontFamily: "'Dancing Script', cursive" }}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          Wotcher Neomorphism
-        </motion.h1>
       </div>
 
       {/* Buttons positioned between logo bottom and page bottom */}
