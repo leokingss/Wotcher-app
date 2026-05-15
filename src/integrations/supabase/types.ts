@@ -1107,6 +1107,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_buyer_shipping: { Args: { _listing_id: string }; Returns: Json }
       get_or_create_dm: { Args: { _other: string }; Returns: string }
       has_role: {
         Args: {
