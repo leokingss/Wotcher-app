@@ -18,8 +18,13 @@ export const useUnreadNotifications = () => {
   useEffect(() => {
     if (!user) { setCount(0); return; }
     load(user.id);
+    const channelName = `notifs-unread-${user.id}`;
+    // Clean up any stale channel with the same name (HMR / StrictMode double-mount)
+    supabase.getChannels()
+      .filter((c) => c.topic === `realtime:${channelName}`)
+      .forEach((c) => supabase.removeChannel(c));
     const ch = supabase
-      .channel(`notifs-unread-${user.id}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
