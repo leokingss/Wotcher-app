@@ -33,6 +33,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const [caption, setCaption] = useState("");
   const [posting, setPosting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [tagged, setTagged] = useState<TaggedPerson[]>([]);
+  const [location, setLocation] = useState<LocationTag | null>(null);
 
   // Marketplace state
   const [forSale, setForSale] = useState(false);
