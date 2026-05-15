@@ -34,6 +34,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [posting, setPosting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [liveMode, setLiveMode] = useState(false);
+  const [tagged, setTagged] = useState<TaggedPerson[]>([]);
+  const [location, setLocation] = useState<LocationTag | null>(null);
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
@@ -42,6 +44,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
     setStoryType("photo");
     setTrackTitle("");
     setTrackArtist("");
+    setTagged([]);
+    setLocation(null);
   };
 
   // Cleanup object URLs on unmount
