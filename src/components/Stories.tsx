@@ -163,7 +163,7 @@ const Stories = () => {
             <div className="relative">
               <button
                 onClick={() => (hasOwnStories ? handleOpen(myStories[0].id) : handleAddClick())}
-                className="w-[72px] h-[112px] rounded-[28px] flex flex-col items-center pt-2 transition-transform active:scale-95 neo-button-icon"
+                className="w-[72px] h-[112px] rounded-[28px] flex flex-col items-center pt-2 transition-transform active:scale-95 neo-story-preview"
                 aria-label={hasOwnStories ? "View my story" : "Add story"}
               >
                 {hasOwnStories ? (
@@ -217,8 +217,8 @@ const Stories = () => {
                 className="flex flex-col items-center gap-2 flex-shrink-0 group"
               >
                 <div
-                  className={`w-[72px] h-[112px] rounded-[28px] flex flex-col items-center pt-2 transition-transform active:scale-95 ${
-                    watched ? "neo-card-inset opacity-60" : "neo-button-icon"
+                  className={`w-[72px] h-[112px] rounded-[28px] flex flex-col items-center pt-2 transition-transform active:scale-95 neo-story-preview ${
+                    watched ? "neo-story-preview--watched opacity-60" : ""
                   }`}
                 >
                   <div
