@@ -8,16 +8,25 @@ const Landing = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background px-6 py-10">
       {/* Centered logo */}
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex flex-col items-center justify-center gap-4">
         <motion.img
           src={wotcherLanding}
           alt="Wotcher"
-          className="w-[78%] max-w-[420px] h-auto select-none"
+          className="w-[57%] max-w-[306px] h-auto select-none"
           draggable={false}
           initial={{ opacity: 0, y: 12, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         />
+        <motion.h1
+          className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight"
+          style={{ fontFamily: "'Dancing Script', cursive" }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          Wotcher Neomorphism
+        </motion.h1>
       </div>
 
       {/* Buttons positioned between logo bottom and page bottom */}
