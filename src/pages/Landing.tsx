@@ -12,7 +12,7 @@ const Landing = () => {
         <motion.img
           src={wotcherLanding}
           alt="Wotcher"
-          className="w-[57%] max-w-[306px] h-auto select-none"
+          className="wotcher-pink-shimmer w-[57%] max-w-[306px] h-auto select-none"
           draggable={false}
           initial={{ opacity: 0, y: 12, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
