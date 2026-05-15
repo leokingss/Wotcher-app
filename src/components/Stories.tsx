@@ -155,9 +155,9 @@ const Stories = () => {
   const combinedListForViewer: StoryItem[] = [...myStories, ...otherStories];
 
   return (
-    <div className="py-4">
+    <div className="pt-1 pb-4">
       <div className="max-w-lg mx-auto">
-        <div className="flex gap-3 overflow-x-auto hide-scrollbar items-start px-4 py-4">
+        <div className="flex gap-3 overflow-x-auto hide-scrollbar items-start px-4 pt-2 pb-4">
           {/* My Story tile */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <div className="relative">
