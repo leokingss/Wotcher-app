@@ -324,6 +324,13 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             />
           </div>
 
+          {/* Tag people + location */}
+          <TagAndLocationPicker
+            tagged={tagged}
+            setTagged={setTagged}
+            location={location}
+            setLocation={setLocation}
+          />
           {/* For Sale toggle + form */}
           <div className="neo-card-inset rounded-xl p-3 space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
