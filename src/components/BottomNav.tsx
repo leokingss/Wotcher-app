@@ -33,8 +33,8 @@ const BottomNav = () => {
 
   return (
     <>
-      <div className="fixed bottom-4 left-4 right-4 z-50">
-        <nav className="neo-card max-w-lg mx-auto px-4 py-3 flex items-center justify-between rounded-2xl">
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <nav className="neo-card w-full px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex items-center justify-between rounded-none rounded-t-2xl">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.path ? location.pathname === item.path : false;
