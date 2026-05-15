@@ -84,6 +84,7 @@ const Labs = () => {
               {active === "perspective" && <PerspectiveMoments />}
               {active === "weather" && <VibeWeather />}
               {active === "sync" && <SyncSessions />}
+              {active === "live" && <LiveTogether />}
             </motion.div>
           )}
         </AnimatePresence>
