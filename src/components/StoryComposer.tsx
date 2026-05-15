@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { StoryFrame, StoryMediaType } from "@/data/mockSocial";
 import LiveStreamMode from "@/components/LiveStreamMode";
+import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
 
 const MY_STORIES_KEY = (uid: string) => `watcher:my-stories:${uid}`;
 
@@ -33,6 +34,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [posting, setPosting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [liveMode, setLiveMode] = useState(false);
+  const [tagged, setTagged] = useState<TaggedPerson[]>([]);
+  const [location, setLocation] = useState<LocationTag | null>(null);
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
@@ -41,6 +44,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
     setStoryType("photo");
     setTrackTitle("");
     setTrackArtist("");
+    setTagged([]);
+    setLocation(null);
   };
 
   // Cleanup object URLs on unmount
@@ -122,9 +127,11 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         });
         if (upErr) throw upErr;
         const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+        const tagSuffix = i === 0 && tagged.length ? " " + tagged.map((t) => `@${t.handle}`).join(" ") : "";
+        const locPrefix = i === 0 && location ? `📍 ${location.name} · ` : "";
         uploaded.push({
           url: urlData.publicUrl,
-          caption: f.caption.trim() || undefined,
+          caption: ((locPrefix + (f.caption.trim() || "")) + tagSuffix).trim() || undefined,
           trackTitle: i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : undefined,
           trackArtist:
             i === 0 && storyType === "music" && trackArtist.trim() ? trackArtist.trim() : undefined,
@@ -393,6 +400,16 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm"
               />
             </div>
+          )}
+
+          {/* Tag people + location (photo & video stories) */}
+          {frames.length > 0 && storyType !== "music" && (
+            <TagAndLocationPicker
+              tagged={tagged}
+              setTagged={setTagged}
+              location={location}
+              setLocation={setLocation}
+            />
           )}
 
           <input

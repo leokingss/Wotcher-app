@@ -9,6 +9,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
 
 interface UploadDialogProps {
   open: boolean;
@@ -32,6 +33,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const [caption, setCaption] = useState("");
   const [posting, setPosting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [tagged, setTagged] = useState<TaggedPerson[]>([]);
+  const [location, setLocation] = useState<LocationTag | null>(null);
 
   // Marketplace state
   const [forSale, setForSale] = useState(false);
@@ -104,11 +107,14 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
       });
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+      const tagSuffix = tagged.length ? "\n" + tagged.map((t) => `@${t.handle}`).join(" ") : "";
+      const finalCaption = (caption.trim() + tagSuffix).trim() || null;
       const { data: postRow, error: insErr } = await supabase.from("posts").insert({
         user_id: user.id,
-        caption: caption.trim() || null,
+        caption: finalCaption,
         image_url: urlData.publicUrl,
         media_type: first.type,
+        location: location?.name ?? null,
       }).select("id").single();
       if (insErr) throw insErr;
 
@@ -136,6 +142,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
       setPrice("");
       setStartingBid("");
       setCustomEnd("");
+      setTagged([]);
+      setLocation(null);
       onOpenChange(false);
       onUploaded?.();
     } catch (err: any) {
@@ -150,6 +158,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
     setCaption("");
     setCurrentSlide(0);
     setForSale(false);
+    setTagged([]);
+    setLocation(null);
     onOpenChange(false);
   };
 
@@ -321,6 +331,13 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             />
           </div>
 
+          {/* Tag people + location */}
+          <TagAndLocationPicker
+            tagged={tagged}
+            setTagged={setTagged}
+            location={location}
+            setLocation={setLocation}
+          />
           {/* For Sale toggle + form */}
           <div className="neo-card-inset rounded-xl p-3 space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
