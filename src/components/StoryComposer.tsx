@@ -32,6 +32,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [trackArtist, setTrackArtist] = useState("");
   const [posting, setPosting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [liveMode, setLiveMode] = useState(false);
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
