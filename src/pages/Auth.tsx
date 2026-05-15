@@ -128,6 +128,15 @@ const Auth = () => {
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
             {mode === "signin" ? "Sign in" : "Sign up"}
           </button>
+          {mode === "signin" && (
+            <button
+              type="button"
+              onClick={sendReset}
+              className="block w-full text-center text-xs text-muted-foreground hover:text-foreground pt-1"
+            >
+              Forgot password?
+            </button>
+          )}
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
