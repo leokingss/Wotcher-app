@@ -27,18 +27,33 @@ const Landing = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <button
+        <motion.button
+          whileTap={{ scale: 0.97 }}
           onClick={() => navigate("/auth?mode=signin")}
-          className="action-button action-button-primary w-full py-3 text-base"
+          className="w-full rounded-2xl py-4 text-base font-semibold transition-all duration-200"
+          style={{
+            background: "var(--gradient-signature)",
+            color: "hsl(var(--primary-foreground))",
+            boxShadow:
+              "8px 8px 18px var(--neo-shadow-dark), -6px -6px 14px var(--neo-shadow-light)",
+          }}
         >
           Sign in
-        </button>
-        <button
+        </motion.button>
+
+        <motion.button
+          whileTap={{ scale: 0.97 }}
           onClick={() => navigate("/auth?mode=signup")}
-          className="action-button action-button-outline w-full py-3 text-base"
+          className="w-full rounded-2xl py-4 text-base font-semibold transition-all duration-200"
+          style={{
+            background: "hsl(var(--background))",
+            color: "hsl(var(--foreground))",
+            boxShadow:
+              "inset 6px 6px 12px var(--neo-inset-dark), inset -4px -4px 10px var(--neo-inset-light)",
+          }}
         >
           Create an account
-        </button>
+        </motion.button>
       </motion.div>
     </div>
   );
