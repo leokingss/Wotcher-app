@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, FlaskConical, Camera, CloudSun, Radio } from "lucide-react";
+import { ArrowLeft, FlaskConical, Camera, CloudSun, Radio, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PerspectiveMoments from "@/components/labs/PerspectiveMoments";
 import VibeWeather from "@/components/labs/VibeWeather";
 import SyncSessions from "@/components/labs/SyncSessions";
+import LiveTogether from "@/components/labs/LiveTogether";
 
-type LabId = "perspective" | "weather" | "sync";
+type LabId = "perspective" | "weather" | "sync" | "live";
 
 const LABS: { id: LabId; title: string; tagline: string; Icon: typeof Camera; tint: string }[] = [
+  { id: "live", title: "Live Together", tagline: "Up to 10 friends co-host one live story. Spotlight any camera.", Icon: Users, tint: "from-red-400/30 to-orange-500/20" },
   { id: "perspective", title: "Perspective Moments", tagline: "Multi-camera collage stories from your friends, one event.", Icon: Camera, tint: "from-amber-400/30 to-rose-500/20" },
   { id: "weather", title: "Vibe Weather", tagline: "A live forecast of your circle's emotional climate.", Icon: CloudSun, tint: "from-sky-400/30 to-indigo-500/20" },
   { id: "sync", title: "Sync Sessions", tagline: "Live shared listening room. Same beat, same second.", Icon: Radio, tint: "from-emerald-400/30 to-teal-500/20" },
