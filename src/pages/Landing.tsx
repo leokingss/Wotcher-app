@@ -8,7 +8,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background px-6 py-10">
       {/* Centered logo */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-4">
+      <div className="flex-1 flex flex-col items-center justify-center">
         <motion.img
           src={wotcherLanding}
           alt="Wotcher"
@@ -20,18 +20,19 @@ const Landing = () => {
         />
       </div>
 
-      {/* Buttons positioned between logo bottom and page bottom */}
+      {/* Buttons between logo bottom and page bottom */}
       <motion.div
-        className="w-full max-w-sm mx-auto space-y-3 pb-10"
+        className="w-full max-w-sm mx-auto pb-16 pt-8 flex items-center justify-center gap-4"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={{ scale: 0.96 }}
           onClick={() => navigate("/auth?mode=signin")}
-          className="w-full rounded-2xl py-4 text-base font-semibold transition-all duration-200"
+          className="flex-1 py-3.5 text-base font-semibold transition-all duration-200"
           style={{
+            borderRadius: "2rem 0.5rem 2rem 0.5rem",
             background: "var(--gradient-signature)",
             color: "hsl(var(--primary-foreground))",
             boxShadow:
@@ -42,10 +43,11 @@ const Landing = () => {
         </motion.button>
 
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={{ scale: 0.96 }}
           onClick={() => navigate("/auth?mode=signup")}
-          className="w-full rounded-2xl py-4 text-base font-semibold transition-all duration-200"
+          className="flex-1 py-3.5 text-base font-semibold transition-all duration-200"
           style={{
+            borderRadius: "0.5rem 2rem 0.5rem 2rem",
             background: "hsl(var(--background))",
             color: "hsl(var(--foreground))",
             boxShadow:
