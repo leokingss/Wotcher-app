@@ -153,45 +153,45 @@
     background: hsl(var(--background));
     border-radius: 1.5rem;
     box-shadow: 
-      10px 10px 20px var(--neo-shadow-dark),
-      -10px -10px 20px var(--neo-shadow-light);
+      10px 10px 16px var(--neo-shadow-dark),
+      -10px -10px 16px var(--neo-shadow-light);
   }
 
   .neo-card-inset {
     background: hsl(var(--background));
     border-radius: 1.5rem;
     box-shadow: 
-      inset 8px 8px 16px var(--neo-shadow-dark),
-      inset -8px -8px 16px var(--neo-shadow-light);
+      inset 8px 8px 12px var(--neo-shadow-dark),
+      inset -8px -8px 12px var(--neo-shadow-light);
   }
 
   .neo-button {
     background: hsl(var(--background));
     border-radius: 1rem;
     box-shadow: 
-      6px 6px 12px var(--neo-shadow-dark),
-      -6px -6px 12px var(--neo-shadow-light);
+      6px 6px 9px var(--neo-shadow-dark),
+      -6px -6px 9px var(--neo-shadow-light);
     transition: all 0.2s ease;
   }
 
   .neo-button:hover {
     box-shadow: 
-      4px 4px 8px var(--neo-shadow-dark),
-      -4px -4px 8px var(--neo-shadow-light);
+      4px 4px 6px var(--neo-shadow-dark),
+      -4px -4px 6px var(--neo-shadow-light);
   }
 
   .neo-button:active, .neo-button-active {
     box-shadow: 
-      inset 5px 5px 10px var(--neo-shadow-dark),
-      inset -5px -5px 10px var(--neo-shadow-light);
+      inset 5px 5px 8px var(--neo-shadow-dark),
+      inset -5px -5px 8px var(--neo-shadow-light);
   }
 
   .neo-button-inset {
     background: hsl(var(--background));
     border-radius: 0.75rem;
     box-shadow: 
-      inset 4px 4px 8px var(--neo-shadow-dark),
-      inset -4px -4px 8px var(--neo-shadow-light);
+      inset 4px 4px 6px var(--neo-shadow-dark),
+      inset -4px -4px 6px var(--neo-shadow-light);
     transition: all 0.2s ease;
   }
 
@@ -199,29 +199,29 @@
     background: hsl(var(--background));
     border-radius: 50%;
     box-shadow: 
-      5px 5px 10px var(--neo-shadow-dark),
-      -5px -5px 10px var(--neo-shadow-light);
+      5px 5px 8px var(--neo-shadow-dark),
+      -5px -5px 8px var(--neo-shadow-light);
     transition: all 0.2s ease;
   }
 
   .neo-button-icon:hover {
     box-shadow: 
-      3px 3px 6px var(--neo-shadow-dark),
-      -3px -3px 6px var(--neo-shadow-light);
+      3px 3px 5px var(--neo-shadow-dark),
+      -3px -3px 5px var(--neo-shadow-light);
   }
 
   .neo-button-icon:active {
     box-shadow: 
-      inset 4px 4px 8px var(--neo-shadow-dark),
-      inset -4px -4px 8px var(--neo-shadow-light);
+      inset 4px 4px 6px var(--neo-shadow-dark),
+      inset -4px -4px 6px var(--neo-shadow-light);
   }
 
   .neo-input {
     background: hsl(var(--background));
     border-radius: 1rem;
     box-shadow: 
-      inset 5px 5px 10px var(--neo-shadow-dark),
-      inset -5px -5px 10px var(--neo-shadow-light);
+      inset 5px 5px 8px var(--neo-shadow-dark),
+      inset -5px -5px 8px var(--neo-shadow-light);
     border: none;
     outline: none;
   }
@@ -230,8 +230,8 @@
     background: hsl(var(--background));
     border-radius: 1rem;
     box-shadow: 
-      inset 4px 4px 8px var(--neo-shadow-dark),
-      inset -4px -4px 8px var(--neo-shadow-light);
+      inset 4px 4px 6px var(--neo-shadow-dark),
+      inset -4px -4px 6px var(--neo-shadow-light);
   }
 
   .neo-progress-bar {
@@ -242,8 +242,8 @@
   .neo-dropdown {
     background: hsl(var(--popover));
     box-shadow: 
-      15px 15px 30px var(--neo-shadow-dark),
-      -15px -15px 30px var(--neo-shadow-light);
+      15px 15px 23px var(--neo-shadow-dark),
+      -15px -15px 23px var(--neo-shadow-light);
   }
 
   /* Story rings with neomorphic style - gradient accent */
@@ -252,8 +252,8 @@
     border-radius: 50%;
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     box-shadow: 
-      5px 5px 10px var(--neo-shadow-dark),
-      -5px -5px 10px var(--neo-shadow-light);
+      5px 5px 8px var(--neo-shadow-dark),
+      -5px -5px 8px var(--neo-shadow-light);
   }
 
   .story-ring-inner {
@@ -272,8 +272,8 @@
     background: hsl(var(--nav-background));
     border-radius: 2rem;
     box-shadow: 
-      10px 10px 25px var(--neo-shadow-dark),
-      -10px -10px 25px var(--neo-shadow-light);
+      10px 10px 20px var(--neo-shadow-dark),
+      -10px -10px 20px var(--neo-shadow-light);
   }
 
   /* Tab pills neomorphic */
@@ -285,8 +285,8 @@
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
     box-shadow: 
-      inset 2px 2px 4px rgba(0, 0, 0, 0.2),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.1);
+      inset 2px 2px 3px rgba(0, 0, 0, 0.2),
+      inset -2px -2px 3px rgba(255, 255, 255, 0.1);
   }
 
   .tab-pill-inactive {
@@ -305,14 +305,14 @@
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
     box-shadow: 
-      4px 4px 8px var(--neo-shadow-dark),
-      -4px -4px 8px var(--neo-shadow-light);
+      4px 4px 6px var(--neo-shadow-dark),
+      -4px -4px 6px var(--neo-shadow-light);
   }
 
   .action-button-primary:hover {
     box-shadow: 
-      2px 2px 4px var(--neo-shadow-dark),
-      -2px -2px 4px var(--neo-shadow-light);
+      2px 2px 3px var(--neo-shadow-dark),
+      -2px -2px 3px var(--neo-shadow-light);
   }
 
   .action-button-outline {
@@ -384,8 +384,8 @@
     overflow: hidden;
     background: hsl(var(--muted));
     box-shadow:
-      inset 4px 4px 8px var(--neo-inset-dark),
-      inset -4px -4px 8px var(--neo-inset-light);
+      inset 4px 4px 6px var(--neo-inset-dark),
+      inset -4px -4px 6px var(--neo-inset-light);
   }
   .neo-skeleton::after {
     content: '';
