@@ -142,6 +142,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
       setPrice("");
       setStartingBid("");
       setCustomEnd("");
+      setTagged([]);
+      setLocation(null);
       onOpenChange(false);
       onUploaded?.();
     } catch (err: any) {
