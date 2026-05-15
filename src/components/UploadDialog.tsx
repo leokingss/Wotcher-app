@@ -107,11 +107,14 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
       });
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+      const tagSuffix = tagged.length ? "\n" + tagged.map((t) => `@${t.handle}`).join(" ") : "";
+      const finalCaption = (caption.trim() + tagSuffix).trim() || null;
       const { data: postRow, error: insErr } = await supabase.from("posts").insert({
         user_id: user.id,
-        caption: caption.trim() || null,
+        caption: finalCaption,
         image_url: urlData.publicUrl,
         media_type: first.type,
+        location: location?.name ?? null,
       }).select("id").single();
       if (insErr) throw insErr;
 
