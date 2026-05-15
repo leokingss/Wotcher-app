@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck, FlaskConical } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -126,7 +126,14 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
             </div>
           )}
 
-          <div className="border-t border-border pt-4 mt-4">
+          <div className="border-t border-border pt-4 mt-4 space-y-2">
+            <button
+              onClick={() => { setIsOpen(false); navigate("/labs"); }}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+            >
+              <span>Watcher Labs</span>
+              <FlaskConical className="w-5 h-5 text-primary" />
+            </button>
             {user ? (
               <button
                 onClick={async () => { await signOut(); setIsOpen(false); navigate("/"); }}
