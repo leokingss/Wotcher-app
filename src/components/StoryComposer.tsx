@@ -400,6 +400,16 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
             </div>
           )}
 
+          {/* Tag people + location (photo & video stories) */}
+          {frames.length > 0 && storyType !== "music" && (
+            <TagAndLocationPicker
+              tagged={tagged}
+              setTagged={setTagged}
+              location={location}
+              setLocation={setLocation}
+            />
+          )}
+
           <input
             ref={inputRef}
             type="file"
