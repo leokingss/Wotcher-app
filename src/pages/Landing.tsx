@@ -49,7 +49,7 @@ const Landing = () => {
             background: "var(--gradient-signature)",
             color: "hsl(var(--primary-foreground))",
             boxShadow:
-              "8px 8px 14px var(--neo-shadow-dark), -6px -6px 11px var(--neo-shadow-light)",
+              "8px 8px 14px var(--neo-shadow-dark), -6px -6px 9px var(--neo-shadow-light)",
           }}
         >
           Sign in
@@ -64,7 +64,7 @@ const Landing = () => {
             background: "hsl(var(--background))",
             color: "hsl(var(--foreground))",
             boxShadow:
-              "inset 6px 6px 9px var(--neo-inset-dark), inset -4px -4px 8px var(--neo-inset-light)",
+              "inset 6px 6px 7px var(--neo-inset-dark), inset -4px -4px 6px var(--neo-inset-light)",
           }}
         >
           Create an account
