@@ -127,9 +127,11 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         });
         if (upErr) throw upErr;
         const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+        const tagSuffix = i === 0 && tagged.length ? " " + tagged.map((t) => `@${t.handle}`).join(" ") : "";
+        const locPrefix = i === 0 && location ? `📍 ${location.name} · ` : "";
         uploaded.push({
           url: urlData.publicUrl,
-          caption: f.caption.trim() || undefined,
+          caption: ((locPrefix + (f.caption.trim() || "")) + tagSuffix).trim() || undefined,
           trackTitle: i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : undefined,
           trackArtist:
             i === 0 && storyType === "music" && trackArtist.trim() ? trackArtist.trim() : undefined,
