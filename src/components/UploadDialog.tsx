@@ -153,6 +153,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
     setCaption("");
     setCurrentSlide(0);
     setForSale(false);
+    setTagged([]);
+    setLocation(null);
     onOpenChange(false);
   };
 
