@@ -54,6 +54,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const handleClose = () => {
     if (posting) return;
     reset();
+    setLiveMode(false);
     onOpenChange(false);
   };
 
