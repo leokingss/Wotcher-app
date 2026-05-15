@@ -22,22 +22,13 @@ const Landing = () => {
             className="w-full h-auto select-none"
             draggable={false}
           />
-          {/* Liquid color overlay — masked by the logo so it only fills
-              the pink wifi/bubble shapes at the top. */}
-          <div
+          {/* Animated overlay — clipped to the top wifi/bubble pink area only */}
+          <img
+            src={wotcherLanding}
             aria-hidden="true"
-            className="wotcher-liquid absolute inset-0 w-full h-full pointer-events-none"
-            style={{
-              WebkitMaskImage: `url(${wotcherLanding})`,
-              maskImage: `url(${wotcherLanding})`,
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskSize: "100% 100%",
-              maskSize: "100% 100%",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-              clipPath: "inset(0 0 50% 0)",
-            }}
+            className="wotcher-pink-shimmer absolute inset-0 w-full h-auto select-none pointer-events-none"
+            draggable={false}
+            style={{ clipPath: "inset(0 0 50% 0)" }}
           />
         </motion.div>
       </div>
