@@ -9,15 +9,28 @@ const Landing = () => {
     <div className="min-h-screen flex flex-col bg-background px-6 py-10">
       {/* Centered logo */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        <motion.img
-          src={wotcherLanding}
-          alt="Wotcher"
-          className="wotcher-pink-shimmer w-[57%] max-w-[306px] h-auto select-none"
-          draggable={false}
+        <motion.div
+          className="relative w-[57%] max-w-[306px]"
           initial={{ opacity: 0, y: 12, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-        />
+        >
+          {/* Base logo (static) */}
+          <img
+            src={wotcherLanding}
+            alt="Wotcher"
+            className="w-full h-auto select-none"
+            draggable={false}
+          />
+          {/* Animated overlay — clipped to the top wifi/bubble pink area only */}
+          <img
+            src={wotcherLanding}
+            aria-hidden="true"
+            className="wotcher-pink-shimmer absolute inset-0 w-full h-auto select-none pointer-events-none"
+            draggable={false}
+            style={{ clipPath: "inset(0 0 50% 0)" }}
+          />
+        </motion.div>
       </div>
 
       {/* Buttons between logo bottom and page bottom */}
