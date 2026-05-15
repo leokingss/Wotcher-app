@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { StoryFrame, StoryMediaType } from "@/data/mockSocial";
+import LiveStreamMode from "@/components/LiveStreamMode";
 
 const MY_STORIES_KEY = (uid: string) => `watcher:my-stories:${uid}`;
 
@@ -31,6 +32,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [trackArtist, setTrackArtist] = useState("");
   const [posting, setPosting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [liveMode, setLiveMode] = useState(false);
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
@@ -52,6 +54,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const handleClose = () => {
     if (posting) return;
     reset();
+    setLiveMode(false);
     onOpenChange(false);
   };
 
@@ -170,23 +173,46 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="neo-card border-0 max-w-md w-[95vw] p-0 rounded-3xl overflow-hidden max-h-[92vh] flex flex-col">
         <DialogHeader className="px-4 py-3 border-b border-border/50 flex-shrink-0">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <button onClick={handleClose} className="neo-button-icon p-2" aria-label="Close">
               <X className="w-5 h-5" />
             </button>
-            <DialogTitle className="font-semibold">New Story</DialogTitle>
-            <button
-              onClick={publish}
-              disabled={frames.length === 0 || posting}
-              className="action-button action-button-primary py-1.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {posting && <Loader2 className="w-4 h-4 animate-spin" />}
-              Share
-            </button>
+            <DialogTitle className="font-semibold flex-1 text-center">
+              {liveMode ? "Live Co-share" : "New Story"}
+            </DialogTitle>
+            {liveMode ? (
+              <span className="w-9" />
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setLiveMode(true)}
+                  className="neo-button rounded-full px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold text-red-500"
+                  aria-label="Go live"
+                >
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500" />
+                  </span>
+                  <Radio className="w-3.5 h-3.5" /> Go Live
+                </button>
+                <button
+                  onClick={publish}
+                  disabled={frames.length === 0 || posting}
+                  className="action-button action-button-primary py-1.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {posting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Share
+                </button>
+              </div>
+            )}
           </div>
         </DialogHeader>
 
         <div className="p-4 space-y-4 overflow-y-auto">
+          {liveMode ? (
+            <LiveStreamMode onClose={() => setLiveMode(false)} />
+          ) : (<>
+
           {/* Frame preview area */}
           {active ? (
             <div className="relative neo-card-inset rounded-2xl overflow-hidden">
@@ -374,6 +400,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
             onChange={handlePick}
             className="hidden"
           />
+          </>)}
         </div>
       </DialogContent>
     </Dialog>
