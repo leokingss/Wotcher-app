@@ -25,6 +25,7 @@ import Unsubscribe from "./pages/Unsubscribe";
 import AdminEmails from "./pages/AdminEmails";
 import ListDetail from "./pages/ListDetail";
 import Logos from "./pages/Logos";
+import Labs from "./pages/Labs";
 import { useNotificationToasts } from "@/hooks/useNotificationToasts";
 import ErrorBanner from "@/components/ErrorBanner";
 import DevPanel from "@/components/DevPanel";
@@ -50,6 +51,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/emails" element={<PageTransition><ProtectedRoute><AdminEmails /></ProtectedRoute></PageTransition>} />
         <Route path="/list/:id" element={<PageTransition><ListDetail /></PageTransition>} />
         <Route path="/logos" element={<PageTransition><Logos /></PageTransition>} />
+        <Route path="/labs" element={<PageTransition><Labs /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}
