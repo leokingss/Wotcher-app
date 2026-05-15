@@ -220,22 +220,28 @@
     background: hsl(var(--background));
     border-radius: 1.75rem;
     box-shadow:
-      6px 6px 14px var(--neo-shadow-dark),
-      -6px -6px 14px var(--neo-shadow-light);
+      34px 34px 60px rgba(20, 20, 20, 0.9),
+      -20px -20px 60px rgba(51, 53, 55, 0.5),
+      -2px -2px 4px rgba(74, 78, 83, 0.16),
+      2px 2px 6px rgba(25, 27, 29, 0.74);
     transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   }
 
   .neo-story-preview:hover {
     box-shadow:
-      4px 4px 10px var(--neo-shadow-dark),
-      -4px -4px 10px var(--neo-shadow-light);
+      24px 24px 48px rgba(20, 20, 20, 0.9),
+      -14px -14px 48px rgba(51, 53, 55, 0.5),
+      -2px -2px 4px rgba(74, 78, 83, 0.16),
+      2px 2px 6px rgba(25, 27, 29, 0.74);
   }
 
   .neo-story-preview:active,
   .neo-story-preview--watched {
     box-shadow:
-      inset 5px 5px 10px var(--neo-shadow-dark),
-      inset -5px -5px 10px var(--neo-shadow-light);
+      inset 34px 34px 60px rgba(20, 20, 20, 0.9),
+      inset -20px -20px 60px rgba(51, 53, 55, 0.6),
+      inset -2px -2px 4px rgba(50, 53, 56, 0.6),
+      inset 2px 2px 6px rgba(26, 27, 28, 0.99);
   }
 
   .neo-input {
