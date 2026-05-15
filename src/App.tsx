@@ -12,7 +12,7 @@ import { PlayerProvider } from "@/hooks/usePlayer";
 import { SavedListsProvider } from "@/hooks/useSavedLists";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import BottomNav from "@/components/BottomNav";
-import Index from "./pages/Index";
+import Root from "./pages/Root";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
 import Activity from "./pages/Activity";
@@ -38,7 +38,7 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/" element={<PageTransition><Root /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/profile" element={<PageTransition><ProtectedRoute><Profile /></ProtectedRoute></PageTransition>} />
         <Route path="/profile/:username" element={<PageTransition><Profile /></PageTransition>} />
