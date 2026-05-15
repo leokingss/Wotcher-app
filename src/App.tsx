@@ -12,7 +12,7 @@ import { PlayerProvider } from "@/hooks/usePlayer";
 import { SavedListsProvider } from "@/hooks/useSavedLists";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import BottomNav from "@/components/BottomNav";
-import Index from "./pages/Index";
+import Root from "./pages/Root";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
 import Activity from "./pages/Activity";
