@@ -55,6 +55,93 @@ export type Database = {
           },
         ]
       }
+      bidder_registrations: {
+        Row: {
+          address_line1: string
+          address_line2: string | null
+          agreed_terms_at: string
+          approved_cap: number | null
+          bank_reference: string | null
+          city: string
+          country: string
+          created_at: string
+          date_of_birth: string
+          declared_cap: number
+          expires_at: string | null
+          id: string
+          id_document_back_path: string | null
+          id_document_path: string
+          legal_name: string
+          phone: string
+          postal_code: string
+          proof_of_address_path: string
+          proof_of_funds_path: string
+          region: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          reviewer_notes: string | null
+          status: Database["public"]["Enums"]["bidder_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_line1: string
+          address_line2?: string | null
+          agreed_terms_at?: string
+          approved_cap?: number | null
+          bank_reference?: string | null
+          city: string
+          country: string
+          created_at?: string
+          date_of_birth: string
+          declared_cap: number
+          expires_at?: string | null
+          id?: string
+          id_document_back_path?: string | null
+          id_document_path: string
+          legal_name: string
+          phone: string
+          postal_code: string
+          proof_of_address_path: string
+          proof_of_funds_path: string
+          region?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          status?: Database["public"]["Enums"]["bidder_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_line1?: string
+          address_line2?: string | null
+          agreed_terms_at?: string
+          approved_cap?: number | null
+          bank_reference?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          date_of_birth?: string
+          declared_cap?: number
+          expires_at?: string | null
+          id?: string
+          id_document_back_path?: string | null
+          id_document_path?: string
+          legal_name?: string
+          phone?: string
+          postal_code?: string
+          proof_of_address_path?: string
+          proof_of_funds_path?: string
+          region?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          status?: Database["public"]["Enums"]["bidder_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bids: {
         Row: {
           amount: number
@@ -445,6 +532,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketplace_orders: {
+        Row: {
+          amount_cents: number
+          buyer_id: string
+          created_at: string
+          currency: string
+          environment: string
+          id: string
+          kind: string
+          listing_id: string
+          paid_at: string | null
+          platform_fee_cents: number
+          seller_id: string
+          seller_net_cents: number
+          shipping: Json | null
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          buyer_id: string
+          created_at?: string
+          currency?: string
+          environment?: string
+          id?: string
+          kind: string
+          listing_id: string
+          paid_at?: string | null
+          platform_fee_cents: number
+          seller_id: string
+          seller_net_cents: number
+          shipping?: Json | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          buyer_id?: string
+          created_at?: string
+          currency?: string
+          environment?: string
+          id?: string
+          kind?: string
+          listing_id?: string
+          paid_at?: string | null
+          platform_fee_cents?: number
+          seller_id?: string
+          seller_net_cents?: number
+          shipping?: Json | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -1166,6 +1313,7 @@ export type Database = {
           title: string
         }[]
       }
+      can_bid: { Args: { _amount: number; _user_id: string }; Returns: boolean }
       can_view_list: {
         Args: { _list: string; _viewer: string }
         Returns: boolean
@@ -1221,6 +1369,7 @@ export type Database = {
     Enums: {
       account_type: "listener" | "artist"
       app_role: "admin" | "moderator" | "user"
+      bidder_status: "pending" | "approved" | "rejected" | "revoked"
       list_visibility: "public" | "private" | "shared"
       listing_status: "active" | "sold" | "ended" | "cancelled"
       listing_type: "fixed" | "auction"
@@ -1367,6 +1516,7 @@ export const Constants = {
     Enums: {
       account_type: ["listener", "artist"],
       app_role: ["admin", "moderator", "user"],
+      bidder_status: ["pending", "approved", "rejected", "revoked"],
       list_visibility: ["public", "private", "shared"],
       listing_status: ["active", "sold", "ended", "cancelled"],
       listing_type: ["fixed", "auction"],
