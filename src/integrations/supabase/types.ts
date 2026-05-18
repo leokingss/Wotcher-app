@@ -1365,6 +1365,59 @@ export type Database = {
           read_ct: number
         }[]
       }
+      submit_bidder_registration: {
+        Args: {
+          _address_line1: string
+          _address_line2: string
+          _bank_reference: string
+          _city: string
+          _country: string
+          _date_of_birth: string
+          _declared_cap: number
+          _id_document_back_path: string
+          _id_document_path: string
+          _legal_name: string
+          _phone: string
+          _postal_code: string
+          _proof_of_address_path: string
+          _proof_of_funds_path: string
+          _region: string
+        }
+        Returns: {
+          address_line1: string
+          address_line2: string | null
+          agreed_terms_at: string
+          approved_cap: number | null
+          bank_reference: string | null
+          city: string
+          country: string
+          created_at: string
+          date_of_birth: string
+          declared_cap: number
+          expires_at: string | null
+          id: string
+          id_document_back_path: string | null
+          id_document_path: string
+          legal_name: string
+          phone: string
+          postal_code: string
+          proof_of_address_path: string
+          proof_of_funds_path: string
+          region: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          reviewer_notes: string | null
+          status: Database["public"]["Enums"]["bidder_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bidder_registrations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       account_type: "listener" | "artist"
