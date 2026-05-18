@@ -666,6 +666,9 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          subscription_period_end: string | null
+          subscription_status: string | null
+          subscription_tier: string
           updated_at: string
           username: string
         }
@@ -676,6 +679,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          subscription_period_end?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string
           updated_at?: string
           username: string
         }
@@ -686,6 +692,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          subscription_period_end?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string
           updated_at?: string
           username?: string
         }
@@ -879,6 +888,60 @@ export type Database = {
           phone?: string | null
           postal_code?: string
           region?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          id: string
+          price_id: string
+          product_id: string | null
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          price_id: string
+          product_id?: string | null
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          tier: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          price_id?: string
+          product_id?: string | null
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          tier?: string
           updated_at?: string
           user_id?: string
         }
@@ -1117,6 +1180,10 @@ export type Database = {
       }
       get_buyer_shipping: { Args: { _listing_id: string }; Returns: Json }
       get_or_create_dm: { Args: { _other: string }; Returns: string }
+      has_active_subscription: {
+        Args: { _tier?: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
