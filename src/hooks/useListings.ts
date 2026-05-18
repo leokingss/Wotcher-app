@@ -149,35 +149,26 @@ export const placeBid = async (listingId: string, bidderId: string, amount: numb
 
 export const buyNow = async (
   listing: Listing,
-  buyerId: string,
+  _buyerId: string,
   shippingSnapshot?: Record<string, any> | null,
 ) => {
-  // No payment integration yet — atomic mark-as-sold via SECURITY DEFINER RPC
-  // (buyers don't have direct UPDATE on listings).
-  const { data, error } = await supabase.rpc("buy_listing", {
-    _listing_id: listing.id,
-    _shipping: shippingSnapshot ?? null,
-  });
-  const result = { data, error } as { data: any; error: any };
-
-  // Email the seller that their item sold
-  if (!result.error && listing.seller_id !== buyerId) {
-    const price = listing.price ?? listing.current_bid ?? null;
-    supabase.functions
-      .invoke("notify-user", {
-        body: {
-          userId: listing.seller_id,
-          templateName: "item-sold",
-          idempotencyKey: `sold-direct-${listing.id}`,
-          templateData: {
-            itemTitle: listing.title,
-            salePrice: price != null ? Number(price).toFixed(2) : undefined,
-            listingUrl: `${window.location.origin}/?listing=${listing.id}`,
-          },
-        },
-      })
-      .catch((e) => console.error("item-sold email failed", e));
+  // Real payment via Stripe Checkout. Webhook marks the listing sold and emails
+  // the seller once payment clears.
+  try {
+    const { data, error } = await supabase.functions.invoke("marketplace-checkout", {
+      body: {
+        listing_id: listing.id,
+        shipping: shippingSnapshot ?? null,
+        success_url: `${window.location.origin}/?paid=1&listing=${listing.id}`,
+        cancel_url: `${window.location.origin}/?canceled=1&listing=${listing.id}`,
+      },
+    });
+    if (error) throw error;
+    if (data?.url) window.location.href = data.url as string;
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
   }
-
-  return result;
 };
+
+export const payForWonAuction = buyNow;

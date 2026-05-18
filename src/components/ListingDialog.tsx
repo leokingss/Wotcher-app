@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Gavel, ShoppingBag, Tag, History, MapPin, Star } from "lucide-react";
+import { Gavel, ShoppingBag, Tag, History, MapPin, Star, ShieldCheck, CreditCard } from "lucide-react";
 import { useListing, placeBid, buyNow } from "@/hooks/useListings";
 import { useAuth } from "@/hooks/useAuth";
 import { useDefaultShippingAddress } from "@/hooks/useShippingAddress";
+import { useBidderRegistration } from "@/hooks/useBidderRegistration";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import TimeLeft from "./TimeLeft";
@@ -22,8 +24,10 @@ const formatPrice = (n?: number | null) =>
 
 const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { listing, bids, refresh } = useListing(open ? listingId : null);
   const { address, refresh: refreshAddr } = useDefaultShippingAddress(user?.id);
+  const { registration, isApproved: bidderApproved } = useBidderRegistration(user?.id);
   const [bidAmount, setBidAmount] = useState("");
   const [busy, setBusy] = useState(false);
   const [addrOpen, setAddrOpen] = useState(false);
@@ -61,9 +65,16 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
 
   const handleBid = async () => {
     if (!user) { toast.error("Sign in to bid"); return; }
+    if (!bidderApproved) {
+      toast.error("Register as a bidder first");
+      navigate("/bidder-registration");
+      return;
+    }
     if (!requireAddress()) return;
     const amt = parseFloat(bidAmount);
     if (isNaN(amt) || amt < minBid) { toast.error(`Bid must be at least ${formatPrice(minBid)}`); return; }
+    const cap = Number(registration?.approved_cap ?? 0);
+    if (cap && amt > cap) { toast.error(`Your bidding cap is ${formatPrice(cap)}`); return; }
     setBusy(true);
     const { error } = await placeBid(listing.id, user.id, amt);
     setBusy(false);
@@ -91,10 +102,21 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
         }
       : null;
     const { error } = await buyNow(listing, user.id, shippingSnapshot);
-    setBusy(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Purchased! The seller will be in touch.");
-    refresh();
+    if (error) { setBusy(false); toast.error(error.message); return; }
+    // Browser redirects to Stripe Checkout on success.
+  };
+
+  const handlePayWonAuction = async () => {
+    if (!user) return;
+    if (!requireAddress()) return;
+    setBusy(true);
+    const shippingSnapshot = listing.shipping_required && address ? {
+      full_name: address.full_name, line1: address.line1, line2: address.line2,
+      city: address.city, region: address.region, postal_code: address.postal_code,
+      country: address.country, phone: address.phone,
+    } : null;
+    const { error } = await buyNow(listing, user.id, shippingSnapshot);
+    if (error) { setBusy(false); toast.error(error.message); }
   };
 
   const handleCancel = async () => {
@@ -168,24 +190,39 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
             </button>
           )}
 
-          {!inactive && !isOwner && isAuction && (
-            <div className="flex gap-2">
-              <input
-                type="number"
-                min={minBid}
-                step="0.01"
-                placeholder={`Min ${formatPrice(minBid)}`}
-                value={bidAmount}
-                onChange={(e) => setBidAmount(e.target.value)}
-                className="neo-card-inset rounded-xl px-3 py-2 flex-1 text-sm bg-transparent outline-none"
-              />
-              <button
-                onClick={handleBid}
-                disabled={busy}
-                className="action-button action-button-primary flex items-center gap-1.5"
-              >
-                <Gavel className="w-4 h-4" /> Bid
-              </button>
+          {!inactive && !isOwner && isAuction && !bidderApproved && (
+            <button
+              onClick={() => navigate("/bidder-registration")}
+              className="action-button action-button-primary w-full flex items-center justify-center gap-2"
+            >
+              <ShieldCheck className="w-5 h-5" />
+              {registration?.status === "pending" ? "Registration pending review" : "Register to bid"}
+            </button>
+          )}
+
+          {!inactive && !isOwner && isAuction && bidderApproved && (
+            <div className="space-y-1">
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min={minBid}
+                  step="0.01"
+                  placeholder={`Min ${formatPrice(minBid)}`}
+                  value={bidAmount}
+                  onChange={(e) => setBidAmount(e.target.value)}
+                  className="neo-card-inset rounded-xl px-3 py-2 flex-1 text-sm bg-transparent outline-none"
+                />
+                <button
+                  onClick={handleBid}
+                  disabled={busy}
+                  className="action-button action-button-primary flex items-center gap-1.5"
+                >
+                  <Gavel className="w-4 h-4" /> Bid
+                </button>
+              </div>
+              <p className="text-[11px] text-muted-foreground text-right">
+                Your cap: {formatPrice(Number(registration?.approved_cap ?? 0))}
+              </p>
             </div>
           )}
 
@@ -198,6 +235,17 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
               <ShoppingBag className="w-5 h-5" /> Buy now {formatPrice(currentPrice)}
             </button>
           )}
+
+          {isWinner && (
+            <button
+              onClick={handlePayWonAuction}
+              disabled={busy}
+              className="action-button action-button-primary w-full flex items-center justify-center gap-2"
+            >
+              <CreditCard className="w-5 h-5" /> Pay {formatPrice(currentPrice)}
+            </button>
+          )}
+
 
           {/* Winner / buyer can leave a review */}
           {isWinner && (
