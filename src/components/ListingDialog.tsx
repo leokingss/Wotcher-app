@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Gavel, ShoppingBag, Tag, History, MapPin, Star } from "lucide-react";
+import { Gavel, ShoppingBag, Tag, History, MapPin, Star, ShieldCheck, CreditCard } from "lucide-react";
 import { useListing, placeBid, buyNow } from "@/hooks/useListings";
 import { useAuth } from "@/hooks/useAuth";
 import { useDefaultShippingAddress } from "@/hooks/useShippingAddress";
+import { useBidderRegistration } from "@/hooks/useBidderRegistration";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import TimeLeft from "./TimeLeft";
@@ -22,8 +24,10 @@ const formatPrice = (n?: number | null) =>
 
 const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { listing, bids, refresh } = useListing(open ? listingId : null);
   const { address, refresh: refreshAddr } = useDefaultShippingAddress(user?.id);
+  const { registration, isApproved: bidderApproved } = useBidderRegistration(user?.id);
   const [bidAmount, setBidAmount] = useState("");
   const [busy, setBusy] = useState(false);
   const [addrOpen, setAddrOpen] = useState(false);
@@ -61,9 +65,16 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
 
   const handleBid = async () => {
     if (!user) { toast.error("Sign in to bid"); return; }
+    if (!bidderApproved) {
+      toast.error("Register as a bidder first");
+      navigate("/bidder-registration");
+      return;
+    }
     if (!requireAddress()) return;
     const amt = parseFloat(bidAmount);
     if (isNaN(amt) || amt < minBid) { toast.error(`Bid must be at least ${formatPrice(minBid)}`); return; }
+    const cap = Number(registration?.approved_cap ?? 0);
+    if (cap && amt > cap) { toast.error(`Your bidding cap is ${formatPrice(cap)}`); return; }
     setBusy(true);
     const { error } = await placeBid(listing.id, user.id, amt);
     setBusy(false);
