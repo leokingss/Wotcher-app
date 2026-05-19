@@ -127,6 +127,24 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
           )}
 
           <div className="border-t border-border pt-4 mt-4 space-y-2">
+            {user && (
+              <>
+                <button
+                  onClick={() => { setIsOpen(false); navigate("/orders"); }}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+                >
+                  <span>Orders</span>
+                  <Package className="w-5 h-5 text-primary" />
+                </button>
+                <button
+                  onClick={() => { setIsOpen(false); navigate("/payouts"); }}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+                >
+                  <span>Seller payouts</span>
+                  <Wallet className="w-5 h-5 text-primary" />
+                </button>
+              </>
+            )}
             <button
               onClick={() => { setIsOpen(false); navigate("/labs"); }}
               className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
