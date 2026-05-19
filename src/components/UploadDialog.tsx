@@ -29,6 +29,7 @@ type AuctionDuration = "1d" | "3d" | "7d" | "custom";
 
 const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [caption, setCaption] = useState("");
@@ -36,6 +37,21 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [tagged, setTagged] = useState<TaggedPerson[]>([]);
   const [location, setLocation] = useState<LocationTag | null>(null);
+  const [payoutReady, setPayoutReady] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("seller_stripe_accounts")
+        .select("charges_enabled")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!cancelled) setPayoutReady(!!data?.charges_enabled);
+    })();
+    return () => { cancelled = true; };
+  }, [open, user?.id]);
 
   // Marketplace state
   const [forSale, setForSale] = useState(false);
