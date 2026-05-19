@@ -30,6 +30,7 @@ import Logos from "./pages/Logos";
 import Labs from "./pages/Labs";
 import BidderRegistration from "./pages/BidderRegistration";
 import SellerPayouts from "./pages/SellerPayouts";
+import Orders from "./pages/Orders";
 import { useNotificationToasts } from "@/hooks/useNotificationToasts";
 import ErrorBanner from "@/components/ErrorBanner";
 import DevPanel from "@/components/DevPanel";
