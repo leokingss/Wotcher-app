@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ type AuctionDuration = "1d" | "3d" | "7d" | "custom";
 
 const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [caption, setCaption] = useState("");
@@ -35,6 +37,21 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [tagged, setTagged] = useState<TaggedPerson[]>([]);
   const [location, setLocation] = useState<LocationTag | null>(null);
+  const [payoutReady, setPayoutReady] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("seller_stripe_accounts")
+        .select("charges_enabled")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!cancelled) setPayoutReady(!!data?.charges_enabled);
+    })();
+    return () => { cancelled = true; };
+  }, [open, user?.id]);
 
   // Marketplace state
   const [forSale, setForSale] = useState(false);
@@ -91,6 +108,12 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
     }
     if (mediaFiles.length === 0) return;
     if (forSale) {
+      if (!payoutReady) {
+        toast.error("Connect your payout account to list items for sale");
+        onOpenChange(false);
+        navigate("/payouts");
+        return;
+      }
       if (!itemTitle.trim()) { toast.error("Add an item title"); return; }
       if (saleType === "fixed" && !(parseFloat(price) > 0)) { toast.error("Set a price"); return; }
       if (saleType === "auction" && !(parseFloat(startingBid) >= 0)) { toast.error("Set a starting bid"); return; }
@@ -353,7 +376,24 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
               />
             </label>
 
-            {forSale && (
+            {forSale && payoutReady === false && (
+              <button
+                type="button"
+                onClick={() => { onOpenChange(false); navigate("/payouts"); }}
+                className="w-full neo-card-inset rounded-xl p-3 flex items-start gap-2 text-left"
+              >
+                <AlertCircle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold">Connect your payout account</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Sellers must connect a payout account before listing. Tap to set it up.
+                  </p>
+                </div>
+                <span className="text-xs text-primary font-semibold">Connect</span>
+              </button>
+            )}
+
+            {forSale && payoutReady !== false && (
               <div className="space-y-3 pt-1">
                 <div className="flex gap-2">
                   <button type="button" onClick={() => setSaleType("fixed")}
