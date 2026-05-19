@@ -129,7 +129,7 @@ const ReportActionDialog = ({ report, onClose, onChanged }: { report: Report | n
 
   if (!report) return null;
 
-  const run = async (label: string, fn: () => Promise<any>) => {
+  const run = async (label: string, fn: () => PromiseLike<any>) => {
     setBusy(true);
     try {
       const { error } = await fn();
