@@ -96,6 +96,16 @@ const Orders = () => {
     else { toast({ title: "Marked as delivered" }); load(); }
   };
 
+  const refund = async (o: Order) => {
+    if (!confirm(`Refund full amount $${(o.amount_cents / 100).toFixed(2)} to buyer? This reverses the transfer to your payout account.`)) return;
+    const reason = window.prompt("Optional reason for refund:") ?? "";
+    const { error } = await supabase.functions.invoke("refund-order", {
+      body: { order_id: o.id, reason },
+    });
+    if (error) toast({ title: "Refund failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Refund issued" }); load(); }
+  };
+
   if (!user) return <div className="p-6 text-muted-foreground">Sign in to view your orders.</div>;
 
   return (
