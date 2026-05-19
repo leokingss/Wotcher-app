@@ -31,8 +31,12 @@ interface Order {
   paid_at: string | null;
   created_at: string;
   shipping: any;
+  disputed_at?: string | null;
+  refunded_at?: string | null;
+  refund_amount_cents?: number | null;
   listing?: { title: string } | null;
   counterparty?: { username: string | null; display_name: string | null; avatar_url: string | null } | null;
+  open_dispute?: { id: string; reason: string; status: string } | null;
 }
 
 const Orders = () => {
@@ -41,6 +45,7 @@ const Orders = () => {
   const [sales, setSales] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [shipDialog, setShipDialog] = useState<Order | null>(null);
+  const [disputeDialog, setDisputeDialog] = useState<Order | null>(null);
 
   const load = async () => {
     if (!user) return;
