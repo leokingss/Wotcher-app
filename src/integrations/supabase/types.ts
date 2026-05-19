@@ -992,6 +992,45 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_stripe_accounts: {
+        Row: {
+          charges_enabled: boolean
+          created_at: string
+          details_submitted: boolean
+          environment: string
+          id: string
+          payouts_enabled: boolean
+          requirements_due: Json | null
+          stripe_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          charges_enabled?: boolean
+          created_at?: string
+          details_submitted?: boolean
+          environment?: string
+          id?: string
+          payouts_enabled?: boolean
+          requirements_due?: Json | null
+          stripe_account_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          charges_enabled?: boolean
+          created_at?: string
+          details_submitted?: boolean
+          environment?: string
+          id?: string
+          payouts_enabled?: boolean
+          requirements_due?: Json | null
+          stripe_account_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       shipping_addresses: {
         Row: {
           city: string
