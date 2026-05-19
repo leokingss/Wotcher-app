@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_flags: {
+        Row: {
+          cleared_at: string | null
+          cleared_by: string | null
+          created_at: string
+          created_by: string | null
+          flag: string
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          cleared_at?: string | null
+          cleared_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          flag: string
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          cleared_at?: string | null
+          cleared_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          flag?: string
+          id?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string
+          after_state: Json | null
+          before_state: Json | null
+          created_at: string
+          id: string
+          notes: string | null
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       artist_profiles: {
         Row: {
           artist_name: string
@@ -871,18 +940,27 @@ export type Database = {
       }
       payout_settings: {
         Row: {
+          high_risk_hold_days: number
           hold_days: number
           id: number
+          new_seller_hold_days: number
+          new_seller_threshold: number
           updated_at: string
         }
         Insert: {
+          high_risk_hold_days?: number
           hold_days?: number
           id?: number
+          new_seller_hold_days?: number
+          new_seller_threshold?: number
           updated_at?: string
         }
         Update: {
+          high_risk_hold_days?: number
           hold_days?: number
           id?: number
+          new_seller_hold_days?: number
+          new_seller_threshold?: number
           updated_at?: string
         }
         Relationships: []
@@ -1005,29 +1083,50 @@ export type Database = {
       }
       reports: {
         Row: {
+          assigned_to: string | null
           created_at: string
           details: string | null
           id: string
           reason: string
           reporter_id: string
+          resolution: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
           target_id: string
           target_type: string
         }
         Insert: {
+          assigned_to?: string | null
           created_at?: string
           details?: string | null
           id?: string
           reason: string
           reporter_id: string
+          resolution?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
           target_id: string
           target_type: string
         }
         Update: {
+          assigned_to?: string | null
           created_at?: string
           details?: string | null
           id?: string
           reason?: string
           reporter_id?: string
+          resolution?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
           target_id?: string
           target_type?: string
         }
@@ -1255,6 +1354,81 @@ export type Database = {
           reason?: string
           suspended_at?: string
           suspended_by?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seller_trust_scores: {
+        Row: {
+          account_age_days: number
+          computed_at: string
+          delivered_count: number
+          dispute_count: number
+          identity_verified: boolean
+          refund_count: number
+          risk_level: string
+          successful_sales: number
+          total_sales: number
+          trust_score: number
+          user_id: string
+          verified_badge: boolean
+        }
+        Insert: {
+          account_age_days?: number
+          computed_at?: string
+          delivered_count?: number
+          dispute_count?: number
+          identity_verified?: boolean
+          refund_count?: number
+          risk_level?: string
+          successful_sales?: number
+          total_sales?: number
+          trust_score?: number
+          user_id: string
+          verified_badge?: boolean
+        }
+        Update: {
+          account_age_days?: number
+          computed_at?: string
+          delivered_count?: number
+          dispute_count?: number
+          identity_verified?: boolean
+          refund_count?: number
+          risk_level?: string
+          successful_sales?: number
+          total_sales?: number
+          trust_score?: number
+          user_id?: string
+          verified_badge?: boolean
+        }
+        Relationships: []
+      }
+      seller_warnings: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string
+          details: string | null
+          id: string
+          issued_by: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          issued_by: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          issued_by?: string
+          reason?: string
           user_id?: string
         }
         Relationships: []
@@ -1669,6 +1843,25 @@ export type Database = {
         Args: { _list: string; _viewer: string }
         Returns: boolean
       }
+      clear_account_flag: {
+        Args: { _flag_id: string; _notes: string }
+        Returns: {
+          cleared_at: string | null
+          cleared_by: string | null
+          created_at: string
+          created_by: string | null
+          flag: string
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "account_flags"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1676,6 +1869,25 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      flag_account: {
+        Args: { _flag: string; _reason: string; _user_id: string }
+        Returns: {
+          cleared_at: string | null
+          cleared_by: string | null
+          created_at: string
+          created_by: string | null
+          flag: string
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "account_flags"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       get_buyer_shipping: { Args: { _listing_id: string }; Returns: Json }
       get_or_create_dm: { Args: { _other: string }; Returns: string }
@@ -1700,6 +1912,26 @@ export type Database = {
         Returns: boolean
       }
       is_seller_suspended: { Args: { _user_id: string }; Returns: boolean }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      lift_seller_suspension: {
+        Args: { _notes: string; _suspension_id: string }
+        Returns: {
+          id: string
+          lifted_at: string | null
+          lifted_by: string | null
+          notes: string | null
+          reason: string
+          suspended_at: string
+          suspended_by: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "seller_suspensions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       mark_order_delivered: {
         Args: { _order_id: string }
         Returns: {
@@ -1910,6 +2142,87 @@ export type Database = {
           read_ct: number
         }[]
       }
+      recompute_trust_score: {
+        Args: { _user_id: string }
+        Returns: {
+          account_age_days: number
+          computed_at: string
+          delivered_count: number
+          dispute_count: number
+          identity_verified: boolean
+          refund_count: number
+          risk_level: string
+          successful_sales: number
+          total_sales: number
+          trust_score: number
+          user_id: string
+          verified_badge: boolean
+        }
+        SetofOptions: {
+          from: "*"
+          to: "seller_trust_scores"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      remove_listing: {
+        Args: { _listing_id: string; _reason: string }
+        Returns: {
+          buyer_shipping: Json | null
+          created_at: string
+          current_bid: number | null
+          current_bidder_id: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          post_id: string | null
+          price: number | null
+          seller_id: string
+          shipping_required: boolean
+          sold_at: string | null
+          starting_bid: number | null
+          status: Database["public"]["Enums"]["listing_status"]
+          title: string
+          type: Database["public"]["Enums"]["listing_type"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "listings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      resolve_report: {
+        Args: {
+          _notes: string
+          _report_id: string
+          _resolution: string
+          _status: string
+        }
+        Returns: {
+          assigned_to: string | null
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          resolution: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          target_id: string
+          target_type: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "reports"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       submit_bidder_registration: {
         Args: {
           _address_line1: string
@@ -1959,6 +2272,43 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "bidder_registrations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      suspend_seller: {
+        Args: { _notes: string; _reason: string; _user_id: string }
+        Returns: {
+          id: string
+          lifted_at: string | null
+          lifted_by: string | null
+          notes: string | null
+          reason: string
+          suspended_at: string
+          suspended_by: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "seller_suspensions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      warn_seller: {
+        Args: { _details: string; _reason: string; _user_id: string }
+        Returns: {
+          acknowledged_at: string | null
+          created_at: string
+          details: string | null
+          id: string
+          issued_by: string
+          reason: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "seller_warnings"
           isOneToOne: true
           isSetofReturn: false
         }
