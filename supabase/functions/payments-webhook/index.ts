@@ -172,6 +172,9 @@ Deno.serve(async (req) => {
       case "checkout.session.completed":
         await handleCheckoutCompleted(event.data.object, env);
         break;
+      case "payment_intent.succeeded":
+        await handlePaymentIntentSucceeded(event.data.object, env);
+        break;
       case "checkout.session.expired":
         await handleCheckoutExpired(event.data.object, env);
         break;
