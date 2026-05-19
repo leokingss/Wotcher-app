@@ -61,6 +61,19 @@ async function handleAccountUpdated(account: any, env: StripeEnv) {
   }).eq("stripe_account_id", account.id).eq("environment", env);
 }
 
+async function handleIdentityVerification(session: any, env: StripeEnv) {
+  const update: Record<string, unknown> = {
+    status: session.status,
+    last_error: session.last_error?.reason ?? null,
+  };
+  if (session.status === "verified") update.verified_at = new Date().toISOString();
+  await getSupabase()
+    .from("seller_identity_verifications")
+    .update(update)
+    .eq("stripe_verification_session_id", session.id)
+    .eq("environment", env);
+}
+
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
@@ -83,6 +96,12 @@ Deno.serve(async (req) => {
         break;
       case "account.updated":
         await handleAccountUpdated(event.data.object, env);
+        break;
+      case "identity.verification_session.verified":
+      case "identity.verification_session.requires_input":
+      case "identity.verification_session.processing":
+      case "identity.verification_session.canceled":
+await handleIdentityVerification(event.data.object, env);
         break;
       default:
         console.log("Unhandled event:", event.type);

@@ -962,6 +962,45 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_identity_verifications: {
+        Row: {
+          created_at: string
+          document_type: string | null
+          environment: string
+          id: string
+          last_error: string | null
+          status: string
+          stripe_verification_session_id: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_type?: string | null
+          environment?: string
+          id?: string
+          last_error?: string | null
+          status?: string
+          stripe_verification_session_id: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_type?: string | null
+          environment?: string
+          id?: string
+          last_error?: string | null
+          status?: string
+          stripe_verification_session_id?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       seller_reviews: {
         Row: {
           buyer_id: string
