@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
