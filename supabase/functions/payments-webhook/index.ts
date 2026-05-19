@@ -148,7 +148,15 @@ Deno.serve(async (req) => {
       case "identity.verification_session.requires_input":
       case "identity.verification_session.processing":
       case "identity.verification_session.canceled":
-await handleIdentityVerification(event.data.object, env);
+        await handleIdentityVerification(event.data.object, env);
+        break;
+      case "charge.refunded":
+        await handleChargeRefunded(event.data.object, env);
+        break;
+      case "charge.dispute.created":
+      case "charge.dispute.closed":
+      case "charge.dispute.updated":
+        await handleDispute(event.data.object, env, event.type);
         break;
       default:
         console.log("Unhandled event:", event.type);
