@@ -376,7 +376,24 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
               />
             </label>
 
-            {forSale && (
+            {forSale && payoutReady === false && (
+              <button
+                type="button"
+                onClick={() => { onOpenChange(false); navigate("/payouts"); }}
+                className="w-full neo-card-inset rounded-xl p-3 flex items-start gap-2 text-left"
+              >
+                <AlertCircle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold">Connect your payout account</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Sellers must connect a payout account before listing. Tap to set it up.
+                  </p>
+                </div>
+                <span className="text-xs text-primary font-semibold">Connect</span>
+              </button>
+            )}
+
+            {forSale && payoutReady !== false && (
               <div className="space-y-3 pt-1">
                 <div className="flex gap-2">
                   <button type="button" onClick={() => setSaleType("fixed")}
