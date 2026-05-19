@@ -125,7 +125,9 @@ const Orders = () => {
           ) : (
             <div className="space-y-3">
               {purchases.map((o) => (
-                <OrderCard key={o.id} order={o} side="buyer" onMarkDelivered={() => markDelivered(o)} />
+                <OrderCard key={o.id} order={o} side="buyer"
+                  onMarkDelivered={() => markDelivered(o)}
+                  onDispute={() => setDisputeDialog(o)} />
               ))}
             </div>
           )}
@@ -137,7 +139,9 @@ const Orders = () => {
           ) : (
             <div className="space-y-3">
               {sales.map((o) => (
-                <OrderCard key={o.id} order={o} side="seller" onShip={() => setShipDialog(o)} />
+                <OrderCard key={o.id} order={o} side="seller"
+                  onShip={() => setShipDialog(o)}
+                  onRefund={() => refund(o)} />
               ))}
             </div>
           )}
@@ -148,6 +152,11 @@ const Orders = () => {
         order={shipDialog}
         onClose={() => setShipDialog(null)}
         onShipped={() => { setShipDialog(null); load(); }}
+      />
+      <DisputeDialog
+        order={disputeDialog}
+        onClose={() => setDisputeDialog(null)}
+        onOpened={() => { setDisputeDialog(null); load(); }}
       />
     </div>
   );
