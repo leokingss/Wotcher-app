@@ -165,7 +165,10 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
 
           {/* Seller rating preview */}
           <div className="neo-card-inset rounded-2xl p-3">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-2">Seller</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">Seller</p>
+              {!isOwner && <ReportDialog targetType="listing" targetId={listing.id} />}
+            </div>
             <SellerRating sellerId={listing.seller_id} compact />
           </div>
 
