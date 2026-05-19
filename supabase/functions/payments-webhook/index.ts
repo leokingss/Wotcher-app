@@ -72,6 +72,9 @@ Deno.serve(async (req) => {
       case "checkout.session.expired":
         await handleCheckoutExpired(event.data.object, env);
         break;
+      case "account.updated":
+        await handleAccountUpdated(event.data.object, env);
+        break;
       default:
         console.log("Unhandled event:", event.type);
     }
