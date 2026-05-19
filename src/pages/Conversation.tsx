@@ -131,7 +131,7 @@ const Conversation = () => {
           const mine = m.sender_id === user?.id;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[78%] rounded-2xl px-3 py-2 ${mine ? "bg-primary text-primary-foreground rounded-br-md" : "neo-card rounded-bl-md"}`}>
+              <div className={`relative group max-w-[78%] rounded-2xl px-3 py-2 ${mine ? "bg-primary text-primary-foreground rounded-br-md" : "neo-card rounded-bl-md"}`}>
                 {m.media_type === "text" && <p className="text-sm whitespace-pre-wrap break-words">{m.body}</p>}
                 {m.media_type === "voice" && m.media_url && (
                   <div className="flex items-center gap-2 min-w-[160px]">
@@ -146,6 +146,19 @@ const Conversation = () => {
                   <video src={m.media_url} controls className="rounded-xl max-w-full max-h-72" />
                 )}
                 <p className={`text-[10px] mt-1 ${mine ? "opacity-70" : "text-muted-foreground"}`}>{formatRelative(m.created_at)}</p>
+                {!mine && (
+                  <div className="absolute -right-6 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ReportDialog
+                      targetType="message"
+                      targetId={m.id}
+                      trigger={
+                        <button className="neo-button-icon w-5 h-5 flex items-center justify-center rounded-full" aria-label="Report message">
+                          <Flag className="w-3 h-3 text-muted-foreground" />
+                        </button>
+                      }
+                    />
+                  </div>
+                )}
               </div>
             </div>
           );
