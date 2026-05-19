@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  Loader2, Package, Truck, CheckCircle2, Clock, XCircle, ExternalLink,
+  Loader2, Package, Truck, CheckCircle2, Clock, XCircle, ExternalLink, AlertTriangle, Undo2,
 } from "lucide-react";
 
 interface Order {
