@@ -73,6 +73,24 @@ Deno.serve(async (req) => {
 
     const stripe = createStripeClient(STRIPE_ENV);
 
+    // Look up the seller's Stripe Connect account. If they're fully onboarded
+    // (charges_enabled), use a destination charge so the buyer's payment is
+    // auto-split: seller gets sellerNetCents, platform keeps the 12% fee.
+    const { data: sellerAcct } = await admin
+      .from("seller_stripe_accounts")
+      .select("stripe_account_id, charges_enabled")
+      .eq("user_id", listing.seller_id)
+      .eq("environment", STRIPE_ENV)
+      .maybeSingle();
+
+    const useConnect = !!(sellerAcct?.charges_enabled && sellerAcct.stripe_account_id);
+
+    const piMetadata = {
+      listing_id: listing.id,
+      buyer_id: user.id,
+      seller_id: listing.seller_id,
+    };
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{
@@ -97,13 +115,16 @@ Deno.serve(async (req) => {
         kind,
         platform_fee_cents: String(platformFeeCents),
         seller_net_cents: String(sellerNetCents),
+        payout_mode: useConnect ? "connect" : "manual",
       },
       payment_intent_data: {
-        metadata: {
-          listing_id: listing.id,
-          buyer_id: user.id,
-          seller_id: listing.seller_id,
-        },
+        metadata: piMetadata,
+        ...(useConnect
+          ? {
+              application_fee_amount: platformFeeCents,
+              transfer_data: { destination: sellerAcct!.stripe_account_id! },
+            }
+          : {}),
       },
     });
 
