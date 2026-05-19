@@ -52,6 +52,15 @@ async function handleCheckoutExpired(session: any, env: StripeEnv) {
     status: "canceled",
   }).eq("stripe_checkout_session_id", session.id).eq("environment", env).eq("status", "pending");
 }
+async function handleAccountUpdated(account: any, env: StripeEnv) {
+  await getSupabase().from("seller_stripe_accounts").update({
+    charges_enabled: !!account.charges_enabled,
+    payouts_enabled: !!account.payouts_enabled,
+    details_submitted: !!account.details_submitted,
+    requirements_due: account.requirements ?? null,
+  }).eq("stripe_account_id", account.id).eq("environment", env);
+}
+
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
