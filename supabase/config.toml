@@ -15,3 +15,5 @@ project_id = "feyjpokiaprcmitwyner"
     verify_jwt = true
   [functions.send-transactional-email]
     verify_jwt = true
+  [functions.release-eligible-payouts]
+    verify_jwt = false
