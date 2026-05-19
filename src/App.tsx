@@ -24,6 +24,7 @@ import Conversation from "./pages/Conversation";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import AdminEmails from "./pages/AdminEmails";
+import AdminSellers from "./pages/AdminSellers";
 import ListDetail from "./pages/ListDetail";
 import Logos from "./pages/Logos";
 import Labs from "./pages/Labs";
@@ -54,6 +55,7 @@ const AnimatedRoutes = () => {
         <Route path="/messages/:conversationId" element={<PageTransition><ProtectedRoute><Conversation /></ProtectedRoute></PageTransition>} />
         <Route path="/unsubscribe" element={<PageTransition><Unsubscribe /></PageTransition>} />
         <Route path="/admin/emails" element={<PageTransition><ProtectedRoute><AdminEmails /></ProtectedRoute></PageTransition>} />
+        <Route path="/admin/sellers" element={<PageTransition><ProtectedRoute><AdminSellers /></ProtectedRoute></PageTransition>} />
         <Route path="/list/:id" element={<PageTransition><ListDetail /></PageTransition>} />
         <Route path="/logos" element={<PageTransition><Logos /></PageTransition>} />
         <Route path="/labs" element={<PageTransition><Labs /></PageTransition>} />

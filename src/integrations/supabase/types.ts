@@ -1070,6 +1070,39 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_suspensions: {
+        Row: {
+          id: string
+          lifted_at: string | null
+          lifted_by: string | null
+          notes: string | null
+          reason: string
+          suspended_at: string
+          suspended_by: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          lifted_at?: string | null
+          lifted_by?: string | null
+          notes?: string | null
+          reason: string
+          suspended_at?: string
+          suspended_by: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          lifted_at?: string | null
+          lifted_by?: string | null
+          notes?: string | null
+          reason?: string
+          suspended_at?: string
+          suspended_by?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       shipping_addresses: {
         Row: {
           city: string
@@ -1426,6 +1459,7 @@ export type Database = {
         Args: { _list: string; _viewer: string }
         Returns: boolean
       }
+      is_seller_suspended: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
