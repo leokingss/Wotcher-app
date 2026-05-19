@@ -129,7 +129,7 @@ const SellerPayouts = () => {
                 {identity?.last_error && (
                   <div className="flex items-start gap-2 text-sm text-destructive mb-3">
                     <AlertCircle className="size-4 mt-0.5" />
-                    <span>Last attempt: {identity.last_error.replaceAll("_", " ")}</span>
+                    <span>Last attempt: {identity.last_error.replace(/_/g, " ")}</span>
                   </div>
                 )}
                 <div className="flex gap-2">
