@@ -30,6 +30,7 @@ import Logos from "./pages/Logos";
 import Labs from "./pages/Labs";
 import BidderRegistration from "./pages/BidderRegistration";
 import SellerPayouts from "./pages/SellerPayouts";
+import Orders from "./pages/Orders";
 import { useNotificationToasts } from "@/hooks/useNotificationToasts";
 import ErrorBanner from "@/components/ErrorBanner";
 import DevPanel from "@/components/DevPanel";
@@ -61,6 +62,7 @@ const AnimatedRoutes = () => {
         <Route path="/labs" element={<PageTransition><Labs /></PageTransition>} />
         <Route path="/bidder-registration" element={<PageTransition><ProtectedRoute><BidderRegistration /></ProtectedRoute></PageTransition>} />
         <Route path="/payouts" element={<PageTransition><ProtectedRoute><SellerPayouts /></ProtectedRoute></PageTransition>} />
+        <Route path="/orders" element={<PageTransition><ProtectedRoute><Orders /></ProtectedRoute></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}
