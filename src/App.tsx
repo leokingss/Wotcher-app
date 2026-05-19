@@ -24,6 +24,7 @@ import Conversation from "./pages/Conversation";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import AdminEmails from "./pages/AdminEmails";
+import AdminSellers from "./pages/AdminSellers";
 import ListDetail from "./pages/ListDetail";
 import Logos from "./pages/Logos";
 import Labs from "./pages/Labs";
