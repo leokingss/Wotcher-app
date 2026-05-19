@@ -62,6 +62,7 @@ const AnimatedRoutes = () => {
         <Route path="/labs" element={<PageTransition><Labs /></PageTransition>} />
         <Route path="/bidder-registration" element={<PageTransition><ProtectedRoute><BidderRegistration /></ProtectedRoute></PageTransition>} />
         <Route path="/payouts" element={<PageTransition><ProtectedRoute><SellerPayouts /></ProtectedRoute></PageTransition>} />
+        <Route path="/orders" element={<PageTransition><ProtectedRoute><Orders /></ProtectedRoute></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}
