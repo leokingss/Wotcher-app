@@ -58,22 +58,28 @@ const Orders = () => {
     const listingIds = Array.from(new Set(all.map((o) => o.listing_id)));
     const userIds = Array.from(new Set(all.flatMap((o) => [o.buyer_id, o.seller_id]).filter((id) => id !== user.id)));
 
-    const [{ data: listings }, { data: profs }] = await Promise.all([
+    const orderIds = all.map((o) => o.id);
+    const [{ data: listings }, { data: profs }, { data: openDisputes }] = await Promise.all([
       listingIds.length
         ? supabase.from("listings").select("id, title").in("id", listingIds)
         : Promise.resolve({ data: [] as any[] }),
       userIds.length
         ? supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", userIds)
         : Promise.resolve({ data: [] as any[] }),
+      orderIds.length
+        ? supabase.from("disputes").select("id, order_id, reason, status").in("order_id", orderIds).eq("status", "open")
+        : Promise.resolve({ data: [] as any[] }),
     ]);
 
     const lMap = new Map((listings ?? []).map((l: any) => [l.id, l]));
     const uMap = new Map((profs ?? []).map((u: any) => [u.id, u]));
+    const dMap = new Map((openDisputes ?? []).map((d: any) => [d.order_id, d]));
 
     const hydrate = (o: any, counterId: string): Order => ({
       ...o,
       listing: lMap.get(o.listing_id) ?? null,
       counterparty: uMap.get(counterId) ?? null,
+      open_dispute: dMap.get(o.id) ?? null,
     });
 
     setPurchases((p ?? []).map((o) => hydrate(o, o.seller_id)));
