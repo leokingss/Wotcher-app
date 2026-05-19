@@ -598,17 +598,23 @@ export type Database = {
           kind: string
           listing_id: string
           paid_at: string | null
+          payout_mode: string
+          payout_status: string
           platform_fee_cents: number
           refund_amount_cents: number | null
           refund_reason: string | null
           refunded_at: string | null
+          release_after: string | null
+          released_at: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at: string | null
           shipping: Json | null
           status: string
+          stripe_charge_id: string | null
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
           tracking_number: string | null
           updated_at: string
         }
@@ -625,17 +631,23 @@ export type Database = {
           kind: string
           listing_id: string
           paid_at?: string | null
+          payout_mode?: string
+          payout_status?: string
           platform_fee_cents: number
           refund_amount_cents?: number | null
           refund_reason?: string | null
           refunded_at?: string | null
+          release_after?: string | null
+          released_at?: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at?: string | null
           shipping?: Json | null
           status?: string
+          stripe_charge_id?: string | null
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
           tracking_number?: string | null
           updated_at?: string
         }
@@ -652,17 +664,23 @@ export type Database = {
           kind?: string
           listing_id?: string
           paid_at?: string | null
+          payout_mode?: string
+          payout_status?: string
           platform_fee_cents?: number
           refund_amount_cents?: number | null
           refund_reason?: string | null
           refunded_at?: string | null
+          release_after?: string | null
+          released_at?: string | null
           seller_id?: string
           seller_net_cents?: number
           shipped_at?: string | null
           shipping?: Json | null
           status?: string
+          stripe_charge_id?: string | null
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
           tracking_number?: string | null
           updated_at?: string
         }
@@ -805,6 +823,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      order_payments: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          entry_type: string
+          environment: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          order_id: string
+          status: string | null
+          stripe_object_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          entry_type: string
+          environment?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          order_id: string
+          status?: string | null
+          stripe_object_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          entry_type?: string
+          environment?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          order_id?: string
+          status?: string | null
+          stripe_object_id?: string | null
+        }
+        Relationships: []
+      }
+      payout_settings: {
+        Row: {
+          hold_days: number
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          hold_days?: number
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          hold_days?: number
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       post_reactions: {
         Row: {
@@ -1491,6 +1572,90 @@ export type Database = {
       }
     }
     Functions: {
+      admin_extend_hold: {
+        Args: { _extra_days: number; _notes: string; _order_id: string }
+        Returns: {
+          amount_cents: number
+          buyer_id: string
+          carrier: string | null
+          created_at: string
+          currency: string
+          delivered_at: string | null
+          disputed_at: string | null
+          environment: string
+          id: string
+          kind: string
+          listing_id: string
+          paid_at: string | null
+          payout_mode: string
+          payout_status: string
+          platform_fee_cents: number
+          refund_amount_cents: number | null
+          refund_reason: string | null
+          refunded_at: string | null
+          release_after: string | null
+          released_at: string | null
+          seller_id: string
+          seller_net_cents: number
+          shipped_at: string | null
+          shipping: Json | null
+          status: string
+          stripe_charge_id: string | null
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "marketplace_orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_mark_disputed: {
+        Args: { _notes: string; _order_id: string }
+        Returns: {
+          amount_cents: number
+          buyer_id: string
+          carrier: string | null
+          created_at: string
+          currency: string
+          delivered_at: string | null
+          disputed_at: string | null
+          environment: string
+          id: string
+          kind: string
+          listing_id: string
+          paid_at: string | null
+          payout_mode: string
+          payout_status: string
+          platform_fee_cents: number
+          refund_amount_cents: number | null
+          refund_reason: string | null
+          refunded_at: string | null
+          release_after: string | null
+          released_at: string | null
+          seller_id: string
+          seller_net_cents: number
+          shipped_at: string | null
+          shipping: Json | null
+          status: string
+          stripe_charge_id: string | null
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "marketplace_orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       buy_listing: {
         Args: { _listing_id: string; _shipping: Json }
         Returns: {
@@ -1550,17 +1715,23 @@ export type Database = {
           kind: string
           listing_id: string
           paid_at: string | null
+          payout_mode: string
+          payout_status: string
           platform_fee_cents: number
           refund_amount_cents: number | null
           refund_reason: string | null
           refunded_at: string | null
+          release_after: string | null
+          released_at: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at: string | null
           shipping: Json | null
           status: string
+          stripe_charge_id: string | null
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
           tracking_number: string | null
           updated_at: string
         }
@@ -1586,17 +1757,65 @@ export type Database = {
           kind: string
           listing_id: string
           paid_at: string | null
+          payout_mode: string
+          payout_status: string
           platform_fee_cents: number
           refund_amount_cents: number | null
           refund_reason: string | null
           refunded_at: string | null
+          release_after: string | null
+          released_at: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at: string | null
           shipping: Json | null
           status: string
+          stripe_charge_id: string | null
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "marketplace_orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      mark_order_released: {
+        Args: { _amount_cents: number; _order_id: string; _transfer_id: string }
+        Returns: {
+          amount_cents: number
+          buyer_id: string
+          carrier: string | null
+          created_at: string
+          currency: string
+          delivered_at: string | null
+          disputed_at: string | null
+          environment: string
+          id: string
+          kind: string
+          listing_id: string
+          paid_at: string | null
+          payout_mode: string
+          payout_status: string
+          platform_fee_cents: number
+          refund_amount_cents: number | null
+          refund_reason: string | null
+          refunded_at: string | null
+          release_after: string | null
+          released_at: string | null
+          seller_id: string
+          seller_net_cents: number
+          shipped_at: string | null
+          shipping: Json | null
+          status: string
+          stripe_charge_id: string | null
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
           tracking_number: string | null
           updated_at: string
         }
@@ -1622,17 +1841,23 @@ export type Database = {
           kind: string
           listing_id: string
           paid_at: string | null
+          payout_mode: string
+          payout_status: string
           platform_fee_cents: number
           refund_amount_cents: number | null
           refund_reason: string | null
           refunded_at: string | null
+          release_after: string | null
+          released_at: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at: string | null
           shipping: Json | null
           status: string
+          stripe_charge_id: string | null
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
           tracking_number: string | null
           updated_at: string
         }
