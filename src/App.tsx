@@ -31,6 +31,10 @@ import Labs from "./pages/Labs";
 import BidderRegistration from "./pages/BidderRegistration";
 import SellerPayouts from "./pages/SellerPayouts";
 import Orders from "./pages/Orders";
+import AdminHome from "./pages/AdminHome";
+import AdminReports from "./pages/AdminReports";
+import AdminDisputes from "./pages/AdminDisputes";
+import AdminOrders from "./pages/AdminOrders";
 import { useNotificationToasts } from "@/hooks/useNotificationToasts";
 import ErrorBanner from "@/components/ErrorBanner";
 import DevPanel from "@/components/DevPanel";
@@ -63,6 +67,10 @@ const AnimatedRoutes = () => {
         <Route path="/bidder-registration" element={<PageTransition><ProtectedRoute><BidderRegistration /></ProtectedRoute></PageTransition>} />
         <Route path="/payouts" element={<PageTransition><ProtectedRoute><SellerPayouts /></ProtectedRoute></PageTransition>} />
         <Route path="/orders" element={<PageTransition><ProtectedRoute><Orders /></ProtectedRoute></PageTransition>} />
+        <Route path="/admin" element={<PageTransition><ProtectedRoute><AdminHome /></ProtectedRoute></PageTransition>} />
+        <Route path="/admin/reports" element={<PageTransition><ProtectedRoute><AdminReports /></ProtectedRoute></PageTransition>} />
+        <Route path="/admin/disputes" element={<PageTransition><ProtectedRoute><AdminDisputes /></ProtectedRoute></PageTransition>} />
+        <Route path="/admin/orders" element={<PageTransition><ProtectedRoute><AdminOrders /></ProtectedRoute></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}
