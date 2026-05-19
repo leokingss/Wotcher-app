@@ -139,7 +139,9 @@ async function handleDispute(dispute: any, env: StripeEnv, eventType: string) {
       stripe_dispute_id: dispute.id,
     });
     await sb.from("marketplace_orders").update({
-      disputed_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+      disputed_at: new Date().toISOString(),
+      payout_status: "disputed",
+      updated_at: new Date().toISOString(),
     }).eq("id", order.id);
   } else if (eventType === "charge.dispute.closed") {
     const status = dispute.status === "lost" ? "refunded"
