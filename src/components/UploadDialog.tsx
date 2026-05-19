@@ -108,6 +108,12 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
     }
     if (mediaFiles.length === 0) return;
     if (forSale) {
+      if (!payoutReady) {
+        toast.error("Connect your payout account to list items for sale");
+        onOpenChange(false);
+        navigate("/payouts");
+        return;
+      }
       if (!itemTitle.trim()) { toast.error("Add an item title"); return; }
       if (saleType === "fixed" && !(parseFloat(price) > 0)) { toast.error("Set a price"); return; }
       if (saleType === "auction" && !(parseFloat(startingBid) >= 0)) { toast.error("Set a starting bid"); return; }
