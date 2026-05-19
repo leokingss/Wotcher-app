@@ -74,6 +74,53 @@ async function handleIdentityVerification(session: any, env: StripeEnv) {
     .eq("environment", env);
 }
 
+async function handleChargeRefunded(charge: any, env: StripeEnv) {
+  const sb = getSupabase();
+  const pi = charge.payment_intent;
+  if (!pi) return;
+  const refunded = charge.amount_refunded ?? charge.amount;
+  const { data: order } = await sb
+    .from("marketplace_orders").select("id")
+    .eq("stripe_payment_intent_id", pi).eq("environment", env).maybeSingle();
+  if (!order) return;
+  await sb.rpc("mark_order_refunded", {
+    _order_id: order.id,
+    _amount_cents: refunded,
+    _reason: "stripe_refund",
+  });
+}
+
+async function handleDispute(dispute: any, env: StripeEnv, eventType: string) {
+  const sb = getSupabase();
+  const pi = dispute.payment_intent;
+  if (!pi) return;
+  const { data: order } = await sb
+    .from("marketplace_orders").select("id, buyer_id, seller_id")
+    .eq("stripe_payment_intent_id", pi).eq("environment", env).maybeSingle();
+  if (!order) return;
+
+  if (eventType === "charge.dispute.created") {
+    await sb.from("disputes").insert({
+      order_id: order.id, buyer_id: order.buyer_id, seller_id: order.seller_id,
+      source: "stripe", reason: dispute.reason ?? "stripe_chargeback",
+      details: `Stripe dispute ${dispute.id} (${dispute.status})`,
+      stripe_dispute_id: dispute.id,
+    });
+    await sb.from("marketplace_orders").update({
+      disputed_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    }).eq("id", order.id);
+  } else if (eventType === "charge.dispute.closed") {
+    const status = dispute.status === "lost" ? "refunded"
+      : dispute.status === "won" ? "rejected" : "resolved";
+    await sb.from("disputes").update({
+      status, resolved_at: new Date().toISOString(),
+      resolution_notes: `Stripe closed: ${dispute.status}`,
+      updated_at: new Date().toISOString(),
+    }).eq("stripe_dispute_id", dispute.id);
+  }
+}
+
+
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
