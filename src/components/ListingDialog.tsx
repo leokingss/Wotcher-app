@@ -12,6 +12,7 @@ import TimeLeft from "./TimeLeft";
 import SellerRating from "./SellerRating";
 import ShippingAddressDialog from "./ShippingAddressDialog";
 import ReviewDialog from "./ReviewDialog";
+import ReportDialog from "./ReportDialog";
 
 interface Props {
   open: boolean;
