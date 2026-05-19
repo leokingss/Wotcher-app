@@ -42,6 +42,9 @@ Deno.serve(async (req) => {
     if (lErr || !listing) return json({ error: "Listing not found" }, 404);
     if (listing.seller_id === user.id) return json({ error: "Cannot buy your own listing" }, 400);
 
+    const { data: suspended } = await admin.rpc("is_seller_suspended", { _user_id: listing.seller_id });
+    if (suspended === true) return json({ error: "This seller is currently suspended. Please try again later." }, 403);
+
     let kind: "buy_now" | "auction_win";
     let amount: number;
 
