@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut, ShoppingBag, QrCode } from "lucide-react";
+import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut, ShoppingBag, QrCode, Flag } from "lucide-react";
 import ProfileQRDialog from "@/components/ProfileQRDialog";
+import ReportDialog from "@/components/ReportDialog";
 import SettingsSheet from "@/components/SettingsSheet";
 import BottomNav from "@/components/BottomNav";
 import SongCard from "@/components/SongCard";
@@ -413,9 +414,15 @@ const Profile = () => {
                   </span>
                 )}
               </button>
-              <button className="neo-button-icon w-10 h-10 flex items-center justify-center rounded-full">
-                <Plus className="w-4 h-4" />
-              </button>
+              <ReportDialog
+                targetType="user"
+                targetId={profileUserId}
+                trigger={
+                  <button className="neo-button-icon w-10 h-10 flex items-center justify-center rounded-full" aria-label="Report user">
+                    <Flag className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                }
+              />
             </>
           )}
         </div>
