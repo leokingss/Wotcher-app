@@ -27,10 +27,10 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
     status: "paid",
     stripe_payment_intent_id: session.payment_intent ?? null,
     paid_at: new Date().toISOString(),
+    payout_status: "pending_release",
   }).eq("stripe_checkout_session_id", session.id).eq("environment", env);
 
   if (kind === "buy_now") {
-    // Mark listing sold and snapshot shipping
     const { data: order } = await sb
       .from("marketplace_orders")
       .select("buyer_id, shipping")
@@ -44,7 +44,39 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
       sold_at: new Date().toISOString(),
     }).eq("id", listingId).eq("status", "active");
   }
-  // For auction_win the listing is already 'sold' from settle-auctions.
+}
+
+async function handlePaymentIntentSucceeded(pi: any, env: StripeEnv) {
+  const sb = getSupabase();
+  const { data: order } = await sb
+    .from("marketplace_orders")
+    .select("id, currency, amount_cents")
+    .eq("stripe_payment_intent_id", pi.id)
+    .eq("environment", env)
+    .maybeSingle();
+  if (!order) return;
+  const chargeId = pi.latest_charge ?? null;
+  await sb.from("marketplace_orders").update({
+    stripe_charge_id: chargeId,
+    paid_at: new Date().toISOString(),
+    payout_status: "pending_release",
+    status: "paid",
+  }).eq("id", order.id);
+  // Ledger: charge
+  const { data: existing } = await sb.from("order_payments")
+    .select("id").eq("order_id", order.id).eq("entry_type", "charge").maybeSingle();
+  if (!existing) {
+    await sb.from("order_payments").insert({
+      order_id: order.id,
+      entry_type: "charge",
+      amount_cents: pi.amount_received ?? pi.amount ?? order.amount_cents,
+      currency: (pi.currency ?? order.currency ?? "usd").toLowerCase(),
+      stripe_object_id: pi.id,
+      status: pi.status,
+      environment: env,
+      notes: "buyer paid platform",
+    });
+  }
 }
 
 async function handleCheckoutExpired(session: any, env: StripeEnv) {
