@@ -327,6 +327,57 @@ export type Database = {
         }
         Relationships: []
       }
+      disputes: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          details: string | null
+          id: string
+          order_id: string
+          reason: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          seller_id: string
+          source: string
+          status: string
+          stripe_dispute_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          order_id: string
+          reason: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id: string
+          source?: string
+          status?: string
+          stripe_dispute_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          order_id?: string
+          reason?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id?: string
+          source?: string
+          status?: string
+          stripe_dispute_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -541,12 +592,16 @@ export type Database = {
           created_at: string
           currency: string
           delivered_at: string | null
+          disputed_at: string | null
           environment: string
           id: string
           kind: string
           listing_id: string
           paid_at: string | null
           platform_fee_cents: number
+          refund_amount_cents: number | null
+          refund_reason: string | null
+          refunded_at: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at: string | null
@@ -564,12 +619,16 @@ export type Database = {
           created_at?: string
           currency?: string
           delivered_at?: string | null
+          disputed_at?: string | null
           environment?: string
           id?: string
           kind: string
           listing_id: string
           paid_at?: string | null
           platform_fee_cents: number
+          refund_amount_cents?: number | null
+          refund_reason?: string | null
+          refunded_at?: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at?: string | null
@@ -587,12 +646,16 @@ export type Database = {
           created_at?: string
           currency?: string
           delivered_at?: string | null
+          disputed_at?: string | null
           environment?: string
           id?: string
           kind?: string
           listing_id?: string
           paid_at?: string | null
           platform_fee_cents?: number
+          refund_amount_cents?: number | null
+          refund_reason?: string | null
+          refunded_at?: string | null
           seller_id?: string
           seller_net_cents?: number
           shipped_at?: string | null
@@ -1481,12 +1544,52 @@ export type Database = {
           created_at: string
           currency: string
           delivered_at: string | null
+          disputed_at: string | null
           environment: string
           id: string
           kind: string
           listing_id: string
           paid_at: string | null
           platform_fee_cents: number
+          refund_amount_cents: number | null
+          refund_reason: string | null
+          refunded_at: string | null
+          seller_id: string
+          seller_net_cents: number
+          shipped_at: string | null
+          shipping: Json | null
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "marketplace_orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      mark_order_refunded: {
+        Args: { _amount_cents: number; _order_id: string; _reason: string }
+        Returns: {
+          amount_cents: number
+          buyer_id: string
+          carrier: string | null
+          created_at: string
+          currency: string
+          delivered_at: string | null
+          disputed_at: string | null
+          environment: string
+          id: string
+          kind: string
+          listing_id: string
+          paid_at: string | null
+          platform_fee_cents: number
+          refund_amount_cents: number | null
+          refund_reason: string | null
+          refunded_at: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at: string | null
@@ -1513,12 +1616,16 @@ export type Database = {
           created_at: string
           currency: string
           delivered_at: string | null
+          disputed_at: string | null
           environment: string
           id: string
           kind: string
           listing_id: string
           paid_at: string | null
           platform_fee_cents: number
+          refund_amount_cents: number | null
+          refund_reason: string | null
+          refunded_at: string | null
           seller_id: string
           seller_net_cents: number
           shipped_at: string | null
@@ -1544,6 +1651,31 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      open_dispute: {
+        Args: { _details: string; _order_id: string; _reason: string }
+        Returns: {
+          buyer_id: string
+          created_at: string
+          details: string | null
+          id: string
+          order_id: string
+          reason: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          seller_id: string
+          source: string
+          status: string
+          stripe_dispute_id: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "disputes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }

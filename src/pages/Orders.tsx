@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  Loader2, Package, Truck, CheckCircle2, Clock, XCircle, ExternalLink,
+  Loader2, Package, Truck, CheckCircle2, Clock, XCircle, ExternalLink, AlertTriangle, Undo2,
 } from "lucide-react";
 
 interface Order {
@@ -30,8 +31,12 @@ interface Order {
   paid_at: string | null;
   created_at: string;
   shipping: any;
+  disputed_at?: string | null;
+  refunded_at?: string | null;
+  refund_amount_cents?: number | null;
   listing?: { title: string } | null;
   counterparty?: { username: string | null; display_name: string | null; avatar_url: string | null } | null;
+  open_dispute?: { id: string; reason: string; status: string } | null;
 }
 
 const Orders = () => {
@@ -40,6 +45,7 @@ const Orders = () => {
   const [sales, setSales] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [shipDialog, setShipDialog] = useState<Order | null>(null);
+  const [disputeDialog, setDisputeDialog] = useState<Order | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -52,22 +58,28 @@ const Orders = () => {
     const listingIds = Array.from(new Set(all.map((o) => o.listing_id)));
     const userIds = Array.from(new Set(all.flatMap((o) => [o.buyer_id, o.seller_id]).filter((id) => id !== user.id)));
 
-    const [{ data: listings }, { data: profs }] = await Promise.all([
+    const orderIds = all.map((o) => o.id);
+    const [{ data: listings }, { data: profs }, { data: openDisputes }] = await Promise.all([
       listingIds.length
         ? supabase.from("listings").select("id, title").in("id", listingIds)
         : Promise.resolve({ data: [] as any[] }),
       userIds.length
         ? supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", userIds)
         : Promise.resolve({ data: [] as any[] }),
+      orderIds.length
+        ? supabase.from("disputes").select("id, order_id, reason, status").in("order_id", orderIds).eq("status", "open")
+        : Promise.resolve({ data: [] as any[] }),
     ]);
 
     const lMap = new Map((listings ?? []).map((l: any) => [l.id, l]));
     const uMap = new Map((profs ?? []).map((u: any) => [u.id, u]));
+    const dMap = new Map((openDisputes ?? []).map((d: any) => [d.order_id, d]));
 
     const hydrate = (o: any, counterId: string): Order => ({
       ...o,
       listing: lMap.get(o.listing_id) ?? null,
       counterparty: uMap.get(counterId) ?? null,
+      open_dispute: dMap.get(o.id) ?? null,
     });
 
     setPurchases((p ?? []).map((o) => hydrate(o, o.seller_id)));
@@ -82,6 +94,16 @@ const Orders = () => {
     const { error } = await supabase.rpc("mark_order_delivered", { _order_id: o.id });
     if (error) toast({ title: "Couldn't confirm", description: error.message, variant: "destructive" });
     else { toast({ title: "Marked as delivered" }); load(); }
+  };
+
+  const refund = async (o: Order) => {
+    if (!confirm(`Refund full amount $${(o.amount_cents / 100).toFixed(2)} to buyer? This reverses the transfer to your payout account.`)) return;
+    const reason = window.prompt("Optional reason for refund:") ?? "";
+    const { error } = await supabase.functions.invoke("refund-order", {
+      body: { order_id: o.id, reason },
+    });
+    if (error) toast({ title: "Refund failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Refund issued" }); load(); }
   };
 
   if (!user) return <div className="p-6 text-muted-foreground">Sign in to view your orders.</div>;
@@ -103,7 +125,9 @@ const Orders = () => {
           ) : (
             <div className="space-y-3">
               {purchases.map((o) => (
-                <OrderCard key={o.id} order={o} side="buyer" onMarkDelivered={() => markDelivered(o)} />
+                <OrderCard key={o.id} order={o} side="buyer"
+                  onMarkDelivered={() => markDelivered(o)}
+                  onDispute={() => setDisputeDialog(o)} />
               ))}
             </div>
           )}
@@ -115,7 +139,9 @@ const Orders = () => {
           ) : (
             <div className="space-y-3">
               {sales.map((o) => (
-                <OrderCard key={o.id} order={o} side="seller" onShip={() => setShipDialog(o)} />
+                <OrderCard key={o.id} order={o} side="seller"
+                  onShip={() => setShipDialog(o)}
+                  onRefund={() => refund(o)} />
               ))}
             </div>
           )}
@@ -126,6 +152,11 @@ const Orders = () => {
         order={shipDialog}
         onClose={() => setShipDialog(null)}
         onShipped={() => { setShipDialog(null); load(); }}
+      />
+      <DisputeDialog
+        order={disputeDialog}
+        onClose={() => setDisputeDialog(null)}
+        onOpened={() => { setDisputeDialog(null); load(); }}
       />
     </div>
   );
@@ -140,14 +171,17 @@ const STATUS_META: Record<string, { label: string; icon: any; cls: string }> = {
   refunded: { label: "Refunded", icon: XCircle, cls: "text-destructive" },
 };
 
-const OrderCard = ({ order, side, onShip, onMarkDelivered }: {
+const OrderCard = ({ order, side, onShip, onMarkDelivered, onDispute, onRefund }: {
   order: Order; side: "buyer" | "seller";
   onShip?: () => void; onMarkDelivered?: () => void;
+  onDispute?: () => void; onRefund?: () => void;
 }) => {
   const meta = STATUS_META[order.status] ?? STATUS_META.pending;
   const Icon = meta.icon;
   const amount = (order.amount_cents / 100).toFixed(2);
   const net = (order.seller_net_cents / 100).toFixed(2);
+  const canRefund = side === "seller" && ["paid", "shipped", "delivered"].includes(order.status) && !order.refunded_at;
+  const canDispute = side === "buyer" && ["paid", "shipped", "delivered"].includes(order.status) && !order.open_dispute && !order.refunded_at;
 
   return (
     <div className="p-4 rounded-xl border bg-card">
@@ -169,7 +203,15 @@ const OrderCard = ({ order, side, onShip, onMarkDelivered }: {
 
       <div className={`flex items-center gap-1.5 text-sm ${meta.cls} mb-2`}>
         <Icon className="size-4" /> {meta.label}
+        {order.refund_amount_cents ? <span className="text-xs text-muted-foreground">· ${(order.refund_amount_cents / 100).toFixed(2)} refunded</span> : null}
       </div>
+
+      {order.open_dispute && (
+        <div className="flex items-start gap-1.5 text-xs text-destructive mb-2 p-2 rounded bg-destructive/10">
+          <AlertTriangle className="size-3.5 mt-0.5" />
+          <span>Dispute open: {order.open_dispute.reason.replace(/_/g, " ")}</span>
+        </div>
+      )}
 
       {order.tracking_number && (
         <div className="text-xs text-muted-foreground mb-2">
@@ -179,17 +221,101 @@ const OrderCard = ({ order, side, onShip, onMarkDelivered }: {
 
       <Timeline order={order} />
 
-      {side === "seller" && order.status === "paid" && (
-        <Button size="sm" className="mt-3" onClick={onShip}>
-          <Truck className="size-4 mr-1.5" /> Add tracking & mark shipped
-        </Button>
-      )}
-      {side === "buyer" && order.status === "shipped" && (
-        <Button size="sm" className="mt-3" onClick={onMarkDelivered}>
-          <CheckCircle2 className="size-4 mr-1.5" /> Confirm delivery
-        </Button>
-      )}
+      <div className="flex flex-wrap gap-2 mt-3">
+        {side === "seller" && order.status === "paid" && (
+          <Button size="sm" onClick={onShip}>
+            <Truck className="size-4 mr-1.5" /> Add tracking & mark shipped
+          </Button>
+        )}
+        {side === "buyer" && order.status === "shipped" && (
+          <Button size="sm" onClick={onMarkDelivered}>
+            <CheckCircle2 className="size-4 mr-1.5" /> Confirm delivery
+          </Button>
+        )}
+        {canDispute && (
+          <Button size="sm" variant="outline" onClick={onDispute}>
+            <AlertTriangle className="size-4 mr-1.5" /> Open a case
+          </Button>
+        )}
+        {canRefund && (
+          <Button size="sm" variant="outline" onClick={onRefund}>
+            <Undo2 className="size-4 mr-1.5" /> Refund buyer
+          </Button>
+        )}
+      </div>
     </div>
+  );
+};
+
+const DISPUTE_REASONS = [
+  { value: "not_received", label: "Item not received" },
+  { value: "not_as_described", label: "Not as described" },
+  { value: "damaged", label: "Arrived damaged" },
+  { value: "counterfeit", label: "Counterfeit / inauthentic" },
+  { value: "other", label: "Other" },
+];
+
+const DisputeDialog = ({ order, onClose, onOpened }: {
+  order: Order | null; onClose: () => void; onOpened: () => void;
+}) => {
+  const [reason, setReason] = useState("not_received");
+  const [details, setDetails] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { if (order) { setReason("not_received"); setDetails(""); } }, [order?.id]);
+  if (!order) return null;
+
+  const submit = async () => {
+    if (details.length > 1000) {
+      toast({ title: "Details too long (max 1000 chars)", variant: "destructive" });
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.rpc("open_dispute", {
+      _order_id: order.id, _reason: reason, _details: details.trim() || null,
+    });
+    setBusy(false);
+    if (error) toast({ title: "Couldn't open case", description: error.message, variant: "destructive" });
+    else { toast({ title: "Case opened — our team will review" }); onOpened(); }
+  };
+
+  return (
+    <Dialog open={!!order} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Open a case</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Tell us what went wrong with "{order.listing?.title}". The seller and our moderation team will see this.
+          </p>
+          <div>
+            <label className="text-xs text-muted-foreground">Reason</label>
+            <select
+              value={reason} onChange={(e) => setReason(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-md border bg-background text-sm"
+            >
+              {DISPUTE_REASONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">Details (optional)</label>
+            <Textarea
+              value={details} onChange={(e) => setDetails(e.target.value)}
+              placeholder="Photos, dates, anything that helps explain…"
+              maxLength={1000} rows={4}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={busy}>Cancel</Button>
+          <Button onClick={submit} disabled={busy} variant="destructive">
+            {busy ? <Loader2 className="size-4 animate-spin mr-2" /> : <AlertTriangle className="size-4 mr-2" />}
+            Open case
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
