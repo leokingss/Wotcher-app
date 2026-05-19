@@ -537,8 +537,10 @@ export type Database = {
         Row: {
           amount_cents: number
           buyer_id: string
+          carrier: string | null
           created_at: string
           currency: string
+          delivered_at: string | null
           environment: string
           id: string
           kind: string
@@ -547,17 +549,21 @@ export type Database = {
           platform_fee_cents: number
           seller_id: string
           seller_net_cents: number
+          shipped_at: string | null
           shipping: Json | null
           status: string
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
+          tracking_number: string | null
           updated_at: string
         }
         Insert: {
           amount_cents: number
           buyer_id: string
+          carrier?: string | null
           created_at?: string
           currency?: string
+          delivered_at?: string | null
           environment?: string
           id?: string
           kind: string
@@ -566,17 +572,21 @@ export type Database = {
           platform_fee_cents: number
           seller_id: string
           seller_net_cents: number
+          shipped_at?: string | null
           shipping?: Json | null
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
+          tracking_number?: string | null
           updated_at?: string
         }
         Update: {
           amount_cents?: number
           buyer_id?: string
+          carrier?: string | null
           created_at?: string
           currency?: string
+          delivered_at?: string | null
           environment?: string
           id?: string
           kind?: string
@@ -585,10 +595,12 @@ export type Database = {
           platform_fee_cents?: number
           seller_id?: string
           seller_net_cents?: number
+          shipped_at?: string | null
           shipping?: Json | null
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
+          tracking_number?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1460,6 +1472,70 @@ export type Database = {
         Returns: boolean
       }
       is_seller_suspended: { Args: { _user_id: string }; Returns: boolean }
+      mark_order_delivered: {
+        Args: { _order_id: string }
+        Returns: {
+          amount_cents: number
+          buyer_id: string
+          carrier: string | null
+          created_at: string
+          currency: string
+          delivered_at: string | null
+          environment: string
+          id: string
+          kind: string
+          listing_id: string
+          paid_at: string | null
+          platform_fee_cents: number
+          seller_id: string
+          seller_net_cents: number
+          shipped_at: string | null
+          shipping: Json | null
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "marketplace_orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      mark_order_shipped: {
+        Args: { _carrier: string; _order_id: string; _tracking_number: string }
+        Returns: {
+          amount_cents: number
+          buyer_id: string
+          carrier: string | null
+          created_at: string
+          currency: string
+          delivered_at: string | null
+          environment: string
+          id: string
+          kind: string
+          listing_id: string
+          paid_at: string | null
+          platform_fee_cents: number
+          seller_id: string
+          seller_net_cents: number
+          shipped_at: string | null
+          shipping: Json | null
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "marketplace_orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
