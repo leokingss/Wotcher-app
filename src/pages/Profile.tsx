@@ -86,6 +86,7 @@ const Profile = () => {
 
   const { posts: cloudPosts } = usePosts(profileUserId);
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
+  const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
