@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut, ShoppingBag, QrCode, Flag } from "lucide-react";
 import ProfileQRDialog from "@/components/ProfileQRDialog";
@@ -23,7 +23,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePosts } from "@/hooks/usePosts";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useEffect } from "react";
+
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { getOrCreateDM } from "@/hooks/useInbox";
 import { useUnreadFromUser } from "@/hooks/useUnreadFromUser";
