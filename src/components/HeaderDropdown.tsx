@@ -143,6 +143,13 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
                   <span>Seller payouts</span>
                   <Wallet className="w-5 h-5 text-primary" />
                 </button>
+                <button
+                  onClick={() => { setIsOpen(false); navigate("/invite"); }}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+                >
+                  <span>Invite friends</span>
+                  <UserPlus className="w-5 h-5 text-primary" />
+                </button>
               </>
             )}
             <button
