@@ -972,7 +972,7 @@ const Profile = () => {
       <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       <ProfilePostDialog
-        posts={cloudPosts}
+        items={mediaItems}
         index={openPostIndex}
         onClose={() => setOpenPostIndex(null)}
         onIndexChange={setOpenPostIndex}
