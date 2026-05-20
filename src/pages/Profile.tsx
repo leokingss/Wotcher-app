@@ -647,6 +647,7 @@ const Profile = () => {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.04 }}
+                      onClick={() => setOpenPostIndex(index)}
                       className="neo-card p-1 rounded-xl group cursor-pointer"
                     >
                       <div className="relative overflow-hidden rounded-lg">
