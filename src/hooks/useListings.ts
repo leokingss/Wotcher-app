@@ -22,7 +22,7 @@ export interface Listing {
   shipping_required?: boolean;
   sold_at?: string | null;
   buyer_shipping?: Record<string, any> | null;
-  return_policy?: "none" | "14_days" | "30_days";
+  return_policy?: "none" | "15_days" | "30_days";
   fulfillment?: "shipping" | "pickup";
 }
 
