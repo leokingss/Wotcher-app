@@ -73,6 +73,7 @@ const AdminHome = () => {
         <QuickLink to="/admin/disputes" title="Resolve disputes" desc="Refund buyers, release seller payouts, mark resolved." />
         <QuickLink to="/admin/orders" title="Manage payouts" desc="See held funds, extend holds, release early, flag high risk." />
         <QuickLink to="/admin/sellers" title="Seller register" desc="Verification, suspensions, trust scores." />
+        <QuickLink to="/admin/invites" title="Invites" desc="View invite codes, revoke, grant extra allowance, see conversion." />
       </section>
     </AdminShell>
   );
