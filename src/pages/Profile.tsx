@@ -565,6 +565,7 @@ const Profile = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: (userPosts.length + i) * 0.03 }}
+                onClick={() => openMediaById(`song-${song.id}`)}
                 className="neo-card p-1 rounded-xl relative group cursor-pointer"
               >
                 <div className="relative overflow-hidden rounded-lg">
