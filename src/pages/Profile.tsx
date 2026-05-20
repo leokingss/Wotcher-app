@@ -137,7 +137,7 @@ const Profile = () => {
       likeCount: v.likes,
     }));
     return [...photos, ...songs, ...vids];
-  }, [cloudPosts, profile, profilePhoto]);
+  }, [cloudPosts, profile]);
 
   const openMediaById = (id: string) => {
     const i = mediaItems.findIndex((m) => m.id === id);
