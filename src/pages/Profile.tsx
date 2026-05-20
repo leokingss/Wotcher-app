@@ -23,7 +23,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePosts } from "@/hooks/usePosts";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useEffect } from "react";
+
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { getOrCreateDM } from "@/hooks/useInbox";
 import { useUnreadFromUser } from "@/hooks/useUnreadFromUser";
