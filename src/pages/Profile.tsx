@@ -15,7 +15,7 @@ import { Slider } from "@/components/ui/slider";
 import EmptyState from "@/components/EmptyState";
 import ProfileSavedTab from "@/components/ProfileSavedTab";
 import PostContextMenu from "@/components/PostContextMenu";
-import ProfilePostDialog from "@/components/ProfilePostDialog";
+import ProfilePostDialog, { type MediaItem } from "@/components/ProfilePostDialog";
 import FollowSheet from "@/components/FollowSheet";
 
 import { usePlayer } from "@/hooks/usePlayer";
