@@ -593,9 +593,11 @@ export type Database = {
           current_bidder_id: string | null
           description: string | null
           ends_at: string | null
+          fulfillment: string
           id: string
           post_id: string | null
           price: number | null
+          return_policy: string
           seller_id: string
           shipping_required: boolean
           sold_at: string | null
@@ -612,9 +614,11 @@ export type Database = {
           current_bidder_id?: string | null
           description?: string | null
           ends_at?: string | null
+          fulfillment?: string
           id?: string
           post_id?: string | null
           price?: number | null
+          return_policy?: string
           seller_id: string
           shipping_required?: boolean
           sold_at?: string | null
@@ -631,9 +635,11 @@ export type Database = {
           current_bidder_id?: string | null
           description?: string | null
           ends_at?: string | null
+          fulfillment?: string
           id?: string
           post_id?: string | null
           price?: number | null
+          return_policy?: string
           seller_id?: string
           shipping_required?: boolean
           sold_at?: string | null
@@ -2174,9 +2180,11 @@ export type Database = {
           current_bidder_id: string | null
           description: string | null
           ends_at: string | null
+          fulfillment: string
           id: string
           post_id: string | null
           price: number | null
+          return_policy: string
           seller_id: string
           shipping_required: boolean
           sold_at: string | null
