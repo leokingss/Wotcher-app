@@ -77,7 +77,7 @@ const ProfilePostDialog = ({ posts, index, onClose, onIndexChange }: Props) => {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
-        className="p-0 gap-0 max-w-5xl w-[96vw] md:w-[92vw] h-[92vh] md:h-[88vh] bg-background border-none overflow-hidden rounded-2xl"
+        className="p-0 gap-0 max-w-2xl w-[96vw] h-[92vh] bg-background border-none overflow-hidden rounded-2xl flex flex-col"
       >
         {/* Prev/Next */}
         {index! > 0 && (
