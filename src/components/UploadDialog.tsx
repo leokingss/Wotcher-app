@@ -61,6 +61,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const [startingBid, setStartingBid] = useState("");
   const [duration, setDuration] = useState<AuctionDuration>("3d");
   const [customEnd, setCustomEnd] = useState("");
+  const [fulfillment, setFulfillment] = useState<"shipping" | "pickup">("shipping");
+  const [returnPolicy, setReturnPolicy] = useState<"none" | "14_days" | "30_days">("none");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
