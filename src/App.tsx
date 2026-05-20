@@ -35,6 +35,8 @@ import AdminHome from "./pages/AdminHome";
 import AdminReports from "./pages/AdminReports";
 import AdminDisputes from "./pages/AdminDisputes";
 import AdminOrders from "./pages/AdminOrders";
+import InviteFriends from "./pages/InviteFriends";
+import AdminInvites from "./pages/AdminInvites";
 import { useNotificationToasts } from "@/hooks/useNotificationToasts";
 import ErrorBanner from "@/components/ErrorBanner";
 import DevPanel from "@/components/DevPanel";
@@ -71,6 +73,8 @@ const AnimatedRoutes = () => {
         <Route path="/admin/reports" element={<PageTransition><ProtectedRoute><AdminReports /></ProtectedRoute></PageTransition>} />
         <Route path="/admin/disputes" element={<PageTransition><ProtectedRoute><AdminDisputes /></ProtectedRoute></PageTransition>} />
         <Route path="/admin/orders" element={<PageTransition><ProtectedRoute><AdminOrders /></ProtectedRoute></PageTransition>} />
+        <Route path="/admin/invites" element={<PageTransition><ProtectedRoute><AdminInvites /></ProtectedRoute></PageTransition>} />
+        <Route path="/invite" element={<PageTransition><ProtectedRoute><InviteFriends /></ProtectedRoute></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}

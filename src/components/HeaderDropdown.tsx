@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck, FlaskConical, Package, Wallet } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck, FlaskConical, Package, Wallet, UserPlus } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -142,6 +142,13 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
                 >
                   <span>Seller payouts</span>
                   <Wallet className="w-5 h-5 text-primary" />
+                </button>
+                <button
+                  onClick={() => { setIsOpen(false); navigate("/invite"); }}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+                >
+                  <span>Invite friends</span>
+                  <UserPlus className="w-5 h-5 text-primary" />
                 </button>
               </>
             )}
