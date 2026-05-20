@@ -460,7 +460,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
                   <div className="grid grid-cols-3 gap-1.5">
                     {([
                       ["none", "No returns"],
-                      ["14_days", "14 days"],
+                      ["15_days", "15 days"],
                       ["30_days", "30 days"],
                     ] as const).map(([val, label]) => (
                       <button key={val} type="button" onClick={() => setReturnPolicy(val)}
