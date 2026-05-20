@@ -4,7 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
+import { validateInviteCode, claimInvite, consumeInvite } from "@/hooks/useInvites";
+
+const INVITE_STORAGE_KEY = "pending_invite_code";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -16,10 +19,47 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [invite, setInvite] = useState(params.get("invite") ?? localStorage.getItem(INVITE_STORAGE_KEY) ?? "");
+  const [inviteCheck, setInviteCheck] = useState<{ valid: boolean; reason?: string; inviter?: string | null } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Auto-validate invite code with debounce
   useEffect(() => {
-    if (!loading && user) navigate("/", { replace: true });
+    if (mode !== "signup") return;
+    if (!invite || invite.length < 6) { setInviteCheck(null); return; }
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const r = await validateInviteCode(invite.trim(), email || undefined);
+        if (cancelled) return;
+        setInviteCheck({ valid: r.valid, reason: r.reason, inviter: r.inviter_username });
+        if (r.valid) localStorage.setItem(INVITE_STORAGE_KEY, invite.trim().toUpperCase());
+      } catch {
+        if (!cancelled) setInviteCheck({ valid: false, reason: "error" });
+      }
+    }, 350);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [invite, email, mode]);
+
+  // After verified signin, try to consume any pending invite
+  useEffect(() => {
+    if (loading || !user) return;
+    const code = localStorage.getItem(INVITE_STORAGE_KEY);
+    (async () => {
+      if (code) {
+        try {
+          await consumeInvite(code);
+          toast.success("Invite redeemed");
+        } catch (e: any) {
+          if (!String(e.message).includes("already")) {
+            toast.error(e.message ?? "Could not redeem invite");
+          }
+        } finally {
+          localStorage.removeItem(INVITE_STORAGE_KEY);
+        }
+      }
+      navigate("/", { replace: true });
+    })();
   }, [user, loading, navigate]);
 
   const handleEmail = async (e: React.FormEvent) => {
@@ -27,16 +67,25 @@ const Auth = () => {
     setSubmitting(true);
     try {
       if (mode === "signup") {
+        const code = invite.trim().toUpperCase();
+        if (!code) throw new Error("This app is invite-only. Enter an invite code.");
+        const r = await validateInviteCode(code, email);
+        if (!r.valid) throw new Error(`Invite ${r.reason.replace("_", " ")}`);
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { username: username || email.split("@")[0] },
+            data: {
+              username: username || email.split("@")[0],
+              invite_code: code,
+            },
           },
         });
         if (error) throw error;
-        toast.success("Welcome aboard!");
+        localStorage.setItem(INVITE_STORAGE_KEY, code);
+        try { await claimInvite(code); } catch {}
+        toast.success("Check your email to verify your account");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -50,6 +99,16 @@ const Auth = () => {
   };
 
   const oauth = async (provider: "google" | "apple") => {
+    if (mode === "signup" && !invite.trim()) {
+      toast.error("This app is invite-only. Enter an invite code first.");
+      return;
+    }
+    if (mode === "signup") {
+      const r = await validateInviteCode(invite.trim());
+      if (!r.valid) { toast.error(`Invite ${r.reason}`); return; }
+      localStorage.setItem(INVITE_STORAGE_KEY, invite.trim().toUpperCase());
+      try { await claimInvite(invite.trim()); } catch {}
+    }
     const { error, redirected } = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin,
     });
@@ -66,6 +125,8 @@ const Auth = () => {
     else toast.success("Check your email for a reset link");
   };
 
+  const inviteOk = mode !== "signup" || (inviteCheck?.valid ?? false);
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background">
       <div className="neo-card w-full max-w-sm rounded-3xl p-7 space-y-6">
@@ -74,15 +135,35 @@ const Auth = () => {
             {mode === "signin" ? "Welcome back" : "Create account"}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {mode === "signin" ? "Sign in to continue" : "Join the community"}
+            {mode === "signin" ? "Sign in to continue" : "This app is invite-only"}
           </p>
         </div>
 
+        {mode === "signup" && (
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Invite code</label>
+            <input
+              type="text" required placeholder="ABCD123XYZ"
+              value={invite}
+              onChange={(e) => setInvite(e.target.value.toUpperCase())}
+              className="neo-card-inset w-full px-4 py-3 rounded-xl bg-transparent outline-none text-sm font-mono tracking-wider"
+            />
+            {inviteCheck && (
+              <p className={`text-xs flex items-center gap-1 ${inviteCheck.valid ? "text-primary" : "text-destructive"}`}>
+                <ShieldCheck className="w-3.5 h-3.5" />
+                {inviteCheck.valid
+                  ? <>Invited by @{inviteCheck.inviter ?? "a member"}</>
+                  : <>Invite {inviteCheck.reason?.replace("_", " ")}</>}
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="space-y-2">
-          <button onClick={() => oauth("google")} className="action-button w-full">
+          <button onClick={() => oauth("google")} disabled={!inviteOk} className="action-button w-full disabled:opacity-40">
             Continue with Google
           </button>
-          <button onClick={() => oauth("apple")} className="action-button w-full">
+          <button onClick={() => oauth("apple")} disabled={!inviteOk} className="action-button w-full disabled:opacity-40">
             Continue with Apple
           </button>
         </div>
@@ -96,42 +177,32 @@ const Auth = () => {
         <form onSubmit={handleEmail} className="space-y-3">
           {mode === "signup" && (
             <input
-              type="text"
-              placeholder="Username"
-              value={username}
+              type="text" placeholder="Username" value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="neo-card-inset w-full px-4 py-3 rounded-xl bg-transparent outline-none text-sm"
             />
           )}
           <input
-            type="email"
-            required
-            placeholder="Email"
-            value={email}
+            type="email" required placeholder="Email" value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="neo-card-inset w-full px-4 py-3 rounded-xl bg-transparent outline-none text-sm"
           />
           <input
-            type="password"
-            required
-            minLength={6}
-            placeholder="Password"
-            value={password}
+            type="password" required minLength={6} placeholder="Password" value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="neo-card-inset w-full px-4 py-3 rounded-xl bg-transparent outline-none text-sm"
           />
           <button
             type="submit"
-            disabled={submitting}
-            className="action-button action-button-primary w-full flex items-center justify-center gap-2"
+            disabled={submitting || !inviteOk}
+            className="action-button action-button-primary w-full flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
             {mode === "signin" ? "Sign in" : "Sign up"}
           </button>
           {mode === "signin" && (
             <button
-              type="button"
-              onClick={sendReset}
+              type="button" onClick={sendReset}
               className="block w-full text-center text-xs text-muted-foreground hover:text-foreground pt-1"
             >
               Forgot password?
