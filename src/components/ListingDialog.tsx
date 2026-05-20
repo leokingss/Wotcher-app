@@ -162,6 +162,18 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
               <span className="text-muted-foreground">Status</span>
               <span className="font-medium capitalize">{ended && listing.status === "active" ? "ended" : listing.status}</span>
             </div>
+            <div className="flex items-baseline justify-between text-xs">
+              <span className="text-muted-foreground">Delivery</span>
+              <span className="font-medium">{listing.fulfillment === "pickup" ? "Local pickup" : "Ships to buyer"}</span>
+            </div>
+            <div className="flex items-baseline justify-between text-xs">
+              <span className="text-muted-foreground">Returns</span>
+              <span className="font-medium">
+                {listing.return_policy === "30_days" ? "30-day returns"
+                  : listing.return_policy === "14_days" ? "14-day returns"
+                  : "No returns"}
+              </span>
+            </div>
           </div>
 
           {/* Seller rating preview */}
