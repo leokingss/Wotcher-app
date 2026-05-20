@@ -78,17 +78,7 @@ const ProfilePostDialog = ({ posts, index, onClose, onIndexChange }: Props) => {
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className="p-0 gap-0 max-w-5xl w-[96vw] md:w-[92vw] h-[92vh] md:h-[88vh] bg-background border-none overflow-hidden rounded-2xl"
-        hideClose
       >
-        {/* Close */}
-        <button
-          aria-label="Close"
-          onClick={onClose}
-          className="absolute top-3 right-3 z-50 neo-button-icon w-9 h-9 flex items-center justify-center"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
         {/* Prev/Next */}
         {index! > 0 && (
           <button
