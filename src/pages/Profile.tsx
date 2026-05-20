@@ -916,6 +916,13 @@ const Profile = () => {
 
       <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
 
+      <ProfilePostDialog
+        posts={cloudPosts}
+        index={openPostIndex}
+        onClose={() => setOpenPostIndex(null)}
+        onIndexChange={setOpenPostIndex}
+      />
+
       <BottomNav />
     </div>
   );
