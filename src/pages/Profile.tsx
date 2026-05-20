@@ -15,6 +15,7 @@ import { Slider } from "@/components/ui/slider";
 import EmptyState from "@/components/EmptyState";
 import ProfileSavedTab from "@/components/ProfileSavedTab";
 import PostContextMenu from "@/components/PostContextMenu";
+import ProfilePostDialog from "@/components/ProfilePostDialog";
 import FollowSheet from "@/components/FollowSheet";
 
 import { usePlayer } from "@/hooks/usePlayer";
@@ -86,6 +87,7 @@ const Profile = () => {
 
   const { posts: cloudPosts } = usePosts(profileUserId);
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
+  const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -494,6 +496,7 @@ const Profile = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
+                onClick={() => setOpenPostIndex(index)}
                 className="neo-card p-1 rounded-xl group cursor-pointer"
               >
                 <div className="relative overflow-hidden rounded-lg">
@@ -644,6 +647,7 @@ const Profile = () => {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.04 }}
+                      onClick={() => setOpenPostIndex(index)}
                       className="neo-card p-1 rounded-xl group cursor-pointer"
                     >
                       <div className="relative overflow-hidden rounded-lg">
@@ -911,6 +915,13 @@ const Profile = () => {
       />
 
       <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
+
+      <ProfilePostDialog
+        posts={cloudPosts}
+        index={openPostIndex}
+        onClose={() => setOpenPostIndex(null)}
+        onIndexChange={setOpenPostIndex}
+      />
 
       <BottomNav />
     </div>
