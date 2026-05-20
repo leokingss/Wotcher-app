@@ -1,0 +1,2 @@
+ALTER TABLE public.listings DROP CONSTRAINT IF EXISTS listings_return_policy_check;
+ALTER TABLE public.listings ADD CONSTRAINT listings_return_policy_check CHECK (return_policy IN ('none','15_days','30_days'));

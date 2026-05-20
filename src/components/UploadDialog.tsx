@@ -62,7 +62,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const [duration, setDuration] = useState<AuctionDuration>("3d");
   const [customEnd, setCustomEnd] = useState("");
   const [fulfillment, setFulfillment] = useState<"shipping" | "pickup">("shipping");
-  const [returnPolicy, setReturnPolicy] = useState<"none" | "14_days" | "30_days">("none");
+  const [returnPolicy, setReturnPolicy] = useState<"none" | "15_days" | "30_days">("none");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -460,7 +460,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
                   <div className="grid grid-cols-3 gap-1.5">
                     {([
                       ["none", "No returns"],
-                      ["14_days", "14 days"],
+                      ["15_days", "15 days"],
                       ["30_days", "30 days"],
                     ] as const).map(([val, label]) => (
                       <button key={val} type="button" onClick={() => setReturnPolicy(val)}
