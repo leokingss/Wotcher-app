@@ -170,7 +170,7 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
               <span className="text-muted-foreground">Returns</span>
               <span className="font-medium">
                 {listing.return_policy === "30_days" ? "30-day returns"
-                  : listing.return_policy === "14_days" ? "14-day returns"
+                  : listing.return_policy === "15_days" ? "15-day returns"
                   : "No returns"}
               </span>
             </div>
