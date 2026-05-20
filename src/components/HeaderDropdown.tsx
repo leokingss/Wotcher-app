@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck, FlaskConical, Package, Wallet } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck, FlaskConical, Package, Wallet, UserPlus } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
