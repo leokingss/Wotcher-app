@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, ChevronDown, Menu, Plus, Grid3X3, Music, Film, UserSquare2, Link as LinkIcon, Bookmark, ChevronRight, Camera, Image, X, ZoomIn, ZoomOut, ShoppingBag, QrCode, Flag } from "lucide-react";
 import ProfileQRDialog from "@/components/ProfileQRDialog";
@@ -15,7 +15,7 @@ import { Slider } from "@/components/ui/slider";
 import EmptyState from "@/components/EmptyState";
 import ProfileSavedTab from "@/components/ProfileSavedTab";
 import PostContextMenu from "@/components/PostContextMenu";
-import ProfilePostDialog from "@/components/ProfilePostDialog";
+import ProfilePostDialog, { type MediaItem } from "@/components/ProfilePostDialog";
 import FollowSheet from "@/components/FollowSheet";
 
 import { usePlayer } from "@/hooks/usePlayer";
@@ -88,6 +88,61 @@ const Profile = () => {
   const { posts: cloudPosts } = usePosts(profileUserId);
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
   const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
+
+  // Unified media timeline for the post dialog
+  const mediaItems = useMemo<MediaItem[]>(() => {
+    const uname = profile?.username ?? "user";
+    const dname = profile?.display_name ?? uname;
+    const av = profile?.avatar_url ?? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop";
+    const photos: MediaItem[] = cloudPosts.map((p) => ({
+      id: `photo-${p.id}`,
+      kind: "photo",
+      username: p.profile?.username ?? uname,
+      displayName: p.profile?.display_name ?? dname,
+      avatar: p.profile?.avatar_url ?? av,
+      location: p.location ?? undefined,
+      createdAt: p.created_at,
+      caption: p.caption ?? undefined,
+      image: p.image_url,
+      likeCount: p.like_count,
+      postId: p.id,
+    }));
+    const songs: MediaItem[] = playlist.map((s) => {
+      const featured = featuredSongs.find((f) => f.id === s.id);
+      return {
+        id: `song-${s.id}`,
+        kind: "song",
+        username: uname,
+        displayName: dname,
+        avatar: av,
+        image: s.cover,
+        title: s.title,
+        artist: s.artist,
+        caption: `${s.title} — ${s.artist}`,
+        duration: s.duration,
+        likeCount: s.likes,
+        audioUrl: featured?.audioUrl,
+      };
+    });
+    const vids: MediaItem[] = videos.map((v) => ({
+      id: `video-${v.id}`,
+      kind: "video",
+      username: uname,
+      displayName: dname,
+      avatar: av,
+      image: v.thumbnail,
+      title: v.title,
+      caption: v.title,
+      duration: v.duration,
+      likeCount: v.likes,
+    }));
+    return [...photos, ...songs, ...vids];
+  }, [cloudPosts, profile]);
+
+  const openMediaById = (id: string) => {
+    const i = mediaItems.findIndex((m) => m.id === id);
+    if (i >= 0) setOpenPostIndex(i);
+  };
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -496,7 +551,7 @@ const Profile = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
-                onClick={() => setOpenPostIndex(index)}
+                onClick={() => openMediaById(`photo-${cloudPosts[index]?.id}`)}
                 className="neo-card p-1 rounded-xl group cursor-pointer"
               >
                 <div className="relative overflow-hidden rounded-lg">
@@ -510,6 +565,7 @@ const Profile = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: (userPosts.length + i) * 0.03 }}
+                onClick={() => openMediaById(`song-${song.id}`)}
                 className="neo-card p-1 rounded-xl relative group cursor-pointer"
               >
                 <div className="relative overflow-hidden rounded-lg">
@@ -531,6 +587,7 @@ const Profile = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: (userPosts.length + playlist.length + i) * 0.03 }}
+                onClick={() => openMediaById(`video-${video.id}`)}
                 className="neo-card p-1 rounded-xl relative group cursor-pointer"
               >
                 <div className="relative overflow-hidden rounded-lg">
@@ -647,7 +704,7 @@ const Profile = () => {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.04 }}
-                      onClick={() => setOpenPostIndex(index)}
+                      onClick={() => openMediaById(`photo-${cloudPosts[index]?.id}`)}
                       className="neo-card p-1 rounded-xl group cursor-pointer"
                     >
                       <div className="relative overflow-hidden rounded-lg">
@@ -917,7 +974,7 @@ const Profile = () => {
       <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       <ProfilePostDialog
-        posts={cloudPosts}
+        items={mediaItems}
         index={openPostIndex}
         onClose={() => setOpenPostIndex(null)}
         onIndexChange={setOpenPostIndex}
