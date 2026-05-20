@@ -438,6 +438,38 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
                     )}
                   </>
                 )}
+
+                {/* Fulfillment */}
+                <div className="space-y-1.5">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">Delivery</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button type="button" onClick={() => setFulfillment("shipping")}
+                      className={`py-1.5 rounded-lg text-[11px] font-medium ${fulfillment === "shipping" ? "neo-card-inset text-primary" : "neo-button"}`}>
+                      Ship to buyer
+                    </button>
+                    <button type="button" onClick={() => setFulfillment("pickup")}
+                      className={`py-1.5 rounded-lg text-[11px] font-medium ${fulfillment === "pickup" ? "neo-card-inset text-primary" : "neo-button"}`}>
+                      Local pickup
+                    </button>
+                  </div>
+                </div>
+
+                {/* Return policy */}
+                <div className="space-y-1.5">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">Returns</p>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {([
+                      ["none", "No returns"],
+                      ["14_days", "14 days"],
+                      ["30_days", "30 days"],
+                    ] as const).map(([val, label]) => (
+                      <button key={val} type="button" onClick={() => setReturnPolicy(val)}
+                        className={`py-1.5 rounded-lg text-[11px] font-medium ${returnPolicy === val ? "neo-card-inset text-primary" : "neo-button"}`}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>
