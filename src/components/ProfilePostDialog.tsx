@@ -77,7 +77,7 @@ const ProfilePostDialog = ({ posts, index, onClose, onIndexChange }: Props) => {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
-        className="p-0 gap-0 max-w-5xl w-[96vw] md:w-[92vw] h-[92vh] md:h-[88vh] bg-background border-none overflow-hidden rounded-2xl"
+        className="p-0 gap-0 max-w-2xl w-[96vw] h-[92vh] bg-background border-none overflow-hidden rounded-2xl flex flex-col"
       >
         {/* Prev/Next */}
         {index! > 0 && (
@@ -99,16 +99,35 @@ const ProfilePostDialog = ({ posts, index, onClose, onIndexChange }: Props) => {
           </button>
         )}
 
-        <div className="flex flex-col md:flex-row h-full w-full">
+        {/* Scrollable column: header → media → actions → comments */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {/* Header */}
+          <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur border-b border-border/40">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="neo-button-icon p-0.5 flex-shrink-0">
+                <img src={avatar} alt={username} className="w-9 h-9 rounded-full object-cover" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-sm truncate">{displayName}</p>
+                {post.location && (
+                  <p className="text-xs text-muted-foreground truncate">{post.location}</p>
+                )}
+              </div>
+            </div>
+            <button className="neo-button-icon p-2">
+              <MoreHorizontal className="w-5 h-5" />
+            </button>
+          </div>
+
           {/* Media */}
           <div
-            className="relative bg-black flex items-center justify-center md:flex-1 md:max-w-[60%] h-[45vh] md:h-full select-none"
+            className="relative bg-black flex items-center justify-center select-none"
             onDoubleClick={handleDoubleTap}
           >
             <img
               src={post.image_url}
               alt={post.caption ?? "Post"}
-              className="max-w-full max-h-full object-contain"
+              className="w-full max-h-[70vh] object-contain"
               draggable={false}
             />
             <AnimatePresence>
@@ -126,78 +145,54 @@ const ProfilePostDialog = ({ posts, index, onClose, onIndexChange }: Props) => {
             </AnimatePresence>
           </div>
 
-          {/* Details */}
-          <div className="flex flex-col flex-1 min-h-0 bg-card">
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="neo-button-icon p-0.5 flex-shrink-0">
-                  <img src={avatar} alt={username} className="w-9 h-9 rounded-full object-cover" />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-sm truncate">{displayName}</p>
-                  {post.location && (
-                    <p className="text-xs text-muted-foreground truncate">{post.location}</p>
-                  )}
-                </div>
-              </div>
-              <button className="neo-button-icon p-2">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Caption + Comments */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
-              {post.caption && (
-                <div className="flex gap-3">
-                  <img src={avatar} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
-                  <div className="text-sm">
-                    <span className="font-semibold mr-1.5">{username}</span>
-                    <span className="text-foreground/90">{post.caption}</span>
-                  </div>
-                </div>
-              )}
-              <CommentSection isOpen={true} postId={post.id} />
-            </div>
-
-            {/* Actions */}
-            <div className="px-4 py-3 border-t border-border/40 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <motion.button
-                    onClick={handleLike}
-                    whileTap={{ scale: 0.85 }}
-                    animate={liked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="neo-button-icon p-2.5"
-                  >
-                    <Heart className={`w-5 h-5 ${liked ? "fill-red-500 text-red-500" : ""}`} />
-                  </motion.button>
-                  <motion.button
-                    onClick={handleDislike}
-                    whileTap={{ scale: 0.85 }}
-                    animate={disliked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="neo-button-icon p-2.5"
-                  >
-                    <HeartCrack className={`w-5 h-5 ${disliked ? "fill-red-500 text-red-900" : ""}`} />
-                  </motion.button>
-                  <button className="neo-button-icon p-2.5">
-                    <MessageCircle className="w-5 h-5" />
-                  </button>
-                  <button className="neo-button-icon p-2.5">
-                    <Send className="w-5 h-5" />
-                  </button>
-                </div>
-                <button onClick={() => setSaved((s) => !s)} className="neo-button-icon p-2.5">
-                  <Bookmark className={`w-5 h-5 ${saved ? "fill-primary text-primary" : ""}`} />
+          {/* Actions */}
+          <div className="px-4 py-3 space-y-2 border-b border-border/40">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <motion.button
+                  onClick={handleLike}
+                  whileTap={{ scale: 0.85 }}
+                  animate={liked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="neo-button-icon p-2.5"
+                >
+                  <Heart className={`w-5 h-5 ${liked ? "fill-red-500 text-red-500" : ""}`} />
+                </motion.button>
+                <motion.button
+                  onClick={handleDislike}
+                  whileTap={{ scale: 0.85 }}
+                  animate={disliked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="neo-button-icon p-2.5"
+                >
+                  <HeartCrack className={`w-5 h-5 ${disliked ? "fill-red-500 text-red-900" : ""}`} />
+                </motion.button>
+                <button className="neo-button-icon p-2.5">
+                  <MessageCircle className="w-5 h-5" />
+                </button>
+                <button className="neo-button-icon p-2.5">
+                  <Send className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-sm font-semibold">{formatCount(Math.max(0, likeBump))} likes</p>
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                {new Date(post.created_at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
-              </p>
+              <button onClick={() => setSaved((s) => !s)} className="neo-button-icon p-2.5">
+                <Bookmark className={`w-5 h-5 ${saved ? "fill-primary text-primary" : ""}`} />
+              </button>
             </div>
+            <p className="text-sm font-semibold">{formatCount(Math.max(0, likeBump))} likes</p>
+            {post.caption && (
+              <p className="text-sm">
+                <span className="font-semibold mr-1.5">{username}</span>
+                <span className="text-foreground/90">{post.caption}</span>
+              </p>
+            )}
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              {new Date(post.created_at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
+            </p>
+          </div>
+
+          {/* Comments below */}
+          <div className="px-4 py-3">
+            <CommentSection isOpen={true} postId={post.id} />
           </div>
         </div>
       </DialogContent>
