@@ -154,6 +154,9 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
           price: saleType === "fixed" ? parseFloat(price) : null,
           starting_bid: saleType === "auction" ? parseFloat(startingBid) : null,
           ends_at: endsAt,
+          fulfillment,
+          shipping_required: fulfillment === "shipping",
+          return_policy: returnPolicy,
         });
         if (lErr) throw lErr;
       }
