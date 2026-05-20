@@ -35,6 +35,8 @@ import AdminHome from "./pages/AdminHome";
 import AdminReports from "./pages/AdminReports";
 import AdminDisputes from "./pages/AdminDisputes";
 import AdminOrders from "./pages/AdminOrders";
+import InviteFriends from "./pages/InviteFriends";
+import AdminInvites from "./pages/AdminInvites";
 import { useNotificationToasts } from "@/hooks/useNotificationToasts";
 import ErrorBanner from "@/components/ErrorBanner";
 import DevPanel from "@/components/DevPanel";
