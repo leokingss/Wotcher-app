@@ -93,7 +93,7 @@ const Profile = () => {
   const mediaItems = useMemo<MediaItem[]>(() => {
     const uname = profile?.username ?? "user";
     const dname = profile?.display_name ?? uname;
-    const av = profilePhoto;
+    const av = profile?.avatar_url ?? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop";
     const photos: MediaItem[] = cloudPosts.map((p) => ({
       id: `photo-${p.id}`,
       kind: "photo",
