@@ -73,6 +73,8 @@ const AnimatedRoutes = () => {
         <Route path="/admin/reports" element={<PageTransition><ProtectedRoute><AdminReports /></ProtectedRoute></PageTransition>} />
         <Route path="/admin/disputes" element={<PageTransition><ProtectedRoute><AdminDisputes /></ProtectedRoute></PageTransition>} />
         <Route path="/admin/orders" element={<PageTransition><ProtectedRoute><AdminOrders /></ProtectedRoute></PageTransition>} />
+        <Route path="/admin/invites" element={<PageTransition><ProtectedRoute><AdminInvites /></ProtectedRoute></PageTransition>} />
+        <Route path="/invite" element={<PageTransition><ProtectedRoute><InviteFriends /></ProtectedRoute></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}
