@@ -567,6 +567,101 @@ export type Database = {
           },
         ]
       }
+      invite_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          invite_id: string
+          ip: string | null
+          metadata: Json | null
+          user_agent: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          invite_id: string
+          ip?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          invite_id?: string
+          ip?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_events_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invites: {
+        Row: {
+          claimed_at: string | null
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          invite_type: string
+          invitee_email: string | null
+          invitee_phone: string | null
+          invitee_user_id: string | null
+          inviter_user_id: string
+          metadata: Json | null
+          revoked_at: string | null
+          revoked_by: string | null
+          status: string
+          used_at: string | null
+        }
+        Insert: {
+          claimed_at?: string | null
+          code: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invite_type: string
+          invitee_email?: string | null
+          invitee_phone?: string | null
+          invitee_user_id?: string | null
+          inviter_user_id: string
+          metadata?: Json | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          status?: string
+          used_at?: string | null
+        }
+        Update: {
+          claimed_at?: string | null
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invite_type?: string
+          invitee_email?: string | null
+          invitee_phone?: string | null
+          invitee_user_id?: string | null
+          inviter_user_id?: string
+          metadata?: Json | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          status?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       listing_favorites: {
         Row: {
           created_at: string
@@ -1053,6 +1148,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          invite_allowance: number
           subscription_period_end: string | null
           subscription_status: string | null
           subscription_tier: string
@@ -1066,6 +1162,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          invite_allowance?: number
           subscription_period_end?: string | null
           subscription_status?: string | null
           subscription_tier?: string
@@ -1079,6 +1176,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          invite_allowance?: number
           subscription_period_end?: string | null
           subscription_status?: string | null
           subscription_tier?: string
@@ -1086,6 +1184,38 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      referral_relationships: {
+        Row: {
+          created_at: string
+          id: string
+          invite_id: string
+          invitee_user_id: string
+          inviter_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invite_id: string
+          invitee_user_id: string
+          inviter_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invite_id?: string
+          invitee_user_id?: string
+          inviter_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_relationships_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "invites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -1849,6 +1979,32 @@ export type Database = {
         Args: { _list: string; _viewer: string }
         Returns: boolean
       }
+      claim_invite: {
+        Args: { _code: string }
+        Returns: {
+          claimed_at: string | null
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          invite_type: string
+          invitee_email: string | null
+          invitee_phone: string | null
+          invitee_user_id: string | null
+          inviter_user_id: string
+          metadata: Json | null
+          revoked_at: string | null
+          revoked_by: string | null
+          status: string
+          used_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       clear_account_flag: {
         Args: { _flag_id: string; _notes: string }
         Returns: {
@@ -1864,6 +2020,62 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "account_flags"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      consume_invite: {
+        Args: { _code: string }
+        Returns: {
+          claimed_at: string | null
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          invite_type: string
+          invitee_email: string | null
+          invitee_phone: string | null
+          invitee_user_id: string | null
+          inviter_user_id: string
+          metadata: Json | null
+          revoked_at: string | null
+          revoked_by: string | null
+          status: string
+          used_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_invite: {
+        Args: {
+          _invite_type: string
+          _invitee_email?: string
+          _invitee_phone?: string
+        }
+        Returns: {
+          claimed_at: string | null
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          invite_type: string
+          invitee_email: string | null
+          invitee_phone: string | null
+          invitee_user_id: string | null
+          inviter_user_id: string
+          metadata: Json | null
+          revoked_at: string | null
+          revoked_by: string | null
+          status: string
+          used_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "invites"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -1895,8 +2107,13 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      generate_invite_code: { Args: never; Returns: string }
       get_buyer_shipping: { Args: { _listing_id: string }; Returns: Json }
       get_or_create_dm: { Args: { _other: string }; Returns: string }
+      grant_extra_invites: {
+        Args: { _extra: number; _user_id: string }
+        Returns: number
+      }
       has_active_subscription: {
         Args: { _tier?: string; _user_id: string }
         Returns: boolean
@@ -1908,6 +2125,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      invites_remaining: { Args: { _user_id: string }; Returns: number }
       is_artist: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _cid: string; _uid: string }
@@ -2231,6 +2449,32 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      revoke_invite: {
+        Args: { _invite_id: string }
+        Returns: {
+          claimed_at: string | null
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          invite_type: string
+          invitee_email: string | null
+          invitee_phone: string | null
+          invitee_user_id: string | null
+          inviter_user_id: string
+          metadata: Json | null
+          revoked_at: string | null
+          revoked_by: string | null
+          status: string
+          used_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       submit_bidder_registration: {
         Args: {
           _address_line1: string
@@ -2302,6 +2546,15 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      validate_invite_code: {
+        Args: { _code: string; _email?: string; _phone?: string }
+        Returns: {
+          invite_id: string
+          inviter_username: string
+          reason: string
+          valid: boolean
+        }[]
       }
       warn_seller: {
         Args: { _details: string; _reason: string; _user_id: string }
