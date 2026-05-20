@@ -88,6 +88,61 @@ const Profile = () => {
   const { posts: cloudPosts } = usePosts(profileUserId);
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
   const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
+
+  // Unified media timeline for the post dialog
+  const mediaItems = useMemo<MediaItem[]>(() => {
+    const uname = profile?.username ?? "user";
+    const dname = profile?.display_name ?? uname;
+    const av = profilePhoto;
+    const photos: MediaItem[] = cloudPosts.map((p) => ({
+      id: `photo-${p.id}`,
+      kind: "photo",
+      username: p.profile?.username ?? uname,
+      displayName: p.profile?.display_name ?? dname,
+      avatar: p.profile?.avatar_url ?? av,
+      location: p.location ?? undefined,
+      createdAt: p.created_at,
+      caption: p.caption ?? undefined,
+      image: p.image_url,
+      likeCount: p.like_count,
+      postId: p.id,
+    }));
+    const songs: MediaItem[] = playlist.map((s) => {
+      const featured = featuredSongs.find((f) => f.id === s.id);
+      return {
+        id: `song-${s.id}`,
+        kind: "song",
+        username: uname,
+        displayName: dname,
+        avatar: av,
+        image: s.cover,
+        title: s.title,
+        artist: s.artist,
+        caption: `${s.title} — ${s.artist}`,
+        duration: s.duration,
+        likeCount: s.likes,
+        audioUrl: featured?.audioUrl,
+      };
+    });
+    const vids: MediaItem[] = videos.map((v) => ({
+      id: `video-${v.id}`,
+      kind: "video",
+      username: uname,
+      displayName: dname,
+      avatar: av,
+      image: v.thumbnail,
+      title: v.title,
+      caption: v.title,
+      duration: v.duration,
+      likeCount: v.likes,
+    }));
+    return [...photos, ...songs, ...vids];
+  }, [cloudPosts, profile, profilePhoto]);
+
+  const openMediaById = (id: string) => {
+    const i = mediaItems.findIndex((m) => m.id === id);
+    if (i >= 0) setOpenPostIndex(i);
+  };
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
