@@ -4,11 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import type { StoryFrame, StoryMediaType } from "@/data/mockSocial";
+import type { StoryMediaType } from "@/data/mockSocial";
 import LiveStreamMode from "@/components/LiveStreamMode";
 import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
-
-const MY_STORIES_KEY = (uid: string) => `watcher:my-stories:${uid}`;
 
 interface DraftFrame {
   id: string;
@@ -25,7 +23,7 @@ interface StoryComposerProps {
 }
 
 const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [frames, setFrames] = useState<DraftFrame[]>([]);
   const [current, setCurrent] = useState(0);
   const [storyType, setStoryType] = useState<StoryMediaType>("photo");
@@ -115,8 +113,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
 
     setPosting(true);
     try {
-      // Upload each frame to the media bucket
-      const uploaded: StoryFrame[] = [];
+      // Upload each frame to media storage, then insert one stories row per frame
+      const rows: any[] = [];
       for (let i = 0; i < frames.length; i++) {
         const f = frames[i];
         const ext = f.file.name.split(".").pop() || (f.fileType === "video" ? "mp4" : "jpg");
@@ -129,39 +127,21 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
         const tagSuffix = i === 0 && tagged.length ? " " + tagged.map((t) => `@${t.handle}`).join(" ") : "";
         const locPrefix = i === 0 && location ? `📍 ${location.name} · ` : "";
-        uploaded.push({
-          url: urlData.publicUrl,
-          caption: ((locPrefix + (f.caption.trim() || "")) + tagSuffix).trim() || undefined,
-          trackTitle: i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : undefined,
-          trackArtist:
-            i === 0 && storyType === "music" && trackArtist.trim() ? trackArtist.trim() : undefined,
+        const caption = ((locPrefix + (f.caption.trim() || "")) + tagSuffix).trim() || null;
+        rows.push({
+          user_id: user.id,
+          media_type: storyType,
+          media_url: urlData.publicUrl,
+          caption,
+          track_title:
+            i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
+          track_artist:
+            i === 0 && storyType === "music" && trackArtist.trim() ? trackArtist.trim() : null,
         });
       }
 
-      // Persist to localStorage in a shape that's backward-compatible with ActivityView
-      const myStory = {
-        id: Date.now(),
-        username: profile?.display_name || profile?.username || "You",
-        avatar:
-          profile?.avatar_url ||
-          `https://api.dicebear.com/7.x/initials/svg?seed=${profile?.username ?? "you"}`,
-        thumbnail: uploaded[0].url,
-        caption: uploaded[0].caption ?? "",
-        mediaType: storyType,
-        created_at: new Date().toISOString(),
-        frames: uploaded,
-      };
-
-      const key = MY_STORIES_KEY(user.id);
-      const existing = (() => {
-        try {
-          return JSON.parse(localStorage.getItem(key) ?? "[]");
-        } catch {
-          return [];
-        }
-      })();
-      localStorage.setItem(key, JSON.stringify([myStory, ...existing]));
-      window.dispatchEvent(new CustomEvent("watcher:my-stories-changed"));
+      const { error: insErr } = await supabase.from("stories").insert(rows);
+      if (insErr) throw insErr;
 
       toast.success("Story published");
       reset();

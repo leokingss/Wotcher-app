@@ -261,6 +261,45 @@ export type Database = {
         }
         Relationships: []
       }
+      circle_members: {
+        Row: {
+          circle: Database["public"]["Enums"]["friend_circle"]
+          created_at: string
+          id: string
+          member_id: string
+          owner_id: string
+        }
+        Insert: {
+          circle: Database["public"]["Enums"]["friend_circle"]
+          created_at?: string
+          id?: string
+          member_id: string
+          owner_id: string
+        }
+        Update: {
+          circle?: Database["public"]["Enums"]["friend_circle"]
+          created_at?: string
+          id?: string
+          member_id?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_members_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_members_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_reactions: {
         Row: {
           comment_id: string
@@ -1629,6 +1668,83 @@ export type Database = {
         }
         Relationships: []
       }
+      stories: {
+        Row: {
+          caption: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          media_type: Database["public"]["Enums"]["story_media_type"]
+          media_url: string
+          track_artist: string | null
+          track_title: string | null
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          media_type: Database["public"]["Enums"]["story_media_type"]
+          media_url: string
+          track_artist?: string | null
+          track_title?: string | null
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          media_type?: Database["public"]["Enums"]["story_media_type"]
+          media_url?: string
+          track_artist?: string | null
+          track_title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_views: {
+        Row: {
+          story_id: string
+          viewed_at: string
+          viewer_id: string
+        }
+        Insert: {
+          story_id: string
+          viewed_at?: string
+          viewer_id: string
+        }
+        Update: {
+          story_id?: string
+          viewed_at?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_views_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "story_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -2017,6 +2133,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      cleanup_expired_stories: { Args: never; Returns: number }
       clear_account_flag: {
         Args: { _flag_id: string; _notes: string }
         Returns: {
@@ -2591,6 +2708,7 @@ export type Database = {
       account_type: "listener" | "artist"
       app_role: "admin" | "moderator" | "user"
       bidder_status: "pending" | "approved" | "rejected" | "revoked"
+      friend_circle: "private" | "family" | "friends" | "groups"
       list_visibility: "public" | "private" | "shared"
       listing_status: "active" | "sold" | "ended" | "cancelled"
       listing_type: "fixed" | "auction"
@@ -2608,6 +2726,7 @@ export type Database = {
       reaction_type: "like" | "dislike"
       release_type: "single" | "ep" | "album"
       saved_item_type: "post" | "listing"
+      story_media_type: "photo" | "video" | "music"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2738,6 +2857,7 @@ export const Constants = {
       account_type: ["listener", "artist"],
       app_role: ["admin", "moderator", "user"],
       bidder_status: ["pending", "approved", "rejected", "revoked"],
+      friend_circle: ["private", "family", "friends", "groups"],
       list_visibility: ["public", "private", "shared"],
       listing_status: ["active", "sold", "ended", "cancelled"],
       listing_type: ["fixed", "auction"],
@@ -2756,6 +2876,7 @@ export const Constants = {
       reaction_type: ["like", "dislike"],
       release_type: ["single", "ep", "album"],
       saved_item_type: ["post", "listing"],
+      story_media_type: ["photo", "video", "music"],
     },
   },
 } as const
