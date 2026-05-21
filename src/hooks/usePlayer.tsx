@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, ReactNode } from "react";
 
 export interface PlayerTrack {
-  id: number;
+  id: string | number;
   title: string;
   artist: string;
   cover: string;
@@ -9,7 +9,7 @@ export interface PlayerTrack {
 
 interface PlayerContextValue {
   track: PlayerTrack | null;
-  playingId: number | null;
+  playingId: string | number | null;
   play: (track: PlayerTrack) => void;
   toggle: (track: PlayerTrack) => void;
   stop: () => void;

@@ -42,7 +42,7 @@ const tabFade = {
   transition: { duration: 0.2 },
 };
 
-import { featuredSongs, playlist, videos } from "@/data/mockProfile";
+import { useUserMedia } from "@/hooks/useUserMedia";
 
 
 const Profile = () => {
@@ -86,6 +86,7 @@ const Profile = () => {
   const unreadFromProfile = useUnreadFromUser(!isOwnProfile ? profileUserId : null);
 
   const { posts: cloudPosts } = usePosts(profileUserId);
+  const { featuredSongs, playlist, videos } = useUserMedia(profileUserId, profile?.display_name ?? profile?.username);
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
   const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
 
@@ -204,8 +205,8 @@ const Profile = () => {
   }, [searchParams.get("listing")]);
   const [musicFilter, setMusicFilter] = useState<MusicFilter>("top10");
   const isArtist = profile?.account_type === "artist";
-  const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
-  const [playingSongId, setPlayingSongId] = useState<number | null>(null);
+  const [openCommentsId, setOpenCommentsId] = useState<string | number | null>(null);
+  const [playingSongId, setPlayingSongId] = useState<string | number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -226,12 +227,12 @@ const Profile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleToggleComments = (itemId: number) => {
+  const handleToggleComments = (itemId: string | number) => {
     setOpenCommentsId(openCommentsId === itemId ? null : itemId);
   };
 
   const player = usePlayer();
-  const handleTogglePlay = (songId: number) => {
+  const handleTogglePlay = (songId: string | number) => {
     const next = playingSongId === songId ? null : songId;
     setPlayingSongId(next);
     const song = featuredSongs.find((s) => s.id === songId) ?? playlist.find((s) => s.id === songId);
