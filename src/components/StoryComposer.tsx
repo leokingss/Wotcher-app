@@ -4,11 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import type { StoryFrame, StoryMediaType } from "@/data/mockSocial";
+import type { StoryMediaType } from "@/data/mockSocial";
 import LiveStreamMode from "@/components/LiveStreamMode";
 import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
-
-const MY_STORIES_KEY = (uid: string) => `watcher:my-stories:${uid}`;
 
 interface DraftFrame {
   id: string;
