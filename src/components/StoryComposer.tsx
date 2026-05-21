@@ -23,7 +23,7 @@ interface StoryComposerProps {
 }
 
 const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [frames, setFrames] = useState<DraftFrame[]>([]);
   const [current, setCurrent] = useState(0);
   const [storyType, setStoryType] = useState<StoryMediaType>("photo");
