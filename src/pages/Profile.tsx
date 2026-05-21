@@ -205,8 +205,8 @@ const Profile = () => {
   }, [searchParams.get("listing")]);
   const [musicFilter, setMusicFilter] = useState<MusicFilter>("top10");
   const isArtist = profile?.account_type === "artist";
-  const [openCommentsId, setOpenCommentsId] = useState<number | null>(null);
-  const [playingSongId, setPlayingSongId] = useState<number | null>(null);
+  const [openCommentsId, setOpenCommentsId] = useState<string | number | null>(null);
+  const [playingSongId, setPlayingSongId] = useState<string | number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
   const [profilePhotoDialogOpen, setProfilePhotoDialogOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
