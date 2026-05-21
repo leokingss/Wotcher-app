@@ -2,13 +2,13 @@ import { useRef, useEffect } from "react";
 import { Play, Square } from "lucide-react";
 
 interface FeaturedSongRowProps {
-  id: number;
+  id: string | number;
   title: string;
   artist: string;
   cover: string;
   audioUrl: string;
   isPlaying: boolean;
-  onTogglePlay: (id: number) => void;
+  onTogglePlay: (id: string | number) => void;
 }
 
 const FeaturedSongRow = ({ id, title, artist, cover, audioUrl, isPlaying, onTogglePlay }: FeaturedSongRowProps) => {
