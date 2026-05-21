@@ -86,6 +86,7 @@ const Profile = () => {
   const unreadFromProfile = useUnreadFromUser(!isOwnProfile ? profileUserId : null);
 
   const { posts: cloudPosts } = usePosts(profileUserId);
+  const { featuredSongs, playlist, videos } = useUserMedia(profileUserId, profile?.display_name ?? profile?.username);
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
   const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
 
