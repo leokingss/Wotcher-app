@@ -42,7 +42,7 @@ const tabFade = {
   transition: { duration: 0.2 },
 };
 
-import { featuredSongs, playlist, videos } from "@/data/mockProfile";
+import { useUserMedia } from "@/hooks/useUserMedia";
 
 
 const Profile = () => {
