@@ -8,8 +8,8 @@ import VinylCounter from "./VinylCounter";
 
 interface Top10ListProps {
   songs: PlaylistItem[];
-  openCommentsId: number | null;
-  onToggleComments: (id: number) => void;
+  openCommentsId: string | number | null;
+  onToggleComments: (id: string | number) => void;
   onAddSong?: () => void;
   isOwnProfile?: boolean;
 }
@@ -20,13 +20,13 @@ const Top10List = ({ songs, openCommentsId, onToggleComments, onAddSong, isOwnPr
   const { playingId, toggle } = usePlayer();
 
   // The currently expanded song (defaults to #1). Clicking another row promotes it.
-  const [expandedId, setExpandedId] = useState<number | null>(top[0]?.id ?? null);
+  const [expandedId, setExpandedId] = useState<string | number | null>(top[0]?.id ?? null);
 
   useEffect(() => {
     if (expandedId == null && top[0]) setExpandedId(top[0].id);
   }, [top, expandedId]);
 
-  const handleSelect = (id: number) => {
+  const handleSelect = (id: string | number) => {
     setExpandedId(id);
     // Ensure mutually exclusive comment expansion: open clicked, close previous.
     if (openCommentsId !== id) onToggleComments(id);
