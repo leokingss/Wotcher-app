@@ -227,7 +227,7 @@ const Profile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleToggleComments = (itemId: number) => {
+  const handleToggleComments = (itemId: string | number) => {
     setOpenCommentsId(openCommentsId === itemId ? null : itemId);
   };
 
