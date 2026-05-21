@@ -302,28 +302,40 @@ export type Database = {
           created_at: string
           edited: boolean
           id: string
-          post_id: string
+          post_id: string | null
           text: string
+          track_id: string | null
           updated_at: string
           user_id: string
+          video_id: string | null
+          voice_duration_seconds: number | null
+          voice_url: string | null
         }
         Insert: {
           created_at?: string
           edited?: boolean
           id?: string
-          post_id: string
+          post_id?: string | null
           text: string
+          track_id?: string | null
           updated_at?: string
           user_id: string
+          video_id?: string | null
+          voice_duration_seconds?: number | null
+          voice_url?: string | null
         }
         Update: {
           created_at?: string
           edited?: boolean
           id?: string
-          post_id?: string
+          post_id?: string | null
           text?: string
+          track_id?: string | null
           updated_at?: string
           user_id?: string
+          video_id?: string | null
+          voice_duration_seconds?: number | null
+          voice_url?: string | null
         }
         Relationships: [
           {
