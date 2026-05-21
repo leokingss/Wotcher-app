@@ -10,7 +10,7 @@ import CommentPreview from "./CommentPreview";
 import { usePlayer } from "@/hooks/usePlayer";
 
 interface SongCardProps {
-  id: number;
+  id: string | number;
   title: string;
   artist: string;
   duration: string;
