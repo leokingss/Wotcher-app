@@ -73,7 +73,7 @@ export const useTargetComments = (target: CommentTarget) => {
     if (!user || !col || !id) return;
     const t = text.trim();
     if (!t) return;
-    await supabase.from("comments").insert({ [col]: id, user_id: user.id, text: t });
+    await supabase.from("comments").insert({ [col]: id, user_id: user.id, text: t } as any);
   };
 
   const addVoiceComment = async (blob: Blob, durationSec: number) => {
@@ -90,7 +90,7 @@ export const useTargetComments = (target: CommentTarget) => {
       text: "🎤 voice note",
       voice_url: pub.publicUrl,
       voice_duration_seconds: durationSec,
-    });
+    } as any);
   };
 
   const canEdit = (c: TargetComment) =>
