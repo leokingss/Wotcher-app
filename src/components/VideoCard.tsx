@@ -8,7 +8,7 @@ import CommentComposer from "./CommentComposer";
 import CommentPreview from "./CommentPreview";
 
 interface VideoCardProps {
-  id: number;
+  id: string | number;
   title: string;
   duration: string;
   thumbnail: string;
