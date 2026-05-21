@@ -232,7 +232,7 @@ const Profile = () => {
   };
 
   const player = usePlayer();
-  const handleTogglePlay = (songId: number) => {
+  const handleTogglePlay = (songId: string | number) => {
     const next = playingSongId === songId ? null : songId;
     setPlayingSongId(next);
     const song = featuredSongs.find((s) => s.id === songId) ?? playlist.find((s) => s.id === songId);
