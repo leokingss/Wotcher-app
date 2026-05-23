@@ -167,7 +167,7 @@ const StoryViewer = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       accumRef.current += performance.now() - startedAtRef.current;
     };
-  }, [open, paused, viewersOpen, storyIdx, frameIdx, story, goNext]);
+  }, [open, paused, viewersOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
 
   // Keyboard
   useEffect(() => {
