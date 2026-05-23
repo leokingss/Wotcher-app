@@ -76,6 +76,7 @@ export const useStories = () => {
       avatar: p?.avatar_url || AVATAR_FALLBACK(p?.username ?? uid),
       isOwn: !!user && uid === user.id,
       mediaType: frames[0].media_type,
+      audienceCircle: frames[frames.length - 1].audience_circle ?? null,
       frames,
     });
   }
