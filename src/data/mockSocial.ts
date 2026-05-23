@@ -5,6 +5,8 @@ export interface StoryFrame {
   caption?: string;
   trackTitle?: string;
   trackArtist?: string;
+  /** Database id for the story row backing this frame (when sourced from Supabase). */
+  dbId?: string;
 }
 
 export interface StoryItem {
