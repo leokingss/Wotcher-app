@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye } from "lucide-react";
 import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
 import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
+import WaveProgress from "./WaveProgress";
+import { CIRCLE_THEMES, ringGradientFor } from "@/lib/circleTheme";
 
 const FRAME_DURATION_MS = 5000;
 const AVATAR_FALLBACK = (seed: string) =>
