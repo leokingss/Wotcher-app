@@ -7,6 +7,7 @@ import StoryComposer from "./StoryComposer";
 import { useAuth } from "@/hooks/useAuth";
 import { useStories } from "@/hooks/useStories";
 import { useStoryViewers } from "@/hooks/useStoryViewers";
+import { ringGradientFor, CIRCLE_THEMES } from "@/lib/circleTheme";
 
 const WATCHED_KEY = "watcher:watched-stories";
 const loadWatched = (): string[] => {
