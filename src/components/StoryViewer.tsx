@@ -64,6 +64,31 @@ const StoryViewer = ({
   const frame = story?.frames?.[frameIdx];
   const isOwn = !!isOwnList?.(storyIdx);
   const frameViewers = (frame?.dbId && viewersByFrame?.[frame.dbId]) || [];
+  const isMusic = story?.mediaType === "music";
+  const bpm = frame?.bpm ?? DEFAULT_BPM;
+  const frameDurationMs = useMemo(
+    () => (isMusic ? beatSnappedDuration(bpm) : BASE_FRAME_DURATION_MS),
+    [isMusic, bpm],
+  );
+  const audienceCircle = frame?.audienceCircle ?? story?.audienceCircle ?? null;
+
+  // Expiry bleed: 0..1 (1 = about to expire). Drives a red overlay tint.
+  const [expiryBleed, setExpiryBleed] = useState(0);
+  useEffect(() => {
+    if (!open || !frame?.expiresAt) { setExpiryBleed(0); return; }
+    const exp = new Date(frame.expiresAt).getTime();
+    const compute = () => {
+      const ms = exp - Date.now();
+      const total = 24 * 60 * 60 * 1000;
+      // Only really starts to bleed in the last ~6h. Quadratic so it ramps fast at the end.
+      const remainingNorm = Math.max(0, Math.min(1, ms / total));
+      const closeness = 1 - remainingNorm;
+      setExpiryBleed(Math.max(0, Math.min(1, Math.pow(Math.max(0, closeness - 0.75) * 4, 1.4))));
+    };
+    compute();
+    const id = window.setInterval(compute, 30_000);
+    return () => clearInterval(id);
+  }, [open, frame?.expiresAt]);
 
   // Reset on open / startId change
   useEffect(() => {
