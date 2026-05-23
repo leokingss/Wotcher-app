@@ -123,7 +123,10 @@ const Stories = () => {
               >
                 {own ? (
                   <>
-                    <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-[hsl(45,100%,50%)] to-[hsl(10,100%,55%)]">
+                    <div
+                      className="w-14 h-14 rounded-full p-[2px]"
+                      style={{ backgroundImage: ringGradientFor(own.audienceCircle) }}
+                    >
                       <div className="w-full h-full rounded-full overflow-hidden border-2 border-background">
                         <img src={own.avatar ?? ""} alt="My story" className="w-full h-full object-cover" />
                       </div>
