@@ -2263,6 +2263,14 @@ export type Database = {
         Args: { _cid: string; _uid: string }
         Returns: boolean
       }
+      is_in_circle: {
+        Args: {
+          _circle: Database["public"]["Enums"]["friend_circle"]
+          _member_id: string
+          _owner_id: string
+        }
+        Returns: boolean
+      }
       is_list_owner: {
         Args: { _list: string; _viewer: string }
         Returns: boolean
