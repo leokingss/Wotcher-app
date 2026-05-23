@@ -460,9 +460,11 @@ const Profile = () => {
               ) : (
                 <FriendCircleMenu
                   username={profile?.username ?? ""}
+                  memberId={profile?.id}
                   onSelect={(c) => handleFollow(String(c))}
                   variant="pill"
                 />
+
               )}
               <button onClick={handleMessage} className="neo-button px-5 py-2 rounded-full text-sm font-medium relative">
                 Message

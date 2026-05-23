@@ -15,38 +15,62 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { useFriendCircles, type FriendCircleEnum } from "@/hooks/useFriendCircles";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
-export type FriendCircle = "private" | "family" | "friends" | string;
+export type FriendCircle = FriendCircleEnum | string;
 
-const BUILTIN: { id: FriendCircle; label: string; Icon: any; tone: string }[] = [
+const BUILTIN: { id: FriendCircleEnum; label: string; Icon: any; tone: string }[] = [
   { id: "private", label: "Private", Icon: Lock, tone: "text-muted-foreground" },
   { id: "family", label: "Family", Icon: Heart, tone: "text-primary" },
   { id: "friends", label: "Friends only", Icon: Users, tone: "text-primary" },
 ];
 
+const GROUPS_KEY = "friend-groups";
+const loadGroups = (): string[] => {
+  try { return JSON.parse(localStorage.getItem(GROUPS_KEY) ?? "[]"); } catch { return []; }
+};
+
 interface Props {
   username: string;
+  /** Database user id of the person being added to a circle. When present,
+   *  selections persist to `circle_members`. When absent (e.g. mock data),
+   *  selection is local-only. */
+  memberId?: string | null;
   onSelect?: (circle: FriendCircle) => void;
   variant?: "icon" | "pill";
 }
 
-const FriendCircleMenu = ({ username, onSelect, variant = "icon" }: Props) => {
-  const [circle, setCircle] = useState<FriendCircle | null>(null);
-  const [groups, setGroups] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem("friend-groups") ?? "[]"); }
-    catch { return []; }
-  });
+const FriendCircleMenu = ({ username, memberId, onSelect, variant = "icon" }: Props) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { getCircle, setCircle: persistCircle } = useFriendCircles();
+
+  // DB-backed circle when we have a memberId; local fallback otherwise
+  const dbCircle = memberId ? getCircle(memberId) : null;
+  const [localCircle, setLocalCircle] = useState<FriendCircle | null>(null);
+  const circle: FriendCircle | null = memberId ? dbCircle : localCircle;
+
+  const [groups, setGroups] = useState<string[]>(() => loadGroups());
   const [groupDialog, setGroupDialog] = useState(false);
   const [newGroup, setNewGroup] = useState("");
 
   const persistGroups = (g: string[]) => {
     setGroups(g);
-    localStorage.setItem("friend-groups", JSON.stringify(g));
+    localStorage.setItem(GROUPS_KEY, JSON.stringify(g));
   };
 
-  const choose = (c: FriendCircle) => {
-    setCircle(c);
+  const choose = async (c: FriendCircle) => {
     onSelect?.(c);
+    if (memberId) {
+      if (!user) { navigate("/auth"); return; }
+      // Custom group names map to the 'groups' enum value in the DB.
+      const enumValue: FriendCircleEnum = (BUILTIN.some((b) => b.id === c) ? c : "groups") as FriendCircleEnum;
+      await persistCircle(memberId, enumValue);
+    } else {
+      setLocalCircle(c);
+    }
   };
 
   const createGroup = () => {
@@ -62,7 +86,7 @@ const FriendCircleMenu = ({ username, onSelect, variant = "icon" }: Props) => {
   const activeLabel =
     circle && BUILTIN.find((b) => b.id === circle)?.label
       ? BUILTIN.find((b) => b.id === circle)!.label
-      : circle;
+      : circle === "groups" ? "Groups" : circle;
 
   return (
     <>
