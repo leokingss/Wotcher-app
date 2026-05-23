@@ -196,6 +196,9 @@ const Stories = () => {
         startId={openIdx ?? 0}
         open={openIdx !== null}
         onClose={() => setOpenIdx(null)}
+        onFrameView={(dbId) => markViewed(dbId)}
+        isOwnList={isOwnList}
+        viewersByFrame={viewersByFrame}
       />
 
       <StoryComposer open={composerOpen} onOpenChange={setComposerOpen} />
