@@ -172,20 +172,30 @@ const Stories = () => {
                     watched ? "neo-card-inset opacity-60" : "neo-button-icon"
                   }`}
                 >
-                  <div
-                    className={`w-14 h-14 rounded-full p-[2px] ${
-                      watched
-                        ? "bg-muted-foreground/30"
-                        : "bg-gradient-to-br from-[hsl(45,100%,50%)] to-[hsl(10,100%,55%)]"
-                    }`}
-                  >
-                    <div className="w-full h-full rounded-full overflow-hidden border-2 border-background">
-                      <img
-                        src={story.avatar ?? ""}
-                        alt={story.username}
-                        className={`w-full h-full object-cover ${watched ? "grayscale" : ""}`}
-                      />
+                  <div className="relative w-14 h-14">
+                    <div
+                      className={`w-14 h-14 rounded-full p-[2px] ${watched ? "bg-muted-foreground/30" : ""}`}
+                      style={
+                        watched
+                          ? undefined
+                          : { backgroundImage: ringGradientFor(story.audienceCircle) }
+                      }
+                    >
+                      <div className="w-full h-full rounded-full overflow-hidden border-2 border-background">
+                        <img
+                          src={story.avatar ?? ""}
+                          alt={story.username}
+                          className={`w-full h-full object-cover ${watched ? "grayscale" : ""}`}
+                        />
+                      </div>
                     </div>
+                    {story.audienceCircle && !watched && (
+                      <span
+                        title={CIRCLE_THEMES[story.audienceCircle].label}
+                        className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background"
+                        style={{ background: `hsl(${CIRCLE_THEMES[story.audienceCircle].hsl})` }}
+                      />
+                    )}
                   </div>
                   <StoryMediaIndicator mediaType={story.mediaType} muted={watched} />
                 </div>
