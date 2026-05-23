@@ -5,7 +5,14 @@ import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
 import WaveProgress from "./WaveProgress";
 import { CIRCLE_THEMES, ringGradientFor } from "@/lib/circleTheme";
 
-const FRAME_DURATION_MS = 5000;
+const BASE_FRAME_DURATION_MS = 5000;
+const DEFAULT_BPM = 120;
+/** Snap frame duration to whole beats so music frames advance on-beat. */
+const beatSnappedDuration = (bpm: number, base = BASE_FRAME_DURATION_MS) => {
+  const beatMs = (60 / bpm) * 1000;
+  const beats = Math.max(1, Math.round(base / beatMs));
+  return beats * beatMs;
+};
 const AVATAR_FALLBACK = (seed: string) =>
   `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`;
 
