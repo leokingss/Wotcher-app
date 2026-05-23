@@ -75,6 +75,7 @@ const Stories = () => {
     isOwn: g.isOwn,
     hasStory: true,
     mediaType: g.mediaType,
+    audienceCircle: g.audienceCircle,
     watched: watchedIds.includes(g.user_id),
     frames: g.frames.map((f) => ({
       url: f.media_url,
@@ -82,6 +83,8 @@ const Stories = () => {
       trackTitle: f.track_title ?? undefined,
       trackArtist: f.track_artist ?? undefined,
       dbId: f.id,
+      expiresAt: f.expires_at,
+      audienceCircle: f.audience_circle ?? null,
     })),
   }));
 
