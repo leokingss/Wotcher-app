@@ -205,9 +205,21 @@ const StoryViewer = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center" role="dialog" aria-modal>
-      {/* Media */}
-      <div className="relative w-full h-full max-w-md mx-auto overflow-hidden">
+    <div
+      className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
+      role="dialog"
+      aria-modal
+      style={{
+        // Visual signature: ambient glow tinted by circle audience.
+        background: audienceCircle
+          ? `radial-gradient(120% 80% at 50% 50%, hsl(${CIRCLE_THEMES[audienceCircle].hsl} / 0.18), #000 70%)`
+          : "#000",
+      }}
+    >
+      {/* Desktop neumorphic chrome wrapper — sits behind the media on md+ screens. */}
+      <div
+        className="relative w-full h-full max-w-md mx-auto overflow-hidden md:rounded-[2rem] md:my-6 md:max-h-[92vh] md:shadow-[12px_12px_32px_rgba(0,0,0,0.55),-8px_-8px_24px_rgba(255,255,255,0.04)] md:ring-1 md:ring-white/5"
+      >
         {/^.*\.(mp4|webm|mov|m4v)(\?|$)/i.test(frame.url) ? (
           <video
             key={`${story.id}-${frameIdx}`}
@@ -229,25 +241,56 @@ const StoryViewer = ({
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70 pointer-events-none" />
 
+        {/* Expiry bleed: yellow→red vignette that intensifies as the frame nears expiry. */}
+        {expiryBleed > 0.01 && (
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+            style={{
+              opacity: expiryBleed,
+              background:
+                "radial-gradient(120% 60% at 50% 100%, hsl(10, 100%, 55% / 0.55), transparent 65%), radial-gradient(120% 60% at 50% 0%, hsl(45, 100%, 55% / 0.35), transparent 65%)",
+              mixBlendMode: "screen",
+            }}
+          />
+        )}
+
         {/* Progress bars */}
         <div className="absolute top-3 left-3 right-3 flex gap-1 z-20">
-          {story.frames!.map((_, i) => (
-            <div key={i} className="flex-1 h-[3px] bg-white/25 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-white rounded-full"
-                style={{
-                  width: i < frameIdx ? "100%" : i === frameIdx ? `${progress * 100}%` : "0%",
-                  transition: i === frameIdx ? "none" : "width 120ms linear",
-                }}
-              />
-            </div>
-          ))}
+          {story.frames!.map((_, i) => {
+            const isActive = i === frameIdx;
+            const isDone = i < frameIdx;
+            // For music stories the active strand becomes a beat-synced waveform.
+            if (isActive && isMusic) {
+              return (
+                <div key={i} className="flex-1 h-[6px] -my-[2px]">
+                  <WaveProgress progress={progress} bpm={bpm} active={!paused} height={6} />
+                </div>
+              );
+            }
+            return (
+              <div key={i} className="flex-1 h-[3px] bg-white/25 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-white rounded-full"
+                  style={{
+                    width: isDone ? "100%" : isActive ? `${progress * 100}%` : "0%",
+                    transition: isActive ? "none" : "width 120ms linear",
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Header */}
         <div className="absolute top-7 left-3 right-3 flex items-center gap-2 z-20 mt-1">
-          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/80 flex-shrink-0">
-            <img src={story.avatar} alt={story.username} className="w-full h-full object-cover" />
+          <div
+            className="w-9 h-9 rounded-full p-[2px] flex-shrink-0"
+            style={{ backgroundImage: ringGradientFor(audienceCircle) }}
+          >
+            <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/40">
+              <img src={story.avatar} alt={story.username} className="w-full h-full object-cover" />
+            </div>
           </div>
           <div className="flex-1 min-w-0 text-white">
             <div className="flex items-center gap-1.5">
