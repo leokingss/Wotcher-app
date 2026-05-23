@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio } from "lucide-react";
+import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import type { StoryMediaType } from "@/data/mockSocial";
 import LiveStreamMode from "@/components/LiveStreamMode";
 import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
+import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
+import { CIRCLE_THEMES } from "@/lib/circleTheme";
 
 interface DraftFrame {
   id: string;
@@ -34,6 +36,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [liveMode, setLiveMode] = useState(false);
   const [tagged, setTagged] = useState<TaggedPerson[]>([]);
   const [location, setLocation] = useState<LocationTag | null>(null);
+  /** null = public; otherwise scoped to the chosen friend circle. */
+  const [audience, setAudience] = useState<FriendCircleEnum | null>(null);
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
@@ -44,6 +48,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
     setTrackArtist("");
     setTagged([]);
     setLocation(null);
+    setAudience(null);
   };
 
   // Cleanup object URLs on unmount
@@ -133,6 +138,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           media_type: storyType,
           media_url: urlData.publicUrl,
           caption,
+          audience_circle: audience,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
@@ -354,6 +360,54 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Audience / circle picker */}
+          {frames.length > 0 && (
+            <div className="neo-card-inset rounded-xl p-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-2 mb-1.5">
+                Who can see this
+              </p>
+              <div className="flex gap-1.5 flex-wrap">
+                {([
+                  { key: null, label: "Public", icon: Globe2, hsl: "var(--muted-foreground)" },
+                  { key: "private" as const, label: CIRCLE_THEMES.private.label, icon: Lock, hsl: CIRCLE_THEMES.private.hsl },
+                  { key: "family" as const, label: CIRCLE_THEMES.family.label, icon: Heart, hsl: CIRCLE_THEMES.family.hsl },
+                  { key: "friends" as const, label: CIRCLE_THEMES.friends.label, icon: Users, hsl: CIRCLE_THEMES.friends.hsl },
+                  { key: "groups" as const, label: CIRCLE_THEMES.groups.label, icon: UsersRound, hsl: CIRCLE_THEMES.groups.hsl },
+                ]).map((opt) => {
+                  const Icon = opt.icon;
+                  const active = audience === opt.key;
+                  return (
+                    <button
+                      key={opt.key ?? "public"}
+                      onClick={() => setAudience(opt.key)}
+                      className={`flex-1 min-w-[72px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+                        active ? "neo-card-inset" : "neo-button text-muted-foreground"
+                      }`}
+                      style={
+                        active
+                          ? {
+                              color: opt.key ? `hsl(${opt.hsl})` : undefined,
+                              boxShadow: opt.key
+                                ? `inset 0 0 0 1px hsl(${opt.hsl} / 0.4)`
+                                : undefined,
+                            }
+                          : undefined
+                      }
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {audience && (
+                <p className="px-2 pt-1.5 text-[10px] text-muted-foreground">
+                  Only members of your <span className="font-semibold" style={{ color: `hsl(${CIRCLE_THEMES[audience].hsl})` }}>{CIRCLE_THEMES[audience].label.toLowerCase()}</span> circle will see this story.
+                </p>
+              )}
             </div>
           )}
 

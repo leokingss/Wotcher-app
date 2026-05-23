@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import type { FriendCircleEnum } from "./useFriendCircles";
 
 export type StoryMediaType = "photo" | "video" | "music";
 
 export interface StoryFrameRow {
+  audience_circle: FriendCircleEnum | null;
   id: string;
   user_id: string;
   media_type: StoryMediaType;
@@ -23,6 +25,8 @@ export interface GroupedStory {
   avatar: string | null;
   isOwn: boolean;
   mediaType: StoryMediaType;
+  /** Audience of the most recent frame in the group (drives ring tint). */
+  audienceCircle: FriendCircleEnum | null;
   frames: StoryFrameRow[];
 }
 
@@ -38,7 +42,7 @@ export const useStories = () => {
     const { data } = await supabase
       .from("stories")
       .select(
-        "id, user_id, media_type, media_url, caption, track_title, track_artist, created_at, expires_at, profile:profiles!stories_user_id_fkey(username, display_name, avatar_url)"
+        "id, user_id, media_type, media_url, caption, track_title, track_artist, audience_circle, created_at, expires_at, profile:profiles!stories_user_id_fkey(username, display_name, avatar_url)"
       )
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: true });
@@ -72,6 +76,7 @@ export const useStories = () => {
       avatar: p?.avatar_url || AVATAR_FALLBACK(p?.username ?? uid),
       isOwn: !!user && uid === user.id,
       mediaType: frames[0].media_type,
+      audienceCircle: frames[frames.length - 1].audience_circle ?? null,
       frames,
     });
   }

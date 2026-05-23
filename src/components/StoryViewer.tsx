@@ -1,9 +1,18 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye } from "lucide-react";
 import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
 import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
+import WaveProgress from "./WaveProgress";
+import { CIRCLE_THEMES, ringGradientFor } from "@/lib/circleTheme";
 
-const FRAME_DURATION_MS = 5000;
+const BASE_FRAME_DURATION_MS = 5000;
+const DEFAULT_BPM = 120;
+/** Snap frame duration to whole beats so music frames advance on-beat. */
+const beatSnappedDuration = (bpm: number, base = BASE_FRAME_DURATION_MS) => {
+  const beatMs = (60 / bpm) * 1000;
+  const beats = Math.max(1, Math.round(base / beatMs));
+  return beats * beatMs;
+};
 const AVATAR_FALLBACK = (seed: string) =>
   `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`;
 
@@ -55,6 +64,31 @@ const StoryViewer = ({
   const frame = story?.frames?.[frameIdx];
   const isOwn = !!isOwnList?.(storyIdx);
   const frameViewers = (frame?.dbId && viewersByFrame?.[frame.dbId]) || [];
+  const isMusic = story?.mediaType === "music";
+  const bpm = frame?.bpm ?? DEFAULT_BPM;
+  const frameDurationMs = useMemo(
+    () => (isMusic ? beatSnappedDuration(bpm) : BASE_FRAME_DURATION_MS),
+    [isMusic, bpm],
+  );
+  const audienceCircle = frame?.audienceCircle ?? story?.audienceCircle ?? null;
+
+  // Expiry bleed: 0..1 (1 = about to expire). Drives a red overlay tint.
+  const [expiryBleed, setExpiryBleed] = useState(0);
+  useEffect(() => {
+    if (!open || !frame?.expiresAt) { setExpiryBleed(0); return; }
+    const exp = new Date(frame.expiresAt).getTime();
+    const compute = () => {
+      const ms = exp - Date.now();
+      const total = 24 * 60 * 60 * 1000;
+      // Only really starts to bleed in the last ~6h. Quadratic so it ramps fast at the end.
+      const remainingNorm = Math.max(0, Math.min(1, ms / total));
+      const closeness = 1 - remainingNorm;
+      setExpiryBleed(Math.max(0, Math.min(1, Math.pow(Math.max(0, closeness - 0.75) * 4, 1.4))));
+    };
+    compute();
+    const id = window.setInterval(compute, 30_000);
+    return () => clearInterval(id);
+  }, [open, frame?.expiresAt]);
 
   // Reset on open / startId change
   useEffect(() => {
@@ -119,7 +153,7 @@ const StoryViewer = ({
     startedAtRef.current = performance.now();
     const tick = (now: number) => {
       const elapsed = accumRef.current + (now - startedAtRef.current);
-      const pct = Math.min(1, elapsed / FRAME_DURATION_MS);
+      const pct = Math.min(1, elapsed / frameDurationMs);
       setProgress(pct);
       if (pct >= 1) {
         accumRef.current = 0;
@@ -133,7 +167,7 @@ const StoryViewer = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       accumRef.current += performance.now() - startedAtRef.current;
     };
-  }, [open, paused, viewersOpen, storyIdx, frameIdx, story, goNext]);
+  }, [open, paused, viewersOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
 
   // Keyboard
   useEffect(() => {
@@ -171,9 +205,21 @@ const StoryViewer = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center" role="dialog" aria-modal>
-      {/* Media */}
-      <div className="relative w-full h-full max-w-md mx-auto overflow-hidden">
+    <div
+      className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
+      role="dialog"
+      aria-modal
+      style={{
+        // Visual signature: ambient glow tinted by circle audience.
+        background: audienceCircle
+          ? `radial-gradient(120% 80% at 50% 50%, hsl(${CIRCLE_THEMES[audienceCircle].hsl} / 0.18), #000 70%)`
+          : "#000",
+      }}
+    >
+      {/* Desktop neumorphic chrome wrapper — sits behind the media on md+ screens. */}
+      <div
+        className="relative w-full h-full max-w-md mx-auto overflow-hidden md:rounded-[2rem] md:my-6 md:max-h-[92vh] md:shadow-[12px_12px_32px_rgba(0,0,0,0.55),-8px_-8px_24px_rgba(255,255,255,0.04)] md:ring-1 md:ring-white/5"
+      >
         {/^.*\.(mp4|webm|mov|m4v)(\?|$)/i.test(frame.url) ? (
           <video
             key={`${story.id}-${frameIdx}`}
@@ -195,25 +241,56 @@ const StoryViewer = ({
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70 pointer-events-none" />
 
+        {/* Expiry bleed: yellow→red vignette that intensifies as the frame nears expiry. */}
+        {expiryBleed > 0.01 && (
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+            style={{
+              opacity: expiryBleed,
+              background:
+                "radial-gradient(120% 60% at 50% 100%, hsl(10, 100%, 55% / 0.55), transparent 65%), radial-gradient(120% 60% at 50% 0%, hsl(45, 100%, 55% / 0.35), transparent 65%)",
+              mixBlendMode: "screen",
+            }}
+          />
+        )}
+
         {/* Progress bars */}
         <div className="absolute top-3 left-3 right-3 flex gap-1 z-20">
-          {story.frames!.map((_, i) => (
-            <div key={i} className="flex-1 h-[3px] bg-white/25 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-white rounded-full"
-                style={{
-                  width: i < frameIdx ? "100%" : i === frameIdx ? `${progress * 100}%` : "0%",
-                  transition: i === frameIdx ? "none" : "width 120ms linear",
-                }}
-              />
-            </div>
-          ))}
+          {story.frames!.map((_, i) => {
+            const isActive = i === frameIdx;
+            const isDone = i < frameIdx;
+            // For music stories the active strand becomes a beat-synced waveform.
+            if (isActive && isMusic) {
+              return (
+                <div key={i} className="flex-1 h-[6px] -my-[2px]">
+                  <WaveProgress progress={progress} bpm={bpm} active={!paused} height={6} />
+                </div>
+              );
+            }
+            return (
+              <div key={i} className="flex-1 h-[3px] bg-white/25 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-white rounded-full"
+                  style={{
+                    width: isDone ? "100%" : isActive ? `${progress * 100}%` : "0%",
+                    transition: isActive ? "none" : "width 120ms linear",
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Header */}
         <div className="absolute top-7 left-3 right-3 flex items-center gap-2 z-20 mt-1">
-          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/80 flex-shrink-0">
-            <img src={story.avatar} alt={story.username} className="w-full h-full object-cover" />
+          <div
+            className="w-9 h-9 rounded-full p-[2px] flex-shrink-0"
+            style={{ backgroundImage: ringGradientFor(audienceCircle) }}
+          >
+            <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/40">
+              <img src={story.avatar} alt={story.username} className="w-full h-full object-cover" />
+            </div>
           </div>
           <div className="flex-1 min-w-0 text-white">
             <div className="flex items-center gap-1.5">
