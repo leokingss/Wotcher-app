@@ -1,121 +1,148 @@
 /**
- * End-to-end RLS test for circle-scoped stories.
+ * End-to-end test: circle-scoped stories are only visible to members of
+ * the selected friend circle.
  *
- * Verifies that `public.stories.audience_circle` is enforced by RLS:
- *   - Public stories are visible to everyone.
- *   - Circle-scoped stories are visible only to the owner and to
- *     authenticated users that are members of the matching circle
- *     in `public.circle_members`.
+ * Exercises the real RLS policy on `public.stories` by creating three
+ * throwaway auth users (owner, friend, stranger) via the service-role
+ * admin API, seeding `circle_members` + `stories`, then querying as each
+ * user with their own JWT-bearing anon client.
  *
- * Implementation: shells out to `psql` and runs as the postgres
- * superuser so we can simulate three signed-in users by setting
- * `request.jwt.claims` + `SET LOCAL ROLE authenticated`. This is the
- * same technique PostgREST uses, so it exercises the real RLS policy.
- *
- * Skipped automatically when `psql`/`PGHOST` is not available
- * (e.g. CI without DB access).
+ * Skipped automatically if `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+ * or `VITE_SUPABASE_ANON_KEY` (or `SUPABASE_PUBLISHABLE_KEY`) are not set.
  */
 import { describe, it, expect } from "vitest";
-import { execFileSync, spawnSync } from "node:child_process";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const hasPsql = (() => {
-  if (!process.env.PGHOST) return false;
-  const r = spawnSync("psql", ["-c", "SELECT 1"], { stdio: "ignore" });
-  return r.status === 0;
-})();
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const ANON_KEY =
+  process.env.VITE_SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  "";
 
-const runSql = (sql: string): string =>
-  execFileSync("psql", ["-X", "-A", "-t", "-v", "ON_ERROR_STOP=1", "-c", sql], {
-    encoding: "utf8",
-  }).trim();
+const ENABLED = !!(SUPABASE_URL && SERVICE_ROLE && ANON_KEY);
 
-const OWNER = "11111111-1111-4111-8111-111111111111";
-const FRIEND = "22222222-2222-4222-8222-222222222222";
-const STRANGER = "33333333-3333-4333-8333-333333333333";
+const PASSWORD = "Test#Password!2026";
+const stamp = Date.now();
+const emailFor = (role: string) => `rls-${role}-${stamp}-${Math.random().toString(36).slice(2, 8)}@example.test`;
 
-const seed = `
-  -- Clean any prior run
-  DELETE FROM auth.users WHERE id IN ('${OWNER}','${FRIEND}','${STRANGER}');
+interface SeededUser {
+  id: string;
+  email: string;
+  client: SupabaseClient;
+}
 
-  -- Three users
-  INSERT INTO auth.users (id) VALUES ('${OWNER}'), ('${FRIEND}'), ('${STRANGER}');
-
-  -- Profiles (FK to auth.users)
-  INSERT INTO public.profiles (id, username, display_name)
-  VALUES
-    ('${OWNER}',    'rls_owner_${Date.now()}',    'Owner'),
-    ('${FRIEND}',   'rls_friend_${Date.now()}',   'Friend'),
-    ('${STRANGER}', 'rls_stranger_${Date.now()}', 'Stranger');
-
-  -- FRIEND is in OWNER's "friends" circle (but not "family").
-  INSERT INTO public.circle_members (owner_id, member_id, circle)
-  VALUES ('${OWNER}', '${FRIEND}', 'friends');
-
-  -- Three active stories from OWNER: public / friends-only / family-only.
-  INSERT INTO public.stories (user_id, media_type, media_url, audience_circle, expires_at) VALUES
-    ('${OWNER}', 'photo', 'https://example.com/public.jpg',  NULL,      now() + interval '1 hour'),
-    ('${OWNER}', 'photo', 'https://example.com/friends.jpg', 'friends', now() + interval '1 hour'),
-    ('${OWNER}', 'photo', 'https://example.com/family.jpg',  'family',  now() + interval '1 hour');
-`;
-
-const cleanup = `DELETE FROM auth.users WHERE id IN ('${OWNER}','${FRIEND}','${STRANGER}');`;
-
-/** Count stories from OWNER that are visible to `viewerId` under RLS. */
-const countVisibleAs = (viewerId: string | null): number => {
-  // Wrap in a transaction so SET LOCAL only applies to this query.
-  const claim = viewerId
-    ? `'{"sub":"${viewerId}","role":"authenticated"}'`
-    : `'{"role":"anon"}'`;
-  const role = viewerId ? "authenticated" : "anon";
-  const sql = `
-    BEGIN;
-      SET LOCAL ROLE ${role};
-      SET LOCAL "request.jwt.claims" = ${claim};
-      SELECT count(*) FROM public.stories WHERE user_id = '${OWNER}';
-    COMMIT;
-  `;
-  // psql prints one count line.
-  const out = runSql(sql);
-  const line = out.split("\n").find((l) => /^\d+$/.test(l.trim())) ?? "0";
-  return parseInt(line.trim(), 10);
+const adminCreate = async (admin: SupabaseClient, label: string): Promise<SeededUser> => {
+  const email = emailFor(label);
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    password: PASSWORD,
+    email_confirm: true,
+    user_metadata: { test: true, label },
+  });
+  if (error || !data.user) throw error ?? new Error(`createUser ${label} failed`);
+  // Sign that user in via a fresh anon client so we get a real JWT.
+  const anon = createClient(SUPABASE_URL, ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error: signInErr } = await anon.auth.signInWithPassword({ email, password: PASSWORD });
+  if (signInErr) throw signInErr;
+  return { id: data.user.id, email, client: anon };
 };
 
-describe.skipIf(!hasPsql)("stories audience_circle RLS (e2e)", () => {
-  it("respects circle audience for stories visibility", () => {
-    try {
-      runSql(seed);
+const ensureProfile = async (admin: SupabaseClient, userId: string, username: string) => {
+  // The handle_new_user trigger usually creates a profile, but if it does not
+  // (or sets a different username), upsert one we control so FK-bound inserts
+  // for circle_members + stories succeed.
+  await admin.from("profiles").upsert(
+    { id: userId, username, display_name: username },
+    { onConflict: "id" },
+  );
+};
 
+const countOwnerStoriesVisibleTo = async (
+  client: SupabaseClient,
+  ownerId: string,
+): Promise<number> => {
+  const { data, error } = await client
+    .from("stories")
+    .select("id", { count: "exact" })
+    .eq("user_id", ownerId);
+  if (error) throw error;
+  return data?.length ?? 0;
+};
+
+describe.skipIf(!ENABLED)("stories audience_circle RLS (e2e)", () => {
+  it("only shows circle-scoped stories to members of that circle", async () => {
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    let owner: SeededUser | null = null;
+    let friend: SeededUser | null = null;
+    let stranger: SeededUser | null = null;
+
+    try {
+      // 1. Create three users + their JWT-bearing clients.
+      [owner, friend, stranger] = await Promise.all([
+        adminCreate(admin, "owner"),
+        adminCreate(admin, "friend"),
+        adminCreate(admin, "stranger"),
+      ]);
+
+      const ts = Date.now().toString(36);
+      await Promise.all([
+        ensureProfile(admin, owner.id, `rls_owner_${ts}`),
+        ensureProfile(admin, friend.id, `rls_friend_${ts}`),
+        ensureProfile(admin, stranger.id, `rls_stranger_${ts}`),
+      ]);
+
+      // 2. FRIEND joins OWNER's "friends" circle (but not "family").
+      const { error: cmErr } = await admin
+        .from("circle_members")
+        .insert({ owner_id: owner.id, member_id: friend.id, circle: "friends" });
+      expect(cmErr).toBeNull();
+
+      // 3. Three active stories from OWNER: public, friends-only, family-only.
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      const { data: inserted, error: stErr } = await admin
+        .from("stories")
+        .insert([
+          { user_id: owner.id, media_type: "photo", media_url: "https://example.com/public.jpg",  audience_circle: null,      expires_at: expiresAt },
+          { user_id: owner.id, media_type: "photo", media_url: "https://example.com/friends.jpg", audience_circle: "friends", expires_at: expiresAt },
+          { user_id: owner.id, media_type: "photo", media_url: "https://example.com/family.jpg",  audience_circle: "family",  expires_at: expiresAt },
+        ])
+        .select("id, audience_circle");
+      expect(stErr).toBeNull();
+      expect(inserted).toHaveLength(3);
+
+      // 4. Visibility assertions (RLS enforced via each user's JWT).
       // Owner sees all three of their own stories.
-      expect(countVisibleAs(OWNER)).toBe(3);
+      expect(await countOwnerStoriesVisibleTo(owner.client, owner.id)).toBe(3);
 
-      // Friend (member of "friends" circle) sees public + friends-scoped, NOT family.
-      expect(countVisibleAs(FRIEND)).toBe(2);
+      // Friend (member of "friends") sees public + friends-scoped, NOT family.
+      expect(await countOwnerStoriesVisibleTo(friend.client, owner.id)).toBe(2);
 
-      // Stranger sees only the public story.
-      expect(countVisibleAs(STRANGER)).toBe(1);
+      // Stranger only sees the public story.
+      expect(await countOwnerStoriesVisibleTo(stranger.client, owner.id)).toBe(1);
 
-      // Anonymous (not signed in) — RLS treats auth.uid() as NULL → only public is visible.
-      expect(countVisibleAs(null)).toBe(1);
+      // 5. Removing FRIEND from the circle hides the friends-scoped story.
+      const { error: delErr } = await admin
+        .from("circle_members")
+        .delete()
+        .eq("owner_id", owner.id)
+        .eq("member_id", friend.id);
+      expect(delErr).toBeNull();
+
+      expect(await countOwnerStoriesVisibleTo(friend.client, owner.id)).toBe(1);
     } finally {
-      runSql(cleanup);
-    }
-  });
-
-  it("hides circle-scoped story when membership is removed", () => {
-    try {
-      runSql(seed);
-      // Sanity: friend sees 2.
-      expect(countVisibleAs(FRIEND)).toBe(2);
-
-      // Remove FRIEND from the "friends" circle.
-      runSql(
-        `DELETE FROM public.circle_members WHERE owner_id='${OWNER}' AND member_id='${FRIEND}';`
+      // Cleanup: deleting the auth users cascades to profiles, circle_members, and stories.
+      await Promise.all(
+        [owner, friend, stranger]
+          .filter((u): u is SeededUser => !!u)
+          .map((u) => admin.auth.admin.deleteUser(u.id).catch(() => undefined)),
       );
-
-      // Friend now only sees the public story.
-      expect(countVisibleAs(FRIEND)).toBe(1);
-    } finally {
-      runSql(cleanup);
     }
-  });
+  }, 60_000);
 });
