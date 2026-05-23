@@ -40,7 +40,7 @@ export const useStories = () => {
     const { data } = await supabase
       .from("stories")
       .select(
-        "id, user_id, media_type, media_url, caption, track_title, track_artist, created_at, expires_at, profile:profiles!stories_user_id_fkey(username, display_name, avatar_url)"
+        "id, user_id, media_type, media_url, caption, track_title, track_artist, audience_circle, created_at, expires_at, profile:profiles!stories_user_id_fkey(username, display_name, avatar_url)"
       )
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: true });
