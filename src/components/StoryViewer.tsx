@@ -153,7 +153,7 @@ const StoryViewer = ({
     startedAtRef.current = performance.now();
     const tick = (now: number) => {
       const elapsed = accumRef.current + (now - startedAtRef.current);
-      const pct = Math.min(1, elapsed / FRAME_DURATION_MS);
+      const pct = Math.min(1, elapsed / frameDurationMs);
       setProgress(pct);
       if (pct >= 1) {
         accumRef.current = 0;
