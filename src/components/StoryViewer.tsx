@@ -1,14 +1,22 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause } from "lucide-react";
+import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye } from "lucide-react";
 import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
+import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
 
 const FRAME_DURATION_MS = 5000;
+const AVATAR_FALLBACK = (seed: string) =>
+  `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`;
 
 interface StoryViewerProps {
   startId: number;
   open: boolean;
   onClose: () => void;
   onWatched?: (storyId: number) => void;
+  onFrameView?: (dbId: string) => void;
+  /** True when the currently-viewed story belongs to the signed-in user. */
+  isOwnList?: (storyIdx: number) => boolean;
+  /** Map of story-frame dbId → viewer rows. Only relevant for own stories. */
+  viewersByFrame?: Record<string, ViewerRow[]>;
   /** Optional list of stories to display. Falls back to default mock stories. */
   list?: StoryItem[];
 }
@@ -19,8 +27,16 @@ const TypeIcon = ({ type }: { type?: string }) => {
   return <Music className="w-3.5 h-3.5" />;
 };
 
-const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: StoryViewerProps) => {
-  // Real (frame-bearing) stories
+const StoryViewer = ({
+  startId,
+  open,
+  onClose,
+  onWatched,
+  onFrameView,
+  isOwnList,
+  viewersByFrame,
+  list: listProp,
+}: StoryViewerProps) => {
   const list: StoryItem[] = (listProp ?? defaultStories).filter(
     (s) => s.frames && s.frames.length > 0,
   );
@@ -28,13 +44,17 @@ const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: Stor
   const [frameIdx, setFrameIdx] = useState(0);
   const [progress, setProgress] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [viewersOpen, setViewersOpen] = useState(false);
   const rafRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
   const accumRef = useRef<number>(0);
   const holdTimerRef = useRef<number | null>(null);
+  const reportedRef = useRef<Set<string>>(new Set());
 
   const story = list[storyIdx];
   const frame = story?.frames?.[frameIdx];
+  const isOwn = !!isOwnList?.(storyIdx);
+  const frameViewers = (frame?.dbId && viewersByFrame?.[frame.dbId]) || [];
 
   // Reset on open / startId change
   useEffect(() => {
@@ -45,8 +65,18 @@ const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: Stor
     setProgress(0);
     accumRef.current = 0;
     setPaused(false);
+    setViewersOpen(false);
+    reportedRef.current = new Set();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, startId]);
+
+  // Mark each visible frame as viewed (once per session) when it comes into view.
+  useEffect(() => {
+    if (!open || !frame?.dbId) return;
+    if (reportedRef.current.has(frame.dbId)) return;
+    reportedRef.current.add(frame.dbId);
+    onFrameView?.(frame.dbId);
+  }, [open, frame?.dbId, onFrameView]);
 
   const goNext = useCallback(() => {
     if (!story) return;
@@ -85,7 +115,7 @@ const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: Stor
 
   // Animation loop
   useEffect(() => {
-    if (!open || paused || !story) return;
+    if (!open || paused || !story || viewersOpen) return;
     startedAtRef.current = performance.now();
     const tick = (now: number) => {
       const elapsed = accumRef.current + (now - startedAtRef.current);
@@ -101,23 +131,24 @@ const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: Stor
     rafRef.current = requestAnimationFrame(tick);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      // capture elapsed when unmounting (e.g. pausing)
       accumRef.current += performance.now() - startedAtRef.current;
     };
-  }, [open, paused, storyIdx, frameIdx, story, goNext]);
+  }, [open, paused, viewersOpen, storyIdx, frameIdx, story, goNext]);
 
   // Keyboard
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      else if (e.key === "ArrowRight") { accumRef.current = 0; goNext(); }
+      if (e.key === "Escape") {
+        if (viewersOpen) setViewersOpen(false);
+        else onClose();
+      } else if (e.key === "ArrowRight") { accumRef.current = 0; goNext(); }
       else if (e.key === "ArrowLeft") { accumRef.current = 0; goPrev(); }
       else if (e.key === " ") { e.preventDefault(); setPaused((p) => !p); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, goNext, goPrev, onClose]);
+  }, [open, goNext, goPrev, onClose, viewersOpen]);
 
   // Lock body scroll
   useEffect(() => {
@@ -227,7 +258,7 @@ const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: Stor
 
         {/* Caption / track info */}
         {(frame.caption || frame.trackTitle) && (
-          <div className="absolute bottom-6 left-4 right-4 z-20 text-white">
+          <div className="absolute bottom-20 left-4 right-4 z-20 text-white">
             {frame.trackTitle && (
               <div className="inline-flex items-center gap-2 bg-black/40 backdrop-blur-md rounded-full px-3 py-1.5 mb-2">
                 <Music className="w-3.5 h-3.5 text-[hsl(45,100%,60%)]" />
@@ -238,6 +269,70 @@ const StoryViewer = ({ startId, open, onClose, onWatched, list: listProp }: Stor
             {frame.caption && (
               <p className="text-sm font-medium drop-shadow-lg">{frame.caption}</p>
             )}
+          </div>
+        )}
+
+        {/* Owner-only viewer count chip */}
+        {isOwn && frame.dbId && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setViewersOpen(true); }}
+            aria-label="See viewers"
+            className="absolute bottom-5 left-4 z-30 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full px-3 py-2 text-white border border-white/15 transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+            <span className="text-sm font-semibold tabular-nums">{frameViewers.length}</span>
+            <span className="text-xs opacity-80">{frameViewers.length === 1 ? "viewer" : "viewers"}</span>
+          </button>
+        )}
+
+        {/* Viewers sheet */}
+        {isOwn && viewersOpen && (
+          <div
+            className="absolute inset-0 z-40 flex items-end"
+            onClick={() => setViewersOpen(false)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div
+              className="relative w-full max-h-[60%] bg-background rounded-t-3xl p-4 overflow-y-auto shadow-2xl animate-in slide-in-from-bottom duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/30 mx-auto mb-3" />
+              <div className="flex items-center gap-2 mb-3">
+                <Eye className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold">
+                  {frameViewers.length} {frameViewers.length === 1 ? "viewer" : "viewers"}
+                </h3>
+              </div>
+              {frameViewers.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-8 text-center">
+                  No one has viewed this frame yet.
+                </p>
+              ) : (
+                <ul className="space-y-2 pb-2">
+                  {frameViewers.map((v) => (
+                    <li key={v.viewer_id} className="flex items-center gap-3 py-1.5">
+                      <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-muted">
+                        <img
+                          src={v.avatar_url || AVATAR_FALLBACK(v.username ?? v.viewer_id)}
+                          alt={v.username ?? "viewer"}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {v.display_name || v.username || "Someone"}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {new Date(v.viewed_at).toLocaleString(undefined, {
+                            month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
       </div>
