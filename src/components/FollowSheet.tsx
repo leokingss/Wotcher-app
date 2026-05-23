@@ -71,7 +71,7 @@ const FollowSheet = ({ open, onOpenChange, type, userId }: FollowSheetProps) => 
                 <p className="text-sm font-semibold truncate">{u.username}</p>
                 <p className="text-xs text-muted-foreground truncate">{u.display_name ?? u.username}</p>
               </button>
-              <FriendCircleMenu username={u.username} variant={type === "followers" ? "pill" : "icon"} />
+              <FriendCircleMenu username={u.username} memberId={u.id} variant={type === "followers" ? "pill" : "icon"} />
             </div>
           ))}
         </div>
