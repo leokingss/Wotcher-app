@@ -60,14 +60,12 @@ export const useFriendCircles = () => {
       return;
     }
     refresh();
-    const ch = supabase
-      .channel(`circles-${user.id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "circle_members", filter: `owner_id=eq.${user.id}` },
-        () => refresh()
-      )
-      .subscribe();
+    const ch = supabase.channel(`circles-${user.id}-${Math.random().toString(36).slice(2)}`);
+    ch.on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "circle_members", filter: `owner_id=eq.${user.id}` },
+      () => refresh()
+    ).subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
