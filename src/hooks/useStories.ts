@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import type { FriendCircleEnum } from "./useFriendCircles";
 
 export type StoryMediaType = "photo" | "video" | "music";
 
 export interface StoryFrameRow {
+  audience_circle: FriendCircleEnum | null;
   id: string;
   user_id: string;
   media_type: StoryMediaType;
