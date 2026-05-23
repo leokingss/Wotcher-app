@@ -1,3 +1,5 @@
+import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
+
 export type StoryMediaType = "music" | "photo" | "video";
 
 export interface StoryFrame {
@@ -7,6 +9,12 @@ export interface StoryFrame {
   trackArtist?: string;
   /** Database id for the story row backing this frame (when sourced from Supabase). */
   dbId?: string;
+  /** ISO timestamp at which this frame expires. Drives the expiry-bleed visual. */
+  expiresAt?: string;
+  /** Beats-per-minute used to drive the wave-progress pulse on music frames. */
+  bpm?: number;
+  /** Audience scope for this frame; null = public. Tints the active ring. */
+  audienceCircle?: FriendCircleEnum | null;
 }
 
 export interface StoryItem {
@@ -17,6 +25,8 @@ export interface StoryItem {
   hasStory?: boolean;
   watched?: boolean;
   mediaType?: StoryMediaType;
+  /** Audience scope for the rail tile (last frame's audience). */
+  audienceCircle?: FriendCircleEnum | null;
   frames?: StoryFrame[];
 }
 
