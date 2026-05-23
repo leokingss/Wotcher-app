@@ -48,6 +48,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
     setTrackArtist("");
     setTagged([]);
     setLocation(null);
+    setAudience(null);
   };
 
   // Cleanup object URLs on unmount
