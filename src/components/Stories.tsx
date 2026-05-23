@@ -80,11 +80,17 @@ const Stories = () => {
       caption: f.caption ?? undefined,
       trackTitle: f.track_title ?? undefined,
       trackArtist: f.track_artist ?? undefined,
+      dbId: f.id,
     })),
   }));
 
   const own = grouped.find((g) => g.isOwn);
   const others = grouped.filter((g) => !g.isOwn);
+
+  // Live viewers for the signed-in user's own story frames.
+  const ownFrameIds = useMemo(() => own?.frames.map((f) => f.id) ?? [], [own]);
+  const { viewers: viewersByFrame } = useStoryViewers(ownFrameIds, !!own && openIdx !== null);
+  const isOwnList = (idx: number) => !!grouped[idx]?.isOwn;
 
   const handleAddClick = () => {
     if (!user) { navigate("/auth"); return; }
@@ -96,7 +102,6 @@ const Stories = () => {
     const g = grouped[groupIndex];
     if (g) {
       setWatchedIds((prev) => (prev.includes(g.user_id) ? prev : [...prev, g.user_id]));
-      g.frames.forEach((f) => markViewed(f.id));
     }
   };
 
