@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Music, Camera } from "lucide-react";
 import { type StoryItem } from "@/data/mockSocial";
@@ -6,6 +6,7 @@ import StoryViewer from "./StoryViewer";
 import StoryComposer from "./StoryComposer";
 import { useAuth } from "@/hooks/useAuth";
 import { useStories } from "@/hooks/useStories";
+import { useStoryViewers } from "@/hooks/useStoryViewers";
 
 const WATCHED_KEY = "watcher:watched-stories";
 const loadWatched = (): string[] => {
@@ -79,11 +80,17 @@ const Stories = () => {
       caption: f.caption ?? undefined,
       trackTitle: f.track_title ?? undefined,
       trackArtist: f.track_artist ?? undefined,
+      dbId: f.id,
     })),
   }));
 
   const own = grouped.find((g) => g.isOwn);
   const others = grouped.filter((g) => !g.isOwn);
+
+  // Live viewers for the signed-in user's own story frames.
+  const ownFrameIds = useMemo(() => own?.frames.map((f) => f.id) ?? [], [own]);
+  const { viewers: viewersByFrame } = useStoryViewers(ownFrameIds, !!own && openIdx !== null);
+  const isOwnList = (idx: number) => !!grouped[idx]?.isOwn;
 
   const handleAddClick = () => {
     if (!user) { navigate("/auth"); return; }
@@ -95,7 +102,6 @@ const Stories = () => {
     const g = grouped[groupIndex];
     if (g) {
       setWatchedIds((prev) => (prev.includes(g.user_id) ? prev : [...prev, g.user_id]));
-      g.frames.forEach((f) => markViewed(f.id));
     }
   };
 
@@ -190,6 +196,9 @@ const Stories = () => {
         startId={openIdx ?? 0}
         open={openIdx !== null}
         onClose={() => setOpenIdx(null)}
+        onFrameView={(dbId) => markViewed(dbId)}
+        isOwnList={isOwnList}
+        viewersByFrame={viewersByFrame}
       />
 
       <StoryComposer open={composerOpen} onOpenChange={setComposerOpen} />
