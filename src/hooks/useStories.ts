@@ -25,6 +25,8 @@ export interface GroupedStory {
   avatar: string | null;
   isOwn: boolean;
   mediaType: StoryMediaType;
+  /** Audience of the most recent frame in the group (drives ring tint). */
+  audienceCircle: FriendCircleEnum | null;
   frames: StoryFrameRow[];
 }
 
