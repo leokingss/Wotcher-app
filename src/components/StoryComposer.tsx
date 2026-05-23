@@ -138,6 +138,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           media_type: storyType,
           media_url: urlData.publicUrl,
           caption,
+          audience_circle: audience,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
