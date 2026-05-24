@@ -283,15 +283,19 @@ export default function TagAndLocationPicker({ tagged, setTagged, location, setL
             </div>
           ) : (
             <div className="max-h-56 overflow-y-auto space-y-2">
-              {/* Pinned closest / EXIF-photo location — appears immediately under the search bar
-                  so the user can one-tap the most likely spot. */}
-              {!query && locationResults[0] && (() => {
+              {locLoading && (
+                <div className="flex justify-center py-4 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </div>
+              )}
+
+              {!locLoading && !query && locationResults[0] && (() => {
                 const top = locationResults[0];
                 const sel = location?.id === top.id;
                 return (
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-primary px-1 flex items-center gap-1">
-                      <Navigation className="w-3 h-3" /> Where this was taken
+                      <Navigation className="w-3 h-3" /> Nearby
                     </p>
                     <button
                       onClick={() => {
@@ -308,12 +312,14 @@ export default function TagAndLocationPicker({ tagged, setTagged, location, setL
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-sm font-semibold truncate">{top.name}</p>
                         <p className="text-[11px] text-muted-foreground truncate">
-                          {top.category} · {top.address}
+                          {top.address || top.category}
                         </p>
                       </div>
-                      <span className="text-[10px] font-bold text-primary tabular-nums">
-                        {fmtDist(top.distanceM)}
-                      </span>
+                      {top.distanceM > 0 && (
+                        <span className="text-[10px] font-bold text-primary tabular-nums">
+                          {fmtDist(top.distanceM)}
+                        </span>
+                      )}
                     </button>
                     {locationResults.length > 1 && (
                       <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1 pt-1">
@@ -324,9 +330,11 @@ export default function TagAndLocationPicker({ tagged, setTagged, location, setL
                 );
               })()}
 
-              {locationResults.length === 0 ? (
+              {!locLoading && locationResults.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-4">
-                  No places match "{query}"
+                  {query.trim().length >= 2
+                    ? `No places match "${query}"`
+                    : "Search a city, street, venue or postcode"}
                 </p>
               ) : (
                 (query ? locationResults : locationResults.slice(1)).map((l) => {
@@ -348,17 +356,20 @@ export default function TagAndLocationPicker({ tagged, setTagged, location, setL
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-sm font-semibold truncate">{l.name}</p>
                         <p className="text-[11px] text-muted-foreground truncate">
-                          {l.category} · {l.address}
+                          {l.address || l.category}
                         </p>
                       </div>
-                      <span className="text-[10px] font-bold text-muted-foreground tabular-nums">
-                        {fmtDist(l.distanceM)}
-                      </span>
+                      {l.distanceM > 0 && (
+                        <span className="text-[10px] font-bold text-muted-foreground tabular-nums">
+                          {fmtDist(l.distanceM)}
+                        </span>
+                      )}
                     </button>
                   );
                 })
               )}
             </div>
+
           )}
         </div>
       )}
