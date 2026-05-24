@@ -24,6 +24,9 @@ interface DraftFrame {
   preview: string;
   fileType: "image" | "video";
   caption: string;
+  /** Per-frame filter so the user can vary the look across slides. */
+  filterId: string;
+  filterIntensity: number;
 }
 
 interface StoryComposerProps {
