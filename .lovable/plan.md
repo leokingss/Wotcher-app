@@ -1,102 +1,74 @@
-## Location Tagging System
+# Stories Filters & Effects — Phased Plan
 
-A unified location-tagging feature using **Google Maps Platform** (Places API New + Geocoding) routed through the Lovable connector gateway so the API key stays server-side. Reuses existing patterns from `TagAndLocationPicker` and `StoryComposer`.
+Your spec covers ~6 months of work for a full team (face tracking, AR, TensorFlow.js, GPU shaders, marketplace AR, admin moderation, creator filters). I want to ship something **real and great** rather than a shallow version of everything. Below is a phased plan; please confirm or adjust.
 
-### 1. Provider & infrastructure
+## Phase 1 — Core Filters + Camera UX (ship now)
 
-- Connect the **Google Maps Platform** connector (gateway-enabled). API key never reaches the browser.
-- Two edge functions:
-  - `places-search` — handles "nearby" and "text" search, returns normalized results with distance from caller's lat/lng.
-  - `places-details` — fetches canonical place details by `place_id` before persisting (validates provider IDs).
-- In-memory LRU cache inside each function for repeat queries (60s TTL) — no DB cache table.
-- Auth required (verifies JWT via `supabase.auth.getUser`) on both functions.
+**Filter engine**
+- WebGL2 color-grading engine using fragment shaders (LUT-style + parametric grade)
+- Real-time preview on camera stream and uploaded photo/video
+- Intensity slider (0–100), filter carousel, swipe to change, smooth crossfade
+- "Save favorite" + "last used" via Lovable Cloud (per user)
 
-### 2. Database
+**Cinematic preset pack (10 looks)**
+Monaco Gold, Tokyo Nights, Noir Street, Sunset Film, Midnight Blue, Soft Vintage, Dream Fade, Neon Glow, Luxe Black, Warm Grain — each tuned with curves, split-tone, grain, vignette, bloom.
 
-New normalized `locations` table (one row per unique provider place, deduped on `provider + provider_place_id`):
+**Trending pack (CSS/Canvas-doable)**
+VHS, disposable, Y2K, cyberpunk glow, fisheye, glitch, old-money mono, luxury mono, paparazzi flash.
 
-```text
-locations
-├─ id uuid pk
-├─ provider text          -- 'google'
-├─ provider_place_id text -- Google place id
-├─ name text
-├─ formatted_address text
-├─ city text
-├─ region text
-├─ country text
-├─ latitude numeric
-├─ longitude numeric
-├─ place_type text        -- 'city' | 'venue' | 'landmark' | 'address' | 'postcode'
-├─ created_at timestamptz
-└─ unique(provider, provider_place_id)
-```
+**Environment overlays (Canvas particles, no AR)**
+Snow, rain, sparkles, embers, fog — composited over media.
 
-Add nullable `location_id uuid references locations(id)` to: `posts`, `videos`, `stories`, `listings`, `profiles`, `livestreams` (only tables that exist; livestreams added if missing is out of scope — flagged below).
+**Camera UX**
+- Vertical fullscreen camera modal
+- Front/rear switch, flash toggle, tap-to-focus, pinch zoom, hold-to-record (max 20s), timer (3s/10s)
+- Swipe horizontally between filters (Instagram-style)
 
-Posts already have a free-text `location` column — keep it for legacy, prefer `location_id` going forward.
+**Creation tools (basics)**
+- Text overlays (draggable, font/color/size)
+- Emoji stickers (draggable, scalable, rotatable)
+- Drawing tool (canvas pen, color picker)
+- Layered, exportable to flattened image/video
 
-RLS: `locations` is world-readable (public reference data), insertable only by authenticated users via the edge function (service role write).
+**Storage**
+- New table `story_filters` (preset registry + usage analytics)
+- New table `user_favorite_filters`
+- Extend `stories` with `filter_id`, `filter_intensity`, `overlays_json`
 
-### 3. Frontend
+## Phase 2 — Beauty + AI smart filters (next)
+- MediaPipe FaceMesh for skin smoothing, eye brighten, teeth whiten, soft contour
+- AI auto-enhance (low-light correction, sky boost, portrait blur via segmentation)
+- Background blur via MediaPipe Selfie Segmentation
 
-Refactor existing `TagAndLocationPicker` into a shared **`LocationPicker`** component:
+## Phase 3 — AR face filters (later)
+- Glasses, crowns, masks, animated makeup using FaceMesh landmarks
+- WebGL2 + Three.js overlay layer
 
-- "Use current location" button — triggers `navigator.geolocation` with a clear privacy preface ("We use your location only to find nearby places. Coordinates aren't stored or shown publicly unless you pick a public place.").
-- Permission denied → graceful fallback to manual text search.
-- Debounced (300 ms) text input, calls `places-search` with `mode: 'text' | 'nearby'`.
-- Pinned "Where you are" suggestion at top when GPS available.
-- Result row: name • city, country • distance.
-- Selected preview chip with × to remove.
+## Phase 4 — Polls, GIFs, music, marketplace product modes, admin moderation, creator-made filters
+Each is a meaningful feature on its own.
 
-Wire `LocationPicker` into:
-- `StoryComposer` (replace current location section)
-- `CreatePost` / video upload dialog
-- Marketplace listing form
-- Livestream start dialog (if present)
-- Profile edit dialog
+---
 
-### 4. Feed display
+## What I'll build right now if you approve
 
-`LocationLabel` component shown under `@username`:
+1. `src/lib/filters/` — WebGL2 filter engine (`FilterEngine.ts`), preset definitions, shader sources
+2. `src/components/stories/StoryCamera.tsx` — fullscreen camera with filter carousel, controls, recording
+3. `src/components/stories/FilterCarousel.tsx`, `IntensitySlider.tsx`, `OverlayEditor.tsx` (text/emoji/draw)
+4. `src/components/stories/EnvironmentOverlay.tsx` — particle system (snow/rain/sparkles/embers/fog)
+5. Wire into existing `StoryComposer.tsx` as the new capture/edit flow (uploads still work)
+6. Migration: `story_filters`, `user_favorite_filters`, add columns to `stories`
+7. Edge function not needed for Phase 1 (all client-side); analytics via direct insert
 
-```text
-@username
-London, United Kingdom
-```
+## Technical notes
+- WebGL2 with a single quad, swappable fragment shader per filter, uniform-driven intensity
+- LUT support via 2D atlas texture for cinematic looks (compact, fast)
+- Video recording via `MediaRecorder` of a `<canvas>` `captureStream()` so filters bake into the export
+- Particles: lightweight Canvas2D system, capped at 200 particles, paused when offscreen
+- Mobile-first; respects `prefers-reduced-motion`; falls back to CSS filters if WebGL2 unavailable
 
-Tapping opens a read-only place card (name, formatted address, map thumbnail via static map proxy — optional, gated behind same gateway).
+## What I'm explicitly **not** doing in this turn (to avoid shipping a fake)
+Face tracking / AR glasses & crowns, TensorFlow.js, AI auto-enhance, GIF picker, polls, music, marketplace product AR, admin moderation dashboard, creator filter SDK. I'll tackle these in dedicated follow-ups so each is real and tested.
 
-### 5. Marketplace
+---
 
-- Listing cards show city + approximate distance ("≈ 3 km away") computed from viewer's GPS.
-- Marketplace filter: `Near me` toggle + radius slider (5/25/100/500 km / Any). Uses Haversine on lat/lng client-side over the already-fetched listing set; no DB-side geo index needed at this scale.
-- Privacy: never expose exact lat/lng of the seller's address — only the chosen place's lat/lng (which is a public POI by design).
-
-### 6. Privacy & security
-
-- GPS coordinates are sent only to the edge function for the duration of the search; never persisted against the user.
-- Selected place's lat/lng are public (it's a POI), so safe to display.
-- Rate limit per user via simple in-memory token bucket inside the edge function (10 req / 10 s) — flagged as best-effort per platform guidance.
-- Edge function validates `place_id` by calling Places Details before insert.
-- API key only in edge functions (gateway), never in client bundle.
-
-### Out of scope / flagged
-
-- `livestreams` table doesn't currently exist in schema — will add `location_id` only if/when it's created.
-- Static map thumbnails on the place card are optional; can ship without and add later.
-- No background/continuous location tracking. One-shot GPS only when the user taps "Use current location".
-
-### Technical notes
-
-- Gateway base: `https://connector-gateway.lovable.dev/google_maps`
-- Endpoints used:
-  - `POST places/v1/places:searchNearby` (nearby)
-  - `POST places/v1/places:searchText` (typed)
-  - `GET  places/v1/places/{placeId}` (details / validation)
-- Field mask kept minimal: `places.id,places.displayName,places.formattedAddress,places.location,places.types,places.addressComponents`.
-- Distance computed server-side with Haversine when caller passes lat/lng.
-
-### Approval needed
-
-This touches the schema (new `locations` table + FKs on 5 existing tables), adds 2 edge functions, and links the Google Maps connector. Approve to proceed and I'll start with the connector + migration, then ship the shared `LocationPicker` and integrate it call-site by call-site.
+**Reply "go" to ship Phase 1, or tell me which phase/feature to prioritise differently.**

@@ -15,6 +15,10 @@ export interface StoryFrame {
   bpm?: number;
   /** Audience scope for this frame; null = public. Tints the active ring. */
   audienceCircle?: FriendCircleEnum | null;
+  /** Filter preset id applied at publish time (see src/lib/storyFilters.ts). */
+  filterId?: string | null;
+  /** Filter intensity 0..100. */
+  filterIntensity?: number;
 }
 
 export interface StoryItem {

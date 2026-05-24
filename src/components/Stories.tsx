@@ -85,6 +85,8 @@ const Stories = () => {
       dbId: f.id,
       expiresAt: f.expires_at,
       audienceCircle: f.audience_circle ?? null,
+      filterId: f.filter_id ?? null,
+      filterIntensity: f.filter_intensity ?? 100,
     })),
   }));
 

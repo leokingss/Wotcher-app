@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2 } from "lucide-react";
+import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2, Wand2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,12 @@ import { LocationPicker } from "@/components/LocationPicker";
 import { SavedLocation } from "@/lib/places";
 import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
 import { CIRCLE_THEMES } from "@/lib/circleTheme";
+import StoryCamera from "@/components/stories/StoryCamera";
+import FilterCarousel from "@/components/stories/FilterCarousel";
+import IntensitySlider from "@/components/stories/IntensitySlider";
+import StoryParticles from "@/components/stories/StoryParticles";
+import { FILTER_NONE, FilterPreset, getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
+import { useFavoriteFilters } from "@/hooks/useFavoriteFilters";
 
 interface DraftFrame {
   id: string;
@@ -18,6 +24,9 @@ interface DraftFrame {
   preview: string;
   fileType: "image" | "video";
   caption: string;
+  /** Per-frame filter so the user can vary the look across slides. */
+  filterId: string;
+  filterIntensity: number;
 }
 
 interface StoryComposerProps {
@@ -43,6 +52,11 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [audience, setAudience] = useState<FriendCircleEnum | null>(null);
   /** Toggles between the inline preview and a full-screen "maximised" view. */
   const [maximized, setMaximized] = useState(false);
+  /** Open the in-app capture camera with live filters. */
+  const [cameraOpen, setCameraOpen] = useState(false);
+  /** Filter UI panel (carousel + intensity) toggle for uploaded media. */
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const { favorites, toggleFavorite } = useFavoriteFilters();
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
@@ -85,6 +99,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         preview: URL.createObjectURL(file),
         fileType: isVid ? "video" : "image",
         caption: "",
+        filterId: "none",
+        filterIntensity: 100,
       });
     });
     if (next.length === 0) return;
@@ -153,6 +169,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           caption,
           audience_circle: audience,
           location_id: i === 0 ? geoLocation?.id ?? null : null,
+          filter_id: f.filterId === "none" ? null : f.filterId,
+          filter_intensity: f.filterIntensity,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
@@ -243,17 +261,48 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           {active ? (
             <div className="relative neo-card-inset rounded-2xl overflow-hidden">
               <div className="relative aspect-[9/14] bg-black">
-                {active.fileType === "video" ? (
-                  <video
-                    key={active.id}
-                    src={active.preview}
-                    className="w-full h-full object-cover"
-                    controls
-                    playsInline
-                  />
-                ) : (
-                  <img src={active.preview} alt="" className="w-full h-full object-cover" />
-                )}
+                {(() => {
+                  const preset = getFilterById(active.filterId);
+                  const t = overlayStrength(active.filterIntensity);
+                  const fStyle = { filter: cssFilterAt(preset, active.filterIntensity) } as const;
+                  return (
+                    <>
+                      {active.fileType === "video" ? (
+                        <video
+                          key={active.id}
+                          src={active.preview}
+                          className="w-full h-full object-cover"
+                          style={fStyle}
+                          controls
+                          playsInline
+                        />
+                      ) : (
+                        <img src={active.preview} alt="" className="w-full h-full object-cover" style={fStyle} />
+                      )}
+                      {preset.tint && (
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            backgroundColor: preset.tint.color,
+                            opacity: preset.tint.opacity * t,
+                            mixBlendMode: preset.tint.blend ?? "soft-light",
+                          }}
+                        />
+                      )}
+                      {preset.vignette && (
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            boxShadow: `inset 0 0 ${80 + preset.vignette * t * 120}px ${20 + preset.vignette * t * 80}px rgba(0,0,0,${preset.vignette * t * 0.85})`,
+                          }}
+                        />
+                      )}
+                      {preset.particles && (
+                        <StoryParticles kind={preset.particles} intensity={t} />
+                      )}
+                    </>
+                  );
+                })()}
 
                 {/* Frame nav */}
                 {frames.length > 1 && (
@@ -300,13 +349,63 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 </button>
 
                 <button
+                  onClick={() => setFilterPanelOpen((v) => !v)}
+                  className={`absolute top-3 right-12 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
+                    active.filterId !== "none" ? "text-primary" : ""
+                  }`}
+                  aria-label="Filters"
+                  aria-pressed={filterPanelOpen}
+                >
+                  <Wand2 className="w-4 h-4" />
+                </button>
+
+                <button
                   onClick={() => removeFrame(active.id)}
                   className="absolute top-3 right-3 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm"
                   aria-label="Remove frame"
                 >
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </button>
+
+                {active.filterId !== "none" && (
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-white text-xs font-semibold pointer-events-none">
+                    {getFilterById(active.filterId).name}
+                  </div>
+                )}
               </div>
+
+              {/* Filter panel */}
+              {filterPanelOpen && (
+                <div className="bg-background/95 border-t border-border/50 animate-fade-in">
+                  {active.filterId !== "none" && (
+                    <div className="px-3 pt-3">
+                      <IntensitySlider
+                        value={active.filterIntensity}
+                        onChange={(v) =>
+                          setFrames((prev) =>
+                            prev.map((f) =>
+                              f.id === active.id ? { ...f, filterIntensity: v } : f,
+                            ),
+                          )
+                        }
+                      />
+                    </div>
+                  )}
+                  <FilterCarousel
+                    previewSrc={active.fileType === "image" ? active.preview : undefined}
+                    selectedId={active.filterId}
+                    onSelect={(p: FilterPreset) =>
+                      setFrames((prev) =>
+                        prev.map((f) =>
+                          f.id === active.id ? { ...f, filterId: p.id } : f,
+                        ),
+                      )
+                    }
+                    favorites={favorites}
+                    onToggleFavorite={toggleFavorite}
+                  />
+                </div>
+              )}
 
               {/* Caption per frame */}
               <div className="p-3">
@@ -352,9 +451,9 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
             <div className="neo-card-inset w-full aspect-[9/14] rounded-2xl flex flex-col items-center justify-center gap-4 hover:bg-muted/30 transition-colors">
               <div className="flex gap-3">
                 <button
-                  onClick={() => inputRef.current?.click()}
+                  onClick={() => setCameraOpen(true)}
                   className="neo-button-icon p-4"
-                  aria-label="Camera"
+                  aria-label="Open camera with filters"
                 >
                   <Camera className="w-8 h-8 text-primary" />
                 </button>
@@ -514,6 +613,33 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           </>)}
         </div>
       </DialogContent>
+      <StoryCamera
+        open={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        onCapture={(blob, opts) => {
+          const ext = opts.fileType === "video" ? "webm" : "jpg";
+          const file = new File([blob], `cap-${Date.now()}.${ext}`, { type: blob.type });
+          setFrames((prev) => {
+            const merged = [
+              ...prev,
+              {
+                id: Math.random().toString(36).slice(2, 9),
+                file,
+                preview: opts.previewUrl,
+                fileType: opts.fileType,
+                caption: "",
+                filterId: opts.filterId,
+                filterIntensity: opts.intensity,
+              },
+            ];
+            if (prev.length === 0) {
+              setStoryType(opts.fileType === "video" ? "video" : "photo");
+            }
+            return merged;
+          });
+          setCameraOpen(false);
+        }}
+      />
     </Dialog>
   );
 };

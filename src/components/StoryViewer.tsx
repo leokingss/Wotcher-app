@@ -4,6 +4,8 @@ import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
 import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
 import WaveProgress from "./WaveProgress";
 import { CIRCLE_THEMES, ringGradientFor } from "@/lib/circleTheme";
+import { getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
+import StoryParticles from "./stories/StoryParticles";
 
 const BASE_FRAME_DURATION_MS = 5000;
 const DEFAULT_BPM = 120;
@@ -220,26 +222,61 @@ const StoryViewer = ({
       <div
         className="relative w-full h-full max-w-md mx-auto overflow-hidden md:rounded-[2rem] md:my-6 md:max-h-[92vh] md:shadow-[12px_12px_32px_rgba(0,0,0,0.55),-8px_-8px_24px_rgba(255,255,255,0.04)] md:ring-1 md:ring-white/5"
       >
-        {/^.*\.(mp4|webm|mov|m4v)(\?|$)/i.test(frame.url) ? (
-          <video
-            key={`${story.id}-${frameIdx}`}
-            src={frame.url}
-            className="absolute inset-0 w-full h-full object-cover"
-            autoPlay
-            muted
-            playsInline
-            loop
-          />
-        ) : (
-          <img
-            key={`${story.id}-${frameIdx}`}
-            src={frame.url}
-            alt={frame.caption ?? story.username}
-            className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-200"
-            draggable={false}
-          />
-        )}
+        {(() => {
+          const preset = getFilterById(frame.filterId);
+          const intensity = frame.filterIntensity ?? 100;
+          const t = overlayStrength(intensity);
+          const filterStyle = { filter: cssFilterAt(preset, intensity) } as const;
+          const isVideo = /^.*\.(mp4|webm|mov|m4v)(\?|$)/i.test(frame.url);
+          return (
+            <>
+              {isVideo ? (
+                <video
+                  key={`${story.id}-${frameIdx}`}
+                  src={frame.url}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={filterStyle}
+                  autoPlay
+                  muted
+                  playsInline
+                  loop
+                />
+              ) : (
+                <img
+                  key={`${story.id}-${frameIdx}`}
+                  src={frame.url}
+                  alt={frame.caption ?? story.username}
+                  className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-200"
+                  style={filterStyle}
+                  draggable={false}
+                />
+              )}
+              {preset.tint && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    backgroundColor: preset.tint.color,
+                    opacity: preset.tint.opacity * t,
+                    mixBlendMode: preset.tint.blend ?? "soft-light",
+                  }}
+                />
+              )}
+              {preset.vignette && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    boxShadow: `inset 0 0 ${80 + preset.vignette * t * 120}px ${20 + preset.vignette * t * 80}px rgba(0,0,0,${preset.vignette * t * 0.85})`,
+                  }}
+                />
+              )}
+              {preset.particles && (
+                <StoryParticles kind={preset.particles} intensity={t} />
+              )}
+            </>
+          );
+        })()}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70 pointer-events-none" />
+
 
         {/* Expiry bleed: yellow→red vignette that intensifies as the frame nears expiry. */}
         {expiryBleed > 0.01 && (
