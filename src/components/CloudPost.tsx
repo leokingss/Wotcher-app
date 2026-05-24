@@ -5,6 +5,7 @@ import SaveButton from "./SaveButton";
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
 import ListingBar from "./ListingBar";
+import { LocationLabel } from "./LocationLabel";
 import { FeedPost, togglePostReaction } from "@/hooks/usePosts";
 import { Listing } from "@/hooks/useListings";
 import { supabase } from "@/integrations/supabase/client";
