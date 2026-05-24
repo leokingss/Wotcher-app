@@ -256,6 +256,14 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 </div>
 
                 <button
+                  onClick={() => setMaximized(true)}
+                  className="absolute top-3 left-3 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm"
+                  aria-label="Maximise preview"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+
+                <button
                   onClick={() => removeFrame(active.id)}
                   className="absolute top-3 right-3 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm"
                   aria-label="Remove frame"
