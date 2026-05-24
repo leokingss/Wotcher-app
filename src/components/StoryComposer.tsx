@@ -38,6 +38,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [location, setLocation] = useState<LocationTag | null>(null);
   /** null = public; otherwise scoped to the chosen friend circle. */
   const [audience, setAudience] = useState<FriendCircleEnum | null>(null);
+  /** Toggles between the inline preview and a full-screen "maximised" view. */
+  const [maximized, setMaximized] = useState(false);
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
