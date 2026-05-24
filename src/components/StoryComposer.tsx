@@ -118,6 +118,14 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
 
     setPosting(true);
     try {
+      // Make sure we have a fresh access token before uploading — without it,
+      // supabase-js falls back to the anon key and storage RLS rejects the upload.
+      const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+      if (sessionErr || !sessionData.session) {
+        toast.error("Your session expired. Please sign in again.");
+        setPosting(false);
+        return;
+      }
       // Upload each frame to media storage, then insert one stories row per frame
       const rows: any[] = [];
       for (let i = 0; i < frames.length; i++) {
