@@ -35,11 +35,11 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
   const [permission, setPermission] = useState<"unknown" | "denied" | "granted">("unknown");
   const debounceRef = useRef<number | null>(null);
 
-  // Fetch nearby on open if we have coords
+  // Fetch nearby on open if we have coords (only when query is empty)
   useEffect(() => {
     if (!open) return;
     if (!coords) return;
-    if (query.trim().length >= 2) return;
+    if (query.trim().length >= 1) return;
     let cancelled = false;
     setLoading(true);
     searchPlaces({ mode: "nearby", lat: coords.lat, lng: coords.lng })
@@ -53,15 +53,16 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
     };
   }, [open, coords, query]);
 
-  // Live search on every keystroke (no debounce)
+  // Live search on every keystroke (no debounce) — Instagram-style
   useEffect(() => {
     if (!open) return;
-    if (query.trim().length < 2) return;
+    const q = query.trim();
+    if (q.length < 1) return;
     let cancelled = false;
     setLoading(true);
     searchPlaces({
       mode: "text",
-      query,
+      query: q,
       lat: coords?.lat,
       lng: coords?.lng,
     })
