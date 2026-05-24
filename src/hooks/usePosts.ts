@@ -14,6 +14,13 @@ export interface PostListingSummary {
   title: string | null;
 }
 
+export interface PostTaggedLocation {
+  id: string;
+  name: string;
+  city: string | null;
+  country: string | null;
+}
+
 export interface FeedPost {
   id: string;
   user_id: string;
@@ -27,6 +34,7 @@ export interface FeedPost {
     display_name: string | null;
     avatar_url: string | null;
   } | null;
+  tagged_location: PostTaggedLocation | null;
   like_count: number;
   dislike_count: number;
   comment_count: number;
