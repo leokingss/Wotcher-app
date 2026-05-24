@@ -35,46 +35,47 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
   const [permission, setPermission] = useState<"unknown" | "denied" | "granted">("unknown");
   const debounceRef = useRef<number | null>(null);
 
-  // Fetch nearby on open if we have coords (only when query is empty)
+  // Fetch nearby on open when query is empty
   useEffect(() => {
     if (!open) return;
     if (!coords) return;
-    if (query.trim().length >= 1) return;
+    if (query.trim().length >= 2) return;
     let cancelled = false;
     setLoading(true);
     searchPlaces({ mode: "nearby", lat: coords.lat, lng: coords.lng })
       .then((r) => {
         if (!cancelled) setResults(r);
       })
-      .catch(() => {})
+      .catch((e) => console.error("nearby search failed", e))
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
   }, [open, coords, query]);
 
-  // Live search on every keystroke (no debounce) — Instagram-style
+  // Typed autocomplete with 300ms debounce, min 2 chars
   useEffect(() => {
     if (!open) return;
     const q = query.trim();
-    if (q.length < 1) return;
+    if (q.length < 2) return;
     let cancelled = false;
     setLoading(true);
-    searchPlaces({
-      mode: "text",
-      query: q,
-    })
-      .then((r) => {
-        if (!cancelled) setResults(r);
-      })
-      .catch((e) => console.error(e))
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    const t = window.setTimeout(() => {
+      searchPlaces({ mode: "text", query: q })
+        .then((r) => {
+          if (!cancelled) setResults(r);
+        })
+        .catch((e) => console.error("place autocomplete failed", e))
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }, 300);
     return () => {
       cancelled = true;
+      window.clearTimeout(t);
     };
   }, [query, open]);
+
 
   async function requestLocation() {
     try {
