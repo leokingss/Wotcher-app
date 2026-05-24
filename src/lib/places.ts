@@ -12,6 +12,7 @@ export interface PlaceResult {
   longitude: number | null;
   place_type: string | null;
   distance_km: number | null;
+  secondary_text?: string | null;
 }
 
 export interface SavedLocation {
