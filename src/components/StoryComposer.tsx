@@ -15,6 +15,10 @@ import StoryCamera from "@/components/stories/StoryCamera";
 import FilterCarousel from "@/components/stories/FilterCarousel";
 import IntensitySlider from "@/components/stories/IntensitySlider";
 import StoryParticles from "@/components/stories/StoryParticles";
+import BeautyPanel from "@/components/stories/BeautyPanel";
+import BeautyPhotoCanvas, { BeautyPhotoCanvasHandle } from "@/components/stories/BeautyPhotoCanvas";
+import { BEAUTY_OFF, BeautyParams, isBeautyActive } from "@/lib/beauty/BeautyEngine";
+import { Sparkle } from "lucide-react";
 import { FILTER_NONE, FilterPreset, getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
 import { useFavoriteFilters } from "@/hooks/useFavoriteFilters";
 
