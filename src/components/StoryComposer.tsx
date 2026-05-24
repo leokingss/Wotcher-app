@@ -162,10 +162,23 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
       const rows: any[] = [];
       for (let i = 0; i < frames.length; i++) {
         const f = frames[i];
-        const ext = f.file.name.split(".").pop() || (f.fileType === "video" ? "mp4" : "jpg");
+        // Bake beauty pack into the upload for photo frames so what the user
+        // saw in the preview matches what gets stored.
+        let uploadFile: Blob = f.file;
+        let uploadType = f.file.type;
+        let ext = f.file.name.split(".").pop() || (f.fileType === "video" ? "mp4" : "jpg");
+        if (f.fileType === "image" && isBeautyActive(f.beauty)) {
+          const handle = beautyCanvasRefs.current.get(f.id);
+          const baked = await handle?.toBlob(0.92);
+          if (baked) {
+            uploadFile = baked;
+            uploadType = "image/jpeg";
+            ext = "jpg";
+          }
+        }
         const path = `${user.id}/stories/${Date.now()}-${i}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("media").upload(path, f.file, {
-          contentType: f.file.type,
+        const { error: upErr } = await supabase.storage.from("media").upload(path, uploadFile, {
+          contentType: uploadType,
           upsert: false,
         });
         if (upErr) throw upErr;
