@@ -397,6 +397,20 @@ export const StoryCamera = ({
               {timer > 0 && <span>{timer}s</span>}
             </button>
             <button
+              onClick={() => setBeautyOpen((v) => !v)}
+              className={`neo-button-icon p-2 bg-black/40 backdrop-blur-md ${
+                isBeautyActive(beauty) ? "text-primary" : ""
+              }`}
+              aria-label="Beauty filters"
+              aria-pressed={beautyOpen}
+            >
+              {beautyLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Sparkle className="w-5 h-5" />
+              )}
+            </button>
+            <button
               onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
               className="neo-button-icon p-2 bg-black/40 backdrop-blur-md"
               aria-label="Switch camera"
