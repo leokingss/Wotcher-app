@@ -442,6 +442,27 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 </div>
               )}
 
+              {/* Beauty panel (photos only) */}
+              {beautyOpen && active.fileType === "image" && (
+                <div className="bg-background/95 border-t border-border/50 animate-fade-in">
+                  <BeautyPanel
+                    params={active.beauty}
+                    onChange={(b) =>
+                      setFrames((prev) =>
+                        prev.map((f) => (f.id === active.id ? { ...f, beauty: b } : f)),
+                      )
+                    }
+                    onReset={() =>
+                      setFrames((prev) =>
+                        prev.map((f) =>
+                          f.id === active.id ? { ...f, beauty: BEAUTY_OFF } : f,
+                        ),
+                      )
+                    }
+                  />
+                </div>
+              )}
+
               {/* Caption per frame */}
               <div className="p-3">
                 <input
