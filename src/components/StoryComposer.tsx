@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound } from "lucide-react";
+import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,6 +38,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [location, setLocation] = useState<LocationTag | null>(null);
   /** null = public; otherwise scoped to the chosen friend circle. */
   const [audience, setAudience] = useState<FriendCircleEnum | null>(null);
+  /** Toggles between the inline preview and a full-screen "maximised" view. */
+  const [maximized, setMaximized] = useState(false);
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
@@ -172,6 +174,38 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
+      {/* Full-screen maximised preview — overlays the dialog without disrupting form state. */}
+      {maximized && active && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center"
+          onClick={() => setMaximized(false)}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setMaximized(false); }}
+            className="absolute top-4 right-4 neo-button-icon p-2 bg-background/20 backdrop-blur-sm text-white"
+            aria-label="Minimise preview"
+          >
+            <Minimize2 className="w-5 h-5" />
+          </button>
+          {active.fileType === "video" ? (
+            <video
+              src={active.preview}
+              className="max-w-full max-h-full object-contain"
+              controls
+              autoPlay
+              playsInline
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={active.preview}
+              alt=""
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      )}
       <DialogContent className="neo-card border-0 max-w-md w-[95vw] p-0 rounded-3xl overflow-hidden max-h-[92vh] flex flex-col">
         <DialogHeader className="px-4 py-3 border-b border-border/50 flex-shrink-0">
           <div className="flex items-center justify-between gap-2">
@@ -252,6 +286,14 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                     />
                   ))}
                 </div>
+
+                <button
+                  onClick={() => setMaximized(true)}
+                  className="absolute top-3 left-3 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm"
+                  aria-label="Maximise preview"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
 
                 <button
                   onClick={() => removeFrame(active.id)}
