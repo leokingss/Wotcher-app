@@ -613,6 +613,33 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           </>)}
         </div>
       </DialogContent>
+      <StoryCamera
+        open={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        onCapture={(blob, opts) => {
+          const ext = opts.fileType === "video" ? "webm" : "jpg";
+          const file = new File([blob], `cap-${Date.now()}.${ext}`, { type: blob.type });
+          setFrames((prev) => {
+            const merged = [
+              ...prev,
+              {
+                id: Math.random().toString(36).slice(2, 9),
+                file,
+                preview: opts.previewUrl,
+                fileType: opts.fileType,
+                caption: "",
+                filterId: opts.filterId,
+                filterIntensity: opts.intensity,
+              },
+            ];
+            if (prev.length === 0) {
+              setStoryType(opts.fileType === "video" ? "video" : "photo");
+            }
+            return merged;
+          });
+          setCameraOpen(false);
+        }}
+      />
     </Dialog>
   );
 };
