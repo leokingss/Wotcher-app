@@ -174,6 +174,38 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
+      {/* Full-screen maximised preview — overlays the dialog without disrupting form state. */}
+      {maximized && active && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center"
+          onClick={() => setMaximized(false)}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setMaximized(false); }}
+            className="absolute top-4 right-4 neo-button-icon p-2 bg-background/20 backdrop-blur-sm text-white"
+            aria-label="Minimise preview"
+          >
+            <Minimize2 className="w-5 h-5" />
+          </button>
+          {active.fileType === "video" ? (
+            <video
+              src={active.preview}
+              className="max-w-full max-h-full object-contain"
+              controls
+              autoPlay
+              playsInline
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={active.preview}
+              alt=""
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      )}
       <DialogContent className="neo-card border-0 max-w-md w-[95vw] p-0 rounded-3xl overflow-hidden max-h-[92vh] flex flex-col">
         <DialogHeader className="px-4 py-3 border-b border-border/50 flex-shrink-0">
           <div className="flex items-center justify-between gap-2">
