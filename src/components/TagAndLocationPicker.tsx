@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
-import { AtSign, MapPin, Search, X, UserPlus, Building2, Navigation } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AtSign, MapPin, Search, X, UserPlus, Building2, Navigation, Loader2 } from "lucide-react";
+import { searchPlaces, getCurrentPosition, type PlaceResult } from "@/lib/places";
 
 // Frontend-only tag people + location picker shared by Story and Post composers.
 
