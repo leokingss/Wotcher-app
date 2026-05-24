@@ -311,7 +311,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                           }}
                         />
                       )}
-                      {preset.vignette && (
+                      {!beautyOn && preset.vignette && (
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
