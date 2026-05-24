@@ -186,6 +186,9 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         const tagSuffix = i === 0 && tagged.length ? " " + tagged.map((t) => `@${t.handle}`).join(" ") : "";
         const locPrefix = i === 0 && location ? `📍 ${location.name} · ` : "";
         const caption = ((locPrefix + (f.caption.trim() || "")) + tagSuffix).trim() || null;
+        // When beauty was baked into the upload we also burned in the CSS
+        // colour grade, so we mustn't apply it a second time at view-time.
+        const beautyBaked = f.fileType === "image" && isBeautyActive(f.beauty) && uploadFile !== f.file;
         rows.push({
           user_id: user.id,
           media_type: storyType,
@@ -193,8 +196,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           caption,
           audience_circle: audience,
           location_id: i === 0 ? geoLocation?.id ?? null : null,
-          filter_id: f.filterId === "none" ? null : f.filterId,
-          filter_intensity: f.filterIntensity,
+          filter_id: beautyBaked || f.filterId === "none" ? null : f.filterId,
+          filter_intensity: beautyBaked ? 0 : f.filterIntensity,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
