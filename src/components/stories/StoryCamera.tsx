@@ -282,6 +282,7 @@ export const StoryCamera = ({
           fileType: "image",
           filterId: filter.id,
           intensity,
+          arEffectId: arEffect.id,
           previewUrl: URL.createObjectURL(blob),
         });
       },
