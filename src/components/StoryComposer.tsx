@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2 } from "lucide-react";
+import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2, Wand2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,12 @@ import { LocationPicker } from "@/components/LocationPicker";
 import { SavedLocation } from "@/lib/places";
 import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
 import { CIRCLE_THEMES } from "@/lib/circleTheme";
+import StoryCamera from "@/components/stories/StoryCamera";
+import FilterCarousel from "@/components/stories/FilterCarousel";
+import IntensitySlider from "@/components/stories/IntensitySlider";
+import StoryParticles from "@/components/stories/StoryParticles";
+import { FILTER_NONE, FilterPreset, getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
+import { useFavoriteFilters } from "@/hooks/useFavoriteFilters";
 
 interface DraftFrame {
   id: string;
