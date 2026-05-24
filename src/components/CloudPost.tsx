@@ -108,7 +108,11 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
               >
                 {username}
               </button>
-              {post.location && <p className="text-xs text-muted-foreground">{post.location}</p>}
+              {post.tagged_location ? (
+                <LocationLabel location={post.tagged_location} />
+              ) : (
+                post.location && <p className="text-xs text-muted-foreground">{post.location}</p>
+              )}
             </div>
           </div>
           <button className="neo-button-icon p-2">
