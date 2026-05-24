@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import type { StoryMediaType } from "@/data/mockSocial";
 import LiveStreamMode from "@/components/LiveStreamMode";
 import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
+import { LocationPicker } from "@/components/LocationPicker";
+import { SavedLocation } from "@/lib/places";
 import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
 import { CIRCLE_THEMES } from "@/lib/circleTheme";
 
