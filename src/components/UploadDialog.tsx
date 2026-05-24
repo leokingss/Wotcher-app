@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
+import { LocationPicker } from "@/components/LocationPicker";
+import { SavedLocation } from "@/lib/places";
 
 interface UploadDialogProps {
   open: boolean;
