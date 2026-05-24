@@ -1750,10 +1750,13 @@ export type Database = {
           caption: string | null
           created_at: string
           expires_at: string
+          filter_id: string | null
+          filter_intensity: number
           id: string
           location_id: string | null
           media_type: Database["public"]["Enums"]["story_media_type"]
           media_url: string
+          overlays_json: Json | null
           track_artist: string | null
           track_title: string | null
           user_id: string
@@ -1763,10 +1766,13 @@ export type Database = {
           caption?: string | null
           created_at?: string
           expires_at?: string
+          filter_id?: string | null
+          filter_intensity?: number
           id?: string
           location_id?: string | null
           media_type: Database["public"]["Enums"]["story_media_type"]
           media_url: string
+          overlays_json?: Json | null
           track_artist?: string | null
           track_title?: string | null
           user_id: string
@@ -1776,10 +1782,13 @@ export type Database = {
           caption?: string | null
           created_at?: string
           expires_at?: string
+          filter_id?: string | null
+          filter_intensity?: number
           id?: string
           location_id?: string | null
           media_type?: Database["public"]["Enums"]["story_media_type"]
           media_url?: string
+          overlays_json?: Json | null
           track_artist?: string | null
           track_title?: string | null
           user_id?: string
@@ -1991,6 +2000,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_favorite_filters: {
+        Row: {
+          created_at: string
+          filter_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filter_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filter_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
