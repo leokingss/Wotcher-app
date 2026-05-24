@@ -73,16 +73,71 @@ export default function TagAndLocationPicker({ tagged, setTagged, location, setL
     );
   }, [cleanQ, isExternalSearch]);
 
-  const locationResults = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return NEARBY;
-    return NEARBY.filter(
-      (l) =>
-        l.name.toLowerCase().includes(q) ||
-        l.address.toLowerCase().includes(q) ||
-        l.category.toLowerCase().includes(q),
-    );
-  }, [query]);
+  // Live location search via Places API (same as LocationPicker)
+  const [locationResults, setLocationResults] = useState<LocationTag[]>([]);
+  const [locLoading, setLocLoading] = useState(false);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const coordsTriedRef = useRef(false);
+
+  const placeToLocationTag = (p: PlaceResult): LocationTag => ({
+    id: p.provider_place_id,
+    name: p.name,
+    address:
+      p.secondary_text ||
+      [p.city, p.country].filter(Boolean).join(", ") ||
+      p.formatted_address ||
+      "",
+    distanceM: p.distance_km != null ? Math.round(p.distance_km * 1000) : 0,
+    category: p.place_type || "Place",
+  });
+
+  // Try to grab coords once when the location panel opens (best-effort, silent).
+  useEffect(() => {
+    if (openPanel !== "location" || coordsTriedRef.current) return;
+    coordsTriedRef.current = true;
+    getCurrentPosition()
+      .then((pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }))
+      .catch(() => {});
+  }, [openPanel]);
+
+  // Nearby when query empty
+  useEffect(() => {
+    if (openPanel !== "location") return;
+    if (query.trim().length >= 2) return;
+    if (!coords) {
+      setLocationResults([]);
+      return;
+    }
+    let cancelled = false;
+    setLocLoading(true);
+    searchPlaces({ mode: "nearby", lat: coords.lat, lng: coords.lng })
+      .then((r) => !cancelled && setLocationResults(r.map(placeToLocationTag)))
+      .catch((e) => console.error("nearby search failed", e))
+      .finally(() => !cancelled && setLocLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [openPanel, coords, query]);
+
+  // Typed autocomplete (300ms debounce, min 2 chars)
+  useEffect(() => {
+    if (openPanel !== "location") return;
+    const q = query.trim();
+    if (q.length < 2) return;
+    let cancelled = false;
+    setLocLoading(true);
+    const t = window.setTimeout(() => {
+      searchPlaces({ mode: "text", query: q })
+        .then((r) => !cancelled && setLocationResults(r.map(placeToLocationTag)))
+        .catch((e) => console.error("place autocomplete failed", e))
+        .finally(() => !cancelled && setLocLoading(false));
+    }, 300);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [query, openPanel]);
+
 
   const togglePerson = (p: TaggedPerson) => {
     const exists = tagged.find((t) => t.handle === p.handle);
