@@ -417,7 +417,7 @@ export const StoryCamera = ({
               {timer > 0 && <span>{timer}s</span>}
             </button>
             <button
-              onClick={() => setBeautyOpen((v) => !v)}
+              onClick={() => { setBeautyOpen((v) => !v); setArOpen(false); }}
               className={`neo-button-icon p-2 bg-black/40 backdrop-blur-md ${
                 isBeautyActive(beauty) ? "text-primary" : ""
               }`}
@@ -429,6 +429,16 @@ export const StoryCamera = ({
               ) : (
                 <Sparkle className="w-5 h-5" />
               )}
+            </button>
+            <button
+              onClick={() => { setArOpen((v) => !v); setBeautyOpen(false); }}
+              className={`neo-button-icon p-2 bg-black/40 backdrop-blur-md ${
+                isAREffectActive(arEffect.id) ? "text-primary" : ""
+              }`}
+              aria-label="AR face effects"
+              aria-pressed={arOpen}
+            >
+              <Wand2 className="w-5 h-5" />
             </button>
             <button
               onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
