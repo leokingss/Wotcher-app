@@ -171,7 +171,9 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
             )}
             {!loading && results.length === 0 && (
               <p className="text-center text-sm text-muted-foreground py-6">
-                {query.length >= 1 ? "No places found." : "Search or use your location to begin."}
+                {query.length >= 2
+                  ? "No locations found. Try a nearby city, street, or postcode."
+                  : "Search or use your location to begin."}
               </p>
             )}
             <ul className="space-y-1">
