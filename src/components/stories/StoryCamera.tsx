@@ -445,8 +445,17 @@ export const StoryCamera = ({
         )}
       </div>
 
-      {/* Bottom panel: intensity, carousel, shutter */}
+      {/* Bottom panel: beauty, intensity, carousel, shutter */}
       <div className="bg-gradient-to-t from-black via-black/95 to-black/0 pt-6 pb-6 space-y-3">
+        {beautyOpen && (
+          <div className="mx-3 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10">
+            <BeautyPanel
+              params={beauty}
+              onChange={setBeauty}
+              onReset={() => setBeauty(BEAUTY_OFF)}
+            />
+          </div>
+        )}
         {filter.id !== "none" && (
           <div className="px-4">
             <IntensitySlider value={intensity} onChange={setIntensity} />
