@@ -276,6 +276,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                   const preset = getFilterById(active.filterId);
                   const t = overlayStrength(active.filterIntensity);
                   const fStyle = { filter: cssFilterAt(preset, active.filterIntensity) } as const;
+                  const beautyOn = active.fileType === "image" && isBeautyActive(active.beauty);
                   return (
                     <>
                       {active.fileType === "video" ? (
@@ -287,10 +288,20 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                           controls
                           playsInline
                         />
+                      ) : beautyOn ? (
+                        <BeautyPhotoCanvas
+                          key={active.id}
+                          ref={(h) => beautyCanvasRefs.current.set(active.id, h)}
+                          src={active.preview}
+                          preset={preset}
+                          intensity={active.filterIntensity}
+                          beauty={active.beauty}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <img src={active.preview} alt="" className="w-full h-full object-cover" style={fStyle} />
                       )}
-                      {preset.tint && (
+                      {!beautyOn && preset.tint && (
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
