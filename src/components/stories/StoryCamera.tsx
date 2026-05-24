@@ -93,6 +93,8 @@ export const StoryCamera = ({
   const [beauty, setBeauty] = useState<BeautyParams>(BEAUTY_OFF);
   const [beautyOpen, setBeautyOpen] = useState(false);
   const [beautyLoading, setBeautyLoading] = useState(false);
+  const [arEffect, setArEffect] = useState<AREffectPreset>(AR_NONE);
+  const [arOpen, setArOpen] = useState(false);
   /** Cached last landmark detection so we don't run detection every frame. */
   const landmarkResultRef = useRef<FaceLandmarkerResult | null>(null);
   const lastDetectRef = useRef<number>(0);
