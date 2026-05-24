@@ -637,6 +637,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 caption: "",
                 filterId: opts.filterId,
                 filterIntensity: opts.intensity,
+                beauty: BEAUTY_OFF,
               },
             ];
             if (prev.length === 0) {
