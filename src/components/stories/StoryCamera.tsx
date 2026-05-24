@@ -236,7 +236,7 @@ export const StoryCamera = ({
     };
     rafRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [open, filter, intensity, facing]);
+  }, [open, filter, intensity, facing, beauty]);
 
   // ── Recording progress + auto-stop ──────────────────────────────────────
   useEffect(() => {
