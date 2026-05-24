@@ -118,6 +118,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         filterId: "none",
         filterIntensity: 100,
         beauty: BEAUTY_OFF,
+        arEffectId: "none",
       });
     });
     if (next.length === 0) return;
