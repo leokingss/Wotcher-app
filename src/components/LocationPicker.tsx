@@ -63,8 +63,6 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
     searchPlaces({
       mode: "text",
       query: q,
-      lat: coords?.lat,
-      lng: coords?.lng,
     })
       .then((r) => {
         if (!cancelled) setResults(r);
@@ -76,7 +74,7 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
     return () => {
       cancelled = true;
     };
-  }, [query, coords, open]);
+  }, [query, open]);
 
   async function requestLocation() {
     try {
