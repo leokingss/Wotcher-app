@@ -102,9 +102,10 @@ export const StoryCamera = ({
 
   const { favorites, toggleFavorite } = useFavoriteFilters();
 
-  // Lazy-load FaceLandmarker the first time beauty is turned on.
+  // Lazy-load FaceLandmarker the first time beauty or AR is turned on.
+  const needsFace = isBeautyActive(beauty) || isAREffectActive(arEffect.id);
   useEffect(() => {
-    if (!isBeautyActive(beauty) || landmarkerRef.current || beautyLoading) return;
+    if (!needsFace || landmarkerRef.current || beautyLoading) return;
     setBeautyLoading(true);
     ensureMode("VIDEO")
       .then((lm) => {
@@ -112,10 +113,10 @@ export const StoryCamera = ({
       })
       .catch((e) => {
         console.error("FaceLandmarker init failed", e);
-        toast.error("Couldn't load beauty filters");
+        toast.error("Couldn't load face filters");
       })
       .finally(() => setBeautyLoading(false));
-  }, [beauty, beautyLoading]);
+  }, [needsFace, beautyLoading]);
 
   // ── Camera lifecycle ─────────────────────────────────────────────────────
   useEffect(() => {
