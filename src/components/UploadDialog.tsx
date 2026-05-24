@@ -371,6 +371,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             location={location}
             setLocation={setLocation}
           />
+          <LocationPicker value={geoLocation} onChange={setGeoLocation} triggerLabel="Add location" />
           {/* For Sale toggle + form */}
           <div className="neo-card-inset rounded-xl p-3 space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
