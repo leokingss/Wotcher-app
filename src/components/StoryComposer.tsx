@@ -261,17 +261,48 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           {active ? (
             <div className="relative neo-card-inset rounded-2xl overflow-hidden">
               <div className="relative aspect-[9/14] bg-black">
-                {active.fileType === "video" ? (
-                  <video
-                    key={active.id}
-                    src={active.preview}
-                    className="w-full h-full object-cover"
-                    controls
-                    playsInline
-                  />
-                ) : (
-                  <img src={active.preview} alt="" className="w-full h-full object-cover" />
-                )}
+                {(() => {
+                  const preset = getFilterById(active.filterId);
+                  const t = overlayStrength(active.filterIntensity);
+                  const fStyle = { filter: cssFilterAt(preset, active.filterIntensity) } as const;
+                  return (
+                    <>
+                      {active.fileType === "video" ? (
+                        <video
+                          key={active.id}
+                          src={active.preview}
+                          className="w-full h-full object-cover"
+                          style={fStyle}
+                          controls
+                          playsInline
+                        />
+                      ) : (
+                        <img src={active.preview} alt="" className="w-full h-full object-cover" style={fStyle} />
+                      )}
+                      {preset.tint && (
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            backgroundColor: preset.tint.color,
+                            opacity: preset.tint.opacity * t,
+                            mixBlendMode: preset.tint.blend ?? "soft-light",
+                          }}
+                        />
+                      )}
+                      {preset.vignette && (
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            boxShadow: `inset 0 0 ${80 + preset.vignette * t * 120}px ${20 + preset.vignette * t * 80}px rgba(0,0,0,${preset.vignette * t * 0.85})`,
+                          }}
+                        />
+                      )}
+                      {preset.particles && (
+                        <StoryParticles kind={preset.particles} intensity={t} />
+                      )}
+                    </>
+                  );
+                })()}
 
                 {/* Frame nav */}
                 {frames.length > 1 && (
@@ -318,13 +349,63 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 </button>
 
                 <button
+                  onClick={() => setFilterPanelOpen((v) => !v)}
+                  className={`absolute top-3 right-12 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
+                    active.filterId !== "none" ? "text-primary" : ""
+                  }`}
+                  aria-label="Filters"
+                  aria-pressed={filterPanelOpen}
+                >
+                  <Wand2 className="w-4 h-4" />
+                </button>
+
+                <button
                   onClick={() => removeFrame(active.id)}
                   className="absolute top-3 right-3 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm"
                   aria-label="Remove frame"
                 >
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </button>
+
+                {active.filterId !== "none" && (
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-white text-xs font-semibold pointer-events-none">
+                    {getFilterById(active.filterId).name}
+                  </div>
+                )}
               </div>
+
+              {/* Filter panel */}
+              {filterPanelOpen && (
+                <div className="bg-background/95 border-t border-border/50 animate-fade-in">
+                  {active.filterId !== "none" && (
+                    <div className="px-3 pt-3">
+                      <IntensitySlider
+                        value={active.filterIntensity}
+                        onChange={(v) =>
+                          setFrames((prev) =>
+                            prev.map((f) =>
+                              f.id === active.id ? { ...f, filterIntensity: v } : f,
+                            ),
+                          )
+                        }
+                      />
+                    </div>
+                  )}
+                  <FilterCarousel
+                    previewSrc={active.fileType === "image" ? active.preview : undefined}
+                    selectedId={active.filterId}
+                    onSelect={(p: FilterPreset) =>
+                      setFrames((prev) =>
+                        prev.map((f) =>
+                          f.id === active.id ? { ...f, filterId: p.id } : f,
+                        ),
+                      )
+                    }
+                    favorites={favorites}
+                    onToggleFavorite={toggleFavorite}
+                  />
+                </div>
+              )}
 
               {/* Caption per frame */}
               <div className="p-3">
