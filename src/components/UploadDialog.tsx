@@ -161,6 +161,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
           fulfillment,
           shipping_required: fulfillment === "shipping",
           return_policy: returnPolicy,
+          location_id: geoLocation?.id ?? null,
         });
         if (lErr) throw lErr;
       }
