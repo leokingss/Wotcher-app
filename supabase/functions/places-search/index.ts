@@ -189,12 +189,8 @@ Deno.serve(async (req) => {
       };
     } else {
       url = `${GATEWAY_URL}/places/v1/places:searchText`;
+      // Worldwide search — do not bias by user location
       const payload: Record<string, unknown> = { textQuery: query, maxResultCount: 15 };
-      if (typeof lat === "number" && typeof lng === "number") {
-        payload.locationBias = {
-          circle: { center: { latitude: lat, longitude: lng }, radius: 50000 },
-        };
-      }
       init = {
         method: "POST",
         headers: {
