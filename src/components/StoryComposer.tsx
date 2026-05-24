@@ -402,14 +402,27 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
 
                 {active.fileType === "image" && (
                   <button
-                    onClick={() => setBeautyOpen((v) => !v)}
-                    className={`absolute top-3 right-[5.25rem] neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
+                    onClick={() => { setBeautyOpen((v) => !v); setArOpen(false); }}
+                    className={`absolute top-3 right-[7.75rem] neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
                       isBeautyActive(active.beauty) ? "text-primary" : ""
                     }`}
                     aria-label="Beauty"
                     aria-pressed={beautyOpen}
                   >
                     <Sparkle className="w-4 h-4" />
+                  </button>
+                )}
+
+                {active.fileType === "image" && (
+                  <button
+                    onClick={() => { setArOpen((v) => !v); setBeautyOpen(false); }}
+                    className={`absolute top-3 right-[5.25rem] neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
+                      isAREffectActive(active.arEffectId) ? "text-primary" : ""
+                    }`}
+                    aria-label="AR effects"
+                    aria-pressed={arOpen}
+                  >
+                    <Glasses className="w-4 h-4" />
                   </button>
                 )}
 
