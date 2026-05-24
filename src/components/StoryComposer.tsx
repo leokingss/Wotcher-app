@@ -506,6 +506,22 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 </div>
               )}
 
+              {/* AR effect carousel (photos only) */}
+              {arOpen && active.fileType === "image" && (
+                <div className="bg-background/95 border-t border-border/50 animate-fade-in">
+                  <AREffectCarousel
+                    selectedId={active.arEffectId}
+                    onSelect={(e) =>
+                      setFrames((prev) =>
+                        prev.map((f) =>
+                          f.id === active.id ? { ...f, arEffectId: e.id } : f,
+                        ),
+                      )
+                    }
+                  />
+                </div>
+              )}
+
               {/* Caption per frame */}
               <div className="p-3">
                 <input
