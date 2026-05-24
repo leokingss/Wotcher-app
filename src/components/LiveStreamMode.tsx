@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Radio, UserPlus, Check, Camera, Hand, X } from "lucide-react";
+import { LocationPicker } from "./LocationPicker";
+import type { SavedLocation } from "@/lib/places";
 
 // Live streaming mode for a story, with co-share (up to 10) and one-active-camera hand-off.
 // Only one co-host's phone films at a time. Anyone in the roster can tap "Take camera"
