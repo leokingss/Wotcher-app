@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
+import { LocationPicker } from "@/components/LocationPicker";
+import { SavedLocation } from "@/lib/places";
 
 interface UploadDialogProps {
   open: boolean;
@@ -37,6 +39,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [tagged, setTagged] = useState<TaggedPerson[]>([]);
   const [location, setLocation] = useState<LocationTag | null>(null);
+  const [geoLocation, setGeoLocation] = useState<SavedLocation | null>(null);
   const [payoutReady, setPayoutReady] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -139,7 +142,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
         caption: finalCaption,
         image_url: urlData.publicUrl,
         media_type: first.type,
-        location: location?.name ?? null,
+        location: location?.name ?? geoLocation?.name ?? null,
+        location_id: geoLocation?.id ?? null,
       }).select("id").single();
       if (insErr) throw insErr;
 
@@ -157,6 +161,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
           fulfillment,
           shipping_required: fulfillment === "shipping",
           return_policy: returnPolicy,
+          location_id: geoLocation?.id ?? null,
         });
         if (lErr) throw lErr;
       }
@@ -366,6 +371,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             location={location}
             setLocation={setLocation}
           />
+          <LocationPicker value={geoLocation} onChange={setGeoLocation} triggerLabel="Add location" />
           {/* For Sale toggle + form */}
           <div className="neo-card-inset rounded-xl p-3 space-y-3">
             <label className="flex items-center justify-between cursor-pointer">

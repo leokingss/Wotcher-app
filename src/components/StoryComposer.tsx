@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import type { StoryMediaType } from "@/data/mockSocial";
 import LiveStreamMode from "@/components/LiveStreamMode";
 import TagAndLocationPicker, { TaggedPerson, LocationTag } from "@/components/TagAndLocationPicker";
+import { LocationPicker } from "@/components/LocationPicker";
+import { SavedLocation } from "@/lib/places";
 import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
 import { CIRCLE_THEMES } from "@/lib/circleTheme";
 
@@ -36,6 +38,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [liveMode, setLiveMode] = useState(false);
   const [tagged, setTagged] = useState<TaggedPerson[]>([]);
   const [location, setLocation] = useState<LocationTag | null>(null);
+  const [geoLocation, setGeoLocation] = useState<SavedLocation | null>(null);
   /** null = public; otherwise scoped to the chosen friend circle. */
   const [audience, setAudience] = useState<FriendCircleEnum | null>(null);
   /** Toggles between the inline preview and a full-screen "maximised" view. */
@@ -149,6 +152,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           media_url: urlData.publicUrl,
           caption,
           audience_circle: audience,
+          location_id: i === 0 ? geoLocation?.id ?? null : null,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
@@ -488,12 +492,15 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
 
           {/* Tag people + location (photo & video stories) */}
           {frames.length > 0 && storyType !== "music" && (
-            <TagAndLocationPicker
-              tagged={tagged}
-              setTagged={setTagged}
-              location={location}
-              setLocation={setLocation}
-            />
+            <>
+              <TagAndLocationPicker
+                tagged={tagged}
+                setTagged={setTagged}
+                location={location}
+                setLocation={setLocation}
+              />
+              <LocationPicker value={geoLocation} onChange={setGeoLocation} />
+            </>
           )}
 
           <input

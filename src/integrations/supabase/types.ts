@@ -741,6 +741,7 @@ export type Database = {
           ends_at: string | null
           fulfillment: string
           id: string
+          location_id: string | null
           post_id: string | null
           price: number | null
           return_policy: string
@@ -762,6 +763,7 @@ export type Database = {
           ends_at?: string | null
           fulfillment?: string
           id?: string
+          location_id?: string | null
           post_id?: string | null
           price?: number | null
           return_policy?: string
@@ -783,6 +785,7 @@ export type Database = {
           ends_at?: string | null
           fulfillment?: string
           id?: string
+          location_id?: string | null
           post_id?: string | null
           price?: number | null
           return_policy?: string
@@ -797,6 +800,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "listings_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "listings_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
@@ -804,6 +814,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      locations: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          formatted_address: string | null
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          place_type: string | null
+          provider: string
+          provider_place_id: string
+          region: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          formatted_address?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          place_type?: string | null
+          provider: string
+          provider_place_id: string
+          region?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          formatted_address?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          place_type?: string | null
+          provider?: string
+          provider_place_id?: string
+          region?: string | null
+        }
+        Relationships: []
       }
       marketplace_orders: {
         Row: {
@@ -1160,6 +1215,7 @@ export type Database = {
           id: string
           image_url: string
           location: string | null
+          location_id: string | null
           media_type: string
           user_id: string
         }
@@ -1169,6 +1225,7 @@ export type Database = {
           id?: string
           image_url: string
           location?: string | null
+          location_id?: string | null
           media_type?: string
           user_id: string
         }
@@ -1178,10 +1235,18 @@ export type Database = {
           id?: string
           image_url?: string
           location?: string | null
+          location_id?: string | null
           media_type?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "posts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "posts_user_id_fkey"
             columns: ["user_id"]
@@ -1200,6 +1265,7 @@ export type Database = {
           display_name: string | null
           id: string
           invite_allowance: number
+          location_id: string | null
           subscription_period_end: string | null
           subscription_status: string | null
           subscription_tier: string
@@ -1214,6 +1280,7 @@ export type Database = {
           display_name?: string | null
           id: string
           invite_allowance?: number
+          location_id?: string | null
           subscription_period_end?: string | null
           subscription_status?: string | null
           subscription_tier?: string
@@ -1228,13 +1295,22 @@ export type Database = {
           display_name?: string | null
           id?: string
           invite_allowance?: number
+          location_id?: string | null
           subscription_period_end?: string | null
           subscription_status?: string | null
           subscription_tier?: string
           updated_at?: string
           username?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referral_relationships: {
         Row: {
@@ -1675,6 +1751,7 @@ export type Database = {
           created_at: string
           expires_at: string
           id: string
+          location_id: string | null
           media_type: Database["public"]["Enums"]["story_media_type"]
           media_url: string
           track_artist: string | null
@@ -1687,6 +1764,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
+          location_id?: string | null
           media_type: Database["public"]["Enums"]["story_media_type"]
           media_url: string
           track_artist?: string | null
@@ -1699,6 +1777,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
+          location_id?: string | null
           media_type?: Database["public"]["Enums"]["story_media_type"]
           media_url?: string
           track_artist?: string | null
@@ -1706,6 +1785,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "stories_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "stories_user_id_fkey"
             columns: ["user_id"]
@@ -1966,6 +2052,7 @@ export type Database = {
           created_at: string
           duration_seconds: number | null
           id: string
+          location_id: string | null
           thumbnail_url: string | null
           title: string
           updated_at: string
@@ -1976,6 +2063,7 @@ export type Database = {
           created_at?: string
           duration_seconds?: number | null
           id?: string
+          location_id?: string | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string
@@ -1986,6 +2074,7 @@ export type Database = {
           created_at?: string
           duration_seconds?: number | null
           id?: string
+          location_id?: string | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
@@ -1997,6 +2086,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "videos_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
             referencedColumns: ["id"]
           },
         ]
@@ -2540,6 +2636,7 @@ export type Database = {
           ends_at: string | null
           fulfillment: string
           id: string
+          location_id: string | null
           post_id: string | null
           price: number | null
           return_policy: string
