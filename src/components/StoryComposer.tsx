@@ -52,6 +52,11 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [audience, setAudience] = useState<FriendCircleEnum | null>(null);
   /** Toggles between the inline preview and a full-screen "maximised" view. */
   const [maximized, setMaximized] = useState(false);
+  /** Open the in-app capture camera with live filters. */
+  const [cameraOpen, setCameraOpen] = useState(false);
+  /** Filter UI panel (carousel + intensity) toggle for uploaded media. */
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const { favorites, toggleFavorite } = useFavoriteFilters();
 
   const reset = () => {
     frames.forEach((f) => URL.revokeObjectURL(f.preview));
