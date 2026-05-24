@@ -50,6 +50,7 @@ interface StoryCameraProps {
     fileType: "image" | "video";
     filterId: string;
     intensity: number;
+    arEffectId: string;
     durationMs?: number;
     previewUrl: string;
   }) => void;
