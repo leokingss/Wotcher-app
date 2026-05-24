@@ -451,9 +451,9 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
             <div className="neo-card-inset w-full aspect-[9/14] rounded-2xl flex flex-col items-center justify-center gap-4 hover:bg-muted/30 transition-colors">
               <div className="flex gap-3">
                 <button
-                  onClick={() => inputRef.current?.click()}
+                  onClick={() => setCameraOpen(true)}
                   className="neo-button-icon p-4"
-                  aria-label="Camera"
+                  aria-label="Open camera with filters"
                 >
                   <Camera className="w-8 h-8 text-primary" />
                 </button>
