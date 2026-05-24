@@ -144,6 +144,13 @@ export default function LiveStreamMode({ onClose }: Props) {
           </div>
         </div>
 
+        <div className="neo-card rounded-3xl p-3 flex items-center justify-between gap-3">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Location
+          </p>
+          <LocationPicker value={streamLocation} onChange={setStreamLocation} triggerLabel="Add location" />
+        </div>
+
         <div className="flex gap-2">
           <button
             onClick={onClose}
