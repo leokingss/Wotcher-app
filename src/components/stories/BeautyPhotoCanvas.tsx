@@ -37,7 +37,7 @@ interface Props {
  * uploaded.
  */
 export const BeautyPhotoCanvas = forwardRef<BeautyPhotoCanvasHandle, Props>(
-  ({ src, preset, intensity, beauty, className }, ref) => {
+  ({ src, preset, intensity, beauty, arEffectId, className }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const imgRef = useRef<HTMLImageElement | null>(null);
 
@@ -85,8 +85,7 @@ export const BeautyPhotoCanvas = forwardRef<BeautyPhotoCanvasHandle, Props>(
         // @ts-ignore
         ctx.filter = "none";
 
-        // 2) Filter overlays (tint / vignette) — kept simple; particles &
-        //    grain stay as DOM overlays in the live preview.
+        // 2) Filter overlays (tint / vignette).
         const t = overlayStrength(intensity);
         if (preset.tint) {
           ctx.save();
@@ -113,22 +112,28 @@ export const BeautyPhotoCanvas = forwardRef<BeautyPhotoCanvasHandle, Props>(
           ctx.fillRect(0, 0, w, h);
         }
 
-        // 3) Beauty pack via face landmarks.
-        if (isBeautyActive(beauty)) {
+        // 3) Beauty + AR via face landmarks.
+        const needsFace = isBeautyActive(beauty) || isAREffectActive(arEffectId);
+        if (needsFace) {
           try {
             const lm = await ensureMode("IMAGE");
             if (cancelled) return;
             const result = lm.detect(img);
-            applyBeauty(canvas, canvas, result, beauty, false);
+            if (isBeautyActive(beauty)) {
+              applyBeauty(canvas, canvas, result, beauty, false);
+            }
+            if (isAREffectActive(arEffectId)) {
+              applyAREffect(canvas, result, arEffectId, false);
+            }
           } catch (e) {
-            console.error("Beauty detect failed", e);
+            console.error("Face detect failed", e);
           }
         }
       })();
       return () => {
         cancelled = true;
       };
-    }, [src, preset, intensity, beauty]);
+    }, [src, preset, intensity, beauty, arEffectId]);
 
     return <canvas ref={canvasRef} className={className} />;
   },
