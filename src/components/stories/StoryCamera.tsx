@@ -8,6 +8,7 @@ import {
   Circle,
   Loader2,
   Sparkle,
+  Wand2,
 } from "lucide-react";
 import {
   FILTER_NONE,
@@ -19,6 +20,7 @@ import FilterCarousel from "./FilterCarousel";
 import IntensitySlider from "./IntensitySlider";
 import StoryParticles from "./StoryParticles";
 import BeautyPanel from "./BeautyPanel";
+import AREffectCarousel from "./AREffectCarousel";
 import {
   applyBeauty,
   BEAUTY_OFF,
@@ -26,6 +28,12 @@ import {
   ensureMode,
   isBeautyActive,
 } from "@/lib/beauty/BeautyEngine";
+import {
+  AR_NONE,
+  AREffectPreset,
+  applyAREffect,
+  isAREffectActive,
+} from "@/lib/ar/arEffects";
 import type { FaceLandmarkerResult } from "@mediapipe/tasks-vision";
 import { useFavoriteFilters } from "@/hooks/useFavoriteFilters";
 import { toast } from "sonner";
