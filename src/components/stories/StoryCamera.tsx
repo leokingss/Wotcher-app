@@ -81,8 +81,30 @@ export const StoryCamera = ({
   const [filter, setFilter] = useState<FilterPreset>(FILTER_NONE);
   const [intensity, setIntensity] = useState(100);
   const [starting, setStarting] = useState(true);
+  const [beauty, setBeauty] = useState<BeautyParams>(BEAUTY_OFF);
+  const [beautyOpen, setBeautyOpen] = useState(false);
+  const [beautyLoading, setBeautyLoading] = useState(false);
+  /** Cached last landmark detection so we don't run detection every frame. */
+  const landmarkResultRef = useRef<FaceLandmarkerResult | null>(null);
+  const lastDetectRef = useRef<number>(0);
+  const landmarkerRef = useRef<Awaited<ReturnType<typeof ensureMode>> | null>(null);
 
   const { favorites, toggleFavorite } = useFavoriteFilters();
+
+  // Lazy-load FaceLandmarker the first time beauty is turned on.
+  useEffect(() => {
+    if (!isBeautyActive(beauty) || landmarkerRef.current || beautyLoading) return;
+    setBeautyLoading(true);
+    ensureMode("VIDEO")
+      .then((lm) => {
+        landmarkerRef.current = lm;
+      })
+      .catch((e) => {
+        console.error("FaceLandmarker init failed", e);
+        toast.error("Couldn't load beauty filters");
+      })
+      .finally(() => setBeautyLoading(false));
+  }, [beauty, beautyLoading]);
 
   // ── Camera lifecycle ─────────────────────────────────────────────────────
   useEffect(() => {
