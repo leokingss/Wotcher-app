@@ -37,6 +37,7 @@ interface Props {
 
 export default function LiveStreamMode({ onClose }: Props) {
   const [phase, setPhase] = useState<"invite" | "live">("invite");
+  const [streamLocation, setStreamLocation] = useState<SavedLocation | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set(["you"]));
   const [hosts, setHosts] = useState<CoHost[]>([]);
   const [filmerId, setFilmerId] = useState<string>("you");
