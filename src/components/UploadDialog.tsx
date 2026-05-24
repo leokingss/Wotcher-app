@@ -142,7 +142,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
         caption: finalCaption,
         image_url: urlData.publicUrl,
         media_type: first.type,
-        location: location?.name ?? null,
+        location: location?.name ?? geoLocation?.name ?? null,
+        location_id: geoLocation?.id ?? null,
       }).select("id").single();
       if (insErr) throw insErr;
 
