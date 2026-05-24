@@ -5,6 +5,7 @@ import SaveButton from "./SaveButton";
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
 import ListingBar from "./ListingBar";
+import { LocationLabel } from "./LocationLabel";
 import { FeedPost, togglePostReaction } from "@/hooks/usePosts";
 import { Listing } from "@/hooks/useListings";
 import { supabase } from "@/integrations/supabase/client";
@@ -108,7 +109,11 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
               >
                 {username}
               </button>
-              {post.location && <p className="text-xs text-muted-foreground">{post.location}</p>}
+              {post.tagged_location ? (
+                <LocationLabel location={post.tagged_location} />
+              ) : (
+                post.location && <p className="text-xs text-muted-foreground">{post.location}</p>
+              )}
             </div>
           </div>
           <button className="neo-button-icon p-2">

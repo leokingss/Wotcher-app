@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Radio, UserPlus, Check, Camera, Hand, X } from "lucide-react";
+import { LocationPicker } from "./LocationPicker";
+import type { SavedLocation } from "@/lib/places";
 
 // Live streaming mode for a story, with co-share (up to 10) and one-active-camera hand-off.
 // Only one co-host's phone films at a time. Anyone in the roster can tap "Take camera"
@@ -35,6 +37,7 @@ interface Props {
 
 export default function LiveStreamMode({ onClose }: Props) {
   const [phase, setPhase] = useState<"invite" | "live">("invite");
+  const [streamLocation, setStreamLocation] = useState<SavedLocation | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set(["you"]));
   const [hosts, setHosts] = useState<CoHost[]>([]);
   const [filmerId, setFilmerId] = useState<string>("you");
@@ -139,6 +142,13 @@ export default function LiveStreamMode({ onClose }: Props) {
               );
             })}
           </div>
+        </div>
+
+        <div className="neo-card rounded-3xl p-3 flex items-center justify-between gap-3">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Location
+          </p>
+          <LocationPicker value={streamLocation} onChange={setStreamLocation} triggerLabel="Add location" />
         </div>
 
         <div className="flex gap-2">

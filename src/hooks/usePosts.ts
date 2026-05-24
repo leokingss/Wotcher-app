@@ -14,6 +14,13 @@ export interface PostListingSummary {
   title: string | null;
 }
 
+export interface PostTaggedLocation {
+  id: string;
+  name: string;
+  city: string | null;
+  country: string | null;
+}
+
 export interface FeedPost {
   id: string;
   user_id: string;
@@ -27,6 +34,7 @@ export interface FeedPost {
     display_name: string | null;
     avatar_url: string | null;
   } | null;
+  tagged_location: PostTaggedLocation | null;
   like_count: number;
   dislike_count: number;
   comment_count: number;
@@ -47,7 +55,7 @@ export const usePosts = (filterUserId?: string, mode: FeedMode = "live") => {
     // Popular looks back 30 days, Live/Algorithm pull recent 50
     let q = supabase
       .from("posts")
-      .select("id, user_id, caption, location, image_url, media_type, created_at, profile:profiles!posts_user_id_fkey(username, display_name, avatar_url)")
+      .select("id, user_id, caption, location, location_id, image_url, media_type, created_at, profile:profiles!posts_user_id_fkey(username, display_name, avatar_url), tagged_location:locations!posts_location_id_fkey(id, name, city, country)")
       .order("created_at", { ascending: false });
 
     if (filterUserId) {
