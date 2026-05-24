@@ -7,10 +7,10 @@ import {
   Timer,
   Circle,
   Loader2,
+  Sparkle,
 } from "lucide-react";
 import {
   FILTER_NONE,
-  FILTER_PRESETS,
   FilterPreset,
   cssFilterAt,
   overlayStrength,
@@ -18,6 +18,15 @@ import {
 import FilterCarousel from "./FilterCarousel";
 import IntensitySlider from "./IntensitySlider";
 import StoryParticles from "./StoryParticles";
+import BeautyPanel from "./BeautyPanel";
+import {
+  applyBeauty,
+  BEAUTY_OFF,
+  BeautyParams,
+  ensureMode,
+  isBeautyActive,
+} from "@/lib/beauty/BeautyEngine";
+import type { FaceLandmarkerResult } from "@mediapipe/tasks-vision";
 import { useFavoriteFilters } from "@/hooks/useFavoriteFilters";
 import { toast } from "sonner";
 
