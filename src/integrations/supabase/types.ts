@@ -1746,6 +1746,7 @@ export type Database = {
       }
       stories: {
         Row: {
+          ar_effect_id: string | null
           audience_circle: Database["public"]["Enums"]["friend_circle"] | null
           caption: string | null
           created_at: string
@@ -1762,6 +1763,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ar_effect_id?: string | null
           audience_circle?: Database["public"]["Enums"]["friend_circle"] | null
           caption?: string | null
           created_at?: string
@@ -1778,6 +1780,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ar_effect_id?: string | null
           audience_circle?: Database["public"]["Enums"]["friend_circle"] | null
           caption?: string | null
           created_at?: string

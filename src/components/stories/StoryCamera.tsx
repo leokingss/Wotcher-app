@@ -8,6 +8,7 @@ import {
   Circle,
   Loader2,
   Sparkle,
+  Wand2,
 } from "lucide-react";
 import {
   FILTER_NONE,
@@ -19,6 +20,7 @@ import FilterCarousel from "./FilterCarousel";
 import IntensitySlider from "./IntensitySlider";
 import StoryParticles from "./StoryParticles";
 import BeautyPanel from "./BeautyPanel";
+import AREffectCarousel from "./AREffectCarousel";
 import {
   applyBeauty,
   BEAUTY_OFF,
@@ -26,6 +28,12 @@ import {
   ensureMode,
   isBeautyActive,
 } from "@/lib/beauty/BeautyEngine";
+import {
+  AR_NONE,
+  AREffectPreset,
+  applyAREffect,
+  isAREffectActive,
+} from "@/lib/ar/arEffects";
 import type { FaceLandmarkerResult } from "@mediapipe/tasks-vision";
 import { useFavoriteFilters } from "@/hooks/useFavoriteFilters";
 import { toast } from "sonner";
@@ -42,6 +50,7 @@ interface StoryCameraProps {
     fileType: "image" | "video";
     filterId: string;
     intensity: number;
+    arEffectId: string;
     durationMs?: number;
     previewUrl: string;
   }) => void;
@@ -84,6 +93,8 @@ export const StoryCamera = ({
   const [beauty, setBeauty] = useState<BeautyParams>(BEAUTY_OFF);
   const [beautyOpen, setBeautyOpen] = useState(false);
   const [beautyLoading, setBeautyLoading] = useState(false);
+  const [arEffect, setArEffect] = useState<AREffectPreset>(AR_NONE);
+  const [arOpen, setArOpen] = useState(false);
   /** Cached last landmark detection so we don't run detection every frame. */
   const landmarkResultRef = useRef<FaceLandmarkerResult | null>(null);
   const lastDetectRef = useRef<number>(0);
@@ -91,9 +102,10 @@ export const StoryCamera = ({
 
   const { favorites, toggleFavorite } = useFavoriteFilters();
 
-  // Lazy-load FaceLandmarker the first time beauty is turned on.
+  // Lazy-load FaceLandmarker the first time beauty or AR is turned on.
+  const needsFace = isBeautyActive(beauty) || isAREffectActive(arEffect.id);
   useEffect(() => {
-    if (!isBeautyActive(beauty) || landmarkerRef.current || beautyLoading) return;
+    if (!needsFace || landmarkerRef.current || beautyLoading) return;
     setBeautyLoading(true);
     ensureMode("VIDEO")
       .then((lm) => {
@@ -101,10 +113,10 @@ export const StoryCamera = ({
       })
       .catch((e) => {
         console.error("FaceLandmarker init failed", e);
-        toast.error("Couldn't load beauty filters");
+        toast.error("Couldn't load face filters");
       })
       .finally(() => setBeautyLoading(false));
-  }, [beauty, beautyLoading]);
+  }, [needsFace, beautyLoading]);
 
   // ── Camera lifecycle ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -178,11 +190,12 @@ export const StoryCamera = ({
         // @ts-ignore
         ctx.filter = "none";
 
-        // ── Beauty pack ───────────────────────────────────────────────────
+        // ── Face-tracked effects (beauty + AR) ───────────────────────────
         // Detect landmarks at most every ~80ms to keep the loop smooth, then
-        // composite skin-smooth / eye-brighten / teeth-whiten / contour layers
-        // on top of the already-graded canvas.
-        if (isBeautyActive(beauty) && landmarkerRef.current) {
+        // composite skin-smooth / eye-brighten / teeth-whiten / contour and
+        // any selected AR overlay (glasses, crown, hearts…) on top of the
+        // already-graded canvas.
+        if (needsFace && landmarkerRef.current) {
           const now = performance.now();
           if (now - lastDetectRef.current > 80) {
             try {
@@ -193,13 +206,18 @@ export const StoryCamera = ({
             }
             lastDetectRef.current = now;
           }
-          applyBeauty(
-            canvas,
-            canvas,
-            landmarkResultRef.current,
-            beauty,
-            facing === "user",
-          );
+          if (isBeautyActive(beauty)) {
+            applyBeauty(canvas, canvas, landmarkResultRef.current, beauty, facing === "user");
+          }
+          if (isAREffectActive(arEffect.id)) {
+            applyAREffect(
+              canvas,
+              landmarkResultRef.current,
+              arEffect.id,
+              facing === "user",
+              now,
+            );
+          }
         }
 
 
@@ -236,7 +254,7 @@ export const StoryCamera = ({
     };
     rafRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [open, filter, intensity, facing, beauty]);
+  }, [open, filter, intensity, facing, beauty, arEffect, needsFace]);
 
   // ── Recording progress + auto-stop ──────────────────────────────────────
   useEffect(() => {
@@ -264,6 +282,7 @@ export const StoryCamera = ({
           fileType: "image",
           filterId: filter.id,
           intensity,
+          arEffectId: arEffect.id,
           previewUrl: URL.createObjectURL(blob),
         });
       },
@@ -299,6 +318,7 @@ export const StoryCamera = ({
         fileType: "video",
         filterId: filter.id,
         intensity,
+        arEffectId: arEffect.id,
         durationMs: dur,
         previewUrl: URL.createObjectURL(blob),
       });
@@ -397,7 +417,7 @@ export const StoryCamera = ({
               {timer > 0 && <span>{timer}s</span>}
             </button>
             <button
-              onClick={() => setBeautyOpen((v) => !v)}
+              onClick={() => { setBeautyOpen((v) => !v); setArOpen(false); }}
               className={`neo-button-icon p-2 bg-black/40 backdrop-blur-md ${
                 isBeautyActive(beauty) ? "text-primary" : ""
               }`}
@@ -409,6 +429,16 @@ export const StoryCamera = ({
               ) : (
                 <Sparkle className="w-5 h-5" />
               )}
+            </button>
+            <button
+              onClick={() => { setArOpen((v) => !v); setBeautyOpen(false); }}
+              className={`neo-button-icon p-2 bg-black/40 backdrop-blur-md ${
+                isAREffectActive(arEffect.id) ? "text-primary" : ""
+              }`}
+              aria-label="AR face effects"
+              aria-pressed={arOpen}
+            >
+              <Wand2 className="w-5 h-5" />
             </button>
             <button
               onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
@@ -453,6 +483,14 @@ export const StoryCamera = ({
               params={beauty}
               onChange={setBeauty}
               onReset={() => setBeauty(BEAUTY_OFF)}
+            />
+          </div>
+        )}
+        {arOpen && (
+          <div className="mx-3 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10">
+            <AREffectCarousel
+              selectedId={arEffect.id}
+              onSelect={setArEffect}
             />
           </div>
         )}
