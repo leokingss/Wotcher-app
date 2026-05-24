@@ -31,6 +31,8 @@ interface DraftFrame {
   /** Per-frame filter so the user can vary the look across slides. */
   filterId: string;
   filterIntensity: number;
+  /** Per-frame beauty parameters (photos only). */
+  beauty: BeautyParams;
 }
 
 interface StoryComposerProps {
