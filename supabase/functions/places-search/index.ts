@@ -188,16 +188,16 @@ Deno.serve(async (req) => {
         }),
       };
     } else {
-      url = `${GATEWAY_URL}/places/v1/places:searchText`;
-      // Worldwide search — do not bias by user location
-      const payload: Record<string, unknown> = { textQuery: query, maxResultCount: 15 };
+      // Use Places Autocomplete (New) — supports streets, addresses, neighbourhoods,
+      // cities, venues, landmarks, postcodes worldwide.
+      url = `${GATEWAY_URL}/places/v1/places:autocomplete`;
+      const payload: Record<string, unknown> = { input: query };
       init = {
         method: "POST",
         headers: {
           Authorization: `Bearer ${LOVABLE_API_KEY}`,
           "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
           "Content-Type": "application/json",
-          "X-Goog-FieldMask": FIELD_MASK,
         },
         body: JSON.stringify(payload),
       };
@@ -206,17 +206,41 @@ Deno.serve(async (req) => {
     const resp = await fetch(url, init);
     const data = await resp.json();
     if (!resp.ok) {
-      console.error("Google Places error", resp.status, data);
+      console.error("Google Places error", resp.status, JSON.stringify(data));
       return new Response(
         JSON.stringify({ error: "Place search failed", details: data }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const results = (data.places ?? []).map((p: any) => normalizePlace(p, lat, lng));
-    if (typeof lat === "number" && typeof lng === "number") {
-      results.sort((a: any, b: any) => (a.distance_km ?? 1e9) - (b.distance_km ?? 1e9));
+    let results: unknown[];
+    if (mode === "nearby") {
+      results = (data.places ?? []).map((p: any) => normalizePlace(p, lat, lng));
+      if (typeof lat === "number" && typeof lng === "number") {
+        (results as any[]).sort((a, b) => (a.distance_km ?? 1e9) - (b.distance_km ?? 1e9));
+      }
+    } else {
+      // Autocomplete predictions → light PlaceResult (resolve fills coords/components on click)
+      results = ((data.suggestions ?? []) as any[])
+        .map((s) => s.placePrediction)
+        .filter(Boolean)
+        .map((p: any) => ({
+          provider: "google",
+          provider_place_id: p.placeId,
+          name: p.structuredFormat?.mainText?.text ?? p.text?.text ?? "",
+          formatted_address:
+            p.text?.text ?? p.structuredFormat?.secondaryText?.text ?? null,
+          city: null,
+          region: null,
+          country: null,
+          latitude: null,
+          longitude: null,
+          place_type: (p.types ?? [])[0] ?? null,
+          distance_km: null,
+          secondary_text: p.structuredFormat?.secondaryText?.text ?? null,
+        }));
     }
+
 
     const out = { results };
     setCache(cacheKey, out);
