@@ -94,6 +94,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         preview: URL.createObjectURL(file),
         fileType: isVid ? "video" : "image",
         caption: "",
+        filterId: "none",
+        filterIntensity: 100,
       });
     });
     if (next.length === 0) return;
