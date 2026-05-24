@@ -6,6 +6,11 @@ import {
   isBeautyActive,
 } from "@/lib/beauty/BeautyEngine";
 import {
+  applyAREffect,
+  isAREffectActive,
+  type AREffectId,
+} from "@/lib/ar/arEffects";
+import {
   cssFilterAt,
   FilterPreset,
   overlayStrength,
@@ -21,6 +26,7 @@ interface Props {
   preset: FilterPreset;
   intensity: number;
   beauty: BeautyParams;
+  arEffectId?: AREffectId | string;
   className?: string;
 }
 
