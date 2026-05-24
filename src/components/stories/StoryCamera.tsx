@@ -178,6 +178,31 @@ export const StoryCamera = ({
         // @ts-ignore
         ctx.filter = "none";
 
+        // ── Beauty pack ───────────────────────────────────────────────────
+        // Detect landmarks at most every ~80ms to keep the loop smooth, then
+        // composite skin-smooth / eye-brighten / teeth-whiten / contour layers
+        // on top of the already-graded canvas.
+        if (isBeautyActive(beauty) && landmarkerRef.current) {
+          const now = performance.now();
+          if (now - lastDetectRef.current > 80) {
+            try {
+              landmarkResultRef.current =
+                landmarkerRef.current.detectForVideo(video, now);
+            } catch (e) {
+              // Detection can throw when the video isn't ready; silently skip.
+            }
+            lastDetectRef.current = now;
+          }
+          applyBeauty(
+            canvas,
+            canvas,
+            landmarkResultRef.current,
+            beauty,
+            facing === "user",
+          );
+        }
+
+
         // Tint
         const t = overlayStrength(intensity);
         if (filter.tint) {
