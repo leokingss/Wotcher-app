@@ -169,12 +169,15 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
       const rows: any[] = [];
       for (let i = 0; i < frames.length; i++) {
         const f = frames[i];
-        // Bake beauty pack into the upload for photo frames so what the user
-        // saw in the preview matches what gets stored.
+        // Bake beauty + AR pack into the upload for photo frames so what the
+        // user saw in the preview matches what gets stored.
         let uploadFile: Blob = f.file;
         let uploadType = f.file.type;
         let ext = f.file.name.split(".").pop() || (f.fileType === "video" ? "mp4" : "jpg");
-        if (f.fileType === "image" && isBeautyActive(f.beauty)) {
+        const photoFaceFx =
+          f.fileType === "image" &&
+          (isBeautyActive(f.beauty) || isAREffectActive(f.arEffectId));
+        if (photoFaceFx) {
           const handle = beautyCanvasRefs.current.get(f.id);
           const baked = await handle?.toBlob(0.92);
           if (baked) {
@@ -193,9 +196,9 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         const tagSuffix = i === 0 && tagged.length ? " " + tagged.map((t) => `@${t.handle}`).join(" ") : "";
         const locPrefix = i === 0 && location ? `📍 ${location.name} · ` : "";
         const caption = ((locPrefix + (f.caption.trim() || "")) + tagSuffix).trim() || null;
-        // When beauty was baked into the upload we also burned in the CSS
+        // When face FX were baked into the upload we also burned in the CSS
         // colour grade, so we mustn't apply it a second time at view-time.
-        const beautyBaked = f.fileType === "image" && isBeautyActive(f.beauty) && uploadFile !== f.file;
+        const fxBaked = photoFaceFx && uploadFile !== f.file;
         rows.push({
           user_id: user.id,
           media_type: storyType,
@@ -203,8 +206,9 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           caption,
           audience_circle: audience,
           location_id: i === 0 ? geoLocation?.id ?? null : null,
-          filter_id: beautyBaked || f.filterId === "none" ? null : f.filterId,
-          filter_intensity: beautyBaked ? 0 : f.filterIntensity,
+          filter_id: fxBaked || f.filterId === "none" ? null : f.filterId,
+          filter_intensity: fxBaked ? 0 : f.filterIntensity,
+          ar_effect_id: isAREffectActive(f.arEffectId) ? f.arEffectId : null,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
