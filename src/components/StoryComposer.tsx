@@ -370,6 +370,19 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                   <Maximize2 className="w-4 h-4" />
                 </button>
 
+                {active.fileType === "image" && (
+                  <button
+                    onClick={() => setBeautyOpen((v) => !v)}
+                    className={`absolute top-3 right-[5.25rem] neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
+                      isBeautyActive(active.beauty) ? "text-primary" : ""
+                    }`}
+                    aria-label="Beauty"
+                    aria-pressed={beautyOpen}
+                  >
+                    <Sparkle className="w-4 h-4" />
+                  </button>
+                )}
+
                 <button
                   onClick={() => setFilterPanelOpen((v) => !v)}
                   className={`absolute top-3 right-12 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
