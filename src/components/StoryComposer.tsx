@@ -304,6 +304,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                   const t = overlayStrength(active.filterIntensity);
                   const fStyle = { filter: cssFilterAt(preset, active.filterIntensity) } as const;
                   const beautyOn = active.fileType === "image" && isBeautyActive(active.beauty);
+                  const arOn = active.fileType === "image" && isAREffectActive(active.arEffectId);
+                  const useFaceCanvas = beautyOn || arOn;
                   return (
                     <>
                       {active.fileType === "video" ? (
@@ -315,7 +317,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                           controls
                           playsInline
                         />
-                      ) : beautyOn ? (
+                      ) : useFaceCanvas ? (
                         <BeautyPhotoCanvas
                           key={active.id}
                           ref={(h) => beautyCanvasRefs.current.set(active.id, h)}
@@ -323,12 +325,13 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                           preset={preset}
                           intensity={active.filterIntensity}
                           beauty={active.beauty}
+                          arEffectId={active.arEffectId}
                           className="w-full h-full object-cover"
                         />
                       ) : (
                         <img src={active.preview} alt="" className="w-full h-full object-cover" style={fStyle} />
                       )}
-                      {!beautyOn && preset.tint && (
+                      {!useFaceCanvas && preset.tint && (
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
@@ -338,7 +341,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                           }}
                         />
                       )}
-                      {!beautyOn && preset.vignette && (
+                      {!useFaceCanvas && preset.vignette && (
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
