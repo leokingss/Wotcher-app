@@ -190,11 +190,12 @@ export const StoryCamera = ({
         // @ts-ignore
         ctx.filter = "none";
 
-        // ── Beauty pack ───────────────────────────────────────────────────
+        // ── Face-tracked effects (beauty + AR) ───────────────────────────
         // Detect landmarks at most every ~80ms to keep the loop smooth, then
-        // composite skin-smooth / eye-brighten / teeth-whiten / contour layers
-        // on top of the already-graded canvas.
-        if (isBeautyActive(beauty) && landmarkerRef.current) {
+        // composite skin-smooth / eye-brighten / teeth-whiten / contour and
+        // any selected AR overlay (glasses, crown, hearts…) on top of the
+        // already-graded canvas.
+        if (needsFace && landmarkerRef.current) {
           const now = performance.now();
           if (now - lastDetectRef.current > 80) {
             try {
@@ -205,13 +206,18 @@ export const StoryCamera = ({
             }
             lastDetectRef.current = now;
           }
-          applyBeauty(
-            canvas,
-            canvas,
-            landmarkResultRef.current,
-            beauty,
-            facing === "user",
-          );
+          if (isBeautyActive(beauty)) {
+            applyBeauty(canvas, canvas, landmarkResultRef.current, beauty, facing === "user");
+          }
+          if (isAREffectActive(arEffect.id)) {
+            applyAREffect(
+              canvas,
+              landmarkResultRef.current,
+              arEffect.id,
+              facing === "user",
+              now,
+            );
+          }
         }
 
 
