@@ -226,13 +226,54 @@ export default function TagAndLocationPicker({ tagged, setTagged, location, setL
               )}
             </div>
           ) : (
-            <div className="max-h-56 overflow-y-auto space-y-1">
+            <div className="max-h-56 overflow-y-auto space-y-2">
+              {/* Pinned closest / EXIF-photo location — appears immediately under the search bar
+                  so the user can one-tap the most likely spot. */}
+              {!query && locationResults[0] && (() => {
+                const top = locationResults[0];
+                const sel = location?.id === top.id;
+                return (
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary px-1 flex items-center gap-1">
+                      <Navigation className="w-3 h-3" /> Where this was taken
+                    </p>
+                    <button
+                      onClick={() => {
+                        setLocation(sel ? null : top);
+                        if (!sel) closePanel();
+                      }}
+                      className={`w-full flex items-center gap-3 px-2 py-2 rounded-xl transition-colors neo-card-inset ring-1 ${
+                        sel ? "ring-primary bg-primary/15" : "ring-primary/30 hover:bg-muted/40"
+                      }`}
+                    >
+                      <div className="neo-button-icon w-9 h-9 rounded-full flex items-center justify-center shrink-0">
+                        <MapPin className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0 text-left">
+                        <p className="text-sm font-semibold truncate">{top.name}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {top.category} · {top.address}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-bold text-primary tabular-nums">
+                        {fmtDist(top.distanceM)}
+                      </span>
+                    </button>
+                    {locationResults.length > 1 && (
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1 pt-1">
+                        Other nearby
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
+
               {locationResults.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-4">
                   No places match "{query}"
                 </p>
               ) : (
-                locationResults.map((l) => {
+                (query ? locationResults : locationResults.slice(1)).map((l) => {
                   const sel = location?.id === l.id;
                   return (
                     <button
