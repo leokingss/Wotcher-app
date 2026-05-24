@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
     const lng = typeof body.lng === "number" ? body.lng : undefined;
     const query: string = typeof body.query === "string" ? body.query.trim().slice(0, 200) : "";
 
-    if (mode === "text" && query.length < 2) {
+    if (mode === "text" && query.length < 1) {
       return new Response(JSON.stringify({ results: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
