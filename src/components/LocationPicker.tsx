@@ -189,7 +189,7 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{r.name}</div>
                       <div className="text-xs text-muted-foreground truncate">
-                        {[r.city, r.country].filter(Boolean).join(", ") || r.formatted_address}
+                        {r.secondary_text || [r.city, r.country].filter(Boolean).join(", ") || r.formatted_address}
                       </div>
                     </div>
                     {r.distance_km != null && (
