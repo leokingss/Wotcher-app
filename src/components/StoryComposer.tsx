@@ -15,6 +15,10 @@ import StoryCamera from "@/components/stories/StoryCamera";
 import FilterCarousel from "@/components/stories/FilterCarousel";
 import IntensitySlider from "@/components/stories/IntensitySlider";
 import StoryParticles from "@/components/stories/StoryParticles";
+import BeautyPanel from "@/components/stories/BeautyPanel";
+import BeautyPhotoCanvas, { BeautyPhotoCanvasHandle } from "@/components/stories/BeautyPhotoCanvas";
+import { BEAUTY_OFF, BeautyParams, isBeautyActive } from "@/lib/beauty/BeautyEngine";
+import { Sparkle } from "lucide-react";
 import { FILTER_NONE, FilterPreset, getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
 import { useFavoriteFilters } from "@/hooks/useFavoriteFilters";
 
@@ -27,6 +31,8 @@ interface DraftFrame {
   /** Per-frame filter so the user can vary the look across slides. */
   filterId: string;
   filterIntensity: number;
+  /** Per-frame beauty parameters (photos only). */
+  beauty: BeautyParams;
 }
 
 interface StoryComposerProps {
@@ -56,6 +62,10 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [cameraOpen, setCameraOpen] = useState(false);
   /** Filter UI panel (carousel + intensity) toggle for uploaded media. */
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  /** Beauty pack panel toggle (photos only). */
+  const [beautyOpen, setBeautyOpen] = useState(false);
+  /** Refs to per-frame BeautyPhotoCanvas so we can bake the beauty render into the uploaded blob. */
+  const beautyCanvasRefs = useRef<Map<string, BeautyPhotoCanvasHandle | null>>(new Map());
   const { favorites, toggleFavorite } = useFavoriteFilters();
 
   const reset = () => {
@@ -101,6 +111,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         caption: "",
         filterId: "none",
         filterIntensity: 100,
+        beauty: BEAUTY_OFF,
       });
     });
     if (next.length === 0) return;
@@ -151,10 +162,23 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
       const rows: any[] = [];
       for (let i = 0; i < frames.length; i++) {
         const f = frames[i];
-        const ext = f.file.name.split(".").pop() || (f.fileType === "video" ? "mp4" : "jpg");
+        // Bake beauty pack into the upload for photo frames so what the user
+        // saw in the preview matches what gets stored.
+        let uploadFile: Blob = f.file;
+        let uploadType = f.file.type;
+        let ext = f.file.name.split(".").pop() || (f.fileType === "video" ? "mp4" : "jpg");
+        if (f.fileType === "image" && isBeautyActive(f.beauty)) {
+          const handle = beautyCanvasRefs.current.get(f.id);
+          const baked = await handle?.toBlob(0.92);
+          if (baked) {
+            uploadFile = baked;
+            uploadType = "image/jpeg";
+            ext = "jpg";
+          }
+        }
         const path = `${user.id}/stories/${Date.now()}-${i}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("media").upload(path, f.file, {
-          contentType: f.file.type,
+        const { error: upErr } = await supabase.storage.from("media").upload(path, uploadFile, {
+          contentType: uploadType,
           upsert: false,
         });
         if (upErr) throw upErr;
@@ -162,6 +186,9 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         const tagSuffix = i === 0 && tagged.length ? " " + tagged.map((t) => `@${t.handle}`).join(" ") : "";
         const locPrefix = i === 0 && location ? `📍 ${location.name} · ` : "";
         const caption = ((locPrefix + (f.caption.trim() || "")) + tagSuffix).trim() || null;
+        // When beauty was baked into the upload we also burned in the CSS
+        // colour grade, so we mustn't apply it a second time at view-time.
+        const beautyBaked = f.fileType === "image" && isBeautyActive(f.beauty) && uploadFile !== f.file;
         rows.push({
           user_id: user.id,
           media_type: storyType,
@@ -169,8 +196,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           caption,
           audience_circle: audience,
           location_id: i === 0 ? geoLocation?.id ?? null : null,
-          filter_id: f.filterId === "none" ? null : f.filterId,
-          filter_intensity: f.filterIntensity,
+          filter_id: beautyBaked || f.filterId === "none" ? null : f.filterId,
+          filter_intensity: beautyBaked ? 0 : f.filterIntensity,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
@@ -265,6 +292,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                   const preset = getFilterById(active.filterId);
                   const t = overlayStrength(active.filterIntensity);
                   const fStyle = { filter: cssFilterAt(preset, active.filterIntensity) } as const;
+                  const beautyOn = active.fileType === "image" && isBeautyActive(active.beauty);
                   return (
                     <>
                       {active.fileType === "video" ? (
@@ -276,10 +304,20 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                           controls
                           playsInline
                         />
+                      ) : beautyOn ? (
+                        <BeautyPhotoCanvas
+                          key={active.id}
+                          ref={(h) => beautyCanvasRefs.current.set(active.id, h)}
+                          src={active.preview}
+                          preset={preset}
+                          intensity={active.filterIntensity}
+                          beauty={active.beauty}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <img src={active.preview} alt="" className="w-full h-full object-cover" style={fStyle} />
                       )}
-                      {preset.tint && (
+                      {!beautyOn && preset.tint && (
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
@@ -289,7 +327,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                           }}
                         />
                       )}
-                      {preset.vignette && (
+                      {!beautyOn && preset.vignette && (
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
@@ -348,6 +386,19 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                   <Maximize2 className="w-4 h-4" />
                 </button>
 
+                {active.fileType === "image" && (
+                  <button
+                    onClick={() => setBeautyOpen((v) => !v)}
+                    className={`absolute top-3 right-[5.25rem] neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
+                      isBeautyActive(active.beauty) ? "text-primary" : ""
+                    }`}
+                    aria-label="Beauty"
+                    aria-pressed={beautyOpen}
+                  >
+                    <Sparkle className="w-4 h-4" />
+                  </button>
+                )}
+
                 <button
                   onClick={() => setFilterPanelOpen((v) => !v)}
                   className={`absolute top-3 right-12 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
@@ -403,6 +454,27 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                     }
                     favorites={favorites}
                     onToggleFavorite={toggleFavorite}
+                  />
+                </div>
+              )}
+
+              {/* Beauty panel (photos only) */}
+              {beautyOpen && active.fileType === "image" && (
+                <div className="bg-background/95 border-t border-border/50 animate-fade-in">
+                  <BeautyPanel
+                    params={active.beauty}
+                    onChange={(b) =>
+                      setFrames((prev) =>
+                        prev.map((f) => (f.id === active.id ? { ...f, beauty: b } : f)),
+                      )
+                    }
+                    onReset={() =>
+                      setFrames((prev) =>
+                        prev.map((f) =>
+                          f.id === active.id ? { ...f, beauty: BEAUTY_OFF } : f,
+                        ),
+                      )
+                    }
                   />
                 </div>
               )}
@@ -630,6 +702,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 caption: "",
                 filterId: opts.filterId,
                 filterIntensity: opts.intensity,
+                beauty: BEAUTY_OFF,
               },
             ];
             if (prev.length === 0) {

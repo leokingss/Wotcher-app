@@ -7,10 +7,10 @@ import {
   Timer,
   Circle,
   Loader2,
+  Sparkle,
 } from "lucide-react";
 import {
   FILTER_NONE,
-  FILTER_PRESETS,
   FilterPreset,
   cssFilterAt,
   overlayStrength,
@@ -18,6 +18,15 @@ import {
 import FilterCarousel from "./FilterCarousel";
 import IntensitySlider from "./IntensitySlider";
 import StoryParticles from "./StoryParticles";
+import BeautyPanel from "./BeautyPanel";
+import {
+  applyBeauty,
+  BEAUTY_OFF,
+  BeautyParams,
+  ensureMode,
+  isBeautyActive,
+} from "@/lib/beauty/BeautyEngine";
+import type { FaceLandmarkerResult } from "@mediapipe/tasks-vision";
 import { useFavoriteFilters } from "@/hooks/useFavoriteFilters";
 import { toast } from "sonner";
 
@@ -72,8 +81,30 @@ export const StoryCamera = ({
   const [filter, setFilter] = useState<FilterPreset>(FILTER_NONE);
   const [intensity, setIntensity] = useState(100);
   const [starting, setStarting] = useState(true);
+  const [beauty, setBeauty] = useState<BeautyParams>(BEAUTY_OFF);
+  const [beautyOpen, setBeautyOpen] = useState(false);
+  const [beautyLoading, setBeautyLoading] = useState(false);
+  /** Cached last landmark detection so we don't run detection every frame. */
+  const landmarkResultRef = useRef<FaceLandmarkerResult | null>(null);
+  const lastDetectRef = useRef<number>(0);
+  const landmarkerRef = useRef<Awaited<ReturnType<typeof ensureMode>> | null>(null);
 
   const { favorites, toggleFavorite } = useFavoriteFilters();
+
+  // Lazy-load FaceLandmarker the first time beauty is turned on.
+  useEffect(() => {
+    if (!isBeautyActive(beauty) || landmarkerRef.current || beautyLoading) return;
+    setBeautyLoading(true);
+    ensureMode("VIDEO")
+      .then((lm) => {
+        landmarkerRef.current = lm;
+      })
+      .catch((e) => {
+        console.error("FaceLandmarker init failed", e);
+        toast.error("Couldn't load beauty filters");
+      })
+      .finally(() => setBeautyLoading(false));
+  }, [beauty, beautyLoading]);
 
   // ── Camera lifecycle ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -147,6 +178,31 @@ export const StoryCamera = ({
         // @ts-ignore
         ctx.filter = "none";
 
+        // ── Beauty pack ───────────────────────────────────────────────────
+        // Detect landmarks at most every ~80ms to keep the loop smooth, then
+        // composite skin-smooth / eye-brighten / teeth-whiten / contour layers
+        // on top of the already-graded canvas.
+        if (isBeautyActive(beauty) && landmarkerRef.current) {
+          const now = performance.now();
+          if (now - lastDetectRef.current > 80) {
+            try {
+              landmarkResultRef.current =
+                landmarkerRef.current.detectForVideo(video, now);
+            } catch (e) {
+              // Detection can throw when the video isn't ready; silently skip.
+            }
+            lastDetectRef.current = now;
+          }
+          applyBeauty(
+            canvas,
+            canvas,
+            landmarkResultRef.current,
+            beauty,
+            facing === "user",
+          );
+        }
+
+
         // Tint
         const t = overlayStrength(intensity);
         if (filter.tint) {
@@ -180,7 +236,7 @@ export const StoryCamera = ({
     };
     rafRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [open, filter, intensity, facing]);
+  }, [open, filter, intensity, facing, beauty]);
 
   // ── Recording progress + auto-stop ──────────────────────────────────────
   useEffect(() => {
@@ -341,6 +397,20 @@ export const StoryCamera = ({
               {timer > 0 && <span>{timer}s</span>}
             </button>
             <button
+              onClick={() => setBeautyOpen((v) => !v)}
+              className={`neo-button-icon p-2 bg-black/40 backdrop-blur-md ${
+                isBeautyActive(beauty) ? "text-primary" : ""
+              }`}
+              aria-label="Beauty filters"
+              aria-pressed={beautyOpen}
+            >
+              {beautyLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Sparkle className="w-5 h-5" />
+              )}
+            </button>
+            <button
               onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
               className="neo-button-icon p-2 bg-black/40 backdrop-blur-md"
               aria-label="Switch camera"
@@ -375,8 +445,17 @@ export const StoryCamera = ({
         )}
       </div>
 
-      {/* Bottom panel: intensity, carousel, shutter */}
+      {/* Bottom panel: beauty, intensity, carousel, shutter */}
       <div className="bg-gradient-to-t from-black via-black/95 to-black/0 pt-6 pb-6 space-y-3">
+        {beautyOpen && (
+          <div className="mx-3 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10">
+            <BeautyPanel
+              params={beauty}
+              onChange={setBeauty}
+              onReset={() => setBeauty(BEAUTY_OFF)}
+            />
+          </div>
+        )}
         {filter.id !== "none" && (
           <div className="px-4">
             <IntensitySlider value={intensity} onChange={setIntensity} />
