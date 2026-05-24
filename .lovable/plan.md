@@ -1,60 +1,102 @@
-## Saved lists across posts & listings
+## Location Tagging System
 
-### What you'll get
+A unified location-tagging feature using **Google Maps Platform** (Places API New + Geocoding) routed through the Lovable connector gateway so the API key stays server-side. Reuses existing patterns from `TagAndLocationPicker` and `StoryComposer`.
 
-- A **Save** (bookmark) icon at the bottom-right of every post and every shop listing.
-- Tapping it opens a **"Save to…" sheet** that shows your existing lists and a **"+ Create new list"** option.
-- When creating a list you choose:
-  - **Name** (required)
-  - **Visibility:** Public · Private (only me) · Shared (private + pick which followers can view)
-- A new **Saved** tab on your profile shows all your lists. Visitors only see lists they're allowed to see.
-- Opening a list shows its saved posts and listings in one unified grid, with the option to remove items.
-- Old `listing_favorites` data migrates into an auto-created **"Favorites"** list so nothing is lost.
+### 1. Provider & infrastructure
 
-### Visibility rules
+- Connect the **Google Maps Platform** connector (gateway-enabled). API key never reaches the browser.
+- Two edge functions:
+  - `places-search` — handles "nearby" and "text" search, returns normalized results with distance from caller's lat/lng.
+  - `places-details` — fetches canonical place details by `place_id` before persisting (validates provider IDs).
+- In-memory LRU cache inside each function for repeat queries (60s TTL) — no DB cache table.
+- Auth required (verifies JWT via `supabase.auth.getUser`) on both functions.
 
-- **Public** — anyone can see the list and its contents.
-- **Private** — only the owner.
-- **Shared** — owner + the followers explicitly granted access.
+### 2. Database
 
-Counts are always public on the profile (e.g. "12 lists"); private list contents are not.
+New normalized `locations` table (one row per unique provider place, deduped on `provider + provider_place_id`):
 
-### Where things live
+```text
+locations
+├─ id uuid pk
+├─ provider text          -- 'google'
+├─ provider_place_id text -- Google place id
+├─ name text
+├─ formatted_address text
+├─ city text
+├─ region text
+├─ country text
+├─ latitude numeric
+├─ longitude numeric
+├─ place_type text        -- 'city' | 'venue' | 'landmark' | 'address' | 'postcode'
+├─ created_at timestamptz
+└─ unique(provider, provider_place_id)
+```
 
-- **Save icon:** appears on `Post` (bottom-right of card actions) and on `ListingCard` (replaces the existing heart on listings, since the heart was a single‑list shortcut).
-- **Save sheet:** shared component used from both surfaces.
-- **Profile → Saved tab:** new tab next to existing tabs. List cards show cover collage (up to 4 thumbnails), name, visibility badge, item count.
-- **List detail page:** `/list/:id` shows items + (for owner) edit/delete/share controls.
+Add nullable `location_id uuid references locations(id)` to: `posts`, `videos`, `stories`, `listings`, `profiles`, `livestreams` (only tables that exist; livestreams added if missing is out of scope — flagged below).
 
-### Technical details
+Posts already have a free-text `location` column — keep it for legacy, prefer `location_id` going forward.
 
-**New tables**
+RLS: `locations` is world-readable (public reference data), insertable only by authenticated users via the edge function (service role write).
 
-- `saved_lists` — `id, owner_id, name, visibility ('public'|'private'|'shared'), cover_url, created_at, updated_at`
-- `saved_list_members` — `list_id, user_id` (followers granted view access on shared lists)
-- `saved_items` — `list_id, item_type ('post'|'listing'), item_id, added_at` (PK on list_id+item_type+item_id)
+### 3. Frontend
 
-**RLS**
+Refactor existing `TagAndLocationPicker` into a shared **`LocationPicker`** component:
 
-- Lists are visible if: `visibility='public'` OR `owner_id = auth.uid()` OR (`visibility='shared'` AND viewer is in `saved_list_members`). Implemented via a `can_view_list(_list uuid, _viewer uuid)` SECURITY DEFINER function to avoid recursion.
-- `saved_items` mirrors the parent list's visibility via the same function.
-- Only the owner can insert/update/delete lists, members, and items.
-- `saved_list_members`: only the list owner can add/remove rows; the granted user can read their own grant.
+- "Use current location" button — triggers `navigator.geolocation` with a clear privacy preface ("We use your location only to find nearby places. Coordinates aren't stored or shown publicly unless you pick a public place.").
+- Permission denied → graceful fallback to manual text search.
+- Debounced (300 ms) text input, calls `places-search` with `mode: 'text' | 'nearby'`.
+- Pinned "Where you are" suggestion at top when GPS available.
+- Result row: name • city, country • distance.
+- Selected preview chip with × to remove.
 
-**Migration**
+Wire `LocationPicker` into:
+- `StoryComposer` (replace current location section)
+- `CreatePost` / video upload dialog
+- Marketplace listing form
+- Livestream start dialog (if present)
+- Profile edit dialog
 
-- One‑time SQL: for every user with rows in `listing_favorites`, create a "Favorites" list (private) and copy entries into `saved_items` as `item_type='listing'`. Then we can keep `listing_favorites` around for now (deprecated) and switch the UI to the new system.
+### 4. Feed display
 
-**Hook & components**
+`LocationLabel` component shown under `@username`:
 
-- Replace `useFavorites` with `useSavedLists` (lists, items by list, membership grants, mutations).
-- New components: `SaveButton`, `SaveToListSheet`, `CreateListDialog` (with follower multiselect for shared visibility), `ListCard`, `ListDetail` page, `ProfileSavedTab`.
-- Shop tab's existing "Saved" section is removed (replaced by the profile Saved tab).
+```text
+@username
+London, United Kingdom
+```
 
-### Out of scope (for this pass)
+Tapping opens a read-only place card (name, formatted address, map thumbnail via static map proxy — optional, gated behind same gateway).
 
-- Reordering items inside a list.
-- Collaborative lists (multiple editors).
-- Notifying followers when granted access.
+### 5. Marketplace
 
-Approve this and I'll build it end‑to‑end.
+- Listing cards show city + approximate distance ("≈ 3 km away") computed from viewer's GPS.
+- Marketplace filter: `Near me` toggle + radius slider (5/25/100/500 km / Any). Uses Haversine on lat/lng client-side over the already-fetched listing set; no DB-side geo index needed at this scale.
+- Privacy: never expose exact lat/lng of the seller's address — only the chosen place's lat/lng (which is a public POI by design).
+
+### 6. Privacy & security
+
+- GPS coordinates are sent only to the edge function for the duration of the search; never persisted against the user.
+- Selected place's lat/lng are public (it's a POI), so safe to display.
+- Rate limit per user via simple in-memory token bucket inside the edge function (10 req / 10 s) — flagged as best-effort per platform guidance.
+- Edge function validates `place_id` by calling Places Details before insert.
+- API key only in edge functions (gateway), never in client bundle.
+
+### Out of scope / flagged
+
+- `livestreams` table doesn't currently exist in schema — will add `location_id` only if/when it's created.
+- Static map thumbnails on the place card are optional; can ship without and add later.
+- No background/continuous location tracking. One-shot GPS only when the user taps "Use current location".
+
+### Technical notes
+
+- Gateway base: `https://connector-gateway.lovable.dev/google_maps`
+- Endpoints used:
+  - `POST places/v1/places:searchNearby` (nearby)
+  - `POST places/v1/places:searchText` (typed)
+  - `GET  places/v1/places/{placeId}` (details / validation)
+- Field mask kept minimal: `places.id,places.displayName,places.formattedAddress,places.location,places.types,places.addressComponents`.
+- Distance computed server-side with Haversine when caller passes lat/lng.
+
+### Approval needed
+
+This touches the schema (new `locations` table + FKs on 5 existing tables), adds 2 edge functions, and links the Google Maps connector. Approve to proceed and I'll start with the connector + migration, then ship the shared `LocationPicker` and integrate it call-site by call-site.
