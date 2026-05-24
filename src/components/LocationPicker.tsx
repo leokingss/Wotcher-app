@@ -74,7 +74,7 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
     return () => {
       cancelled = true;
     };
-  }, [query, coords, open]);
+  }, [query, open]);
 
   async function requestLocation() {
     try {
