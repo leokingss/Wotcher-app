@@ -53,29 +53,27 @@ export function LocationPicker({ value, onChange, triggerLabel = "Add location" 
     };
   }, [open, coords, query]);
 
-  // Debounced text search
+  // Live search on every keystroke (no debounce)
   useEffect(() => {
     if (!open) return;
     if (query.trim().length < 2) return;
-    if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    debounceRef.current = window.setTimeout(async () => {
-      setLoading(true);
-      try {
-        const r = await searchPlaces({
-          mode: "text",
-          query,
-          lat: coords?.lat,
-          lng: coords?.lng,
-        });
-        setResults(r);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
+    let cancelled = false;
+    setLoading(true);
+    searchPlaces({
+      mode: "text",
+      query,
+      lat: coords?.lat,
+      lng: coords?.lng,
+    })
+      .then((r) => {
+        if (!cancelled) setResults(r);
+      })
+      .catch((e) => console.error(e))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
-      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+      cancelled = true;
     };
   }, [query, coords, open]);
 
