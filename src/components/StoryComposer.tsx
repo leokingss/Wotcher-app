@@ -164,6 +164,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           caption,
           audience_circle: audience,
           location_id: i === 0 ? geoLocation?.id ?? null : null,
+          filter_id: f.filterId === "none" ? null : f.filterId,
+          filter_intensity: f.filterIntensity,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
