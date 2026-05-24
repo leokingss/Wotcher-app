@@ -62,6 +62,10 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [cameraOpen, setCameraOpen] = useState(false);
   /** Filter UI panel (carousel + intensity) toggle for uploaded media. */
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  /** Beauty pack panel toggle (photos only). */
+  const [beautyOpen, setBeautyOpen] = useState(false);
+  /** Refs to per-frame BeautyPhotoCanvas so we can bake the beauty render into the uploaded blob. */
+  const beautyCanvasRefs = useRef<Map<string, BeautyPhotoCanvasHandle | null>>(new Map());
   const { favorites, toggleFavorite } = useFavoriteFilters();
 
   const reset = () => {
