@@ -35,6 +35,8 @@ interface DraftFrame {
   filterIntensity: number;
   /** Per-frame beauty parameters (photos only). */
   beauty: BeautyParams;
+  /** Per-frame AR face effect (photos only — videos bake at capture time). */
+  arEffectId: string;
 }
 
 interface StoryComposerProps {
