@@ -492,12 +492,15 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
 
           {/* Tag people + location (photo & video stories) */}
           {frames.length > 0 && storyType !== "music" && (
-            <TagAndLocationPicker
-              tagged={tagged}
-              setTagged={setTagged}
-              location={location}
-              setLocation={setLocation}
-            />
+            <>
+              <TagAndLocationPicker
+                tagged={tagged}
+                setTagged={setTagged}
+                location={location}
+                setLocation={setLocation}
+              />
+              <LocationPicker value={geoLocation} onChange={setGeoLocation} />
+            </>
           )}
 
           <input
