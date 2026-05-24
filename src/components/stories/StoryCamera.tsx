@@ -318,6 +318,7 @@ export const StoryCamera = ({
         fileType: "video",
         filterId: filter.id,
         intensity,
+        arEffectId: arEffect.id,
         durationMs: dur,
         previewUrl: URL.createObjectURL(blob),
       });
