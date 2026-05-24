@@ -39,6 +39,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [tagged, setTagged] = useState<TaggedPerson[]>([]);
   const [location, setLocation] = useState<LocationTag | null>(null);
+  const [geoLocation, setGeoLocation] = useState<SavedLocation | null>(null);
   const [payoutReady, setPayoutReady] = useState<boolean | null>(null);
 
   useEffect(() => {
