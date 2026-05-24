@@ -486,6 +486,14 @@ export const StoryCamera = ({
             />
           </div>
         )}
+        {arOpen && (
+          <div className="mx-3 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10">
+            <AREffectCarousel
+              selectedId={arEffect.id}
+              onSelect={setArEffect}
+            />
+          </div>
+        )}
         {filter.id !== "none" && (
           <div className="px-4">
             <IntensitySlider value={intensity} onChange={setIntensity} />
