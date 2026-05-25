@@ -59,7 +59,7 @@ const StickerPicker = ({ open, onClose, onAdd }: StickerPickerProps) => {
       <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto">
         <SheetHeader className="mb-3">
           <SheetTitle className="text-left">
-            {tab === "home" ? "Add sticker" : tab === "poll" ? "Poll" : tab === "question" ? "Question" : tab === "music" ? "Music" : tab === "emoji" ? "Emoji" : "Mention"}
+            {tab === "home" ? "Add sticker" : tab === "poll" ? "Poll" : tab === "question" ? "Question" : tab === "music" ? "Music" : tab === "emoji" ? "Emoji" : tab === "text" ? "Text" : "Mention"}
           </SheetTitle>
         </SheetHeader>
 
