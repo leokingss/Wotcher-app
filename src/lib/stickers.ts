@@ -47,12 +47,24 @@ export type MentionSticker = StickerBase & {
   username: string;
 };
 
+export type TextStickerStyle = "plain" | "filled" | "outline" | "neon";
+
+export type TextSticker = StickerBase & {
+  type: "text";
+  text: string;
+  color: string;       // hex/hsl text color
+  bg?: string | null;  // optional background fill
+  style: TextStickerStyle;
+  font: "display" | "serif" | "mono";
+};
+
 export type Sticker =
   | PollSticker
   | QuestionSticker
   | MusicSticker
   | EmojiSticker
-  | MentionSticker;
+  | MentionSticker
+  | TextSticker;
 
 export const newStickerId = () => Math.random().toString(36).slice(2, 11);
 

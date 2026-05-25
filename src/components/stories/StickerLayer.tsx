@@ -131,6 +131,36 @@ const StickerContent = ({
       );
     case "emoji":
       return <span className="text-5xl drop-shadow-2xl">{sticker.emoji}</span>;
+    case "text": {
+      const fontFamily =
+        sticker.font === "serif"
+          ? "ui-serif, 'Cormorant Garamond', Georgia, serif"
+          : sticker.font === "mono"
+          ? "ui-monospace, 'JetBrains Mono', Menlo, monospace"
+          : "ui-sans-serif, system-ui, -apple-system, 'Avenir Next', Avenir, sans-serif";
+      const base: React.CSSProperties = {
+        fontFamily,
+        color: sticker.color,
+        fontWeight: 800,
+        fontSize: "clamp(20px, 5vw, 32px)",
+        lineHeight: 1.1,
+        whiteSpace: "pre-wrap",
+        textAlign: "center",
+        maxWidth: "70vw",
+        padding: sticker.bg ? "0.4em 0.7em" : 0,
+        borderRadius: sticker.bg ? "0.6em" : 0,
+        background: sticker.bg ?? "transparent",
+      };
+      if (sticker.style === "outline") {
+        base.WebkitTextStroke = `2px ${sticker.color}`;
+        base.color = "transparent";
+      } else if (sticker.style === "neon") {
+        base.textShadow = `0 0 8px ${sticker.color}, 0 0 16px ${sticker.color}, 0 0 24px ${sticker.color}`;
+      } else if (sticker.style === "plain") {
+        base.textShadow = "0 2px 12px rgba(0,0,0,0.45)";
+      }
+      return <div style={base}>{sticker.text}</div>;
+    }
     case "mention": {
       const handle = sticker.username.replace(/^@/, "");
       const chip = (
