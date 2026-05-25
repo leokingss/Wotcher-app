@@ -22,12 +22,17 @@ const QUICK_EMOJIS = ["❤️", "🔥", "✨", "😂", "😍", "💀", "🎉", "
  * in `frame.stickers`.
  */
 const StickerPicker = ({ open, onClose, onAdd }: StickerPickerProps) => {
-  const [tab, setTab] = useState<"home" | "poll" | "question" | "music" | "emoji" | "mention">("home");
+  const [tab, setTab] = useState<"home" | "poll" | "question" | "music" | "emoji" | "mention" | "text">("home");
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollA, setPollA] = useState("Yes");
   const [pollB, setPollB] = useState("No");
   const [questionText, setQuestionText] = useState("");
   const [mentionHandle, setMentionHandle] = useState("");
+  const [textValue, setTextValue] = useState("");
+  const [textColor, setTextColor] = useState("#ffffff");
+  const [textBg, setTextBg] = useState<string | null>(null);
+  const [textStyle, setTextStyle] = useState<"plain" | "filled" | "outline" | "neon">("plain");
+  const [textFont, setTextFont] = useState<"display" | "serif" | "mono">("display");
 
   const reset = () => {
     setTab("home");
@@ -36,6 +41,11 @@ const StickerPicker = ({ open, onClose, onAdd }: StickerPickerProps) => {
     setPollB("No");
     setQuestionText("");
     setMentionHandle("");
+    setTextValue("");
+    setTextColor("#ffffff");
+    setTextBg(null);
+    setTextStyle("plain");
+    setTextFont("display");
   };
 
   const finish = (s: Sticker) => {
