@@ -1816,6 +1816,113 @@ export type Database = {
           },
         ]
       }
+      story_highlight_items: {
+        Row: {
+          caption: string | null
+          captured_at: string
+          created_at: string
+          filter_id: string | null
+          filter_intensity: number
+          highlight_id: string
+          id: string
+          media_type: Database["public"]["Enums"]["story_media_type"]
+          media_url: string
+          original_story_id: string | null
+          position: number
+          stickers: Json
+          track_artist: string | null
+          track_title: string | null
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          captured_at?: string
+          created_at?: string
+          filter_id?: string | null
+          filter_intensity?: number
+          highlight_id: string
+          id?: string
+          media_type: Database["public"]["Enums"]["story_media_type"]
+          media_url: string
+          original_story_id?: string | null
+          position?: number
+          stickers?: Json
+          track_artist?: string | null
+          track_title?: string | null
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          captured_at?: string
+          created_at?: string
+          filter_id?: string | null
+          filter_intensity?: number
+          highlight_id?: string
+          id?: string
+          media_type?: Database["public"]["Enums"]["story_media_type"]
+          media_url?: string
+          original_story_id?: string | null
+          position?: number
+          stickers?: Json
+          track_artist?: string | null
+          track_title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_highlight_items_highlight_id_fkey"
+            columns: ["highlight_id"]
+            isOneToOne: false
+            referencedRelation: "story_highlights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "story_highlight_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_highlights: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          id: string
+          position: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          position?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          position?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_highlights_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       story_poll_votes: {
         Row: {
           created_at: string
