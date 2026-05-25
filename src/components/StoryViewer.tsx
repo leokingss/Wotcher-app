@@ -433,6 +433,23 @@ const StoryViewer = ({
           );
         })()}
 
+        {/* Owner-only reactions analytics chip */}
+        {isOwn && frame.dbId && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setReactionsOpen(true); }}
+            aria-label="See reactions"
+            className="absolute bottom-20 right-4 z-30 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full px-3 py-2 text-white border border-white/15 transition-colors"
+          >
+            <Heart className="w-4 h-4" />
+            <span className="text-xs opacity-90">Reactions</span>
+          </button>
+        )}
+
+        {/* Non-owner reaction bar — bottom center */}
+        {!isOwn && frame.dbId && (
+          <ReactionBar storyId={frame.dbId} />
+        )}
+
         {/* Viewers sheet */}
         {isOwn && viewersOpen && (
           <div
@@ -493,6 +510,15 @@ const StoryViewer = ({
             )}
             open={repliesOpen}
             onClose={() => setRepliesOpen(false)}
+          />
+        )}
+
+        {/* Owner-only reactions sheet */}
+        {isOwn && frame.dbId && (
+          <ReactionsSheet
+            storyId={frame.dbId}
+            open={reactionsOpen}
+            onClose={() => setReactionsOpen(false)}
           />
         )}
       </div>
