@@ -599,40 +599,111 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
               </div>
             </div>
           ) : (
-            <div className="neo-card-inset w-full aspect-[9/14] rounded-2xl flex flex-col items-center justify-center gap-4 hover:bg-muted/30 transition-colors">
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setCameraOpen(true)}
-                  className="neo-button-icon p-4"
-                  aria-label="Open camera with filters"
-                >
-                  <Camera className="w-8 h-8 text-primary" />
-                </button>
-                <button
-                  onClick={() => inputRef.current?.click()}
-                  className="neo-button-icon p-4"
-                  aria-label="Video"
-                >
-                  <Film className="w-8 h-8 text-primary" />
-                </button>
-                <button
-                  onClick={() => setLiveMode(true)}
-                  className="neo-button-icon p-4 relative"
-                  aria-label="Go Live"
-                >
-                  <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping" />
-                    <span className="relative inline-flex rounded-full h-full w-full bg-red-500" />
-                  </span>
-                  <Radio className="w-8 h-8 text-red-500" />
-                </button>
+            <div className="space-y-3">
+              {/* Premium mode switcher — Photo · Video · Text · Live */}
+              <div className="grid grid-cols-4 gap-1.5 p-1 rounded-2xl neo-card-inset">
+                {([
+                  { key: "photo", label: "Photo", icon: Camera },
+                  { key: "video", label: "Video", icon: VideoIcon },
+                  { key: "text", label: "Text", icon: TypeIcon },
+                  { key: "live", label: "Live", icon: Radio },
+                ] as const).map((m) => {
+                  const Icon = m.icon;
+                  const isActive = entryMode === m.key;
+                  const isLive = m.key === "live";
+                  return (
+                    <button
+                      key={m.key}
+                      onClick={() => {
+                        if (m.key === "live") { setLiveMode(true); return; }
+                        setEntryMode(m.key as typeof entryMode);
+                      }}
+                      className={`relative flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all ${
+                        isActive
+                          ? "bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-lg"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isLive && !isActive ? "text-red-500" : ""}`} />
+                      {m.label}
+                      {isLive && (
+                        <span className="absolute top-1.5 right-2 flex h-1.5 w-1.5">
+                          <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping" />
+                          <span className="relative inline-flex rounded-full h-full w-full bg-red-500" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-              <div className="text-center px-6">
-                <p className="font-semibold">Pick photos, videos, or go live</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Each file becomes one story frame · 5s each
-                </p>
-              </div>
+
+              {entryMode === "text" ? (
+                <TextStoryEditor
+                  onDone={(blob, previewUrl) => {
+                    const file = new File([blob], `text-${Date.now()}.jpg`, { type: "image/jpeg" });
+                    setFrames([{
+                      id: Math.random().toString(36).slice(2, 9),
+                      file,
+                      preview: previewUrl,
+                      fileType: "image",
+                      caption: "",
+                      filterId: "none",
+                      filterIntensity: 100,
+                      beauty: BEAUTY_OFF,
+                      arEffectId: "none",
+                      stickers: [],
+                    }]);
+                    setStoryType("photo");
+                  }}
+                />
+              ) : (
+                <div className="relative w-full aspect-[9/14] rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-950 to-black flex flex-col">
+                  {/* Decorative aurora */}
+                  <div className="absolute inset-0 pointer-events-none opacity-60">
+                    <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full blur-3xl bg-primary/30" />
+                    <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full blur-3xl bg-fuchsia-500/20" />
+                  </div>
+
+                  {/* Hero CTA */}
+                  <div className="relative flex-1 flex flex-col items-center justify-center gap-6 px-6 text-white">
+                    <button
+                      onClick={() => setCameraOpen(true)}
+                      className="group relative w-28 h-28 rounded-full bg-white/95 active:scale-95 transition-all shadow-[0_20px_60px_-10px_rgba(255,255,255,0.4)]"
+                      aria-label={entryMode === "video" ? "Record video" : "Open camera"}
+                    >
+                      <span className="absolute inset-2 rounded-full ring-2 ring-black/10" />
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        {entryMode === "video" ? (
+                          <span className="w-7 h-7 rounded-md bg-red-500" />
+                        ) : (
+                          <Camera className="w-10 h-10 text-black" strokeWidth={2.2} />
+                        )}
+                      </span>
+                    </button>
+                    <div className="text-center">
+                      <p className="font-bold text-lg tracking-tight">
+                        {entryMode === "video" ? "Record a video" : "Capture a moment"}
+                      </p>
+                      <p className="text-xs text-white/60 mt-1">
+                        {entryMode === "video"
+                          ? "Up to 20 seconds · live filters"
+                          : "Live filters · beauty · AR effects"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Glassmorphism bottom bar — Gallery shortcut */}
+                  <div className="relative p-3">
+                    <button
+                      onClick={() => (entryMode === "video" ? videoInputRef.current : photoInputRef.current)?.click()}
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 text-white hover:bg-white/15 transition-colors text-sm font-semibold"
+                    >
+                      <ImagePlus className="w-4 h-4" />
+                      Choose from gallery
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
