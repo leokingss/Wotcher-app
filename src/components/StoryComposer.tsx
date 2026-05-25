@@ -92,6 +92,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
     setFrames([]);
     setCurrent(0);
     setStoryType("photo");
+    setEntryMode("photo");
     setTrackTitle("");
     setTrackArtist("");
     setTagged([]);
