@@ -9,6 +9,8 @@ import {
   Loader2,
   Sparkle,
   Wand2,
+  Image as ImageIcon,
+  ChevronUp,
 } from "lucide-react";
 import {
   FILTER_NONE,
