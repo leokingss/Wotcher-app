@@ -40,6 +40,8 @@ interface DraftFrame {
   beauty: BeautyParams;
   /** Per-frame AR face effect (photos only — videos bake at capture time). */
   arEffectId: string;
+  /** Phase 4 — interactive sticker overlays. */
+  stickers: Sticker[];
 }
 
 interface StoryComposerProps {
