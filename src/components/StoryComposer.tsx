@@ -361,6 +361,15 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                       {preset.particles && (
                         <StoryParticles kind={preset.particles} intensity={t} />
                       )}
+                      <StickerLayer
+                        stickers={active.stickers}
+                        editable
+                        onChange={(next) =>
+                          setFrames((prev) =>
+                            prev.map((f) => (f.id === active.id ? { ...f, stickers: next } : f)),
+                          )
+                        }
+                      />
                     </>
                   );
                 })()}
