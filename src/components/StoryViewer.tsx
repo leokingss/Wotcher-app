@@ -273,6 +273,13 @@ const StoryViewer = ({
               {preset.particles && (
                 <StoryParticles kind={preset.particles} intensity={t} />
               )}
+              {frame.stickers && frame.stickers.length > 0 && (
+                <StickerLayer
+                  stickers={frame.stickers}
+                  storyId={frame.dbId}
+                  readOnly={isOwn}
+                />
+              )}
             </>
           );
         })()}
