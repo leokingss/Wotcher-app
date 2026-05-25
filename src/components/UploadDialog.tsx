@@ -494,12 +494,28 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             )}
           </div>
 
-          {/* Hidden File Input */}
+          {/* Hidden File Inputs */}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*,video/*"
             multiple
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <input
+            ref={cameraPhotoRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <input
+            ref={cameraVideoRef}
+            type="file"
+            accept="video/*"
+            capture="environment"
             onChange={handleFileSelect}
             className="hidden"
           />
