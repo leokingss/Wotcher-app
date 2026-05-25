@@ -3,7 +3,7 @@ import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelative } from "@/lib/time";
-import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, Sparkles, Clock, CheckCheck } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, Sparkles, Clock, CheckCheck, AtSign } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
 import { useNavigate } from "react-router-dom";
 
