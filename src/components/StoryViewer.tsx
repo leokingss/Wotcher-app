@@ -352,7 +352,29 @@ const StoryViewer = ({
               <p className="text-sm font-semibold truncate drop-shadow">{story.username}</p>
               <span className="opacity-75"><TypeIcon type={story.mediaType} /></span>
             </div>
-            <p className="text-[10px] opacity-80">just now</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <p className="text-[10px] opacity-80">just now</p>
+              {audienceCircle && (() => {
+                const theme = CIRCLE_THEMES[audienceCircle];
+                const Icon = audienceCircle === "private" ? Lock
+                  : audienceCircle === "family" ? Heart
+                  : audienceCircle === "friends" ? Users
+                  : UsersRound;
+                return (
+                  <span
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider backdrop-blur-md"
+                    style={{
+                      backgroundColor: `hsl(${theme.hsl} / 0.22)`,
+                      color: `hsl(${theme.hsl})`,
+                      boxShadow: `inset 0 0 0 1px hsl(${theme.hsl} / 0.4)`,
+                    }}
+                  >
+                    <Icon className="w-2.5 h-2.5" strokeWidth={2.5} />
+                    {theme.label}
+                  </span>
+                );
+              })()}
+            </div>
           </div>
           {paused && (
             <span className="text-white/90 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider mr-1">
