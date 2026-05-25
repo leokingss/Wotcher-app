@@ -753,6 +753,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 filterIntensity: opts.intensity,
                 beauty: BEAUTY_OFF,
                 arEffectId: opts.arEffectId,
+                stickers: [],
               },
             ];
             if (prev.length === 0) {
