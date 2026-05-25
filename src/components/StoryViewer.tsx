@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye } from "lucide-react";
+import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye, MessageCircleQuestion } from "lucide-react";
 import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
 import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
 import WaveProgress from "./WaveProgress";
@@ -7,6 +7,8 @@ import { CIRCLE_THEMES, ringGradientFor } from "@/lib/circleTheme";
 import { getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
 import StoryParticles from "./stories/StoryParticles";
 import StickerLayer from "./stories/StickerLayer";
+import QuestionRepliesSheet from "./stories/QuestionRepliesSheet";
+import type { QuestionSticker as QuestionStickerType } from "@/lib/stickers";
 
 const BASE_FRAME_DURATION_MS = 5000;
 const DEFAULT_BPM = 120;
@@ -57,6 +59,7 @@ const StoryViewer = ({
   const [progress, setProgress] = useState(0);
   const [paused, setPaused] = useState(false);
   const [viewersOpen, setViewersOpen] = useState(false);
+  const [repliesOpen, setRepliesOpen] = useState(false);
   const rafRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
   const accumRef = useRef<number>(0);
