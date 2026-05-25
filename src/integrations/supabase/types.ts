@@ -1840,6 +1840,41 @@ export type Database = {
         }
         Relationships: []
       }
+      story_question_replies: {
+        Row: {
+          created_at: string
+          id: string
+          sticker_id: string
+          story_id: string
+          text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sticker_id: string
+          story_id: string
+          text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sticker_id?: string
+          story_id?: string
+          text?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_question_replies_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       story_views: {
         Row: {
           story_id: string
