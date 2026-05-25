@@ -3,6 +3,7 @@ import { useStoryReactions, REACTION_EMOJIS, tallyReactions } from "@/hooks/useS
 
 interface Props {
   storyId: string;
+  className?: string;
 }
 
 /**
@@ -10,7 +11,7 @@ interface Props {
  * emoji upserts the viewer's single reaction; tapping the same emoji again
  * removes it. A short scale burst plays on tap for tactile feedback.
  */
-const ReactionBar = ({ storyId }: Props) => {
+const ReactionBar = ({ storyId, className }: Props) => {
   const { myEmoji, react, rows } = useStoryReactions(storyId, false);
   const [burst, setBurst] = useState<string | null>(null);
   const counts = tallyReactions(rows);
@@ -25,7 +26,7 @@ const ReactionBar = ({ storyId }: Props) => {
   return (
     <div
       onPointerDown={(e) => e.stopPropagation()}
-      className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-2 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 shadow-2xl"
+      className={`absolute left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-2 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 shadow-2xl ${className ?? "bottom-4"}`}
     >
       {REACTION_EMOJIS.map((emoji) => {
         const active = myEmoji === emoji;

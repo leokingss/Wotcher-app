@@ -972,6 +972,7 @@ export type Database = {
           media_type: string
           media_url: string | null
           sender_id: string
+          story_ref: Json | null
         }
         Insert: {
           body?: string | null
@@ -982,6 +983,7 @@ export type Database = {
           media_type?: string
           media_url?: string | null
           sender_id: string
+          story_ref?: Json | null
         }
         Update: {
           body?: string | null
@@ -992,6 +994,7 @@ export type Database = {
           media_type?: string
           media_url?: string | null
           sender_id?: string
+          story_ref?: Json | null
         }
         Relationships: [
           {
