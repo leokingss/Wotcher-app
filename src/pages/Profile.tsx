@@ -488,6 +488,9 @@ const Profile = () => {
           )}
         </div>
 
+        {/* Story Highlights — pinned past stories */}
+        <HighlightsRail userId={profileUserId} isOwner={!!isOwnProfile} />
+
         {/* Featured Songs - stacked vertically */}
         <div className="flex flex-col gap-0.5 mb-4">
           {featuredSongs.map((song) => (
