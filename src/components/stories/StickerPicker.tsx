@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { BarChart3, MessageCircleQuestion, Music as MusicIcon, Smile, AtSign, X, Plus } from "lucide-react";
+import { BarChart3, MessageCircleQuestion, Music as MusicIcon, Smile, AtSign, X, Plus, Type as TypeIcon } from "lucide-react";
 import {
   DEFAULT_STICKER_POS,
   newStickerId,
