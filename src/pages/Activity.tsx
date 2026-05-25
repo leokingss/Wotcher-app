@@ -7,7 +7,7 @@ import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, S
 import EmptyState from "@/components/EmptyState";
 import { useNavigate } from "react-router-dom";
 
-type NType = "like" | "dislike" | "comment" | "follow" | "outbid" | "auction_won" | "item_sold" | "auction_ending" | "new_listing";
+type NType = "like" | "dislike" | "comment" | "follow" | "mention" | "outbid" | "auction_won" | "item_sold" | "auction_ending" | "new_listing";
 
 interface Notif {
   id: string;
@@ -27,6 +27,7 @@ const typeIcon: Record<NType, any> = {
   dislike: HeartCrack,
   comment: MessageCircle,
   follow: UserPlus,
+  mention: AtSign,
   outbid: Gavel,
   auction_won: Trophy,
   item_sold: Tag,
@@ -39,6 +40,7 @@ const actionText: Record<NType, string> = {
   dislike: "disliked your post",
   comment: "commented on your post",
   follow: "started following you",
+  mention: "mentioned you in a story",
   outbid: "outbid you",
   auction_won: "— you won the auction!",
   item_sold: "bought your item",
