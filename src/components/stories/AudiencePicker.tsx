@@ -8,7 +8,7 @@ interface AudiencePickerProps {
   onChange: (v: FriendCircleEnum | null) => void;
 }
 
-const ICONS: Record<FriendCircleEnum, React.ComponentType<{ className?: string }>> = {
+const ICONS: Record<FriendCircleEnum, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   private: Lock,
   family: Heart,
   friends: Users,
