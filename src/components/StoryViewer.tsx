@@ -6,6 +6,7 @@ import WaveProgress from "./WaveProgress";
 import { CIRCLE_THEMES, ringGradientFor } from "@/lib/circleTheme";
 import { getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
 import StoryParticles from "./stories/StoryParticles";
+import StickerLayer from "./stories/StickerLayer";
 
 const BASE_FRAME_DURATION_MS = 5000;
 const DEFAULT_BPM = 120;
