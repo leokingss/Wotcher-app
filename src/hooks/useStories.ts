@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import type { FriendCircleEnum } from "./useFriendCircles";
+import type { Sticker } from "@/lib/stickers";
 
 export type StoryMediaType = "photo" | "video" | "music";
 
@@ -16,6 +17,7 @@ export interface StoryFrameRow {
   track_artist: string | null;
   filter_id: string | null;
   filter_intensity: number;
+  stickers: Sticker[];
   created_at: string;
   expires_at: string;
   profile: { username: string; display_name: string | null; avatar_url: string | null } | null;
