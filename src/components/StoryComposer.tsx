@@ -217,6 +217,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           filter_id: fxBaked || f.filterId === "none" ? null : f.filterId,
           filter_intensity: fxBaked ? 0 : f.filterIntensity,
           ar_effect_id: isAREffectActive(f.arEffectId) ? f.arEffectId : null,
+          stickers: f.stickers as any,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
