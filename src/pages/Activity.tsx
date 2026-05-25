@@ -74,7 +74,7 @@ const TIMES: { id: TimeRange; label: string }[] = [
   { id: "month", label: "This month" },
 ];
 
-const SOCIAL_TYPES: NType[] = ["like", "dislike", "comment", "follow"];
+const SOCIAL_TYPES: NType[] = ["like", "dislike", "comment", "follow", "mention"];
 const MARKET_TYPES: NType[] = ["outbid", "auction_won", "item_sold", "auction_ending", "new_listing"];
 
 const Activity = () => {
