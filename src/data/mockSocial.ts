@@ -34,6 +34,8 @@ export interface StoryItem {
   mediaType?: StoryMediaType;
   /** Audience scope for the rail tile (last frame's audience). */
   audienceCircle?: FriendCircleEnum | null;
+  /** Database user id of the story author (when sourced from Supabase). */
+  dbUserId?: string;
   frames?: StoryFrame[];
 }
 

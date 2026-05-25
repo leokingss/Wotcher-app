@@ -76,6 +76,7 @@ const Stories = () => {
     hasStory: true,
     mediaType: g.mediaType,
     audienceCircle: g.audienceCircle,
+    dbUserId: g.user_id,
     watched: watchedIds.includes(g.user_id),
     frames: g.frames.map((f) => ({
       url: f.media_url,
