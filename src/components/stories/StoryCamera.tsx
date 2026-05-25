@@ -9,6 +9,8 @@ import {
   Loader2,
   Sparkle,
   Wand2,
+  Image as ImageIcon,
+  ChevronUp,
 } from "lucide-react";
 import {
   FILTER_NONE,
@@ -95,6 +97,9 @@ export const StoryCamera = ({
   const [beautyLoading, setBeautyLoading] = useState(false);
   const [arEffect, setArEffect] = useState<AREffectPreset>(AR_NONE);
   const [arOpen, setArOpen] = useState(false);
+  /** Filter carousel toggle — keeps the camera UI clean until the user wants it. */
+  const [filterOpen, setFilterOpen] = useState(false);
+  const galleryInputRef = useRef<HTMLInputElement | null>(null);
   /** Cached last landmark detection so we don't run detection every frame. */
   const landmarkResultRef = useRef<FaceLandmarkerResult | null>(null);
   const lastDetectRef = useRef<number>(0);
@@ -494,52 +499,117 @@ export const StoryCamera = ({
             />
           </div>
         )}
-        {filter.id !== "none" && (
-          <div className="px-4">
+        {/* Filter intensity (only when a filter is picked AND the carousel is open) */}
+        {filterOpen && filter.id !== "none" && (
+          <div className="px-4 animate-fade-in">
             <IntensitySlider value={intensity} onChange={setIntensity} />
           </div>
         )}
 
-        <FilterCarousel
-          selectedId={filter.id}
-          onSelect={setFilter}
-          favorites={favorites}
-          onToggleFavorite={toggleFavorite}
-        />
+        {/* Filter carousel — hidden by default, toggled by the Filters chip below */}
+        {filterOpen && (
+          <div className="animate-fade-in">
+            <FilterCarousel
+              selectedId={filter.id}
+              onSelect={(p) => { setFilter(p); }}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+            />
+          </div>
+        )}
 
-        {/* Shutter */}
-        <div className="flex items-center justify-center pt-1">
-          <button
-            onPointerDown={onPointerDown}
-            onPointerUp={onPointerUp}
-            onPointerLeave={onPointerUp}
-            className="relative w-20 h-20 rounded-full bg-white flex items-center justify-center active:scale-95 transition-transform"
-            aria-label={recording ? "Stop recording" : "Take photo or hold to record"}
-          >
-            {recording ? (
-              <span className="block w-7 h-7 rounded-md bg-red-500" />
-            ) : (
-              <Circle className="w-16 h-16 text-black/10" strokeWidth={1} />
-            )}
-            {recording && (
-              <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="46"
-                  fill="none"
-                  stroke="rgb(239 68 68)"
-                  strokeWidth="4"
-                  strokeDasharray={`${recordProgress * 289} 289`}
-                  strokeLinecap="round"
-                />
-              </svg>
-            )}
-          </button>
+        {/* Shutter row: gallery · shutter · filters */}
+        <div className="grid grid-cols-3 items-center px-6 pt-1">
+          {/* Gallery shortcut */}
+          <div className="flex justify-start">
+            <button
+              onClick={() => galleryInputRef.current?.click()}
+              className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center justify-center active:scale-95 transition-transform"
+              aria-label="Choose from gallery"
+            >
+              <ImageIcon className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Shutter */}
+          <div className="flex items-center justify-center">
+            <button
+              onPointerDown={onPointerDown}
+              onPointerUp={onPointerUp}
+              onPointerLeave={onPointerUp}
+              className="relative w-20 h-20 rounded-full bg-white flex items-center justify-center active:scale-95 transition-transform shadow-[0_10px_40px_-5px_rgba(255,255,255,0.45)]"
+              aria-label={recording ? "Stop recording" : "Take photo or hold to record"}
+            >
+              {recording ? (
+                <span className="block w-7 h-7 rounded-md bg-red-500" />
+              ) : (
+                <Circle className="w-16 h-16 text-black/10" strokeWidth={1} />
+              )}
+              {recording && (
+                <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="46"
+                    fill="none"
+                    stroke="rgb(239 68 68)"
+                    strokeWidth="4"
+                    strokeDasharray={`${recordProgress * 289} 289`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          {/* Filters toggle */}
+          <div className="flex justify-end">
+            <button
+              onClick={() => setFilterOpen((v) => !v)}
+              className={`flex items-center gap-1.5 px-3 h-12 rounded-2xl backdrop-blur-md border text-xs font-bold uppercase tracking-wider transition-all ${
+                filterOpen || filter.id !== "none"
+                  ? "bg-primary/90 border-primary text-primary-foreground"
+                  : "bg-white/10 border-white/15 text-white"
+              }`}
+              aria-pressed={filterOpen}
+            >
+              <Wand2 className="w-4 h-4" />
+              {filter.id !== "none" ? filter.name : "Filters"}
+              <ChevronUp className={`w-3.5 h-3.5 transition-transform ${filterOpen ? "" : "rotate-180"}`} />
+            </button>
+          </div>
         </div>
-        <p className="text-center text-[10px] text-white/60 px-4">
-          Tap for photo · Hold for video (max 20s) · Swipe to change filter
+
+        <p className="text-center text-[10px] text-white/60 px-4 pt-1">
+          Tap for photo · Hold to record (max 20s)
         </p>
+
+        {/* Hidden gallery picker — accepts image or short video */}
+        <input
+          ref={galleryInputRef}
+          type="file"
+          accept="image/*,video/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (!file) return;
+            const isVid = file.type.startsWith("video/");
+            const maxBytes = isVid ? 80 * 1024 * 1024 : 15 * 1024 * 1024;
+            if (file.size > maxBytes) {
+              toast.error(isVid ? "Video is too large (max 80 MB)" : "Image is too large (max 15 MB)");
+              return;
+            }
+            const previewUrl = URL.createObjectURL(file);
+            onCapture(file, {
+              fileType: isVid ? "video" : "image",
+              filterId: filter.id,
+              intensity,
+              arEffectId: arEffect.id,
+              previewUrl,
+            });
+          }}
+        />
       </div>
     </div>
   );
