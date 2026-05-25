@@ -1,4 +1,5 @@
 import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
+import type { Sticker } from "@/lib/stickers";
 
 export type StoryMediaType = "music" | "photo" | "video";
 
@@ -19,6 +20,8 @@ export interface StoryFrame {
   filterId?: string | null;
   /** Filter intensity 0..100. */
   filterIntensity?: number;
+  /** Phase 4 — interactive sticker overlays (polls, music, emoji…). */
+  stickers?: Sticker[];
 }
 
 export interface StoryItem {
