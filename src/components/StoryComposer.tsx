@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2, Wand2 } from "lucide-react";
+import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2, Wand2, Sticker as StickerIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +18,9 @@ import StoryParticles from "@/components/stories/StoryParticles";
 import BeautyPanel from "@/components/stories/BeautyPanel";
 import BeautyPhotoCanvas, { BeautyPhotoCanvasHandle } from "@/components/stories/BeautyPhotoCanvas";
 import AREffectCarousel from "@/components/stories/AREffectCarousel";
+import StickerPicker from "@/components/stories/StickerPicker";
+import StickerLayer from "@/components/stories/StickerLayer";
+import type { Sticker } from "@/lib/stickers";
 import { BEAUTY_OFF, BeautyParams, isBeautyActive } from "@/lib/beauty/BeautyEngine";
 import { isAREffectActive } from "@/lib/ar/arEffects";
 import { Sparkle, Glasses } from "lucide-react";
@@ -37,6 +40,8 @@ interface DraftFrame {
   beauty: BeautyParams;
   /** Per-frame AR face effect (photos only — videos bake at capture time). */
   arEffectId: string;
+  /** Phase 4 — interactive sticker overlays. */
+  stickers: Sticker[];
 }
 
 interface StoryComposerProps {
@@ -70,6 +75,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [beautyOpen, setBeautyOpen] = useState(false);
   /** AR face effects panel toggle (photos only). */
   const [arOpen, setArOpen] = useState(false);
+  /** Sticker picker sheet (polls / music / emoji / mention). */
+  const [stickerPickerOpen, setStickerPickerOpen] = useState(false);
   /** Refs to per-frame BeautyPhotoCanvas so we can bake the beauty render into the uploaded blob. */
   const beautyCanvasRefs = useRef<Map<string, BeautyPhotoCanvasHandle | null>>(new Map());
   const { favorites, toggleFavorite } = useFavoriteFilters();
@@ -119,6 +126,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
         filterIntensity: 100,
         beauty: BEAUTY_OFF,
         arEffectId: "none",
+        stickers: [],
       });
     });
     if (next.length === 0) return;
@@ -209,6 +217,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           filter_id: fxBaked || f.filterId === "none" ? null : f.filterId,
           filter_intensity: fxBaked ? 0 : f.filterIntensity,
           ar_effect_id: isAREffectActive(f.arEffectId) ? f.arEffectId : null,
+          stickers: f.stickers as any,
           track_title:
             i === 0 && storyType === "music" && trackTitle.trim() ? trackTitle.trim() : null,
           track_artist:
@@ -352,6 +361,15 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                       {preset.particles && (
                         <StoryParticles kind={preset.particles} intensity={t} />
                       )}
+                      <StickerLayer
+                        stickers={active.stickers}
+                        editable
+                        onChange={(next) =>
+                          setFrames((prev) =>
+                            prev.map((f) => (f.id === active.id ? { ...f, stickers: next } : f)),
+                          )
+                        }
+                      />
                     </>
                   );
                 })()}
@@ -427,6 +445,16 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 )}
 
                 <button
+                  onClick={() => setStickerPickerOpen(true)}
+                  className={`absolute top-3 right-[10.25rem] neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
+                    active.stickers.length > 0 ? "text-primary" : ""
+                  }`}
+                  aria-label="Add sticker"
+                >
+                  <StickerIcon className="w-4 h-4" />
+                </button>
+
+                <button
                   onClick={() => setFilterPanelOpen((v) => !v)}
                   className={`absolute top-3 right-12 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
                     active.filterId !== "none" ? "text-primary" : ""
@@ -436,6 +464,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 >
                   <Wand2 className="w-4 h-4" />
                 </button>
+
 
                 <button
                   onClick={() => removeFrame(active.id)}
@@ -728,6 +757,16 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           </>)}
         </div>
       </DialogContent>
+      <StickerPicker
+        open={stickerPickerOpen}
+        onClose={() => setStickerPickerOpen(false)}
+        onAdd={(s) => {
+          if (!active) return;
+          setFrames((prev) =>
+            prev.map((f) => (f.id === active.id ? { ...f, stickers: [...f.stickers, s] } : f)),
+          );
+        }}
+      />
       <StoryCamera
         open={cameraOpen}
         onClose={() => setCameraOpen(false)}
@@ -747,6 +786,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 filterIntensity: opts.intensity,
                 beauty: BEAUTY_OFF,
                 arEffectId: opts.arEffectId,
+                stickers: [],
               },
             ];
             if (prev.length === 0) {

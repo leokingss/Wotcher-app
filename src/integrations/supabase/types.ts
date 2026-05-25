@@ -1758,6 +1758,7 @@ export type Database = {
           media_type: Database["public"]["Enums"]["story_media_type"]
           media_url: string
           overlays_json: Json | null
+          stickers: Json
           track_artist: string | null
           track_title: string | null
           user_id: string
@@ -1775,6 +1776,7 @@ export type Database = {
           media_type: Database["public"]["Enums"]["story_media_type"]
           media_url: string
           overlays_json?: Json | null
+          stickers?: Json
           track_artist?: string | null
           track_title?: string | null
           user_id: string
@@ -1792,6 +1794,7 @@ export type Database = {
           media_type?: Database["public"]["Enums"]["story_media_type"]
           media_url?: string
           overlays_json?: Json | null
+          stickers?: Json
           track_artist?: string | null
           track_title?: string | null
           user_id?: string
@@ -1812,6 +1815,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      story_poll_votes: {
+        Row: {
+          created_at: string
+          option_index: number
+          sticker_id: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          option_index: number
+          sticker_id: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          option_index?: number
+          sticker_id?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       story_views: {
         Row: {

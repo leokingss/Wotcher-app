@@ -6,6 +6,7 @@ import WaveProgress from "./WaveProgress";
 import { CIRCLE_THEMES, ringGradientFor } from "@/lib/circleTheme";
 import { getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
 import StoryParticles from "./stories/StoryParticles";
+import StickerLayer from "./stories/StickerLayer";
 
 const BASE_FRAME_DURATION_MS = 5000;
 const DEFAULT_BPM = 120;
@@ -271,6 +272,13 @@ const StoryViewer = ({
               )}
               {preset.particles && (
                 <StoryParticles kind={preset.particles} intensity={t} />
+              )}
+              {frame.stickers && frame.stickers.length > 0 && (
+                <StickerLayer
+                  stickers={frame.stickers}
+                  storyId={frame.dbId}
+                  readOnly={isOwn}
+                />
               )}
             </>
           );
