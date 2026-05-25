@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag, AlertCircle } from "lucide-react";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag, AlertCircle, Camera, Video } from "lucide-react";
 import {
   Dialog,
   DialogContent,
