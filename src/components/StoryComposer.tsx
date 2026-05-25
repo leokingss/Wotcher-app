@@ -789,6 +789,22 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
             onChange={handlePick}
             className="hidden"
           />
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handlePick}
+            className="hidden"
+          />
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            multiple
+            onChange={handlePick}
+            className="hidden"
+          />
           </>)}
         </div>
       </DialogContent>
