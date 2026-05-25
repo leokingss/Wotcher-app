@@ -71,7 +71,7 @@ export const useStoryHighlights = (userId: string | undefined | null) => {
     fetchAll();
     if (!userId) return;
     const ch = supabase
-      .channel(`highlights-${userId}`)
+      .channel(`highlights-${userId}-${Math.random().toString(36).slice(2, 8)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "story_highlights", filter: `user_id=eq.${userId}` },
