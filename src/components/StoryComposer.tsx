@@ -657,34 +657,34 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                   }}
                 />
               ) : (
-                <div className="relative w-full aspect-[9/14] rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-950 to-black flex flex-col">
-                  {/* Decorative aurora */}
-                  <div className="absolute inset-0 pointer-events-none opacity-60">
-                    <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full blur-3xl bg-primary/30" />
-                    <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full blur-3xl bg-fuchsia-500/20" />
+                <div className="relative w-full aspect-[9/14] rounded-2xl overflow-hidden neo-card-inset flex flex-col grain-overlay">
+                  {/* Decorative signature glow */}
+                  <div className="absolute inset-0 pointer-events-none opacity-50">
+                    <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full blur-3xl bg-primary/25" />
+                    <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full blur-3xl bg-accent/20" />
                   </div>
 
                   {/* Hero CTA */}
-                  <div className="relative flex-1 flex flex-col items-center justify-center gap-6 px-6 text-white">
+                  <div className="relative flex-1 flex flex-col items-center justify-center gap-6 px-6">
                     <button
                       onClick={() => setCameraOpen(true)}
-                      className="group relative w-28 h-28 rounded-full bg-white/95 active:scale-95 transition-all shadow-[0_20px_60px_-10px_rgba(255,255,255,0.4)]"
+                      className="group relative w-28 h-28 rounded-full neo-button-icon active:scale-95 transition-transform"
                       aria-label={entryMode === "video" ? "Record video" : "Open camera"}
                     >
-                      <span className="absolute inset-2 rounded-full ring-2 ring-black/10" />
+                      <span className="absolute inset-2 rounded-full bg-signature opacity-95" />
                       <span className="absolute inset-0 flex items-center justify-center">
                         {entryMode === "video" ? (
-                          <span className="w-7 h-7 rounded-md bg-red-500" />
+                          <span className="w-7 h-7 rounded-md bg-destructive" />
                         ) : (
-                          <Camera className="w-10 h-10 text-black" strokeWidth={2.2} />
+                          <Camera className="w-10 h-10 text-primary-foreground relative" strokeWidth={2.2} />
                         )}
                       </span>
                     </button>
                     <div className="text-center">
-                      <p className="font-bold text-lg tracking-tight">
+                      <p className="font-display font-semibold text-lg tracking-tight text-foreground">
                         {entryMode === "video" ? "Record a video" : "Capture a moment"}
                       </p>
-                      <p className="text-xs text-white/60 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {entryMode === "video"
                           ? "Up to 20 seconds · live filters"
                           : "Live filters · beauty · AR effects"}
@@ -692,13 +692,13 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                     </div>
                   </div>
 
-                  {/* Glassmorphism bottom bar — Gallery shortcut */}
+                  {/* Gallery shortcut */}
                   <div className="relative p-3">
                     <button
                       onClick={() => (entryMode === "video" ? videoInputRef.current : photoInputRef.current)?.click()}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 text-white hover:bg-white/15 transition-colors text-sm font-semibold"
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl neo-button text-foreground text-sm font-semibold"
                     >
-                      <ImagePlus className="w-4 h-4" />
+                      <ImagePlus className="w-4 h-4 text-primary" />
                       Choose from gallery
                     </button>
                   </div>
