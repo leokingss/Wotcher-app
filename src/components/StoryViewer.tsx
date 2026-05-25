@@ -411,6 +411,24 @@ const StoryViewer = ({
           </button>
         )}
 
+        {/* Owner-only replies inbox chip — visible when frame has question stickers */}
+        {isOwn && frame.dbId && (() => {
+          const questions = (frame.stickers ?? []).filter(
+            (s): s is QuestionStickerType => s.type === "question",
+          );
+          if (questions.length === 0) return null;
+          return (
+            <button
+              onClick={(e) => { e.stopPropagation(); setRepliesOpen(true); }}
+              aria-label="See question replies"
+              className="absolute bottom-5 right-4 z-30 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full px-3 py-2 text-white border border-white/15 transition-colors"
+            >
+              <MessageCircleQuestion className="w-4 h-4" />
+              <span className="text-xs opacity-90">Replies</span>
+            </button>
+          );
+        })()}
+
         {/* Viewers sheet */}
         {isOwn && viewersOpen && (
           <div
@@ -460,6 +478,18 @@ const StoryViewer = ({
               )}
             </div>
           </div>
+        )}
+
+        {/* Owner-only question replies sheet */}
+        {isOwn && frame.dbId && (
+          <QuestionRepliesSheet
+            storyId={frame.dbId}
+            questions={(frame.stickers ?? []).filter(
+              (s): s is QuestionStickerType => s.type === "question",
+            )}
+            open={repliesOpen}
+            onClose={() => setRepliesOpen(false)}
+          />
         )}
       </div>
     </div>
