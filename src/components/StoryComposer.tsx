@@ -445,6 +445,16 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 )}
 
                 <button
+                  onClick={() => setStickerPickerOpen(true)}
+                  className={`absolute top-3 right-[10.25rem] neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
+                    active.stickers.length > 0 ? "text-primary" : ""
+                  }`}
+                  aria-label="Add sticker"
+                >
+                  <StickerIcon className="w-4 h-4" />
+                </button>
+
+                <button
                   onClick={() => setFilterPanelOpen((v) => !v)}
                   className={`absolute top-3 right-12 neo-button-icon p-1.5 bg-background/80 backdrop-blur-sm ${
                     active.filterId !== "none" ? "text-primary" : ""
@@ -454,6 +464,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                 >
                   <Wand2 className="w-4 h-4" />
                 </button>
+
 
                 <button
                   onClick={() => removeFrame(active.id)}
