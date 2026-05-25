@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye, MessageCircleQuestion, Heart } from "lucide-react";
+import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye, MessageCircleQuestion, Heart, Lock, Users, UsersRound } from "lucide-react";
 import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
 import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
 import WaveProgress from "./WaveProgress";
