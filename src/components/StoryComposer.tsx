@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2, Wand2 } from "lucide-react";
+import { X, Image as ImageIcon, Film, Music, Camera, Plus, Trash2, Loader2, ChevronLeft, ChevronRight, Radio, Globe2, Lock, Users, Heart, UsersRound, Maximize2, Minimize2, Wand2, Sticker as StickerIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +18,9 @@ import StoryParticles from "@/components/stories/StoryParticles";
 import BeautyPanel from "@/components/stories/BeautyPanel";
 import BeautyPhotoCanvas, { BeautyPhotoCanvasHandle } from "@/components/stories/BeautyPhotoCanvas";
 import AREffectCarousel from "@/components/stories/AREffectCarousel";
+import StickerPicker from "@/components/stories/StickerPicker";
+import StickerLayer from "@/components/stories/StickerLayer";
+import type { Sticker } from "@/lib/stickers";
 import { BEAUTY_OFF, BeautyParams, isBeautyActive } from "@/lib/beauty/BeautyEngine";
 import { isAREffectActive } from "@/lib/ar/arEffects";
 import { Sparkle, Glasses } from "lucide-react";
