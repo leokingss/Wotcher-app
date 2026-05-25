@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye, MessageCircleQuestion } from "lucide-react";
+import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye, MessageCircleQuestion, Heart } from "lucide-react";
 import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
 import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
 import WaveProgress from "./WaveProgress";
@@ -8,6 +8,8 @@ import { getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters"
 import StoryParticles from "./stories/StoryParticles";
 import StickerLayer from "./stories/StickerLayer";
 import QuestionRepliesSheet from "./stories/QuestionRepliesSheet";
+import ReactionBar from "./stories/ReactionBar";
+import ReactionsSheet from "./stories/ReactionsSheet";
 import type { QuestionSticker as QuestionStickerType } from "@/lib/stickers";
 
 const BASE_FRAME_DURATION_MS = 5000;
@@ -60,6 +62,7 @@ const StoryViewer = ({
   const [paused, setPaused] = useState(false);
   const [viewersOpen, setViewersOpen] = useState(false);
   const [repliesOpen, setRepliesOpen] = useState(false);
+  const [reactionsOpen, setReactionsOpen] = useState(false);
   const rafRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
   const accumRef = useRef<number>(0);
@@ -107,6 +110,7 @@ const StoryViewer = ({
     setPaused(false);
     setViewersOpen(false);
     setRepliesOpen(false);
+    setReactionsOpen(false);
     reportedRef.current = new Set();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, startId]);
@@ -156,7 +160,7 @@ const StoryViewer = ({
 
   // Animation loop
   useEffect(() => {
-    if (!open || paused || !story || viewersOpen || repliesOpen) return;
+    if (!open || paused || !story || viewersOpen || repliesOpen || reactionsOpen) return;
     startedAtRef.current = performance.now();
     const tick = (now: number) => {
       const elapsed = accumRef.current + (now - startedAtRef.current);
@@ -174,7 +178,7 @@ const StoryViewer = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       accumRef.current += performance.now() - startedAtRef.current;
     };
-  }, [open, paused, viewersOpen, repliesOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
+  }, [open, paused, viewersOpen, repliesOpen, reactionsOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
 
   // Keyboard
   useEffect(() => {
@@ -429,6 +433,23 @@ const StoryViewer = ({
           );
         })()}
 
+        {/* Owner-only reactions analytics chip */}
+        {isOwn && frame.dbId && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setReactionsOpen(true); }}
+            aria-label="See reactions"
+            className="absolute bottom-20 right-4 z-30 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full px-3 py-2 text-white border border-white/15 transition-colors"
+          >
+            <Heart className="w-4 h-4" />
+            <span className="text-xs opacity-90">Reactions</span>
+          </button>
+        )}
+
+        {/* Non-owner reaction bar — bottom center */}
+        {!isOwn && frame.dbId && (
+          <ReactionBar storyId={frame.dbId} />
+        )}
+
         {/* Viewers sheet */}
         {isOwn && viewersOpen && (
           <div
@@ -489,6 +510,15 @@ const StoryViewer = ({
             )}
             open={repliesOpen}
             onClose={() => setRepliesOpen(false)}
+          />
+        )}
+
+        {/* Owner-only reactions sheet */}
+        {isOwn && frame.dbId && (
+          <ReactionsSheet
+            storyId={frame.dbId}
+            open={reactionsOpen}
+            onClose={() => setReactionsOpen(false)}
           />
         )}
       </div>
