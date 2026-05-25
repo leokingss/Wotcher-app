@@ -757,6 +757,16 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
           </>)}
         </div>
       </DialogContent>
+      <StickerPicker
+        open={stickerPickerOpen}
+        onClose={() => setStickerPickerOpen(false)}
+        onAdd={(s) => {
+          if (!active) return;
+          setFrames((prev) =>
+            prev.map((f) => (f.id === active.id ? { ...f, stickers: [...f.stickers, s] } : f)),
+          );
+        }}
+      />
       <StoryCamera
         open={cameraOpen}
         onClose={() => setCameraOpen(false)}
