@@ -132,6 +132,25 @@ const Conversation = () => {
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`relative group max-w-[78%] rounded-2xl px-3 py-2 ${mine ? "bg-primary text-primary-foreground rounded-br-md" : "neo-card rounded-bl-md"}`}>
+                {(m as any).story_ref && (
+                  <div className={`mb-2 flex items-center gap-2 rounded-xl p-1.5 border ${mine ? "border-primary-foreground/25 bg-black/20" : "border-border/50 bg-muted/40"}`}>
+                    <div className="w-10 h-14 rounded-md overflow-hidden bg-black/40 flex-shrink-0">
+                      {(m as any).story_ref.media_url && (
+                        /\.(mp4|webm|mov|m4v)(\?|$)/i.test((m as any).story_ref.media_url) ? (
+                          <video src={(m as any).story_ref.media_url} className="w-full h-full object-cover" muted />
+                        ) : (
+                          <img src={(m as any).story_ref.media_url} alt="story" className="w-full h-full object-cover" />
+                        )
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className={`text-[10px] uppercase tracking-wider font-semibold ${mine ? "opacity-70" : "text-muted-foreground"}`}>Replied to story</p>
+                      {(m as any).story_ref.caption && (
+                        <p className={`text-xs truncate max-w-[180px] ${mine ? "opacity-90" : "text-foreground"}`}>{(m as any).story_ref.caption}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {m.media_type === "text" && <p className="text-sm whitespace-pre-wrap break-words">{m.body}</p>}
                 {m.media_type === "voice" && m.media_url && (
                   <div className="flex items-center gap-2 min-w-[160px]">
