@@ -131,13 +131,26 @@ const StickerContent = ({
       );
     case "emoji":
       return <span className="text-5xl drop-shadow-2xl">{sticker.emoji}</span>;
-    case "mention":
-      return (
+    case "mention": {
+      const handle = sticker.username.replace(/^@/, "");
+      const chip = (
         <div className="inline-flex items-center gap-1 bg-primary text-primary-foreground rounded-full px-3 py-1.5 shadow-2xl text-sm font-bold">
           <AtSign className="w-3.5 h-3.5" />
-          {sticker.username}
+          {handle}
         </div>
       );
+      if (readOnly) return chip;
+      return (
+        <Link
+          to={`/profile/${handle}`}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="active:scale-95 transition-transform"
+        >
+          {chip}
+        </Link>
+      );
+    }
   }
 };
 
