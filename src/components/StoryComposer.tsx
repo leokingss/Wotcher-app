@@ -75,6 +75,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [beautyOpen, setBeautyOpen] = useState(false);
   /** AR face effects panel toggle (photos only). */
   const [arOpen, setArOpen] = useState(false);
+  /** Sticker picker sheet (polls / music / emoji / mention). */
+  const [stickerPickerOpen, setStickerPickerOpen] = useState(false);
   /** Refs to per-frame BeautyPhotoCanvas so we can bake the beauty render into the uploaded blob. */
   const beautyCanvasRefs = useRef<Map<string, BeautyPhotoCanvasHandle | null>>(new Map());
   const { favorites, toggleFavorite } = useFavoriteFilters();
