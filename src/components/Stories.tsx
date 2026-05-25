@@ -87,6 +87,7 @@ const Stories = () => {
       audienceCircle: f.audience_circle ?? null,
       filterId: f.filter_id ?? null,
       filterIntensity: f.filter_intensity ?? 100,
+      stickers: (f.stickers ?? []) as any,
     })),
   }));
 
