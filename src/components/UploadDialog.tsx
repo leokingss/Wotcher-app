@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag, AlertCircle } from "lucide-react";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag, AlertCircle, Camera, Video } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,8 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const [caption, setCaption] = useState("");
   const [posting, setPosting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraPhotoRef = useRef<HTMLInputElement>(null);
+  const cameraVideoRef = useRef<HTMLInputElement>(null);
   const [tagged, setTagged] = useState<TaggedPerson[]>([]);
   const [location, setLocation] = useState<LocationTag | null>(null);
   const [geoLocation, setGeoLocation] = useState<SavedLocation | null>(null);
@@ -332,25 +334,37 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             </div>
           ) : (
             /* Upload Area */
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="neo-card-inset w-full aspect-square rounded-2xl flex flex-col items-center justify-center gap-4 hover:bg-muted/30 transition-colors"
-            >
-              <div className="flex gap-3">
-                <div className="neo-button-icon p-4">
-                  <Image className="w-8 h-8 text-primary" />
-                </div>
-                <div className="neo-button-icon p-4">
-                  <Film className="w-8 h-8 text-primary" />
-                </div>
-              </div>
+            <div className="neo-card-inset w-full aspect-square rounded-2xl flex flex-col items-center justify-center gap-5 p-6">
               <div className="text-center">
                 <p className="font-semibold">Add Photos or Videos</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Tap to select multiple files
+                  Capture with camera or pick from your device
                 </p>
               </div>
-            </button>
+              <div className="grid grid-cols-3 gap-3 w-full max-w-xs">
+                <button
+                  onClick={() => cameraPhotoRef.current?.click()}
+                  className="neo-button-icon flex flex-col items-center justify-center gap-2 py-4 rounded-xl"
+                >
+                  <Camera className="w-7 h-7 text-primary" />
+                  <span className="text-[11px] font-semibold">Photo</span>
+                </button>
+                <button
+                  onClick={() => cameraVideoRef.current?.click()}
+                  className="neo-button-icon flex flex-col items-center justify-center gap-2 py-4 rounded-xl"
+                >
+                  <Video className="w-7 h-7 text-primary" />
+                  <span className="text-[11px] font-semibold">Video</span>
+                </button>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="neo-button-icon flex flex-col items-center justify-center gap-2 py-4 rounded-xl"
+                >
+                  <Image className="w-7 h-7 text-primary" />
+                  <span className="text-[11px] font-semibold">Gallery</span>
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Caption Input */}
@@ -480,12 +494,28 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             )}
           </div>
 
-          {/* Hidden File Input */}
+          {/* Hidden File Inputs */}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*,video/*"
             multiple
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <input
+            ref={cameraPhotoRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <input
+            ref={cameraVideoRef}
+            type="file"
+            accept="video/*"
+            capture="environment"
             onChange={handleFileSelect}
             className="hidden"
           />
