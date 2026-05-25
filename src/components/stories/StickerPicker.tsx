@@ -65,6 +65,10 @@ const StickerPicker = ({ open, onClose, onAdd }: StickerPickerProps) => {
 
         {tab === "home" && (
           <div className="grid grid-cols-3 gap-2 pb-4">
+            <button onClick={() => setTab("text")} className="neo-button-icon flex flex-col items-center gap-2 p-4 rounded-xl">
+              <TypeIcon className="w-7 h-7 text-primary" />
+              <span className="text-xs font-semibold">Text</span>
+            </button>
             <button onClick={() => setTab("poll")} className="neo-button-icon flex flex-col items-center gap-2 p-4 rounded-xl">
               <BarChart3 className="w-7 h-7 text-primary" />
               <span className="text-xs font-semibold">Poll</span>
