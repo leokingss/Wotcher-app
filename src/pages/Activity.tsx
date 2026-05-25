@@ -159,7 +159,7 @@ const Activity = () => {
       if (p?.username) navigate(`/profile/${p.username}?tab=shop`);
       return;
     }
-    if (n.type === "follow" && n.actor?.username) {
+    if ((n.type === "follow" || n.type === "mention") && n.actor?.username) {
       navigate(`/profile/${n.actor.username}`);
       return;
     }
