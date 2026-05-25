@@ -21,6 +21,7 @@ import AREffectCarousel from "@/components/stories/AREffectCarousel";
 import StickerPicker from "@/components/stories/StickerPicker";
 import StickerLayer from "@/components/stories/StickerLayer";
 import AudiencePicker from "@/components/stories/AudiencePicker";
+import TextStoryEditor from "@/components/stories/TextStoryEditor";
 import type { Sticker } from "@/lib/stickers";
 import { BEAUTY_OFF, BeautyParams, isBeautyActive } from "@/lib/beauty/BeautyEngine";
 import { isAREffectActive } from "@/lib/ar/arEffects";
