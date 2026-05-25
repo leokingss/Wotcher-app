@@ -97,6 +97,9 @@ export const StoryCamera = ({
   const [beautyLoading, setBeautyLoading] = useState(false);
   const [arEffect, setArEffect] = useState<AREffectPreset>(AR_NONE);
   const [arOpen, setArOpen] = useState(false);
+  /** Filter carousel toggle — keeps the camera UI clean until the user wants it. */
+  const [filterOpen, setFilterOpen] = useState(false);
+  const galleryInputRef = useRef<HTMLInputElement | null>(null);
   /** Cached last landmark detection so we don't run detection every frame. */
   const landmarkResultRef = useRef<FaceLandmarkerResult | null>(null);
   const lastDetectRef = useRef<number>(0);
