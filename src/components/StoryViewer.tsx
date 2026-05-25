@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye } from "lucide-react";
+import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye, MessageCircleQuestion } from "lucide-react";
 import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
 import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
 import WaveProgress from "./WaveProgress";
@@ -7,6 +7,8 @@ import { CIRCLE_THEMES, ringGradientFor } from "@/lib/circleTheme";
 import { getFilterById, cssFilterAt, overlayStrength } from "@/lib/storyFilters";
 import StoryParticles from "./stories/StoryParticles";
 import StickerLayer from "./stories/StickerLayer";
+import QuestionRepliesSheet from "./stories/QuestionRepliesSheet";
+import type { QuestionSticker as QuestionStickerType } from "@/lib/stickers";
 
 const BASE_FRAME_DURATION_MS = 5000;
 const DEFAULT_BPM = 120;
@@ -57,6 +59,7 @@ const StoryViewer = ({
   const [progress, setProgress] = useState(0);
   const [paused, setPaused] = useState(false);
   const [viewersOpen, setViewersOpen] = useState(false);
+  const [repliesOpen, setRepliesOpen] = useState(false);
   const rafRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
   const accumRef = useRef<number>(0);
@@ -103,6 +106,7 @@ const StoryViewer = ({
     accumRef.current = 0;
     setPaused(false);
     setViewersOpen(false);
+    setRepliesOpen(false);
     reportedRef.current = new Set();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, startId]);
@@ -152,7 +156,7 @@ const StoryViewer = ({
 
   // Animation loop
   useEffect(() => {
-    if (!open || paused || !story || viewersOpen) return;
+    if (!open || paused || !story || viewersOpen || repliesOpen) return;
     startedAtRef.current = performance.now();
     const tick = (now: number) => {
       const elapsed = accumRef.current + (now - startedAtRef.current);
@@ -170,7 +174,7 @@ const StoryViewer = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       accumRef.current += performance.now() - startedAtRef.current;
     };
-  }, [open, paused, viewersOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
+  }, [open, paused, viewersOpen, repliesOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
 
   // Keyboard
   useEffect(() => {
@@ -407,6 +411,24 @@ const StoryViewer = ({
           </button>
         )}
 
+        {/* Owner-only replies inbox chip — visible when frame has question stickers */}
+        {isOwn && frame.dbId && (() => {
+          const questions = (frame.stickers ?? []).filter(
+            (s): s is QuestionStickerType => s.type === "question",
+          );
+          if (questions.length === 0) return null;
+          return (
+            <button
+              onClick={(e) => { e.stopPropagation(); setRepliesOpen(true); }}
+              aria-label="See question replies"
+              className="absolute bottom-5 right-4 z-30 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full px-3 py-2 text-white border border-white/15 transition-colors"
+            >
+              <MessageCircleQuestion className="w-4 h-4" />
+              <span className="text-xs opacity-90">Replies</span>
+            </button>
+          );
+        })()}
+
         {/* Viewers sheet */}
         {isOwn && viewersOpen && (
           <div
@@ -456,6 +478,18 @@ const StoryViewer = ({
               )}
             </div>
           </div>
+        )}
+
+        {/* Owner-only question replies sheet */}
+        {isOwn && frame.dbId && (
+          <QuestionRepliesSheet
+            storyId={frame.dbId}
+            questions={(frame.stickers ?? []).filter(
+              (s): s is QuestionStickerType => s.type === "question",
+            )}
+            open={repliesOpen}
+            onClose={() => setRepliesOpen(false)}
+          />
         )}
       </div>
     </div>

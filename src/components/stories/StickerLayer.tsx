@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
-import { X, Music as MusicIcon, AtSign, MessageCircleQuestion } from "lucide-react";
+import { X, Music as MusicIcon, AtSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Sticker } from "@/lib/stickers";
 import PollSticker from "./PollSticker";
+import QuestionSticker from "./QuestionSticker";
 
 interface StickerLayerProps {
   stickers: Sticker[];
@@ -108,19 +109,7 @@ const StickerContent = ({
     case "poll":
       return <PollSticker sticker={sticker} storyId={storyId} readOnly={readOnly} />;
     case "question":
-      return (
-        <div className="bg-background/85 backdrop-blur-md rounded-2xl p-3 shadow-2xl min-w-[200px] max-w-[260px]">
-          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">
-            <MessageCircleQuestion className="w-3 h-3" /> Question
-          </div>
-          <p className="text-sm font-semibold mb-2 line-clamp-2">{sticker.prompt}</p>
-          {!readOnly && (
-            <div className="text-xs text-muted-foreground italic px-2 py-1.5 rounded-lg bg-muted/40">
-              Reply…
-            </div>
-          )}
-        </div>
-      );
+      return <QuestionSticker sticker={sticker} storyId={storyId} readOnly={readOnly} />;
     case "music":
       return (
         <div className="flex items-center gap-2 bg-background/85 backdrop-blur-md rounded-full pl-1 pr-3 py-1 shadow-2xl max-w-[240px]">
