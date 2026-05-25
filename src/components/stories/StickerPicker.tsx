@@ -213,6 +213,104 @@ const StickerPicker = ({ open, onClose, onAdd }: StickerPickerProps) => {
           </div>
         )}
 
+        {tab === "text" && (() => {
+          const COLORS = ["#ffffff", "#000000", "#ffd700", "#ff3b30", "#34c759", "#0a84ff", "#ff2d92", "#a78bfa"];
+          const STYLES: { id: "plain" | "filled" | "outline" | "neon"; label: string }[] = [
+            { id: "plain", label: "Plain" },
+            { id: "filled", label: "Filled" },
+            { id: "outline", label: "Outline" },
+            { id: "neon", label: "Neon" },
+          ];
+          const FONTS: { id: "display" | "serif" | "mono"; label: string; family: string }[] = [
+            { id: "display", label: "Display", family: "ui-sans-serif, system-ui, -apple-system, 'Avenir Next', Avenir, sans-serif" },
+            { id: "serif", label: "Serif", family: "ui-serif, 'Cormorant Garamond', Georgia, serif" },
+            { id: "mono", label: "Mono", family: "ui-monospace, 'JetBrains Mono', Menlo, monospace" },
+          ];
+          const previewStyle: React.CSSProperties = {
+            fontFamily: FONTS.find((f) => f.id === textFont)!.family,
+            fontWeight: 800,
+            color: textStyle === "outline" ? "transparent" : textColor,
+            WebkitTextStroke: textStyle === "outline" ? `2px ${textColor}` : undefined,
+            textShadow:
+              textStyle === "neon"
+                ? `0 0 8px ${textColor}, 0 0 16px ${textColor}, 0 0 24px ${textColor}`
+                : textStyle === "plain"
+                ? "0 2px 12px rgba(0,0,0,0.45)"
+                : undefined,
+            background: textStyle === "filled" ? (textBg ?? "rgba(0,0,0,0.55)") : "transparent",
+            padding: textStyle === "filled" ? "0.4em 0.7em" : 0,
+            borderRadius: textStyle === "filled" ? "0.6em" : 0,
+          };
+          return (
+            <div className="space-y-3 pb-4">
+              <div className="neo-card-inset rounded-xl p-6 min-h-[120px] flex items-center justify-center bg-[linear-gradient(135deg,#333,#111)]">
+                <span style={{ ...previewStyle, fontSize: 28, lineHeight: 1.1, textAlign: "center" }}>
+                  {textValue || "Your text"}
+                </span>
+              </div>
+              <textarea
+                value={textValue}
+                onChange={(e) => setTextValue(e.target.value.slice(0, 120))}
+                placeholder="Type something…"
+                rows={2}
+                className="w-full neo-card-inset rounded-xl px-4 py-3 bg-transparent outline-none resize-none"
+              />
+              <div className="flex items-center gap-2 overflow-x-auto">
+                {COLORS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setTextColor(c)}
+                    className={`w-7 h-7 rounded-full flex-shrink-0 ring-2 transition-all ${textColor === c ? "ring-primary scale-110" : "ring-border"}`}
+                    style={{ background: c }}
+                    aria-label={`Color ${c}`}
+                  />
+                ))}
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {STYLES.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setTextStyle(s.id)}
+                    className={`py-2 rounded-lg text-xs font-semibold transition-all ${textStyle === s.id ? "bg-primary text-primary-foreground" : "neo-button-icon"}`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {FONTS.map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setTextFont(f.id)}
+                    style={{ fontFamily: f.family }}
+                    className={`py-2 rounded-lg text-sm font-semibold transition-all ${textFont === f.id ? "bg-primary text-primary-foreground" : "neo-button-icon"}`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+              <button
+                disabled={!textValue.trim()}
+                onClick={() => finish({
+                  id: newStickerId(),
+                  type: "text",
+                  text: textValue.trim(),
+                  color: textColor,
+                  bg: textStyle === "filled" ? (textBg ?? "rgba(0,0,0,0.55)") : null,
+                  style: textStyle,
+                  font: textFont,
+                  ...DEFAULT_STICKER_POS,
+                })}
+                className="action-button action-button-primary w-full disabled:opacity-50"
+              >
+                Add text
+              </button>
+            </div>
+          );
+        })()}
+
+
+
         {tab !== "home" && (
           <button
             onClick={() => setTab("home")}
