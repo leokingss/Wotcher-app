@@ -113,5 +113,16 @@ export const useFriendCircles = () => {
       .eq("member_id", memberId);
   };
 
-  return { loading, getCircle, setCircle, clearCircle, refresh };
+  /** Live count of members per circle, derived from the cache. */
+  const counts: Record<FriendCircleEnum, number> = {
+    private: 0,
+    family: 0,
+    friends: 0,
+    groups: 0,
+  };
+  if (cache) {
+    for (const c of Object.values(cache)) counts[c] = (counts[c] ?? 0) + 1;
+  }
+
+  return { loading, getCircle, setCircle, clearCircle, refresh, counts };
 };

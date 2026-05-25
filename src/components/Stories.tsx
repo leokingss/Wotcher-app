@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Music, Camera } from "lucide-react";
+import { Plus, Music, Camera, Lock, Heart, Users, UsersRound } from "lucide-react";
 import { type StoryItem } from "@/data/mockSocial";
 import StoryViewer from "./StoryViewer";
 import StoryComposer from "./StoryComposer";
@@ -8,6 +8,29 @@ import { useAuth } from "@/hooks/useAuth";
 import { useStories } from "@/hooks/useStories";
 import { useStoryViewers } from "@/hooks/useStoryViewers";
 import { ringGradientFor, CIRCLE_THEMES } from "@/lib/circleTheme";
+import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
+
+const CIRCLE_ICONS: Record<FriendCircleEnum, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  private: Lock,
+  family: Heart,
+  friends: Users,
+  groups: UsersRound,
+};
+
+const CircleBadge = ({ circle }: { circle: FriendCircleEnum }) => {
+  const Icon = CIRCLE_ICONS[circle];
+  const theme = CIRCLE_THEMES[circle];
+  return (
+    <span
+      title={theme.label}
+      aria-label={`${theme.label} circle`}
+      className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-background shadow-sm"
+      style={{ backgroundImage: theme.ring }}
+    >
+      <Icon className="w-2.5 h-2.5" stroke="white" strokeWidth={3} />
+    </span>
+  );
+};
 
 const WATCHED_KEY = "watcher:watched-stories";
 const loadWatched = (): string[] => {
@@ -127,13 +150,16 @@ const Stories = () => {
               >
                 {own ? (
                   <>
-                    <div
-                      className="w-14 h-14 rounded-full p-[2px]"
-                      style={{ backgroundImage: ringGradientFor(own.audienceCircle) }}
-                    >
-                      <div className="w-full h-full rounded-full overflow-hidden border-2 border-background">
-                        <img src={own.avatar ?? ""} alt="My story" className="w-full h-full object-cover" />
+                    <div className="relative w-14 h-14">
+                      <div
+                        className="w-14 h-14 rounded-full p-[2px]"
+                        style={{ backgroundImage: ringGradientFor(own.audienceCircle) }}
+                      >
+                        <div className="w-full h-full rounded-full overflow-hidden border-2 border-background">
+                          <img src={own.avatar ?? ""} alt="My story" className="w-full h-full object-cover" />
+                        </div>
                       </div>
+                      {own.audienceCircle && <CircleBadge circle={own.audienceCircle} />}
                     </div>
                     <StoryMediaIndicator mediaType={own.mediaType} muted={false} />
                   </>
@@ -194,11 +220,7 @@ const Stories = () => {
                       </div>
                     </div>
                     {story.audienceCircle && !watched && (
-                      <span
-                        title={CIRCLE_THEMES[story.audienceCircle].label}
-                        className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background"
-                        style={{ background: `hsl(${CIRCLE_THEMES[story.audienceCircle].hsl})` }}
-                      />
+                      <CircleBadge circle={story.audienceCircle} />
                     )}
                   </div>
                   <StoryMediaIndicator mediaType={story.mediaType} muted={watched} />
