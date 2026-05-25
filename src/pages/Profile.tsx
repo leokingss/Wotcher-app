@@ -17,6 +17,7 @@ import ProfileSavedTab from "@/components/ProfileSavedTab";
 import PostContextMenu from "@/components/PostContextMenu";
 import ProfilePostDialog, { type MediaItem } from "@/components/ProfilePostDialog";
 import FollowSheet from "@/components/FollowSheet";
+import HighlightsRail from "@/components/stories/HighlightsRail";
 
 import { usePlayer } from "@/hooks/usePlayer";
 import { useAuth } from "@/hooks/useAuth";
