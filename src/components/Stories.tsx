@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Music, Camera } from "lucide-react";
+import { Plus, Music, Camera, Lock, Heart, Users, UsersRound } from "lucide-react";
 import { type StoryItem } from "@/data/mockSocial";
 import StoryViewer from "./StoryViewer";
 import StoryComposer from "./StoryComposer";
@@ -8,6 +8,29 @@ import { useAuth } from "@/hooks/useAuth";
 import { useStories } from "@/hooks/useStories";
 import { useStoryViewers } from "@/hooks/useStoryViewers";
 import { ringGradientFor, CIRCLE_THEMES } from "@/lib/circleTheme";
+import type { FriendCircleEnum } from "@/hooks/useFriendCircles";
+
+const CIRCLE_ICONS: Record<FriendCircleEnum, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  private: Lock,
+  family: Heart,
+  friends: Users,
+  groups: UsersRound,
+};
+
+const CircleBadge = ({ circle }: { circle: FriendCircleEnum }) => {
+  const Icon = CIRCLE_ICONS[circle];
+  const theme = CIRCLE_THEMES[circle];
+  return (
+    <span
+      title={theme.label}
+      aria-label={`${theme.label} circle`}
+      className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-background shadow-sm"
+      style={{ backgroundImage: theme.ring }}
+    >
+      <Icon className="w-2.5 h-2.5" stroke="white" strokeWidth={3} />
+    </span>
+  );
+};
 
 const WATCHED_KEY = "watcher:watched-stories";
 const loadWatched = (): string[] => {
