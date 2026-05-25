@@ -3065,6 +3065,7 @@ export type Database = {
         | "auction_ending"
         | "new_listing"
         | "message"
+        | "mention"
       reaction_type: "like" | "dislike"
       release_type: "single" | "ep" | "album"
       saved_item_type: "post" | "listing"
@@ -3214,6 +3215,7 @@ export const Constants = {
         "auction_ending",
         "new_listing",
         "message",
+        "mention",
       ],
       reaction_type: ["like", "dislike"],
       release_type: ["single", "ep", "album"],
