@@ -220,11 +220,7 @@ const Stories = () => {
                       </div>
                     </div>
                     {story.audienceCircle && !watched && (
-                      <span
-                        title={CIRCLE_THEMES[story.audienceCircle].label}
-                        className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background"
-                        style={{ background: `hsl(${CIRCLE_THEMES[story.audienceCircle].hsl})` }}
-                      />
+                      <CircleBadge circle={story.audienceCircle} />
                     )}
                   </div>
                   <StoryMediaIndicator mediaType={story.mediaType} muted={watched} />
