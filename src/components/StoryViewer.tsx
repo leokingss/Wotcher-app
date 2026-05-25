@@ -106,6 +106,7 @@ const StoryViewer = ({
     accumRef.current = 0;
     setPaused(false);
     setViewersOpen(false);
+    setRepliesOpen(false);
     reportedRef.current = new Set();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, startId]);
@@ -155,7 +156,7 @@ const StoryViewer = ({
 
   // Animation loop
   useEffect(() => {
-    if (!open || paused || !story || viewersOpen) return;
+    if (!open || paused || !story || viewersOpen || repliesOpen) return;
     startedAtRef.current = performance.now();
     const tick = (now: number) => {
       const elapsed = accumRef.current + (now - startedAtRef.current);
@@ -173,7 +174,7 @@ const StoryViewer = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       accumRef.current += performance.now() - startedAtRef.current;
     };
-  }, [open, paused, viewersOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
+  }, [open, paused, viewersOpen, repliesOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
 
   // Keyboard
   useEffect(() => {
