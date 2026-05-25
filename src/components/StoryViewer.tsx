@@ -10,6 +10,7 @@ import StickerLayer from "./stories/StickerLayer";
 import QuestionRepliesSheet from "./stories/QuestionRepliesSheet";
 import ReactionBar from "./stories/ReactionBar";
 import ReactionsSheet from "./stories/ReactionsSheet";
+import StoryReplyComposer from "./stories/StoryReplyComposer";
 import type { QuestionSticker as QuestionStickerType } from "@/lib/stickers";
 
 const BASE_FRAME_DURATION_MS = 5000;
@@ -63,6 +64,7 @@ const StoryViewer = ({
   const [viewersOpen, setViewersOpen] = useState(false);
   const [repliesOpen, setRepliesOpen] = useState(false);
   const [reactionsOpen, setReactionsOpen] = useState(false);
+  const [composerFocused, setComposerFocused] = useState(false);
   const rafRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
   const accumRef = useRef<number>(0);
@@ -160,7 +162,7 @@ const StoryViewer = ({
 
   // Animation loop
   useEffect(() => {
-    if (!open || paused || !story || viewersOpen || repliesOpen || reactionsOpen) return;
+    if (!open || paused || !story || viewersOpen || repliesOpen || reactionsOpen || composerFocused) return;
     startedAtRef.current = performance.now();
     const tick = (now: number) => {
       const elapsed = accumRef.current + (now - startedAtRef.current);
@@ -178,7 +180,7 @@ const StoryViewer = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       accumRef.current += performance.now() - startedAtRef.current;
     };
-  }, [open, paused, viewersOpen, repliesOpen, reactionsOpen, storyIdx, frameIdx, story, goNext, frameDurationMs]);
+  }, [open, paused, viewersOpen, repliesOpen, reactionsOpen, composerFocused, storyIdx, frameIdx, story, goNext, frameDurationMs]);
 
   // Keyboard
   useEffect(() => {
@@ -445,9 +447,24 @@ const StoryViewer = ({
           </button>
         )}
 
-        {/* Non-owner reaction bar — bottom center */}
+        {/* Non-owner reaction bar — sits above the reply composer */}
         {!isOwn && frame.dbId && (
-          <ReactionBar storyId={frame.dbId} />
+          <ReactionBar storyId={frame.dbId} className="bottom-20" />
+        )}
+
+        {/* Non-owner reply composer — DM the story author */}
+        {!isOwn && frame.dbId && story?.dbUserId && (
+          <StoryReplyComposer
+            storyId={frame.dbId}
+            ownerId={story.dbUserId}
+            ownerUsername={story.username}
+            preview={{
+              media_type: story.mediaType ?? "photo",
+              media_url: frame.url,
+              caption: frame.caption ?? null,
+            }}
+            onFocusChange={setComposerFocused}
+          />
         )}
 
         {/* Viewers sheet */}
