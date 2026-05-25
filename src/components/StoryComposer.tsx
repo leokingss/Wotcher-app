@@ -61,6 +61,10 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
   const [trackArtist, setTrackArtist] = useState("");
   const [posting, setPosting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  /** Active capture mode while the composer is empty. */
+  const [entryMode, setEntryMode] = useState<"photo" | "video" | "text" | "live">("photo");
   const [liveMode, setLiveMode] = useState(false);
   const [tagged, setTagged] = useState<TaggedPerson[]>([]);
   const [location, setLocation] = useState<LocationTag | null>(null);
