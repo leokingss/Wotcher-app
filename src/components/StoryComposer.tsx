@@ -664,7 +664,7 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                     <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full blur-3xl bg-accent/20" />
                   </div>
 
-                  {/* Hero CTA */}
+                  {/* Hero CTA — top half */}
                   <div className="relative flex-1 flex flex-col items-center justify-center gap-6 px-6">
                     <button
                       onClick={() => setCameraOpen(true)}
@@ -692,8 +692,8 @@ const StoryComposer = ({ open, onOpenChange, onPublished }: StoryComposerProps) 
                     </div>
                   </div>
 
-                  {/* Gallery shortcut */}
-                  <div className="relative p-3">
+                  {/* Gallery shortcut — sits midway between capture CTA and bottom */}
+                  <div className="relative flex-1 flex items-center justify-center px-6">
                     <button
                       onClick={() => (entryMode === "video" ? videoInputRef.current : photoInputRef.current)?.click()}
                       className="w-full flex items-center justify-center gap-2 py-3 rounded-xl neo-button text-foreground text-sm font-semibold"
