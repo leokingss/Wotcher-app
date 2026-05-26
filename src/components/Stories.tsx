@@ -140,52 +140,49 @@ const Stories = () => {
     <div className="py-4">
       <div className="max-w-lg mx-auto">
         <div className="flex gap-3 overflow-x-auto hide-scrollbar items-start px-4 py-4">
-          {/* My Story tile */}
+          {/* Add Story button — always the + Add tile, never a preview */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
-            <div className="relative">
-              <button
-                onClick={() => (own ? handleOpen(grouped.indexOf(own)) : handleAddClick())}
-                className="w-[72px] h-[112px] rounded-full flex flex-col items-center pt-2 transition-transform active:scale-95 neo-button-icon"
-                aria-label={own ? "View my story" : "Add story"}
-              >
-                {own ? (
-                  <>
-                    <div className="relative w-14 h-14">
-                      <div
-                        className="w-14 h-14 rounded-full p-[2px]"
-                        style={{ backgroundImage: ringGradientFor(own.audienceCircle) }}
-                      >
-                        <div className="w-full h-full rounded-full overflow-hidden border-2 border-background">
-                          <img src={own.avatar ?? ""} alt="My story" className="w-full h-full object-cover" />
-                        </div>
-                      </div>
-                      {own.audienceCircle && <CircleBadge circle={own.audienceCircle} />}
-                    </div>
-                    <StoryMediaIndicator mediaType={own.mediaType} muted={false} />
-                  </>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center">
-                    <div className="neo-button-icon w-10 h-10 flex items-center justify-center">
-                      <Plus className="w-5 h-5 text-primary" strokeWidth={2.5} />
-                    </div>
-                    <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mt-2">
-                      Add
-                    </span>
-                  </div>
-                )}
-              </button>
-              {own && (
-                <button
-                  onClick={handleAddClick}
-                  className="absolute -bottom-1 -right-1 neo-button-icon w-7 h-7 rounded-full flex items-center justify-center bg-background border-2 border-background"
-                  aria-label="Add another frame"
-                >
-                  <Plus className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
-                </button>
-              )}
-            </div>
+            <button
+              onClick={handleAddClick}
+              className="w-[72px] h-[112px] rounded-full flex flex-col items-center pt-2 transition-transform active:scale-95 neo-button-icon"
+              aria-label="Add story"
+            >
+              <div className="w-full h-full flex flex-col items-center justify-center">
+                <div className="neo-button-icon w-10 h-10 flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-primary" strokeWidth={2.5} />
+                </div>
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mt-2">
+                  Add
+                </span>
+              </div>
+            </button>
             <span className="text-xs text-foreground font-medium">My Story</span>
           </div>
+
+          {/* My own story preview (shown next to + Add when I have a story) */}
+          {own && (
+            <button
+              onClick={() => handleOpen(grouped.indexOf(own))}
+              className="flex flex-col items-center gap-2 flex-shrink-0 group"
+            >
+              <div className="w-[72px] h-[112px] rounded-full flex flex-col items-center pt-2 transition-transform active:scale-95 neo-button-icon">
+                <div className="relative w-14 h-14">
+                  <div
+                    className="w-14 h-14 rounded-full p-[2px]"
+                    style={{ backgroundImage: ringGradientFor(own.audienceCircle) }}
+                  >
+                    <div className="w-full h-full rounded-full overflow-hidden border-2 border-background">
+                      <img src={own.avatar ?? ""} alt="My story" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  {own.audienceCircle && <CircleBadge circle={own.audienceCircle} />}
+                </div>
+                <StoryMediaIndicator mediaType={own.mediaType} muted={false} />
+              </div>
+              <span className="text-xs text-foreground font-medium">You</span>
+            </button>
+          )}
+
 
           {/* Other people's stories */}
           {others.map((story) => {
