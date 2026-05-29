@@ -145,9 +145,29 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
             <Send className="w-5 h-5" />
           </button>
         </div>
-        <button onClick={() => setIsSaved(!isSaved)} className="neo-button-icon p-2.5">
-          <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-primary text-primary' : ''}`} />
-        </button>
+        <div className="flex items-center gap-2">
+          {showAddToTop10 && (
+            <button
+              onClick={handleAddToTop10}
+              disabled={top10.loading}
+              aria-label={top10.saved ? `In your Top 10 (#${top10.rank})` : "Add to my Top 10"}
+              title={top10.saved ? `In your Top 10 (#${top10.rank})` : "Add to my Top 10"}
+              className={`neo-button-icon p-2.5 flex items-center gap-1 ${top10.saved ? 'neo-card-inset' : ''}`}
+            >
+              {top10.saved ? (
+                <>
+                  <Check className="w-5 h-5 text-primary" />
+                  <span className="text-xs font-bold text-primary tabular-nums">#{top10.rank}</span>
+                </>
+              ) : (
+                <Plus className="w-5 h-5" />
+              )}
+            </button>
+          )}
+          <button onClick={() => setIsSaved(!isSaved)} className="neo-button-icon p-2.5">
+            <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-primary text-primary' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {isCommentsOpen && trackId && (
