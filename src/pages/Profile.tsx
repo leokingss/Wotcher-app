@@ -89,6 +89,7 @@ const Profile = () => {
 
   const { posts: cloudPosts } = usePosts(profileUserId);
   const { featuredSongs, playlist, videos } = useUserMedia(profileUserId, profile?.display_name ?? profile?.username);
+  const { songs: myTop10Songs } = useMyTop10();
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
   const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
 
