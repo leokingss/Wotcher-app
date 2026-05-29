@@ -630,7 +630,7 @@ const Profile = () => {
             />
             {musicFilter === "top10" ? (
               <Top10List
-                songs={playlist}
+                songs={isOwnProfile ? myTop10Songs : playlist}
                 openCommentsId={openCommentsId}
                 onToggleComments={handleToggleComments}
                 isOwnProfile={isOwnProfile}
