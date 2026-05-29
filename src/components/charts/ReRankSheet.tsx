@@ -44,9 +44,6 @@ const ReRankSheet = ({ open, initial, onClose, onSave }: Props) => {
   const [items, setItems] = useState<Track[]>(initial);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
-  // Re-sync if parent opens with new initial
-  if (open && items !== initial && items.length === 0) setItems(initial);
-
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
     if (!over || active.id === over.id) return;

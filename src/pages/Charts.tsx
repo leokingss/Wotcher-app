@@ -285,12 +285,14 @@ const Charts = () => {
         )}
       </div>
 
-      <ReRankSheet
-        open={openSheet}
-        initial={myTracks}
-        onClose={() => setOpenSheet(false)}
-        onSave={handleSave}
-      />
+      {openSheet && (
+        <ReRankSheet
+          open={openSheet}
+          initial={myTracks}
+          onClose={() => setOpenSheet(false)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 };
