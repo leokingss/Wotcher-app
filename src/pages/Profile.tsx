@@ -44,6 +44,7 @@ const tabFade = {
 };
 
 import { useUserMedia } from "@/hooks/useUserMedia";
+import { useMyTop10 } from "@/hooks/useMyTop10";
 
 
 const Profile = () => {
@@ -88,6 +89,7 @@ const Profile = () => {
 
   const { posts: cloudPosts } = usePosts(profileUserId);
   const { featuredSongs, playlist, videos } = useUserMedia(profileUserId, profile?.display_name ?? profile?.username);
+  const { songs: myTop10Songs } = useMyTop10();
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
   const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
 
@@ -628,7 +630,7 @@ const Profile = () => {
             />
             {musicFilter === "top10" ? (
               <Top10List
-                songs={playlist}
+                songs={isOwnProfile ? myTop10Songs : playlist}
                 openCommentsId={openCommentsId}
                 onToggleComments={handleToggleComments}
                 isOwnProfile={isOwnProfile}
@@ -664,6 +666,7 @@ const Profile = () => {
                       {...song}
                       isCommentsOpen={openCommentsId === song.id}
                       onToggleComments={() => handleToggleComments(song.id)}
+                      showAddToTop10={!isOwnProfile}
                     />
                   ))}
                   <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">

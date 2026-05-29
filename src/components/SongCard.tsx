@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { MessageCircle, Send, Bookmark, Play, Pause, Pencil, Check, X } from "lucide-react";
+import { MessageCircle, Send, Bookmark, Play, Pause, Pencil, Check, X, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { useTop10Save } from "@/hooks/useTop10Save";
 import ReactionButton from "./ReactionButton";
 import StrandWave from "./StrandWave";
 import CommentComposer from "./CommentComposer";
@@ -19,9 +21,11 @@ interface SongCardProps {
   comments: number;
   isCommentsOpen: boolean;
   onToggleComments: () => void;
+  /** Show a "+" button that adds this song to the viewer's personal Top 10. */
+  showAddToTop10?: boolean;
 }
 
-const SongCard = ({ id, title, artist, duration, cover, likes, comments, isCommentsOpen, onToggleComments }: SongCardProps) => {
+const SongCard = ({ id, title, artist, duration, cover, likes, comments, isCommentsOpen, onToggleComments, showAddToTop10 = false }: SongCardProps) => {
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
@@ -32,6 +36,23 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
   const [showAll, setShowAll] = useState(false);
   const { playingId, toggle } = usePlayer();
   const isPlaying = playingId === id;
+  const top10 = useTop10Save(id);
+
+  const handleAddToTop10 = async () => {
+    if (!top10.available) {
+      toast.error("Sign in to save songs to your Top 10");
+      return;
+    }
+    const wasSaved = top10.saved;
+    const res = await top10.toggle();
+    if (!res.ok) {
+      if (res.reason === "full") toast.error("Your Top 10 is full — remove a song first");
+      else toast.error("Couldn't update your Top 10");
+      return;
+    }
+    if (wasSaved) toast("Removed from your Top 10");
+    else toast.success(`Added to your Top 10 at #${res.rank}`);
+  };
 
   const trackId = typeof id === "string" ? id : null;
   const {
@@ -124,9 +145,29 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
             <Send className="w-5 h-5" />
           </button>
         </div>
-        <button onClick={() => setIsSaved(!isSaved)} className="neo-button-icon p-2.5">
-          <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-primary text-primary' : ''}`} />
-        </button>
+        <div className="flex items-center gap-2">
+          {showAddToTop10 && (
+            <button
+              onClick={handleAddToTop10}
+              disabled={top10.loading}
+              aria-label={top10.saved ? `In your Top 10 (#${top10.rank})` : "Add to my Top 10"}
+              title={top10.saved ? `In your Top 10 (#${top10.rank})` : "Add to my Top 10"}
+              className={`neo-button-icon p-2.5 flex items-center gap-1 ${top10.saved ? 'neo-card-inset' : ''}`}
+            >
+              {top10.saved ? (
+                <>
+                  <Check className="w-5 h-5 text-primary" />
+                  <span className="text-xs font-bold text-primary tabular-nums">#{top10.rank}</span>
+                </>
+              ) : (
+                <Plus className="w-5 h-5" />
+              )}
+            </button>
+          )}
+          <button onClick={() => setIsSaved(!isSaved)} className="neo-button-icon p-2.5">
+            <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-primary text-primary' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {isCommentsOpen && trackId && (
