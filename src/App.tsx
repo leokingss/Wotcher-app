@@ -10,6 +10,7 @@ import PageTransition from "@/components/PageTransition";
 import MiniPlayer from "@/components/MiniPlayer";
 import { PlayerProvider } from "@/hooks/usePlayer";
 import { SavedListsProvider } from "@/hooks/useSavedLists";
+import { ChartsProvider } from "@/hooks/useChartsStore";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import BottomNav from "@/components/BottomNav";
 import Root from "./pages/Root";
@@ -27,6 +28,7 @@ import AdminEmails from "./pages/AdminEmails";
 import AdminSellers from "./pages/AdminSellers";
 import ListDetail from "./pages/ListDetail";
 import Logos from "./pages/Logos";
+import Charts from "./pages/Charts";
 import Labs from "./pages/Labs";
 import BidderRegistration from "./pages/BidderRegistration";
 import SellerPayouts from "./pages/SellerPayouts";
@@ -56,6 +58,7 @@ const AnimatedRoutes = () => {
         <Route path="/profile" element={<PageTransition><ProtectedRoute><Profile /></ProtectedRoute></PageTransition>} />
         <Route path="/profile/:username" element={<PageTransition><Profile /></PageTransition>} />
         <Route path="/search" element={<PageTransition><Search /></PageTransition>} />
+        <Route path="/charts" element={<PageTransition><Charts /></PageTransition>} />
         <Route path="/activity" element={<PageTransition><ProtectedRoute><Activity /></ProtectedRoute></PageTransition>} />
         <Route path="/create" element={<PageTransition><ProtectedRoute><Create /></ProtectedRoute></PageTransition>} />
         <Route path="/messages" element={<PageTransition><ProtectedRoute><Messages /></ProtectedRoute></PageTransition>} />
@@ -103,14 +106,16 @@ const App = () => (
         <AuthProvider>
           <PlayerProvider>
             <SavedListsProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <NotificationToastManager />
-                <AnimatedRoutes />
-                <DevPanel />
-                <MiniPlayer />
-              </TooltipProvider>
+              <ChartsProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <NotificationToastManager />
+                  <AnimatedRoutes />
+                  <DevPanel />
+                  <MiniPlayer />
+                </TooltipProvider>
+              </ChartsProvider>
             </SavedListsProvider>
           </PlayerProvider>
         </AuthProvider>
