@@ -71,6 +71,7 @@ const Top10List = ({ songs, openCommentsId, onToggleComments, onAddSong, isOwnPr
                       {...song}
                       isCommentsOpen={openCommentsId === song.id}
                       onToggleComments={() => onToggleComments(song.id)}
+                      showAddToTop10={!isOwnProfile}
                     />
                   </div>
                 </motion.div>
