@@ -153,86 +153,115 @@
     color: hsl(var(--foreground));
   }
 
-  /* Neomorphic Effects - enhanced for Behance-style depth */
+  /* ─── Glassmorphism + a touch of neumorphism ───
+     All .neo-* classes keep their names so existing markup is untouched,
+     but now render as frosted glass with soft dual-shadow depth. */
+
+  .glass-surface {
+    background: hsl(var(--background) / 0.55);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
+  }
+
   .neo-card {
-    background: hsl(var(--background));
+    background: hsl(var(--background) / 0.55);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
     border-radius: 1.5rem;
-    box-shadow: 
-      4px 4px 6px var(--neo-shadow-dark),
-      -4px -4px 6px var(--neo-shadow-light);
+    box-shadow:
+      6px 6px 14px var(--neo-shadow-dark),
+      -6px -6px 14px var(--neo-shadow-light),
+      inset 1px 1px 0 hsl(var(--foreground) / 0.06);
   }
 
   .neo-card-inset {
-    background: hsl(var(--background));
+    background: hsl(var(--background) / 0.45);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid hsl(var(--foreground) / 0.06);
     border-radius: 1.5rem;
-    box-shadow: 
-      inset 4px 4px 6px var(--neo-shadow-dark),
-      inset -4px -4px 6px var(--neo-shadow-light);
+    box-shadow:
+      inset 4px 4px 10px var(--neo-inset-dark),
+      inset -4px -4px 10px var(--neo-inset-light);
   }
 
   .neo-button {
-    background: hsl(var(--background));
+    background: hsl(var(--background) / 0.5);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
     border-radius: 1rem;
-    box-shadow: 
-      4px 4px 6px var(--neo-shadow-dark),
-      -4px -4px 6px var(--neo-shadow-light);
+    box-shadow:
+      4px 4px 10px var(--neo-shadow-dark),
+      -4px -4px 10px var(--neo-shadow-light),
+      inset 1px 1px 0 hsl(var(--foreground) / 0.06);
     transition: all 0.2s ease;
   }
 
   .neo-button:hover {
-    box-shadow: 
-      4px 4px 6px var(--neo-shadow-dark),
-      -4px -4px 6px var(--neo-shadow-light);
+    background: hsl(var(--background) / 0.6);
   }
 
   .neo-button:active, .neo-button-active {
-    box-shadow: 
-      inset 4px 4px 6px var(--neo-shadow-dark),
-      inset -4px -4px 6px var(--neo-shadow-light);
+    box-shadow:
+      inset 4px 4px 8px var(--neo-inset-dark),
+      inset -4px -4px 8px var(--neo-inset-light);
   }
 
   .neo-button-inset {
-    background: hsl(var(--background));
+    background: hsl(var(--background) / 0.4);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid hsl(var(--foreground) / 0.06);
     border-radius: 0.75rem;
-    box-shadow: 
-      inset 4px 4px 6px var(--neo-shadow-dark),
-      inset -4px -4px 6px var(--neo-shadow-light);
+    box-shadow:
+      inset 4px 4px 8px var(--neo-inset-dark),
+      inset -4px -4px 8px var(--neo-inset-light);
     transition: all 0.2s ease;
   }
 
   .neo-button-icon {
-    background: hsl(var(--background));
+    background: hsl(var(--background) / 0.5);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
     border-radius: 50%;
-    box-shadow: 
-      4px 4px 6px var(--neo-shadow-dark),
-      -4px -4px 6px var(--neo-shadow-light);
+    box-shadow:
+      4px 4px 10px var(--neo-shadow-dark),
+      -4px -4px 10px var(--neo-shadow-light),
+      inset 1px 1px 0 hsl(var(--foreground) / 0.06);
     transition: all 0.2s ease;
   }
 
   .neo-button-icon:hover {
-    box-shadow: 
-      4px 4px 6px var(--neo-shadow-dark),
-      -4px -4px 6px var(--neo-shadow-light);
+    background: hsl(var(--background) / 0.6);
   }
 
   .neo-button-icon:active {
-    box-shadow: 
-      inset 4px 4px 6px var(--neo-shadow-dark),
-      inset -4px -4px 6px var(--neo-shadow-light);
+    box-shadow:
+      inset 4px 4px 8px var(--neo-inset-dark),
+      inset -4px -4px 8px var(--neo-inset-light);
   }
 
   .neo-input {
-    background: hsl(var(--background));
+    background: hsl(var(--background) / 0.45);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
     border-radius: 1rem;
-    box-shadow: 
-      inset 4px 4px 6px var(--neo-shadow-dark),
-      inset -4px -4px 6px var(--neo-shadow-light);
-    border: none;
+    box-shadow:
+      inset 3px 3px 6px var(--neo-inset-dark),
+      inset -3px -3px 6px var(--neo-inset-light);
     outline: none;
   }
 
   .neo-progress {
-    background: hsl(var(--background));
+    background: hsl(var(--background) / 0.45);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+
     border-radius: 1rem;
     box-shadow: 
       inset 4px 4px 6px var(--neo-shadow-dark),
