@@ -36,6 +36,23 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
   const [showAll, setShowAll] = useState(false);
   const { playingId, toggle } = usePlayer();
   const isPlaying = playingId === id;
+  const top10 = useTop10Save(id);
+
+  const handleAddToTop10 = async () => {
+    if (!top10.available) {
+      toast.error("Sign in to save songs to your Top 10");
+      return;
+    }
+    const wasSaved = top10.saved;
+    const res = await top10.toggle();
+    if (!res.ok) {
+      if (res.reason === "full") toast.error("Your Top 10 is full — remove a song first");
+      else toast.error("Couldn't update your Top 10");
+      return;
+    }
+    if (wasSaved) toast("Removed from your Top 10");
+    else toast.success(`Added to your Top 10 at #${res.rank}`);
+  };
 
   const trackId = typeof id === "string" ? id : null;
   const {
