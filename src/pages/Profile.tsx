@@ -44,6 +44,7 @@ const tabFade = {
 };
 
 import { useUserMedia } from "@/hooks/useUserMedia";
+import { useMyTop10 } from "@/hooks/useMyTop10";
 
 
 const Profile = () => {
