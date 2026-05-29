@@ -45,6 +45,7 @@ const tabFade = {
 
 import { useUserMedia } from "@/hooks/useUserMedia";
 import { useMyTop10 } from "@/hooks/useMyTop10";
+import { useUserTopSaves } from "@/hooks/useUserTopSaves";
 
 
 const Profile = () => {
@@ -88,8 +89,10 @@ const Profile = () => {
   const unreadFromProfile = useUnreadFromUser(!isOwnProfile ? profileUserId : null);
 
   const { posts: cloudPosts } = usePosts(profileUserId);
-  const { featuredSongs, playlist, videos } = useUserMedia(profileUserId, profile?.display_name ?? profile?.username);
+  const { featuredSongs: artistFeatured, playlist, videos } = useUserMedia(profileUserId, profile?.display_name ?? profile?.username);
   const { songs: myTop10Songs } = useMyTop10();
+  const topSavedFeatured = useUserTopSaves(profileUserId, 2);
+  const featuredSongs = artistFeatured.length > 0 ? artistFeatured : topSavedFeatured;
   const userPosts = cloudPosts.map((p) => ({ image: p.image_url }));
   const [openPostIndex, setOpenPostIndex] = useState<number | null>(null);
 
