@@ -58,6 +58,7 @@ const AnimatedRoutes = () => {
         <Route path="/profile" element={<PageTransition><ProtectedRoute><Profile /></ProtectedRoute></PageTransition>} />
         <Route path="/profile/:username" element={<PageTransition><Profile /></PageTransition>} />
         <Route path="/search" element={<PageTransition><Search /></PageTransition>} />
+        <Route path="/charts" element={<PageTransition><Charts /></PageTransition>} />
         <Route path="/activity" element={<PageTransition><ProtectedRoute><Activity /></ProtectedRoute></PageTransition>} />
         <Route path="/create" element={<PageTransition><ProtectedRoute><Create /></ProtectedRoute></PageTransition>} />
         <Route path="/messages" element={<PageTransition><ProtectedRoute><Messages /></ProtectedRoute></PageTransition>} />
@@ -105,14 +106,16 @@ const App = () => (
         <AuthProvider>
           <PlayerProvider>
             <SavedListsProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <NotificationToastManager />
-                <AnimatedRoutes />
-                <DevPanel />
-                <MiniPlayer />
-              </TooltipProvider>
+              <ChartsProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <NotificationToastManager />
+                  <AnimatedRoutes />
+                  <DevPanel />
+                  <MiniPlayer />
+                </TooltipProvider>
+              </ChartsProvider>
             </SavedListsProvider>
           </PlayerProvider>
         </AuthProvider>
