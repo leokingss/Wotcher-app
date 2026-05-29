@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { MessageCircle, Send, Bookmark, Play, Pause, Pencil, Check, X } from "lucide-react";
+import { MessageCircle, Send, Bookmark, Play, Pause, Pencil, Check, X, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { useTop10Save } from "@/hooks/useTop10Save";
 import ReactionButton from "./ReactionButton";
 import StrandWave from "./StrandWave";
 import CommentComposer from "./CommentComposer";
