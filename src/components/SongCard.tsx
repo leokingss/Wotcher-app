@@ -21,9 +21,11 @@ interface SongCardProps {
   comments: number;
   isCommentsOpen: boolean;
   onToggleComments: () => void;
+  /** Show a "+" button that adds this song to the viewer's personal Top 10. */
+  showAddToTop10?: boolean;
 }
 
-const SongCard = ({ id, title, artist, duration, cover, likes, comments, isCommentsOpen, onToggleComments }: SongCardProps) => {
+const SongCard = ({ id, title, artist, duration, cover, likes, comments, isCommentsOpen, onToggleComments, showAddToTop10 = false }: SongCardProps) => {
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
