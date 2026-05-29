@@ -669,7 +669,6 @@ const Profile = () => {
                       {...song}
                       isCommentsOpen={openCommentsId === song.id}
                       onToggleComments={() => handleToggleComments(song.id)}
-                      showAddToTop10={!isOwnProfile}
                     />
                   ))}
                   <button className="neo-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium">
