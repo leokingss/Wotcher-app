@@ -201,12 +201,17 @@ const Activity = () => {
 
   const toggleRead = async (e: React.MouseEvent, n: Notif) => {
     e.stopPropagation();
+    if (n.id.startsWith("drop:") || n.id.startsWith("packet:")) return;
     const next = !n.read;
     setNotifs((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: next } : x)));
     await supabase.from("notifications").update({ read: next }).eq("id", n.id);
   };
 
   const handleClick = async (n: Notif) => {
+    if (n.type === "drop" || n.type === "packet") {
+      navigate("/wallet");
+      return;
+    }
     if (!n.read) {
       await supabase.from("notifications").update({ read: true }).eq("id", n.id);
     }
@@ -223,6 +228,7 @@ const Activity = () => {
       navigate(`/profile/${n.actor.username}`);
     }
   };
+
 
   const unread = notifs.filter((n) => !n.read).length;
 
