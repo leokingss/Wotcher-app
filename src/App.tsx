@@ -13,6 +13,8 @@ import { SavedListsProvider } from "@/hooks/useSavedLists";
 import { ChartsProvider } from "@/hooks/useChartsStore";
 import { MusicMetaProvider } from "@/hooks/useMusicMeta";
 import { LiveProvider } from "@/hooks/useLiveStore";
+import { WalletProvider } from "@/hooks/useWallet";
+import Wallet from "./pages/Wallet";
 import Playlist from "./pages/Playlist";
 import LiveIndex from "./pages/LiveIndex";
 import LiveRoom from "./pages/LiveRoom";
@@ -86,6 +88,7 @@ const AnimatedRoutes = () => {
         <Route path="/playlists/:id" element={<PageTransition><Playlist /></PageTransition>} />
         <Route path="/live" element={<PageTransition><LiveIndex /></PageTransition>} />
         <Route path="/live/:id" element={<PageTransition><LiveRoom /></PageTransition>} />
+        <Route path="/wallet" element={<PageTransition><ProtectedRoute><Wallet /></ProtectedRoute></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}
@@ -117,14 +120,16 @@ const App = () => (
               <ChartsProvider>
                 <MusicMetaProvider>
                   <LiveProvider>
-                    <TooltipProvider>
-                      <Toaster />
-                      <Sonner />
-                      <NotificationToastManager />
-                      <AnimatedRoutes />
-                      <DevPanel />
-                      <MiniPlayer />
-                    </TooltipProvider>
+                    <WalletProvider>
+                      <TooltipProvider>
+                        <Toaster />
+                        <Sonner />
+                        <NotificationToastManager />
+                        <AnimatedRoutes />
+                        <DevPanel />
+                        <MiniPlayer />
+                      </TooltipProvider>
+                    </WalletProvider>
                   </LiveProvider>
                 </MusicMetaProvider>
               </ChartsProvider>
