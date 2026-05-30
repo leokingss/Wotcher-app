@@ -13,6 +13,7 @@ import SellerRating from "./SellerRating";
 import ShippingAddressDialog from "./ShippingAddressDialog";
 import ReviewDialog from "./ReviewDialog";
 import ReportDialog from "./ReportDialog";
+import VibeTrackBar from "./music/VibeTrackBar";
 
 interface Props {
   open: boolean;
@@ -141,6 +142,9 @@ const ListingDialog = ({ open, onOpenChange, listingId }: Props) => {
         </DialogHeader>
 
         <div className="overflow-y-auto pr-1 space-y-3 flex-1">
+          {/* Seller vibe track — auto-plays on open (Phase 2) */}
+          <VibeTrackBar listingId={listing.id} isSeller={isOwner} autoPlay />
+
           {listing.description && (
             <p className="text-sm text-muted-foreground whitespace-pre-line">{listing.description}</p>
           )}

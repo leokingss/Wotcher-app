@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
-import { Share2, Sparkles, Clock, ChevronRight } from "lucide-react";
+import { Share2, Sparkles, Clock, ChevronRight, ListMusic } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useMusicMeta } from "@/hooks/useMusicMeta";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useChartsStore, summarizeWeeklyMovement } from "@/hooks/useChartsStore";
@@ -39,6 +41,7 @@ const Charts = () => {
   const [tab, setTab] = useState<Tab>("mine");
   const [openSheet, setOpenSheet] = useState(false);
   const [viewingFriend, setViewingFriend] = useState<FriendChart | null>(null);
+  const { playlists } = useMusicMeta();
 
   const myTracks = useMemo(
     () => currentTop10.map((id) => trackById(id)).filter(Boolean) as ReturnType<typeof trackById>[] as NonNullable<ReturnType<typeof trackById>>[],
@@ -252,6 +255,40 @@ const Charts = () => {
                 Aggregated from {formatCount(globalChart[0]?.voters ?? 0)}+ Top 10 charts this week
               </p>
             </header>
+
+            {/* Community Playlists rail (Phase 2) */}
+            {playlists.length > 0 && (
+              <section className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold flex items-center gap-1.5">
+                    <ListMusic className="w-3 h-3" /> Community Playlists
+                  </p>
+                </div>
+                <div className="flex gap-3 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-none">
+                  {playlists.map((p) => (
+                    <Link
+                      key={p.id}
+                      to={`/playlists/${p.id}`}
+                      className="shrink-0 w-44 neo-card p-2.5 rounded-2xl flex flex-col gap-2 hover:opacity-90 transition-opacity"
+                    >
+                      <img src={p.cover} alt={p.title} className="w-full aspect-square rounded-xl object-cover" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold truncate">{p.title}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{p.subtitle}</p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <div className="flex -space-x-1.5">
+                            {p.contributors.slice(0, 3).map((c) => (
+                              <img key={c.id} src={c.avatar} alt="" className="w-4 h-4 rounded-full object-cover border border-background" />
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-muted-foreground">{p.entries.length} tracks</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
             <div className="space-y-2">
               {globalChart.map((entry, idx) => {
                 const t = trackById(entry.trackId);
