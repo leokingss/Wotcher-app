@@ -130,6 +130,13 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
             {user && (
               <>
                 <button
+                  onClick={() => { setIsOpen(false); navigate("/wallet"); }}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
+                >
+                  <span>Wallet</span>
+                  <Wallet className="w-5 h-5 text-primary" />
+                </button>
+                <button
                   onClick={() => { setIsOpen(false); navigate("/orders"); }}
                   className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
                 >

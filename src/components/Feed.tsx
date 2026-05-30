@@ -2,6 +2,7 @@ import { useRef, useState, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import CloudPost from "./CloudPost";
+import DropsRail from "./wallet/DropsRail";
 import EmptyState from "./EmptyState";
 import { usePosts, FeedMode, FeedPost } from "@/hooks/usePosts";
 import { ImageIcon } from "lucide-react";
@@ -96,6 +97,7 @@ const Feed = ({ mode = "live", filter = DEFAULT_FILTER }: FeedProps) => {
           animate="show"
           variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
         >
+          <DropsRail />
           {filteredPosts.map((post) => (
             <motion.div
               key={post.id}
