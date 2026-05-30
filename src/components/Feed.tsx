@@ -3,6 +3,7 @@ import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import CloudPost from "./CloudPost";
 import DropsRail from "./wallet/DropsRail";
+import LiveFeedSection from "./LiveFeedSection";
 import EmptyState from "./EmptyState";
 import { usePosts, FeedMode, FeedPost } from "@/hooks/usePosts";
 import { ImageIcon } from "lucide-react";
@@ -46,6 +47,14 @@ const Feed = ({ mode = "live", filter = DEFAULT_FILTER }: FeedProps) => {
       animate(pull, 0, { duration: 0.25 });
     }
   };
+
+  if (filter.category === "live") {
+    return (
+      <div className="max-w-lg mx-auto pb-24 relative">
+        <LiveFeedSection />
+      </div>
+    );
+  }
 
   return (
     <div
