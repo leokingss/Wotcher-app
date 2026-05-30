@@ -249,7 +249,7 @@ const Activity = () => {
                             alt={n.actor?.username ?? ""}
                             className="w-11 h-11 rounded-full object-cover"
                           />
-                          <div className={`absolute -bottom-1 -right-1 neo-card p-1 rounded-full ${isMarketplace ? "text-primary" : ""}`}>
+                          <div className={`absolute -bottom-1 -right-1 bg-background border border-border p-1 rounded-full ${isMarketplace ? "text-primary" : ""}`}>
                             <Icon className={`w-3 h-3 ${n.type === "dislike" ? "text-destructive" : "text-primary"}`} />
                           </div>
                         </div>
