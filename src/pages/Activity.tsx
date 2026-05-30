@@ -2,13 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useWallet } from "@/hooks/useWallet";
 import { formatRelative } from "@/lib/time";
-import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, Sparkles, Clock, CheckCheck, AtSign } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, Sparkles, Clock, CheckCheck, AtSign, Gift, PartyPopper } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
 import ActivityPinnedDrops from "@/components/wallet/ActivityPinnedDrops";
 import { useNavigate } from "react-router-dom";
 
-type NType = "like" | "dislike" | "comment" | "follow" | "mention" | "outbid" | "auction_won" | "item_sold" | "auction_ending" | "new_listing";
+type NType = "like" | "dislike" | "comment" | "follow" | "mention" | "outbid" | "auction_won" | "item_sold" | "auction_ending" | "new_listing" | "drop" | "packet";
+
 
 interface Notif {
   id: string;
@@ -34,12 +36,14 @@ const typeIcon: Record<NType, any> = {
   item_sold: Tag,
   auction_ending: Clock,
   new_listing: Sparkles,
+  drop: Gift,
+  packet: PartyPopper,
 };
 
 const actionText: Record<NType, string> = {
-  like: "liked your post",
-  dislike: "disliked your post",
-  comment: "commented on your post",
+  like: "liked your photo",
+  dislike: "disliked your photo",
+  comment: "commented on your photo",
   follow: "started following you",
   mention: "mentioned you in a story",
   outbid: "outbid you",
@@ -47,7 +51,10 @@ const actionText: Record<NType, string> = {
   item_sold: "bought your item",
   auction_ending: "your auction is ending soon",
   new_listing: "posted a new listing",
+  drop: "sent you a drop",
+  packet: "sent you a red packet",
 };
+
 
 const dayLabel = (iso: string) => {
   const d = new Date(iso);
@@ -80,11 +87,13 @@ const SOCIAL_TYPES: NType[] = ["like", "dislike", "comment", "follow", "mention"
 const MARKET_TYPES: NType[] = ["outbid", "auction_won", "item_sold", "auction_ending", "new_listing"];
 
 const Activity = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const { drops, packets, claimedDropIds } = useWallet();
   const navigate = useNavigate();
   const [notifs, setNotifs] = useState<Notif[]>([]);
   const [cat, setCat] = useState<FilterCat>("all");
   const [time, setTime] = useState<TimeRange>("all");
+
 
   const load = async () => {
     if (!user) return;
@@ -118,6 +127,46 @@ const Activity = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  const username = profile?.username ?? "you";
+
+  const virtualNotifs = useMemo<Notif[]>(() => {
+    const items: Notif[] = [];
+    const now = Date.now();
+    drops.forEach((d) => {
+      if (claimedDropIds.includes(d.id)) return;
+      items.push({
+        id: `drop:${d.id}`,
+        type: "drop",
+        read: false,
+        created_at: new Date(now - 60_000).toISOString(),
+        post_id: null,
+        listing_id: null,
+        metadata: { dropId: d.id, title: d.title },
+        actor: { id: d.creator, username: d.creator, avatar_url: d.creatorAvatar },
+        post: null,
+        listing: null,
+      });
+    });
+    packets.forEach((p) => {
+      const remaining = p.shares.filter((s) => !s.claimedBy).length;
+      if (remaining === 0) return;
+      if (p.shares.some((s) => s.claimedBy === username)) return;
+      items.push({
+        id: `packet:${p.id}`,
+        type: "packet",
+        read: false,
+        created_at: new Date(p.createdAt).toISOString(),
+        post_id: null,
+        listing_id: null,
+        metadata: { packetId: p.id, greeting: p.greeting, pool: p.pool, remaining },
+        actor: { id: p.creator, username: p.creator, avatar_url: p.creatorAvatar },
+        post: null,
+        listing: null,
+      });
+    });
+    return items;
+  }, [drops, packets, claimedDropIds, username]);
+
   const filtered = useMemo(() => {
     const now = Date.now();
     const cutoff: Record<TimeRange, number> = {
@@ -126,14 +175,19 @@ const Activity = () => {
       week: 7 * 24 * 60 * 60 * 1000,
       month: 30 * 24 * 60 * 60 * 1000,
     };
-    return notifs.filter((n) => {
+    const all = [...virtualNotifs, ...notifs].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    return all.filter((n) => {
       if (cat === "unread" && n.read) return false;
       if (cat === "social" && !SOCIAL_TYPES.includes(n.type)) return false;
       if (cat === "marketplace" && !MARKET_TYPES.includes(n.type)) return false;
+      if (cat === "drops" && n.type !== "drop" && n.type !== "packet") return false;
       if (time !== "all" && now - new Date(n.created_at).getTime() > cutoff[time]) return false;
       return true;
     });
-  }, [notifs, cat, time]);
+  }, [notifs, virtualNotifs, cat, time]);
+
 
   const grouped = useMemo(() => {
     const map = new Map<string, Notif[]>();
@@ -147,12 +201,17 @@ const Activity = () => {
 
   const toggleRead = async (e: React.MouseEvent, n: Notif) => {
     e.stopPropagation();
+    if (n.id.startsWith("drop:") || n.id.startsWith("packet:")) return;
     const next = !n.read;
     setNotifs((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: next } : x)));
     await supabase.from("notifications").update({ read: next }).eq("id", n.id);
   };
 
   const handleClick = async (n: Notif) => {
+    if (n.type === "drop" || n.type === "packet") {
+      navigate("/wallet");
+      return;
+    }
     if (!n.read) {
       await supabase.from("notifications").update({ read: true }).eq("id", n.id);
     }
@@ -169,6 +228,7 @@ const Activity = () => {
       navigate(`/profile/${n.actor.username}`);
     }
   };
+
 
   const unread = notifs.filter((n) => !n.read).length;
 
@@ -224,8 +284,8 @@ const Activity = () => {
 
 
       <main className="max-w-lg mx-auto px-4 pt-3">
-        {cat === "drops" ? null : notifs.length === 0 ? (
-          <EmptyState icon={Bell} title="No activity yet" description="Likes, comments, follows and marketplace updates will show up here." />
+        {notifs.length === 0 && virtualNotifs.length === 0 ? (
+          <EmptyState icon={Bell} title="No activity yet" description="Likes, comments, follows, drops and packets will show up here." />
         ) : filtered.length === 0 ? (
           <EmptyState icon={Bell} title="Nothing here" description="No notifications match these filters." />
         ) : (
@@ -237,6 +297,7 @@ const Activity = () => {
                   {items.map((n) => {
                     const Icon = typeIcon[n.type] ?? Bell;
                     const isMarketplace = MARKET_TYPES.includes(n.type);
+                    const isDropOrPacket = n.type === "drop" || n.type === "packet";
                     return (
                       <div
                         key={n.id}
@@ -249,16 +310,22 @@ const Activity = () => {
                             alt={n.actor?.username ?? ""}
                             className="w-11 h-11 rounded-full object-cover"
                           />
-                          <div className={`absolute -bottom-1 -right-1 bg-background border border-border p-1 rounded-full ${isMarketplace ? "text-primary" : ""}`}>
+                          <div className={`absolute -bottom-1 -right-1 bg-background border border-border p-1 rounded-full ${isMarketplace || isDropOrPacket ? "text-primary" : ""}`}>
                             <Icon className={`w-3 h-3 ${n.type === "dislike" ? "text-destructive" : "text-primary"}`} />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm">
-                            <span className="font-semibold">{n.actor?.username ?? "Someone"}</span>{" "}
+                            <span className="font-semibold">@{n.actor?.username ?? "someone"}</span>{" "}
                             <span className="text-muted-foreground">{actionText[n.type]}</span>
                             {n.listing?.title && (
                               <span className="text-foreground font-medium"> · {n.listing.title}</span>
+                            )}
+                            {n.type === "drop" && n.metadata?.title && (
+                              <span className="text-foreground font-medium"> · {n.metadata.title}</span>
+                            )}
+                            {n.type === "packet" && n.metadata?.pool != null && (
+                              <span className="text-primary font-semibold"> · £{Number(n.metadata.pool).toFixed(2)}</span>
                             )}
                             {n.metadata?.amount && (n.type === "outbid") && (
                               <span className="text-primary font-semibold"> (${Number(n.metadata.amount).toFixed(2)})</span>
@@ -266,18 +333,21 @@ const Activity = () => {
                           </p>
                           <p className="text-xs text-muted-foreground">{formatRelative(n.created_at)}</p>
                         </div>
-                        <button
-                          onClick={(e) => toggleRead(e, n)}
-                          aria-label={n.read ? "Mark as unread" : "Mark as read"}
-                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-secondary hover:bg-secondary/80 transition-colors"
-                        >
-                          {n.read ? (
-                            <span className="block w-2 h-2 rounded-full bg-muted-foreground/40" />
-                          ) : (
-                            <span className="block w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
-                          )}
-                        </button>
+                        {!isDropOrPacket && (
+                          <button
+                            onClick={(e) => toggleRead(e, n)}
+                            aria-label={n.read ? "Mark as unread" : "Mark as read"}
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-secondary hover:bg-secondary/80 transition-colors"
+                          >
+                            {n.read ? (
+                              <span className="block w-2 h-2 rounded-full bg-muted-foreground/40" />
+                            ) : (
+                              <span className="block w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
+                            )}
+                          </button>
+                        )}
                         {n.post?.image_url && (
+
                           <img src={n.post.image_url} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
                         )}
                       </div>
