@@ -18,6 +18,7 @@ import PostContextMenu from "@/components/PostContextMenu";
 import ProfilePostDialog, { type MediaItem } from "@/components/ProfilePostDialog";
 import FollowSheet from "@/components/FollowSheet";
 import HighlightsRail from "@/components/stories/HighlightsRail";
+import AnthemBlock from "@/components/music/AnthemBlock";
 
 import { usePlayer } from "@/hooks/usePlayer";
 import { useAuth } from "@/hooks/useAuth";
@@ -447,6 +448,13 @@ const Profile = () => {
           </h2>
           {profile?.bio && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{profile.bio}</p>}
         </div>
+
+        {/* Profile Anthem (Phase 2) */}
+        <AnthemBlock
+          username={profile?.username ?? "you"}
+          displayName={profile?.display_name ?? undefined}
+          isOwn={isOwnProfile}
+        />
         </div>
 
         {/* Action Buttons */}
