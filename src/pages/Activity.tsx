@@ -189,7 +189,6 @@ const Activity = () => {
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-2 space-y-2">
-        <ActivityPinnedDrops />
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
           {CATS.map((c) => {
             const count = c.id === "unread" ? unread : undefined;
@@ -219,7 +218,10 @@ const Activity = () => {
             );
           })}
         </div>
+        {cat === "drops" && <ActivityPinnedDrops />}
       </div>
+
+
 
       <main className="max-w-lg mx-auto px-4 pt-3">
         {notifs.length === 0 ? (
