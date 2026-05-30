@@ -2,13 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useWallet } from "@/hooks/useWallet";
 import { formatRelative } from "@/lib/time";
-import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, Sparkles, Clock, CheckCheck, AtSign } from "lucide-react";
+import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, Sparkles, Clock, CheckCheck, AtSign, Gift, PartyPopper } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
 import ActivityPinnedDrops from "@/components/wallet/ActivityPinnedDrops";
 import { useNavigate } from "react-router-dom";
 
-type NType = "like" | "dislike" | "comment" | "follow" | "mention" | "outbid" | "auction_won" | "item_sold" | "auction_ending" | "new_listing";
+type NType = "like" | "dislike" | "comment" | "follow" | "mention" | "outbid" | "auction_won" | "item_sold" | "auction_ending" | "new_listing" | "drop" | "packet";
+
 
 interface Notif {
   id: string;
