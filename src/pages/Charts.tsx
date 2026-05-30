@@ -86,6 +86,7 @@ const Charts = () => {
               { id: "mine", label: "My Top 10" },
               { id: "friends", label: "Friends" },
               { id: "global", label: "Global" },
+              { id: "predict", label: "Predict" },
             ] as { id: Tab; label: string }[]).map((t) => (
               <button
                 key={t.id}
