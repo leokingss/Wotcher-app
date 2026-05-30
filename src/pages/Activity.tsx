@@ -269,12 +269,12 @@ const Activity = () => {
                         <button
                           onClick={(e) => toggleRead(e, n)}
                           aria-label={n.read ? "Mark as unread" : "Mark as read"}
-                          className="neo-button-icon p-2 rounded-full shrink-0"
+                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-secondary hover:bg-secondary/80 transition-colors"
                         >
                           {n.read ? (
                             <span className="block w-2 h-2 rounded-full bg-muted-foreground/40" />
                           ) : (
-                            <span className="block w-2 h-2 rounded-full bg-primary" />
+                            <span className="block w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
                           )}
                         </button>
                         {n.post?.image_url && (
