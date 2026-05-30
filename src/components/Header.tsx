@@ -2,6 +2,8 @@ import { Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import HeaderDropdown from "./HeaderDropdown";
 import WotcherLogo from "./WotcherLogo";
+import StreakBadge from "./StreakBadge";
+import NotificationsPanel from "./NotificationsPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
@@ -17,7 +19,7 @@ const Header = ({ activeTab, onTabChange }: HeaderProps) => {
 
   return (
     <header className="bg-background">
-      <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between gap-2">
         <button
           onClick={() => user ? navigate("/messages") : navigate("/auth")}
           className="neo-button-icon p-2 relative"
@@ -33,7 +35,11 @@ const Header = ({ activeTab, onTabChange }: HeaderProps) => {
 
         <WotcherLogo />
 
-        <HeaderDropdown activeTab={activeTab} onTabChange={onTabChange} />
+        <div className="flex items-center gap-1.5">
+          {user && <StreakBadge />}
+          {user && <NotificationsPanel />}
+          <HeaderDropdown activeTab={activeTab} onTabChange={onTabChange} />
+        </div>
       </div>
     </header>
   );

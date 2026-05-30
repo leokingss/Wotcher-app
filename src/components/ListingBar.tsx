@@ -3,6 +3,9 @@ import { Listing } from "@/hooks/useListings";
 import { useAuth } from "@/hooks/useAuth";
 import TimeLeft from "./TimeLeft";
 import VibeTrackBar from "./music/VibeTrackBar";
+import SocialProofBar from "./social/SocialProofBar";
+import GroupBuyCard from "./social/GroupBuyCard";
+import { useGroupBuys } from "@/hooks/useGroupBuys";
 
 interface Props {
   listing: Listing;
@@ -14,11 +17,22 @@ const formatPrice = (n?: number | null) =>
 
 const ListingBar = ({ listing, onOpen }: Props) => {
   const { user } = useAuth();
+  const { groupBuys, byListing } = useGroupBuys();
   const isAuction = listing.type === "auction";
   const price = isAuction
     ? listing.current_bid ?? listing.starting_bid
     : listing.price;
   const isSeller = user?.id === listing.seller_id;
+
+  // Select a group buy: explicit match wins, else for fixed-price listings deterministically
+  // attach one of the seeded open group buys so the feature is visible.
+  const matched = byListing(listing.id);
+  const fallback = !isAuction
+    ? groupBuys.filter((g) => g.status === "open" && !g.listingId)[
+        Math.abs(listing.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0)) % Math.max(1, groupBuys.length)
+      ]
+    : undefined;
+  const groupBuy = matched ?? fallback;
 
   return (
     <div className="mt-3 mx-4 space-y-2">
@@ -45,6 +59,8 @@ const ListingBar = ({ listing, onOpen }: Props) => {
           {isAuction ? "Bid now" : "Buy now"}
         </button>
       </div>
+      <SocialProofBar listingId={listing.id} isAuction={isAuction} />
+      {groupBuy && <GroupBuyCard groupBuyId={groupBuy.id} />}
       <VibeTrackBar listingId={listing.id} isSeller={isSeller} />
     </div>
   );
