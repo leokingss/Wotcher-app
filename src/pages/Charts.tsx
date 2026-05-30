@@ -15,8 +15,9 @@ import {
 import ChartRow from "@/components/charts/ChartRow";
 import MovementBadge from "@/components/charts/MovementBadge";
 import ReRankSheet from "@/components/charts/ReRankSheet";
+import PredictTab from "@/components/charts/PredictTab";
 
-type Tab = "mine" | "friends" | "global";
+type Tab = "mine" | "friends" | "global" | "predict";
 
 const formatRelative = (ts: number) => {
   const diffMs = Date.now() - ts;
