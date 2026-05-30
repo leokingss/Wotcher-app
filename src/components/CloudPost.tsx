@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, HeartCrack, MessageCircle, Send, MoreHorizontal } from "lucide-react";
 import SaveButton from "./SaveButton";
+import TrackRepliesBar from "./music/TrackRepliesBar";
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
 import ListingBar from "./ListingBar";
@@ -241,6 +242,8 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
               <span className="text-muted-foreground">{post.caption}</span>
             </p>
           )}
+
+          <TrackRepliesBar postId={post.id} />
         </div>
 
         <AnimatePresence initial={false}>
