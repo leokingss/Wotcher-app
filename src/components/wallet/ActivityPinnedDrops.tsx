@@ -72,9 +72,9 @@ const ActivityPinnedDrops = () => {
             <button
               onClick={() => dismiss(`p:${p.id}`)}
               aria-label="Dismiss"
-              className="absolute top-2 right-2 z-10 neo-button-icon p-1.5 rounded-full bg-black/40 backdrop-blur"
+              className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 backdrop-blur text-white hover:bg-black/70 transition-colors"
             >
-              <X className="w-3 h-3 text-white" />
+              <X className="w-3.5 h-3.5" />
             </button>
             <div onClickCapture={(e) => {
               const target = e.target as HTMLElement;
@@ -91,9 +91,9 @@ const ActivityPinnedDrops = () => {
             <button
               onClick={() => dismiss(`d:${d.id}`)}
               aria-label="Dismiss"
-              className="absolute top-2 right-2 z-10 neo-button-icon p-1.5 rounded-full bg-black/40 backdrop-blur"
+              className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 backdrop-blur text-white hover:bg-black/70 transition-colors"
             >
-              <X className="w-3 h-3 text-white" />
+              <X className="w-3.5 h-3.5" />
             </button>
             <DropCard drop={d} />
           </div>

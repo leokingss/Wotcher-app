@@ -180,7 +180,7 @@ const Activity = () => {
           {unread > 0 && (
             <button
               onClick={markAllRead}
-              className="neo-button-icon px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 text-primary"
+              className="neo-button px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 text-primary"
             >
               <CheckCheck className="w-3.5 h-3.5" /> Mark all read
             </button>
@@ -249,7 +249,7 @@ const Activity = () => {
                             alt={n.actor?.username ?? ""}
                             className="w-11 h-11 rounded-full object-cover"
                           />
-                          <div className={`absolute -bottom-1 -right-1 neo-card p-1 rounded-full ${isMarketplace ? "text-primary" : ""}`}>
+                          <div className={`absolute -bottom-1 -right-1 bg-background border border-border p-1 rounded-full ${isMarketplace ? "text-primary" : ""}`}>
                             <Icon className={`w-3 h-3 ${n.type === "dislike" ? "text-destructive" : "text-primary"}`} />
                           </div>
                         </div>
@@ -269,12 +269,12 @@ const Activity = () => {
                         <button
                           onClick={(e) => toggleRead(e, n)}
                           aria-label={n.read ? "Mark as unread" : "Mark as read"}
-                          className="neo-button-icon p-2 rounded-full shrink-0"
+                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-secondary hover:bg-secondary/80 transition-colors"
                         >
                           {n.read ? (
                             <span className="block w-2 h-2 rounded-full bg-muted-foreground/40" />
                           ) : (
-                            <span className="block w-2 h-2 rounded-full bg-primary" />
+                            <span className="block w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
                           )}
                         </button>
                         {n.post?.image_url && (
