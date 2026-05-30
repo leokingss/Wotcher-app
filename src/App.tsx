@@ -12,7 +12,10 @@ import { PlayerProvider } from "@/hooks/usePlayer";
 import { SavedListsProvider } from "@/hooks/useSavedLists";
 import { ChartsProvider } from "@/hooks/useChartsStore";
 import { MusicMetaProvider } from "@/hooks/useMusicMeta";
+import { LiveProvider } from "@/hooks/useLiveStore";
 import Playlist from "./pages/Playlist";
+import LiveIndex from "./pages/LiveIndex";
+import LiveRoom from "./pages/LiveRoom";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import BottomNav from "@/components/BottomNav";
 import Root from "./pages/Root";
@@ -81,6 +84,8 @@ const AnimatedRoutes = () => {
         <Route path="/admin/invites" element={<PageTransition><ProtectedRoute><AdminInvites /></ProtectedRoute></PageTransition>} />
         <Route path="/invite" element={<PageTransition><ProtectedRoute><InviteFriends /></ProtectedRoute></PageTransition>} />
         <Route path="/playlists/:id" element={<PageTransition><Playlist /></PageTransition>} />
+        <Route path="/live" element={<PageTransition><LiveIndex /></PageTransition>} />
+        <Route path="/live/:id" element={<PageTransition><LiveRoom /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}
@@ -111,14 +116,16 @@ const App = () => (
             <SavedListsProvider>
               <ChartsProvider>
                 <MusicMetaProvider>
-                  <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
-                    <NotificationToastManager />
-                    <AnimatedRoutes />
-                    <DevPanel />
-                    <MiniPlayer />
-                  </TooltipProvider>
+                  <LiveProvider>
+                    <TooltipProvider>
+                      <Toaster />
+                      <Sonner />
+                      <NotificationToastManager />
+                      <AnimatedRoutes />
+                      <DevPanel />
+                      <MiniPlayer />
+                    </TooltipProvider>
+                  </LiveProvider>
                 </MusicMetaProvider>
               </ChartsProvider>
             </SavedListsProvider>

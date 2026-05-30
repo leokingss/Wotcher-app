@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag, AlertCircle, Camera, Video } from "lucide-react";
+import { X, Image, Film, Plus, ChevronLeft, ChevronRight, Loader2, ShoppingBag, AlertCircle, Camera, Video, Radio } from "lucide-react";
+import GoLiveDialog from "@/components/live/GoLiveDialog";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +44,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
   const [location, setLocation] = useState<LocationTag | null>(null);
   const [geoLocation, setGeoLocation] = useState<SavedLocation | null>(null);
   const [payoutReady, setPayoutReady] = useState<boolean | null>(null);
+  const [goLiveOpen, setGoLiveOpen] = useState(false);
 
   useEffect(() => {
     if (!open || !user) return;
@@ -367,6 +369,22 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
             </div>
           )}
 
+          {/* Go Live entry */}
+          <button
+            type="button"
+            onClick={() => { onOpenChange(false); setGoLiveOpen(true); }}
+            className="neo-card-inset rounded-xl p-3 w-full flex items-center gap-3 text-left"
+          >
+            <div className="neo-button-icon w-10 h-10 flex items-center justify-center">
+              <Radio className="w-5 h-5 text-destructive" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold">Go Live</p>
+              <p className="text-[11px] text-muted-foreground">Stream a live auction with chat &amp; real-time bids</p>
+            </div>
+            <span className="text-xs text-primary font-semibold">Start</span>
+          </button>
+
           {/* Caption Input */}
           <div className="neo-card-inset rounded-xl p-3">
             <textarea
@@ -521,6 +539,7 @@ const UploadDialog = ({ open, onOpenChange, onUploaded }: UploadDialogProps) => 
           />
         </div>
       </DialogContent>
+      <GoLiveDialog open={goLiveOpen} onOpenChange={setGoLiveOpen} />
     </Dialog>
   );
 };
