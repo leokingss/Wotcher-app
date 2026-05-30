@@ -58,7 +58,7 @@ const dayLabel = (iso: string) => {
   return d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
 };
 
-type FilterCat = "all" | "social" | "marketplace" | "unread";
+type FilterCat = "all" | "social" | "marketplace" | "unread" | "drops";
 type TimeRange = "all" | "today" | "week" | "month";
 
 const CATS: { id: FilterCat; label: string }[] = [
@@ -66,6 +66,7 @@ const CATS: { id: FilterCat; label: string }[] = [
   { id: "unread", label: "Unread" },
   { id: "social", label: "Social" },
   { id: "marketplace", label: "Marketplace" },
+  { id: "drops", label: "Drops & Packets" },
 ];
 
 const TIMES: { id: TimeRange; label: string }[] = [
