@@ -20,6 +20,9 @@ import FollowSheet from "@/components/FollowSheet";
 import HighlightsRail from "@/components/stories/HighlightsRail";
 import AnthemBlock from "@/components/music/AnthemBlock";
 import TipButton from "@/components/wallet/TipButton";
+import VerifiedBadge from "@/components/official/VerifiedBadge";
+import OfficialPanel from "@/components/official/OfficialPanel";
+import { useOfficial } from "@/hooks/useOfficial";
 
 import { usePlayer } from "@/hooks/usePlayer";
 import { useAuth } from "@/hooks/useAuth";
