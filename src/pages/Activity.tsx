@@ -36,12 +36,14 @@ const typeIcon: Record<NType, any> = {
   item_sold: Tag,
   auction_ending: Clock,
   new_listing: Sparkles,
+  drop: Gift,
+  packet: PartyPopper,
 };
 
 const actionText: Record<NType, string> = {
-  like: "liked your post",
-  dislike: "disliked your post",
-  comment: "commented on your post",
+  like: "liked your photo",
+  dislike: "disliked your photo",
+  comment: "commented on your photo",
   follow: "started following you",
   mention: "mentioned you in a story",
   outbid: "outbid you",
@@ -49,7 +51,10 @@ const actionText: Record<NType, string> = {
   item_sold: "bought your item",
   auction_ending: "your auction is ending soon",
   new_listing: "posted a new listing",
+  drop: "sent you a drop",
+  packet: "sent you a red packet",
 };
+
 
 const dayLabel = (iso: string) => {
   const d = new Date(iso);
