@@ -128,14 +128,16 @@ const App = () => (
                       <OfficialProvider>
                         <GroupBuysProvider>
                           <NotificationCenterProvider>
-                            <TooltipProvider>
-                              <Toaster />
-                              <Sonner />
-                              <NotificationToastManager />
-                              <AnimatedRoutes />
-                              <DevPanel />
-                              <MiniPlayer />
-                            </TooltipProvider>
+                            <PredictProvider>
+                              <TooltipProvider>
+                                <Toaster />
+                                <Sonner />
+                                <NotificationToastManager />
+                                <AnimatedRoutes />
+                                <DevPanel />
+                                <MiniPlayer />
+                              </TooltipProvider>
+                            </PredictProvider>
                           </NotificationCenterProvider>
                         </GroupBuysProvider>
                       </OfficialProvider>
