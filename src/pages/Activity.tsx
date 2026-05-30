@@ -180,7 +180,7 @@ const Activity = () => {
           {unread > 0 && (
             <button
               onClick={markAllRead}
-              className="neo-button-icon px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 text-primary"
+              className="neo-button px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 text-primary"
             >
               <CheckCheck className="w-3.5 h-3.5" /> Mark all read
             </button>
