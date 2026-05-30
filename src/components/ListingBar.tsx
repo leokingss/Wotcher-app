@@ -3,6 +3,9 @@ import { Listing } from "@/hooks/useListings";
 import { useAuth } from "@/hooks/useAuth";
 import TimeLeft from "./TimeLeft";
 import VibeTrackBar from "./music/VibeTrackBar";
+import SocialProofBar from "./social/SocialProofBar";
+import GroupBuyCard from "./social/GroupBuyCard";
+import { useGroupBuys } from "@/hooks/useGroupBuys";
 
 interface Props {
   listing: Listing;

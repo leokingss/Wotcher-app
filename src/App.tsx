@@ -14,6 +14,9 @@ import { ChartsProvider } from "@/hooks/useChartsStore";
 import { MusicMetaProvider } from "@/hooks/useMusicMeta";
 import { LiveProvider } from "@/hooks/useLiveStore";
 import { WalletProvider } from "@/hooks/useWallet";
+import { OfficialProvider } from "@/hooks/useOfficial";
+import { GroupBuysProvider } from "@/hooks/useGroupBuys";
+import { NotificationCenterProvider } from "@/hooks/useNotificationCenter";
 import Wallet from "./pages/Wallet";
 import Playlist from "./pages/Playlist";
 import LiveIndex from "./pages/LiveIndex";
@@ -121,14 +124,20 @@ const App = () => (
                 <MusicMetaProvider>
                   <LiveProvider>
                     <WalletProvider>
-                      <TooltipProvider>
-                        <Toaster />
-                        <Sonner />
-                        <NotificationToastManager />
-                        <AnimatedRoutes />
-                        <DevPanel />
-                        <MiniPlayer />
-                      </TooltipProvider>
+                      <OfficialProvider>
+                        <GroupBuysProvider>
+                          <NotificationCenterProvider>
+                            <TooltipProvider>
+                              <Toaster />
+                              <Sonner />
+                              <NotificationToastManager />
+                              <AnimatedRoutes />
+                              <DevPanel />
+                              <MiniPlayer />
+                            </TooltipProvider>
+                          </NotificationCenterProvider>
+                        </GroupBuysProvider>
+                      </OfficialProvider>
                     </WalletProvider>
                   </LiveProvider>
                 </MusicMetaProvider>
