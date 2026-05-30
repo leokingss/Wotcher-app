@@ -127,6 +127,46 @@ const Activity = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  const username = profile?.username ?? "you";
+
+  const virtualNotifs = useMemo<Notif[]>(() => {
+    const items: Notif[] = [];
+    const now = Date.now();
+    drops.forEach((d) => {
+      if (claimedDropIds.includes(d.id)) return;
+      items.push({
+        id: `drop:${d.id}`,
+        type: "drop",
+        read: false,
+        created_at: new Date(now - 60_000).toISOString(),
+        post_id: null,
+        listing_id: null,
+        metadata: { dropId: d.id, title: d.title },
+        actor: { id: d.creator, username: d.creator, avatar_url: d.creatorAvatar },
+        post: null,
+        listing: null,
+      });
+    });
+    packets.forEach((p) => {
+      const remaining = p.shares.filter((s) => !s.claimedBy).length;
+      if (remaining === 0) return;
+      if (p.shares.some((s) => s.claimedBy === username)) return;
+      items.push({
+        id: `packet:${p.id}`,
+        type: "packet",
+        read: false,
+        created_at: new Date(p.createdAt).toISOString(),
+        post_id: null,
+        listing_id: null,
+        metadata: { packetId: p.id, greeting: p.greeting, pool: p.pool, remaining },
+        actor: { id: p.creator, username: p.creator, avatar_url: p.creatorAvatar },
+        post: null,
+        listing: null,
+      });
+    });
+    return items;
+  }, [drops, packets, claimedDropIds, username]);
+
   const filtered = useMemo(() => {
     const now = Date.now();
     const cutoff: Record<TimeRange, number> = {
@@ -135,14 +175,19 @@ const Activity = () => {
       week: 7 * 24 * 60 * 60 * 1000,
       month: 30 * 24 * 60 * 60 * 1000,
     };
-    return notifs.filter((n) => {
+    const all = [...virtualNotifs, ...notifs].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    return all.filter((n) => {
       if (cat === "unread" && n.read) return false;
       if (cat === "social" && !SOCIAL_TYPES.includes(n.type)) return false;
       if (cat === "marketplace" && !MARKET_TYPES.includes(n.type)) return false;
+      if (cat === "drops" && n.type !== "drop" && n.type !== "packet") return false;
       if (time !== "all" && now - new Date(n.created_at).getTime() > cutoff[time]) return false;
       return true;
     });
-  }, [notifs, cat, time]);
+  }, [notifs, virtualNotifs, cat, time]);
+
 
   const grouped = useMemo(() => {
     const map = new Map<string, Notif[]>();
