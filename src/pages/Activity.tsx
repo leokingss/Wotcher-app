@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatRelative } from "@/lib/time";
 import { Heart, HeartCrack, MessageCircle, UserPlus, Bell, Gavel, Trophy, Tag, Sparkles, Clock, CheckCheck, AtSign } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
+import ActivityPinnedDrops from "@/components/wallet/ActivityPinnedDrops";
 import { useNavigate } from "react-router-dom";
 
 type NType = "like" | "dislike" | "comment" | "follow" | "mention" | "outbid" | "auction_won" | "item_sold" | "auction_ending" | "new_listing";
@@ -187,6 +188,7 @@ const Activity = () => {
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-2 space-y-2">
+        <ActivityPinnedDrops />
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
           {CATS.map((c) => {
             const count = c.id === "unread" ? unread : undefined;
