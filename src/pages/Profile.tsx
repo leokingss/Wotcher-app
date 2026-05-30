@@ -216,6 +216,8 @@ const Profile = () => {
   }, [searchParams.get("listing")]);
   const [musicFilter, setMusicFilter] = useState<MusicFilter>("top10");
   const isArtist = profile?.account_type === "artist";
+  const { isOfficial } = useOfficial();
+  const isVerified = isOfficial(profile?.username);
   const [openCommentsId, setOpenCommentsId] = useState<string | number | null>(null);
   const [playingSongId, setPlayingSongId] = useState<string | number | null>(null);
   const [followSheet, setFollowSheet] = useState<"followers" | "following" | null>(null);
@@ -447,8 +449,9 @@ const Profile = () => {
 
         {/* Bio */}
         <div className="text-center mb-4">
-          <h2 className="font-bold text-lg">
+          <h2 className="font-bold text-lg inline-flex items-center gap-1.5">
             <span className="text-signature">{profile?.display_name ?? profile?.username ?? 'You'}</span>
+            {isVerified && <VerifiedBadge size={18} />}
           </h2>
           {profile?.bio && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{profile.bio}</p>}
         </div>
@@ -460,6 +463,11 @@ const Profile = () => {
           isOwn={isOwnProfile}
         />
         </div>
+
+        {/* Official account panel (Phase 5) */}
+        {isVerified && profile?.username && (
+          <OfficialPanel username={profile.username} isOwn={isOwnProfile} />
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-3 justify-center mb-6">
