@@ -284,8 +284,8 @@ const Activity = () => {
 
 
       <main className="max-w-lg mx-auto px-4 pt-3">
-        {cat === "drops" ? null : notifs.length === 0 ? (
-          <EmptyState icon={Bell} title="No activity yet" description="Likes, comments, follows and marketplace updates will show up here." />
+        {notifs.length === 0 && virtualNotifs.length === 0 ? (
+          <EmptyState icon={Bell} title="No activity yet" description="Likes, comments, follows, drops and packets will show up here." />
         ) : filtered.length === 0 ? (
           <EmptyState icon={Bell} title="Nothing here" description="No notifications match these filters." />
         ) : (
@@ -297,6 +297,7 @@ const Activity = () => {
                   {items.map((n) => {
                     const Icon = typeIcon[n.type] ?? Bell;
                     const isMarketplace = MARKET_TYPES.includes(n.type);
+                    const isDropOrPacket = n.type === "drop" || n.type === "packet";
                     return (
                       <div
                         key={n.id}
@@ -309,16 +310,22 @@ const Activity = () => {
                             alt={n.actor?.username ?? ""}
                             className="w-11 h-11 rounded-full object-cover"
                           />
-                          <div className={`absolute -bottom-1 -right-1 bg-background border border-border p-1 rounded-full ${isMarketplace ? "text-primary" : ""}`}>
+                          <div className={`absolute -bottom-1 -right-1 bg-background border border-border p-1 rounded-full ${isMarketplace || isDropOrPacket ? "text-primary" : ""}`}>
                             <Icon className={`w-3 h-3 ${n.type === "dislike" ? "text-destructive" : "text-primary"}`} />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm">
-                            <span className="font-semibold">{n.actor?.username ?? "Someone"}</span>{" "}
+                            <span className="font-semibold">@{n.actor?.username ?? "someone"}</span>{" "}
                             <span className="text-muted-foreground">{actionText[n.type]}</span>
                             {n.listing?.title && (
                               <span className="text-foreground font-medium"> · {n.listing.title}</span>
+                            )}
+                            {n.type === "drop" && n.metadata?.title && (
+                              <span className="text-foreground font-medium"> · {n.metadata.title}</span>
+                            )}
+                            {n.type === "packet" && n.metadata?.pool != null && (
+                              <span className="text-primary font-semibold"> · £{Number(n.metadata.pool).toFixed(2)}</span>
                             )}
                             {n.metadata?.amount && (n.type === "outbid") && (
                               <span className="text-primary font-semibold"> (${Number(n.metadata.amount).toFixed(2)})</span>
@@ -326,18 +333,21 @@ const Activity = () => {
                           </p>
                           <p className="text-xs text-muted-foreground">{formatRelative(n.created_at)}</p>
                         </div>
-                        <button
-                          onClick={(e) => toggleRead(e, n)}
-                          aria-label={n.read ? "Mark as unread" : "Mark as read"}
-                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-secondary hover:bg-secondary/80 transition-colors"
-                        >
-                          {n.read ? (
-                            <span className="block w-2 h-2 rounded-full bg-muted-foreground/40" />
-                          ) : (
-                            <span className="block w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
-                          )}
-                        </button>
+                        {!isDropOrPacket && (
+                          <button
+                            onClick={(e) => toggleRead(e, n)}
+                            aria-label={n.read ? "Mark as unread" : "Mark as read"}
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-secondary hover:bg-secondary/80 transition-colors"
+                          >
+                            {n.read ? (
+                              <span className="block w-2 h-2 rounded-full bg-muted-foreground/40" />
+                            ) : (
+                              <span className="block w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
+                            )}
+                          </button>
+                        )}
                         {n.post?.image_url && (
+
                           <img src={n.post.image_url} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
                         )}
                       </div>
