@@ -87,11 +87,13 @@ const SOCIAL_TYPES: NType[] = ["like", "dislike", "comment", "follow", "mention"
 const MARKET_TYPES: NType[] = ["outbid", "auction_won", "item_sold", "auction_ending", "new_listing"];
 
 const Activity = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const { drops, packets, claimedDropIds } = useWallet();
   const navigate = useNavigate();
   const [notifs, setNotifs] = useState<Notif[]>([]);
   const [cat, setCat] = useState<FilterCat>("all");
   const [time, setTime] = useState<TimeRange>("all");
+
 
   const load = async () => {
     if (!user) return;
