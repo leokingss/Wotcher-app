@@ -19,6 +19,7 @@ import ProfilePostDialog, { type MediaItem } from "@/components/ProfilePostDialo
 import FollowSheet from "@/components/FollowSheet";
 import HighlightsRail from "@/components/stories/HighlightsRail";
 import AnthemBlock from "@/components/music/AnthemBlock";
+import TipButton from "@/components/wallet/TipButton";
 
 import { usePlayer } from "@/hooks/usePlayer";
 import { useAuth } from "@/hooks/useAuth";
@@ -488,6 +489,7 @@ const Profile = () => {
                   </span>
                 )}
               </button>
+              <TipButton recipient={profile?.username ?? "user"} source="profile" />
               <ReportDialog
                 targetType="user"
                 targetId={profileUserId}

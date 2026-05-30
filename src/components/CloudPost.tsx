@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, HeartCrack, MessageCircle, Send, MoreHorizontal } from "lucide-react";
 import SaveButton from "./SaveButton";
 import TrackRepliesBar from "./music/TrackRepliesBar";
+import TipButton from "./wallet/TipButton";
 import CloudCommentSection from "./CloudCommentSection";
 import PostContextMenu from "./PostContextMenu";
 import ListingBar from "./ListingBar";
@@ -231,6 +232,7 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
               <button className="neo-button-icon p-2.5">
                 <Send className="w-5 h-5" />
               </button>
+              <TipButton recipient={username} source="post" variant="icon" />
             </div>
             <SaveButton itemType="post" itemId={post.id} itemTitle={post.caption ?? undefined} className="p-2.5 rounded-full" />
 
