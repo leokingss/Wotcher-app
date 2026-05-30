@@ -219,6 +219,7 @@ const LiveRoom = () => {
           >
             <Send className="w-4 h-4 text-primary" />
           </button>
+          <TipButton recipient={room.host.name.replace(/\s+/g, "_").toLowerCase()} source="live" variant="icon" />
           <button
             onClick={() => setHeartTrigger((n) => n + 1)}
             className="neo-button-icon p-2.5 rounded-full"
