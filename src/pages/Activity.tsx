@@ -218,7 +218,7 @@ const Activity = () => {
             );
           })}
         </div>
-        {cat === "drops" && <ActivityPinnedDrops />}
+        {(cat === "drops" || cat === "all") && <ActivityPinnedDrops />}
       </div>
 
 
