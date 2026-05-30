@@ -322,6 +322,8 @@ const Charts = () => {
             </div>
           </>
         )}
+
+        {tab === "predict" && <PredictTab />}
       </div>
 
       {openSheet && (
