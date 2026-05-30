@@ -5,6 +5,8 @@ import { useLive } from "@/hooks/useLiveStore";
 import LiveBadge from "@/components/live/LiveBadge";
 import LiveCountdown from "@/components/live/LiveCountdown";
 import FloatingHearts from "@/components/live/FloatingHearts";
+import TipButton from "@/components/wallet/TipButton";
+import { useWallet } from "@/hooks/useWallet";
 import { toast } from "sonner";
 
 const QUICK_BIDS = [5, 10, 25];
@@ -13,6 +15,7 @@ const LiveRoom = () => {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const { getRoom, feed, placeBid, sendChat } = useLive();
+  const { balance, charge } = useWallet();
   const room = getRoom(id);
   const events = feed[id] ?? [];
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -45,14 +48,24 @@ const LiveRoom = () => {
 
   const onQuickBid = (delta: number) => {
     const next = room.item!.topBid + delta;
+    if (next > balance) { toast.error(`Bid exceeds wallet (£${balance.toFixed(2)})`); return; }
+    if (!charge(next, "bid", `Live bid · ${room.item!.title}`, { roomId: room.id })) {
+      toast.error("Could not place bid");
+      return;
+    }
     placeBid(room.id, next);
-    toast.success(`Bid placed at $${next}`);
+    toast.success(`Bid placed at £${next}`);
   };
 
   const onCustomBid = () => {
     const v = parseFloat(customBid);
     if (!v || v <= room.item!.topBid) {
-      toast.error(`Must be > $${room.item!.topBid}`);
+      toast.error(`Must be > £${room.item!.topBid}`);
+      return;
+    }
+    if (v > balance) { toast.error(`Bid exceeds wallet (£${balance.toFixed(2)})`); return; }
+    if (!charge(v, "bid", `Live bid · ${room.item!.title}`, { roomId: room.id })) {
+      toast.error("Could not place bid");
       return;
     }
     placeBid(room.id, v);
