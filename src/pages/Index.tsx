@@ -4,6 +4,7 @@ import Stories from "@/components/Stories";
 import Feed from "@/components/Feed";
 import Sidebar from "@/components/Sidebar";
 import FeedFilter, { FeedFilterState, DEFAULT_FILTER } from "@/components/FeedFilter";
+import ActiveFilterChips from "@/components/ActiveFilterChips";
 
 const TAB_TO_MODE = { 1: "live", 2: "popular", 3: "algorithm" } as const;
 
@@ -19,6 +20,7 @@ const Index = () => {
           <div className="flex-1 min-w-0">
             <Stories />
             <FeedFilter value={filter} onChange={setFilter} />
+            <ActiveFilterChips value={filter} onChange={setFilter} />
             <Feed mode={TAB_TO_MODE[activeTab]} filter={filter} />
           </div>
           <Sidebar />

@@ -139,6 +139,11 @@ const applyFilter = (posts: FeedPost[], f: FeedFilterState): FeedPost[] => {
     if (p.listing && (f.category === "all" || f.category === "shop")) {
       if (!f.shop.types.includes(p.listing.type)) return false;
       if (!f.shop.statuses.includes(p.listing.status as any)) return false;
+      if (f.shop.liveAuctionsOnly) {
+        if (p.listing.type !== "auction") return false;
+        if (p.listing.status !== "active") return false;
+        if (p.listing.ends_at && new Date(p.listing.ends_at).getTime() <= Date.now()) return false;
+      }
       if (f.shop.categories.length > 0) {
         const hay = `${p.listing.title ?? ""} ${p.caption ?? ""}`.toLowerCase();
         const matches = f.shop.categories.some((cat) => {
