@@ -224,7 +224,7 @@ const Activity = () => {
 
 
       <main className="max-w-lg mx-auto px-4 pt-3">
-        {notifs.length === 0 ? (
+        {cat === "drops" ? null : notifs.length === 0 ? (
           <EmptyState icon={Bell} title="No activity yet" description="Likes, comments, follows and marketplace updates will show up here." />
         ) : filtered.length === 0 ? (
           <EmptyState icon={Bell} title="Nothing here" description="No notifications match these filters." />
