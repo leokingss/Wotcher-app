@@ -58,7 +58,7 @@ const dayLabel = (iso: string) => {
   return d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
 };
 
-type FilterCat = "all" | "social" | "marketplace" | "unread";
+type FilterCat = "all" | "social" | "marketplace" | "unread" | "drops";
 type TimeRange = "all" | "today" | "week" | "month";
 
 const CATS: { id: FilterCat; label: string }[] = [
@@ -66,6 +66,7 @@ const CATS: { id: FilterCat; label: string }[] = [
   { id: "unread", label: "Unread" },
   { id: "social", label: "Social" },
   { id: "marketplace", label: "Marketplace" },
+  { id: "drops", label: "Drops & Packets" },
 ];
 
 const TIMES: { id: TimeRange; label: string }[] = [
@@ -188,7 +189,6 @@ const Activity = () => {
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-2 space-y-2">
-        <ActivityPinnedDrops />
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
           {CATS.map((c) => {
             const count = c.id === "unread" ? unread : undefined;
@@ -218,10 +218,13 @@ const Activity = () => {
             );
           })}
         </div>
+        {cat === "drops" && <ActivityPinnedDrops />}
       </div>
 
+
+
       <main className="max-w-lg mx-auto px-4 pt-3">
-        {notifs.length === 0 ? (
+        {cat === "drops" ? null : notifs.length === 0 ? (
           <EmptyState icon={Bell} title="No activity yet" description="Likes, comments, follows and marketplace updates will show up here." />
         ) : filtered.length === 0 ? (
           <EmptyState icon={Bell} title="Nothing here" description="No notifications match these filters." />
