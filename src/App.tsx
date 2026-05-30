@@ -11,6 +11,8 @@ import MiniPlayer from "@/components/MiniPlayer";
 import { PlayerProvider } from "@/hooks/usePlayer";
 import { SavedListsProvider } from "@/hooks/useSavedLists";
 import { ChartsProvider } from "@/hooks/useChartsStore";
+import { MusicMetaProvider } from "@/hooks/useMusicMeta";
+import Playlist from "./pages/Playlist";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import BottomNav from "@/components/BottomNav";
 import Root from "./pages/Root";
@@ -78,6 +80,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/orders" element={<PageTransition><ProtectedRoute><AdminOrders /></ProtectedRoute></PageTransition>} />
         <Route path="/admin/invites" element={<PageTransition><ProtectedRoute><AdminInvites /></ProtectedRoute></PageTransition>} />
         <Route path="/invite" element={<PageTransition><ProtectedRoute><InviteFriends /></ProtectedRoute></PageTransition>} />
+        <Route path="/playlists/:id" element={<PageTransition><Playlist /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
       {!hideNav && <BottomNav />}
@@ -107,14 +110,16 @@ const App = () => (
           <PlayerProvider>
             <SavedListsProvider>
               <ChartsProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <NotificationToastManager />
-                  <AnimatedRoutes />
-                  <DevPanel />
-                  <MiniPlayer />
-                </TooltipProvider>
+                <MusicMetaProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <NotificationToastManager />
+                    <AnimatedRoutes />
+                    <DevPanel />
+                    <MiniPlayer />
+                  </TooltipProvider>
+                </MusicMetaProvider>
               </ChartsProvider>
             </SavedListsProvider>
           </PlayerProvider>
