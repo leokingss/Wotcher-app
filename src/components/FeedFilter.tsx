@@ -7,10 +7,10 @@ import {
   Video, ShoppingBag, MapPin, MessageSquare, Gavel, Tag, X,
   Sparkles, TrendingUp, Flame, Disc3, Mic2, Camera, Film,
   Shirt, Watch, Glasses, Palette, Footprints, Gem, Sofa, Book,
-  Smartphone, Heart, Package,
+  Smartphone, Heart, Package, Radio, Settings2,
 } from "lucide-react";
 
-export type FeedCategory = "all" | "photos" | "music" | "video" | "shop";
+export type FeedCategory = "all" | "photos" | "music" | "video" | "shop" | "live";
 
 export type MusicMood = "new" | "popular" | "trending" | "throwback";
 export type VideoMood = "new" | "popular" | "trending" | "shorts";
@@ -77,6 +77,7 @@ export interface FeedFilterState {
     types: ("auction" | "fixed")[];
     statuses: ("active" | "sold" | "ended")[];
     categories: ShopCategoryId[];
+    liveAuctionsOnly: boolean;
   };
 }
 
@@ -85,7 +86,7 @@ export const DEFAULT_FILTER: FeedFilterState = {
   photos: { hasCaption: false, hasLocation: false, onlyFollowing: false, onlyWithComments: false },
   music: { moods: [], genres: [] },
   video: { moods: [], genres: [] },
-  shop: { types: ["auction", "fixed"], statuses: ["active"], categories: [] },
+  shop: { types: ["auction", "fixed"], statuses: ["active"], categories: [], liveAuctionsOnly: false },
 };
 
 const CATS: { id: FeedCategory; label: string; icon: any }[] = [
@@ -94,6 +95,7 @@ const CATS: { id: FeedCategory; label: string; icon: any }[] = [
   { id: "music", label: "Music", icon: Music },
   { id: "video", label: "Video", icon: Video },
   { id: "shop", label: "Shop", icon: ShoppingBag },
+  { id: "live", label: "Live", icon: Radio },
 ];
 
 const MUSIC_MOODS: { id: MusicMood; label: string; icon: any }[] = [
@@ -121,19 +123,42 @@ const isDefault = (f: FeedFilterState) =>
   f.music.moods.length === 0 && f.music.genres.length === 0 &&
   f.video.moods.length === 0 && f.video.genres.length === 0 &&
   f.shop.types.length === 2 && f.shop.statuses.length === 1 && f.shop.statuses[0] === "active" &&
-  f.shop.categories.length === 0;
+  f.shop.categories.length === 0 && !f.shop.liveAuctionsOnly;
+
+const countPhotos = (f: FeedFilterState) =>
+  (f.photos.hasCaption ? 1 : 0) +
+  (f.photos.hasLocation ? 1 : 0) +
+  (f.photos.onlyFollowing ? 1 : 0) +
+  (f.photos.onlyWithComments ? 1 : 0);
+
+const countMusic = (f: FeedFilterState) => f.music.moods.length + f.music.genres.length;
+const countVideo = (f: FeedFilterState) => f.video.moods.length + f.video.genres.length;
+const countShop = (f: FeedFilterState) =>
+  f.shop.categories.length +
+  (f.shop.liveAuctionsOnly ? 1 : 0) +
+  (f.shop.types.length !== 2 ? 1 : 0) +
+  (f.shop.statuses.length !== 1 || f.shop.statuses[0] !== "active" ? 1 : 0);
+
+export const countActiveFilters = (f: FeedFilterState) =>
+  countPhotos(f) + countMusic(f) + countVideo(f) + countShop(f);
 
 const FeedFilter = ({ value, onChange }: Props) => {
   const [open, setOpen] = useState(false);
   const active = !isDefault(value);
   const activeCat = CATS.find((c) => c.id === value.category) ?? CATS[0];
   const ActiveIcon = activeCat.icon;
+  const totalCount = countActiveFilters(value);
 
   const reset = () => onChange(DEFAULT_FILTER);
 
   function toggleArr<T>(arr: T[], v: T): T[] {
     return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
   }
+
+  const photosCount = countPhotos(value);
+  const musicCount = countMusic(value);
+  const videoCount = countVideo(value);
+  const shopCount = countShop(value);
 
   return (
     <>
@@ -149,7 +174,7 @@ const FeedFilter = ({ value, onChange }: Props) => {
           <SlidersHorizontal className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
           <span className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
             <ActiveIcon className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
-            <span>{activeCat.label}</span>
+            <span>{activeCat.label}{totalCount > 0 ? ` · ${totalCount}` : ""}</span>
             {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
           </span>
           <ChevronDown className="ml-auto w-4 h-4 text-muted-foreground" />
@@ -165,6 +190,9 @@ const FeedFilter = ({ value, onChange }: Props) => {
             <SheetTitle className="flex items-center gap-2 text-base">
               <SlidersHorizontal className="w-5 h-5 text-primary" />
               Filter your feed
+              {totalCount > 0 && (
+                <span className="ml-auto text-[11px] font-semibold neo-card-inset px-2 py-0.5 rounded-full text-primary">{totalCount} active</span>
+              )}
             </SheetTitle>
             <SheetDescription className="text-xs">
               Pick a category, then narrow it down.
@@ -177,7 +205,7 @@ const FeedFilter = ({ value, onChange }: Props) => {
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 Show me
               </p>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-6 gap-2">
                 {CATS.map((c) => {
                   const Icon = c.icon;
                   const isActive = value.category === c.id;
@@ -186,11 +214,11 @@ const FeedFilter = ({ value, onChange }: Props) => {
                       key={c.id}
                       type="button"
                       onClick={() => onChange({ ...value, category: c.id })}
-                      className={`rounded-2xl p-2.5 flex flex-col items-center gap-1.5 transition-colors ${
+                      className={`rounded-2xl p-2 flex flex-col items-center gap-1 transition-colors ${
                         isActive ? "neo-card-inset ring-1 ring-primary/40" : "neo-card"
                       }`}
                     >
-                      <span className={`neo-button-icon w-9 h-9 rounded-full flex items-center justify-center ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                      <span className={`neo-button-icon w-8 h-8 rounded-full flex items-center justify-center ${isActive ? "text-primary" : "text-muted-foreground"}`}>
                         <Icon className="w-4 h-4" />
                       </span>
                       <span className={`text-[10px] font-semibold ${isActive ? "text-primary" : "text-foreground"}`}>{c.label}</span>
@@ -200,9 +228,18 @@ const FeedFilter = ({ value, onChange }: Props) => {
               </div>
             </section>
 
+            {/* Live — quick info */}
+            {value.category === "live" && (
+              <SubSection title="Live now" icon={Radio} count={0}>
+                <p className="text-xs text-muted-foreground">
+                  Showing everything live right now — auctions, sync sessions, and live together rooms.
+                </p>
+              </SubSection>
+            )}
+
             {/* Photos */}
             {(value.category === "all" || value.category === "photos") && (
-              <SubSection title="Photos" icon={Camera}>
+              <SubSection title="Refine · Photos" icon={Settings2} count={photosCount}>
                 <Toggle
                   icon={MessageSquare}
                   label="Only with captions"
@@ -236,8 +273,10 @@ const FeedFilter = ({ value, onChange }: Props) => {
 
             {/* Music */}
             {(value.category === "all" || value.category === "music") && (
-              <SubSection title="Music" icon={Mic2}>
-                <p className="text-[11px] text-muted-foreground -mb-1">Vibe</p>
+              <SubSection title="Music" icon={Mic2} count={musicCount}>
+                <p className="text-[11px] text-muted-foreground -mb-1">
+                  Vibe {value.music.moods.length > 0 && <span className="text-primary font-semibold">· {value.music.moods.length}</span>}
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {MUSIC_MOODS.map((m) => (
                     <Chip
@@ -249,7 +288,9 @@ const FeedFilter = ({ value, onChange }: Props) => {
                     />
                   ))}
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">Genres</p>
+                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">
+                  Genres {value.music.genres.length > 0 && <span className="text-primary font-semibold">· {value.music.genres.length}</span>}
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {MUSIC_GENRES.map((g) => (
                     <Chip
@@ -265,8 +306,10 @@ const FeedFilter = ({ value, onChange }: Props) => {
 
             {/* Video */}
             {(value.category === "all" || value.category === "video") && (
-              <SubSection title="Video" icon={Film}>
-                <p className="text-[11px] text-muted-foreground -mb-1">Vibe</p>
+              <SubSection title="Video" icon={Film} count={videoCount}>
+                <p className="text-[11px] text-muted-foreground -mb-1">
+                  Vibe {value.video.moods.length > 0 && <span className="text-primary font-semibold">· {value.video.moods.length}</span>}
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {VIDEO_MOODS.map((m) => (
                     <Chip
@@ -278,7 +321,9 @@ const FeedFilter = ({ value, onChange }: Props) => {
                     />
                   ))}
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">Categories</p>
+                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">
+                  Categories {value.video.genres.length > 0 && <span className="text-primary font-semibold">· {value.video.genres.length}</span>}
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {VIDEO_GENRES.map((g) => (
                     <Chip
@@ -294,7 +339,8 @@ const FeedFilter = ({ value, onChange }: Props) => {
 
             {/* Shop */}
             {(value.category === "all" || value.category === "shop") && (
-              <SubSection title="Shop" icon={ShoppingBag}>
+              <SubSection title="Shop" icon={ShoppingBag} count={shopCount}>
+                {/* Elevated: Listing type first */}
                 <p className="text-[11px] text-muted-foreground -mb-1">Listing type</p>
                 <div className="grid grid-cols-2 gap-2">
                   <Chip
@@ -310,6 +356,13 @@ const FeedFilter = ({ value, onChange }: Props) => {
                     onClick={() => onChange({ ...value, shop: { ...value.shop, types: toggleArr(value.shop.types, "fixed") } })}
                   />
                 </div>
+                <Toggle
+                  icon={Radio}
+                  label="Live auctions only"
+                  desc="Active auctions, ending soon"
+                  active={value.shop.liveAuctionsOnly}
+                  onClick={() => onChange({ ...value, shop: { ...value.shop, liveAuctionsOnly: !value.shop.liveAuctionsOnly, types: value.shop.liveAuctionsOnly ? value.shop.types : ["auction"] } })}
+                />
                 <p className="text-[11px] text-muted-foreground mt-2 -mb-1">Status</p>
                 <div className="grid grid-cols-3 gap-2">
                   {(["active", "sold", "ended"] as const).map((s) => (
@@ -321,7 +374,9 @@ const FeedFilter = ({ value, onChange }: Props) => {
                     />
                   ))}
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">Categories</p>
+                <p className="text-[11px] text-muted-foreground mt-2 -mb-1">
+                  Categories {value.shop.categories.length > 0 && <span className="text-primary font-semibold">· {value.shop.categories.length}</span>}
+                </p>
                 <div className="grid grid-cols-3 gap-2">
                   {SHOP_CATEGORIES.map((c) => (
                     <Chip
@@ -350,7 +405,7 @@ const FeedFilter = ({ value, onChange }: Props) => {
               onClick={() => setOpen(false)}
               className="flex-1 neo-button rounded-full h-10 text-xs font-semibold text-primary"
             >
-              Apply
+              Apply{totalCount > 0 ? ` · ${totalCount}` : ""}
             </button>
           </div>
         </SheetContent>
@@ -359,11 +414,14 @@ const FeedFilter = ({ value, onChange }: Props) => {
   );
 };
 
-const SubSection = ({ title, icon: Icon, children }: { title: string; icon?: any; children: React.ReactNode }) => (
+const SubSection = ({ title, icon: Icon, count, children }: { title: string; icon?: any; count?: number; children: React.ReactNode }) => (
   <section className="space-y-2">
     <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       {Icon && <Icon className="w-3.5 h-3.5" />}
       {title}
+      {count != null && count > 0 && (
+        <span className="ml-1 text-primary normal-case tracking-normal">· {count}</span>
+      )}
     </p>
     <div className="space-y-2">{children}</div>
   </section>
