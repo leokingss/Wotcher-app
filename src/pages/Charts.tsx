@@ -15,8 +15,9 @@ import {
 import ChartRow from "@/components/charts/ChartRow";
 import MovementBadge from "@/components/charts/MovementBadge";
 import ReRankSheet from "@/components/charts/ReRankSheet";
+import PredictTab from "@/components/charts/PredictTab";
 
-type Tab = "mine" | "friends" | "global";
+type Tab = "mine" | "friends" | "global" | "predict";
 
 const formatRelative = (ts: number) => {
   const diffMs = Date.now() - ts;
@@ -85,6 +86,7 @@ const Charts = () => {
               { id: "mine", label: "My Top 10" },
               { id: "friends", label: "Friends" },
               { id: "global", label: "Global" },
+              { id: "predict", label: "Predict" },
             ] as { id: Tab; label: string }[]).map((t) => (
               <button
                 key={t.id}
@@ -320,6 +322,8 @@ const Charts = () => {
             </div>
           </>
         )}
+
+        {tab === "predict" && <PredictTab />}
       </div>
 
       {openSheet && (
