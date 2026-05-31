@@ -1,13 +1,45 @@
-import { useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck, Loader2 } from "lucide-react";
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
 type Source = "everyone" | "friends" | "following" | "suggested";
 type ContentType = "photos" | "music" | "movies" | "shop";
+
+// Lightweight tags so the AI has something to reason about per item.
+// In production these would come from real metadata / vision tags.
+const exploreTags: string[][] = [
+  ["portrait", "warm", "people", "natural-light"],
+  ["abstract", "moody", "texture"],
+  ["fashion", "studio", "editorial"],
+  ["street", "urban", "candid"],
+  ["nature", "landscape", "golden-hour"],
+  ["portrait", "lifestyle", "outdoor"],
+  ["macro", "detail", "nature"],
+  ["travel", "landscape", "minimal"],
+];
+
+// Mock taste profile — would normally be derived from real interactions.
+const tasteProfile = {
+  likedTags: ["portrait", "golden-hour", "minimal", "editorial"],
+  dislikedTags: ["loud-color"],
+  recentInteractions: [
+    { tag: "portrait", weight: 0.9 },
+    { tag: "natural-light", weight: 0.7 },
+    { tag: "landscape", weight: 0.4 },
+  ],
+  favoriteCategories: ["photography", "music"],
+  followingStyles: ["lifestyle", "editorial"],
+};
+
+type RankedPick = { id: string; score: number; reason: string };
+
 
 const categories: { icon: any; label: Category }[] = [
   { icon: Grid3X3, label: "All" },
