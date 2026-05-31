@@ -254,6 +254,8 @@ const Search = () => {
 
         {active === "Shop" ? (
           <ShopView onOpenListing={setOpenListingId} />
+        ) : active === "Auctions" ? (
+          <AuctionsView onOpenListing={setOpenListingId} />
         ) : (
           <>
             {source === "suggested" && (
