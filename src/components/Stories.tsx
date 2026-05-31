@@ -119,6 +119,10 @@ const Stories = () => {
   const own = grouped.find((g) => g.isOwn);
   const others = grouped.filter((g) => !g.isOwn);
 
+  const { rooms } = useLive();
+  const liveRooms = rooms.slice(0, 3);
+  const showLive = liveRooms.length >= 2;
+
   // Live viewers for the signed-in user's own story frames.
   const ownFrameIds = useMemo(() => own?.frames.map((f) => f.id) ?? [], [own]);
   const { viewers: viewersByFrame } = useStoryViewers(ownFrameIds, !!own && openIdx !== null);
