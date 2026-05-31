@@ -3,7 +3,6 @@ import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3 } from "
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
-import ForYouRow from "@/components/discovery/ForYouRow";
 
 type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
 
@@ -44,7 +43,7 @@ const Search = () => {
 
       <div className="max-w-lg mx-auto px-4">
         {/* Categories — directly below search bar */}
-        <div className="flex justify-evenly mb-4 py-2">
+        <div className="flex justify-center gap-6 mb-4 py-2">
           {categories.map((cat) => {
             const Icon = cat.icon;
             const isActive = active === cat.label;
@@ -61,11 +60,6 @@ const Search = () => {
               </button>
             );
           })}
-        </div>
-
-        {/* AI Discovery — connects user's Top 10 taste to products / auctions / creators */}
-        <div className="mb-4">
-          <ForYouRow />
         </div>
 
         {active === "Shop" ? (
