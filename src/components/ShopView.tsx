@@ -281,6 +281,31 @@ const ShopView = ({ onOpenListing }: Props) => {
 
   return (
     <div className="space-y-7 pb-2">
+      {user && (
+        <Section icon={Sparkles} title="For you" subtitle="AI picks based on your taste & activity">
+          {forYou.loading ? (
+            <SkeletonRow variant="compact" />
+          ) : forYou.data.length === 0 ? (
+            <SectionEmpty text="Save and follow more to unlock personalized picks." />
+          ) : (
+            <HorizontalScroll>
+              {forYou.data.map(({ listing, reason }) => (
+                <div key={listing.id} className="relative shrink-0">
+                  <ListingCard listing={listing} variant="compact" onOpen={() => onOpenListing(listing.id)} />
+                  <span
+                    title={reason}
+                    className="absolute top-2 right-2 neo-button-icon p-1.5 flex items-center justify-center"
+                    aria-label={`Why: ${reason}`}
+                  >
+                    <Sparkles className="w-3 h-3 text-primary" />
+                  </span>
+                </div>
+              ))}
+            </HorizontalScroll>
+          )}
+        </Section>
+      )}
+
       <Section icon={Clock} title="Ending soon" subtitle="Don't miss these auctions">
         {endingSoon.loading ? (
           <SkeletonRow variant="hero" />
