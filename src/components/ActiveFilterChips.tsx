@@ -31,7 +31,7 @@ const ActiveFilterChips = ({ value, onChange }: Props) => {
   value.video.genres.forEach((g) => chips.push({ key: `vg-${g}`, label: g, onRemove: () => onChange({ ...value, video: { ...value.video, genres: value.video.genres.filter((x) => x !== g) } }) }));
 
   // Shop
-  if (value.shop.liveAuctionsOnly) chips.push({ key: "s-live", label: "Live auctions", icon: Radio, onRemove: () => onChange({ ...value, shop: { ...value.shop, liveAuctionsOnly: false, types: ["auction", "fixed"] } }) });
+  if (value.shop.liveAuctionsOnly) chips.push({ key: "s-live", label: "Live auctions", icon: Sparkles, onRemove: () => onChange({ ...value, shop: { ...value.shop, liveAuctionsOnly: false, types: ["auction", "fixed"] } }) });
   if (value.shop.types.length !== 2) {
     value.shop.types.forEach((t) => chips.push({
       key: `st-${t}`,
