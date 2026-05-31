@@ -3,7 +3,6 @@ import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3 } from "
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
-import ForYouRow from "@/components/discovery/ForYouRow";
 
 type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
 
