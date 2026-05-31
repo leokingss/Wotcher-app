@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3 } from "lucide-react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck } from "lucide-react";
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
+type Source = "everyone" | "friends" | "following" | "suggested";
+type ContentType = "photos" | "music" | "movies" | "shop";
 
 const categories: { icon: any; label: Category }[] = [
   { icon: Grid3X3, label: "All" },
@@ -14,9 +17,30 @@ const categories: { icon: any; label: Category }[] = [
   { icon: ShoppingBag, label: "Shop" },
 ];
 
+const sources: { id: Source; label: string; icon: any; desc: string }[] = [
+  { id: "everyone", label: "Everyone", icon: Globe, desc: "Suggestions from the whole community" },
+  { id: "friends", label: "Friends only", icon: Users, desc: "Only people in your circles" },
+  { id: "following", label: "People you follow", icon: UserCheck, desc: "Accounts you already follow" },
+  { id: "suggested", label: "Suggested for you", icon: Sparkles, desc: "Personalized picks" },
+];
+
+const contentTypes: { id: ContentType; label: string; icon: any }[] = [
+  { id: "photos", label: "Photos", icon: Image },
+  { id: "music", label: "Music", icon: Music },
+  { id: "movies", label: "Movies", icon: Film },
+  { id: "shop", label: "Shop", icon: ShoppingBag },
+];
+
 const Search = () => {
   const [active, setActive] = useState<Category>("All");
   const [openListingId, setOpenListingId] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [source, setSource] = useState<Source>("everyone");
+  const [types, setTypes] = useState<ContentType[]>(["photos", "music", "movies", "shop"]);
+
+  const toggleType = (id: ContentType) => {
+    setTypes((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
