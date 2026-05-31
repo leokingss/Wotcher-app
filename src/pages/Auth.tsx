@@ -258,7 +258,7 @@ const Auth = () => {
           />
           <button
             type="submit"
-            disabled={submitting || !inviteOk}
+            disabled={submitting || !signupReady}
             className="action-button action-button-primary w-full flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
