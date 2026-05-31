@@ -19,9 +19,28 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [dob, setDob] = useState("");
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [invite, setInvite] = useState(params.get("invite") ?? localStorage.getItem(INVITE_STORAGE_KEY) ?? "");
   const [inviteCheck, setInviteCheck] = useState<{ valid: boolean; reason?: string; inviter?: string | null } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const MIN_AGE = 16;
+  const getAge = (iso: string) => {
+    if (!iso) return 0;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return 0;
+    const now = new Date();
+    let age = now.getFullYear() - d.getFullYear();
+    const m = now.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+    return age;
+  };
+  const age = getAge(dob);
+  const ageOk = age >= MIN_AGE;
+  const today = new Date();
+  const maxDob = new Date(today.getFullYear() - MIN_AGE, today.getMonth(), today.getDate())
+    .toISOString().split("T")[0];
 
   // Auto-validate invite code with debounce
   useEffect(() => {
@@ -69,6 +88,9 @@ const Auth = () => {
       if (mode === "signup") {
         const code = invite.trim().toUpperCase();
         if (!code) throw new Error("This app is invite-only. Enter an invite code.");
+        if (!dob) throw new Error("Please enter your date of birth.");
+        if (!ageOk) throw new Error(`You must be at least ${MIN_AGE} years old to join.`);
+        if (!ageConfirmed) throw new Error("Please confirm your age is correct.");
         const r = await validateInviteCode(code, email);
         if (!r.valid) throw new Error(`Invite ${r.reason.replace("_", " ")}`);
         const { error } = await supabase.auth.signUp({
@@ -79,6 +101,8 @@ const Auth = () => {
             data: {
               username: username || email.split("@")[0],
               invite_code: code,
+              date_of_birth: dob,
+              age_verified: true,
             },
           },
         });
@@ -104,9 +128,13 @@ const Auth = () => {
       return;
     }
     if (mode === "signup") {
+      if (!dob) { toast.error("Please enter your date of birth."); return; }
+      if (!ageOk) { toast.error(`You must be at least ${MIN_AGE} years old to join.`); return; }
+      if (!ageConfirmed) { toast.error("Please confirm your age is correct."); return; }
       const r = await validateInviteCode(invite.trim());
       if (!r.valid) { toast.error(`Invite ${r.reason}`); return; }
       localStorage.setItem(INVITE_STORAGE_KEY, invite.trim().toUpperCase());
+      localStorage.setItem("pending_dob", dob);
       try { await claimInvite(invite.trim()); } catch {}
     }
     const { error, redirected } = await lovable.auth.signInWithOAuth(provider, {
@@ -126,6 +154,7 @@ const Auth = () => {
   };
 
   const inviteOk = mode !== "signup" || (inviteCheck?.valid ?? false);
+  const signupReady = mode !== "signup" || (inviteOk && ageOk && ageConfirmed && !!dob);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background">
@@ -159,11 +188,46 @@ const Auth = () => {
           </div>
         )}
 
+        {mode === "signup" && (
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+              Date of birth
+            </label>
+            <input
+              type="date"
+              required
+              max={maxDob}
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+              className="neo-card-inset w-full px-4 py-3 rounded-xl bg-transparent outline-none text-sm"
+            />
+            {dob && !ageOk && (
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                You must be at least {MIN_AGE} years old to join.
+              </p>
+            )}
+            {dob && ageOk && (
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={ageConfirmed}
+                  onChange={(e) => setAgeConfirmed(e.target.checked)}
+                  className="mt-0.5 accent-primary"
+                />
+                <span>
+                  I confirm I am {age} years old and meet the minimum age of {MIN_AGE}. Providing false information may result in account removal.
+                </span>
+              </label>
+            )}
+          </div>
+        )}
+
         <div className="space-y-2">
-          <button onClick={() => oauth("google")} disabled={!inviteOk} className="action-button w-full disabled:opacity-40">
+          <button onClick={() => oauth("google")} disabled={!signupReady} className="action-button w-full disabled:opacity-40">
             Continue with Google
           </button>
-          <button onClick={() => oauth("apple")} disabled={!inviteOk} className="action-button w-full disabled:opacity-40">
+          <button onClick={() => oauth("apple")} disabled={!signupReady} className="action-button w-full disabled:opacity-40">
             Continue with Apple
           </button>
         </div>
@@ -194,7 +258,7 @@ const Auth = () => {
           />
           <button
             type="submit"
-            disabled={submitting || !inviteOk}
+            disabled={submitting || !signupReady}
             className="action-button action-button-primary w-full flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
