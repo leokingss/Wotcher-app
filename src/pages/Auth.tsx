@@ -128,9 +128,13 @@ const Auth = () => {
       return;
     }
     if (mode === "signup") {
+      if (!dob) { toast.error("Please enter your date of birth."); return; }
+      if (!ageOk) { toast.error(`You must be at least ${MIN_AGE} years old to join.`); return; }
+      if (!ageConfirmed) { toast.error("Please confirm your age is correct."); return; }
       const r = await validateInviteCode(invite.trim());
       if (!r.valid) { toast.error(`Invite ${r.reason}`); return; }
       localStorage.setItem(INVITE_STORAGE_KEY, invite.trim().toUpperCase());
+      localStorage.setItem("pending_dob", dob);
       try { await claimInvite(invite.trim()); } catch {}
     }
     const { error, redirected } = await lovable.auth.signInWithOAuth(provider, {
