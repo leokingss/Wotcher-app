@@ -25,6 +25,23 @@ interface FeaturedSeller {
 
 type SectionState<T> = { loading: boolean; data: T[] };
 
+type ForYouItem = { listing: Listing; reason: string };
+
+const STOPWORDS = new Set([
+  "the","a","an","and","or","for","with","of","to","in","on","by","new","used",
+  "size","pair","set","one","two","brand","item","sale","limited","edition","color",
+]);
+
+const tokenize = (s: string | null | undefined): string[] => {
+  if (!s) return [];
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !STOPWORDS.has(w))
+    .slice(0, 6);
+};
+
 const ShopView = ({ onOpenListing }: Props) => {
   const { user } = useAuth();
   const { savedIndex, loaded: savedLoaded } = useSavedLists();
@@ -33,6 +50,7 @@ const ShopView = ({ onOpenListing }: Props) => {
   const [fromFollowing, setFromFollowing] = useState<SectionState<Listing>>({ loading: true, data: [] });
   const [featuredSellers, setFeaturedSellers] = useState<SectionState<FeaturedSeller>>({ loading: true, data: [] });
   const [saved, setSaved] = useState<SectionState<Listing>>({ loading: true, data: [] });
+  const [forYou, setForYou] = useState<SectionState<ForYouItem>>({ loading: true, data: [] });
 
   const savedListingIds = useMemo(() => {
     const ids = new Set<string>();
