@@ -53,7 +53,7 @@ const sources: { id: Source; label: string; icon: any; desc: string }[] = [
   { id: "everyone", label: "Everyone", icon: Globe, desc: "Suggestions from the whole community" },
   { id: "friends", label: "Friends only", icon: Users, desc: "Only people in your circles" },
   { id: "following", label: "People you follow", icon: UserCheck, desc: "Accounts you already follow" },
-  { id: "suggested", label: "Suggested for you", icon: Sparkles, desc: "Personalized picks" },
+  { id: "suggested", label: "Suggested for you", icon: Sparkles, desc: "AI picks based on your taste, activity & interactions" },
 ];
 
 const contentTypes: { id: ContentType; label: string; icon: any }[] = [
