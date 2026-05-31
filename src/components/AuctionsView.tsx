@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Listing } from "@/hooks/useListings";
 import SaveButton from "@/components/SaveButton";
 import TimeLeft from "@/components/TimeLeft";
-import EmptyState from "@/components/EmptyState";
+
 
 const fmt = (n?: number | null) =>
   n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "GBP" }).format(n);
@@ -14,6 +14,74 @@ const HOT_WINDOW_MS = 24 * 60 * 60 * 1000; // ending within 24h = "happening now
 interface Props {
   onOpenListing: (id: string) => void;
 }
+
+// Fake samples shown when the DB has no live auctions yet, so the layout is previewable.
+const SAMPLE_AUCTIONS: Listing[] = [
+  {
+    id: "sample-1", post_id: null, seller_id: "s1", type: "auction",
+    title: "Vintage Leica M3 — 1958", description: null,
+    price: null, starting_bid: 480, current_bid: 720, current_bidder_id: null,
+    ends_at: new Date(Date.now() + 1000 * 60 * 47).toISOString(),
+    status: "active", created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1606986628253-49b5b6e7fdb1?w=800&q=80",
+  },
+  {
+    id: "sample-2", post_id: null, seller_id: "s2", type: "auction",
+    title: "Hand-thrown ceramic vase", description: null,
+    price: null, starting_bid: 60, current_bid: 145, current_bidder_id: null,
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 3).toISOString(),
+    status: "active", created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&q=80",
+  },
+  {
+    id: "sample-3", post_id: null, seller_id: "s3", type: "auction",
+    title: "First-press vinyl · 1972", description: null,
+    price: null, starting_bid: 25, current_bid: 88, current_bidder_id: null,
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 18).toISOString(),
+    status: "active", created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80",
+  },
+  {
+    id: "sample-4", post_id: null, seller_id: "s4", type: "auction",
+    title: "Mid-century lounge chair", description: null,
+    price: null, starting_bid: 200, current_bid: null, current_bidder_id: null,
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 38).toISOString(),
+    status: "active", created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800&q=80",
+  },
+  {
+    id: "sample-5", post_id: null, seller_id: "s5", type: "auction",
+    title: "Signed art print — edition of 50", description: null,
+    price: null, starting_bid: 90, current_bid: 120, current_bidder_id: null,
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 52).toISOString(),
+    status: "active", created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&q=80",
+  },
+  {
+    id: "sample-6", post_id: null, seller_id: "s6", type: "auction",
+    title: "Rolex Submariner · 1989", description: null,
+    price: null, starting_bid: 3200, current_bid: 4800, current_bidder_id: null,
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 72).toISOString(),
+    status: "active", created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
+  },
+  {
+    id: "sample-7", post_id: null, seller_id: "s7", type: "auction",
+    title: "Polaroid SX-70 · fully serviced", description: null,
+    price: null, starting_bid: 140, current_bid: 180, current_bidder_id: null,
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 96).toISOString(),
+    status: "active", created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=800&q=80",
+  },
+  {
+    id: "sample-8", post_id: null, seller_id: "s8", type: "auction",
+    title: "Handmade silver pendant", description: null,
+    price: null, starting_bid: 45, current_bid: null, current_bidder_id: null,
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 120).toISOString(),
+    status: "active", created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80",
+  },
+];
 
 const AuctionsView = ({ onOpenListing }: Props) => {
   const [loading, setLoading] = useState(true);
@@ -34,7 +102,8 @@ const AuctionsView = ({ onOpenListing }: Props) => {
           ...l,
           image_url: l.posts?.image_url ?? null,
         })) as Listing[];
-        setAuctions(mapped);
+        // Fall back to fake samples so the section is never empty in preview.
+        setAuctions(mapped.length > 0 ? mapped : SAMPLE_AUCTIONS);
         setLoading(false);
       });
   }, []);
@@ -64,15 +133,6 @@ const AuctionsView = ({ onOpenListing }: Props) => {
     );
   }
 
-  if (auctions.length === 0) {
-    return (
-      <EmptyState
-        icon={Gavel}
-        title="No live auctions right now"
-        description="Check back soon — new auctions go up every day."
-      />
-    );
-  }
 
   return (
     <div className="space-y-6">
