@@ -69,10 +69,70 @@ const Search = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [source, setSource] = useState<Source>("everyone");
   const [types, setTypes] = useState<ContentType[]>(["photos", "music", "movies", "shop"]);
+  const [suggesting, setSuggesting] = useState(false);
+  const [ranked, setRanked] = useState<RankedPick[] | null>(null);
 
   const toggleType = (id: ContentType) => {
     setTypes((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
   };
+
+  // Run AI personalization when "Suggested for you" is selected.
+  useEffect(() => {
+    if (source !== "suggested") {
+      setRanked(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setSuggesting(true);
+      try {
+        const candidates = exploreImages.map((_, i) => ({
+          id: String(i),
+          tags: exploreTags[i] ?? [],
+          kind: "photo",
+        }));
+        const { data, error } = await supabase.functions.invoke(
+          "personalized-suggestions",
+          { body: { profile: tasteProfile, candidates, limit: 12 } },
+        );
+        if (cancelled) return;
+        if (error) {
+          const status = (error as any)?.context?.status;
+          const msg = status === 429
+            ? "Too many requests — try again in a moment."
+            : status === 402
+              ? "AI credits exhausted. Add credits to keep curating."
+              : "Couldn't load personalized picks.";
+          toast.error(msg);
+          setRanked([]);
+        } else {
+          setRanked((data?.ranked as RankedPick[]) ?? []);
+        }
+      } catch {
+        if (!cancelled) {
+          toast.error("Couldn't load personalized picks.");
+          setRanked([]);
+        }
+      } finally {
+        if (!cancelled) setSuggesting(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [source]);
+
+  const displayed = useMemo(() => {
+    if (source === "suggested" && ranked && ranked.length > 0) {
+      return ranked
+        .map((r) => ({
+          src: exploreImages[Number(r.id)],
+          reason: r.reason,
+        }))
+        .filter((x) => !!x.src);
+    }
+    return exploreImages.map((src) => ({ src, reason: null as string | null }));
+  }, [source, ranked]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
