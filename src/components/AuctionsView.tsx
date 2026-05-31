@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Listing } from "@/hooks/useListings";
 import SaveButton from "@/components/SaveButton";
 import TimeLeft from "@/components/TimeLeft";
+import AuctionReminderButton from "@/components/AuctionReminderButton";
 
 
 const fmt = (n?: number | null) =>
@@ -281,6 +282,12 @@ const AuctionCard = ({ listing: l, onOpen }: { listing: Listing; onOpen: () => v
         itemTitle={l.title}
         className="absolute bottom-3.5 right-3.5 w-9 h-9 rounded-full"
         iconClassName="w-4 h-4 text-white"
+      />
+      <AuctionReminderButton
+        listingId={l.id}
+        title={l.title}
+        endsAt={l.ends_at}
+        className="absolute bottom-14 right-3.5 w-9 h-9 rounded-full"
       />
     </div>
   );
