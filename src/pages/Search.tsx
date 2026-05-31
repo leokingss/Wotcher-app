@@ -48,6 +48,7 @@ const categories: { icon: any; label: Category }[] = [
   { icon: Music, label: "Music" },
   { icon: Film, label: "Movies" },
   { icon: ShoppingBag, label: "Shop" },
+  { icon: Gavel, label: "Auctions" },
 ];
 
 const sources: { id: Source; label: string; icon: any; desc: string }[] = [
