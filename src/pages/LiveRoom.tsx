@@ -230,6 +230,7 @@ const LiveRoom = () => {
         </div>
       </div>
     </div>
+    </div>
   );
 };
 
