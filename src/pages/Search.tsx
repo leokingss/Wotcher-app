@@ -157,28 +157,6 @@ const Search = () => {
             );
           })}
         </div>
-      </div>
-
-      <div className="max-w-lg mx-auto px-4">
-        {/* Categories — directly below search bar */}
-        <div className="flex justify-center gap-6 mb-4 py-2">
-          {categories.map((cat) => {
-            const Icon = cat.icon;
-            const isActive = active === cat.label;
-            return (
-              <button
-                key={cat.label}
-                onClick={() => setActive(cat.label)}
-                className="flex flex-col items-center gap-1.5 flex-shrink-0"
-              >
-                <span className={`neo-button-icon p-3 ${isActive ? "!text-primary" : ""}`}>
-                  <Icon className="w-5 h-5" />
-                </span>
-                <span className={`text-xs ${isActive ? "text-primary font-semibold" : "text-muted-foreground"}`}>{cat.label}</span>
-              </button>
-            );
-          })}
-        </div>
 
         {active === "Shop" ? (
           <ShopView onOpenListing={setOpenListingId} />
