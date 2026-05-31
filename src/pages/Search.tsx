@@ -253,21 +253,67 @@ const Search = () => {
         {active === "Shop" ? (
           <ShopView onOpenListing={setOpenListingId} />
         ) : (
-          /* Masonry Grid */
-          <div className="columns-2 gap-3 space-y-3">
-            {exploreImages.map((image, index) => (
-              <div
-                key={index}
-                className="break-inside-avoid neo-card p-1 rounded-2xl overflow-hidden"
-              >
-                <img
-                  src={image}
-                  alt=""
-                  className="w-full object-cover rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
-                />
+          <>
+            {source === "suggested" && (
+              <div className="flex items-center justify-between mb-3 px-1">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="neo-button-icon p-1.5 !text-primary">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </span>
+                  <span className="font-semibold">AI-curated for your taste</span>
+                </div>
+                {suggesting && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
               </div>
-            ))}
-          </div>
+            )}
+            {source === "suggested" && suggesting && !ranked ? (
+              <div className="columns-2 gap-3 space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="break-inside-avoid neo-card rounded-2xl bg-muted/30 animate-pulse"
+                    style={{ height: 160 + (i % 3) * 60 }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <TooltipProvider delayDuration={150}>
+                <div className="columns-2 gap-3 space-y-3">
+                  {displayed.map((item, index) => (
+                    <div
+                      key={index}
+                      className="break-inside-avoid neo-card p-1 rounded-2xl overflow-hidden relative group"
+                    >
+                      <img
+                        src={item.src}
+                        alt=""
+                        className="w-full object-cover rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
+                      />
+                      {item.reason && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              className="absolute top-2 right-2 neo-button-icon p-1.5 !text-primary"
+                              aria-label="Why this was suggested"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="max-w-[220px] text-xs">
+                            {item.reason}
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </TooltipProvider>
+            )}
+            {source === "suggested" && ranked && ranked.length === 0 && !suggesting && (
+              <p className="text-center text-xs text-muted-foreground mt-6">
+                Interact with more posts so the AI can learn your taste.
+              </p>
+            )}
+          </>
         )}
       </div>
 
