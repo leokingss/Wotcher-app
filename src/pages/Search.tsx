@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3 } from "lucide-react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck } from "lucide-react";
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
+type Source = "everyone" | "friends" | "following" | "suggested";
+type ContentType = "photos" | "music" | "movies" | "shop";
 
 const categories: { icon: any; label: Category }[] = [
   { icon: Grid3X3, label: "All" },
@@ -14,9 +17,30 @@ const categories: { icon: any; label: Category }[] = [
   { icon: ShoppingBag, label: "Shop" },
 ];
 
+const sources: { id: Source; label: string; icon: any; desc: string }[] = [
+  { id: "everyone", label: "Everyone", icon: Globe, desc: "Suggestions from the whole community" },
+  { id: "friends", label: "Friends only", icon: Users, desc: "Only people in your circles" },
+  { id: "following", label: "People you follow", icon: UserCheck, desc: "Accounts you already follow" },
+  { id: "suggested", label: "Suggested for you", icon: Sparkles, desc: "Personalized picks" },
+];
+
+const contentTypes: { id: ContentType; label: string; icon: any }[] = [
+  { id: "photos", label: "Photos", icon: Image },
+  { id: "music", label: "Music", icon: Music },
+  { id: "movies", label: "Movies", icon: Film },
+  { id: "shop", label: "Shop", icon: ShoppingBag },
+];
+
 const Search = () => {
   const [active, setActive] = useState<Category>("All");
   const [openListingId, setOpenListingId] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [source, setSource] = useState<Source>("everyone");
+  const [types, setTypes] = useState<ContentType[]>(["photos", "music", "movies", "shop"]);
+
+  const toggleType = (id: ContentType) => {
+    setTypes((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -32,11 +56,83 @@ const Search = () => {
               />
               <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             </div>
-            <button className="neo-button-icon p-3">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 6h18M3 12h18M3 18h18" />
-              </svg>
-            </button>
+            <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+              <SheetTrigger asChild>
+                <button className="neo-button-icon p-3" aria-label="Filter">
+                  <SlidersHorizontal className="w-5 h-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="rounded-t-3xl">
+                <SheetHeader>
+                  <SheetTitle className="text-left">Filters</SheetTitle>
+                </SheetHeader>
+
+                <div className="mt-4">
+                  <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Show suggestions from</h3>
+                  <div className="space-y-2">
+                    {sources.map((s) => {
+                      const Icon = s.icon;
+                      const isActive = source === s.id;
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={() => setSource(s.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left ${isActive ? "neo-button-icon !text-primary" : "neo-card"}`}
+                        >
+                          <span className="neo-button-icon p-2 flex-shrink-0">
+                            <Icon className="w-4 h-4" />
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-sm font-medium ${isActive ? "text-primary" : ""}`}>{s.label}</div>
+                            <div className="text-xs text-muted-foreground truncate">{s.desc}</div>
+                          </div>
+                          {isActive && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Content type</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {contentTypes.map((c) => {
+                      const Icon = c.icon;
+                      const isActive = types.includes(c.id);
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => toggleType(c.id)}
+                          className={`flex items-center gap-2 p-3 rounded-2xl ${isActive ? "neo-button-icon !text-primary" : "neo-card"}`}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span className={`text-sm ${isActive ? "text-primary font-semibold" : ""}`}>{c.label}</span>
+                          {isActive && <Check className="w-4 h-4 ml-auto" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="mt-6 flex gap-2">
+                  <button
+                    onClick={() => {
+                      setSource("everyone");
+                      setTypes(["photos", "music", "movies", "shop"]);
+                    }}
+                    className="flex-1 neo-card p-3 rounded-2xl text-sm"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={() => setFilterOpen(false)}
+                    className="flex-1 neo-button-icon p-3 rounded-2xl text-sm !text-primary font-semibold"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
