@@ -154,6 +154,7 @@ const Auth = () => {
   };
 
   const inviteOk = mode !== "signup" || (inviteCheck?.valid ?? false);
+  const signupReady = mode !== "signup" || (inviteOk && ageOk && ageConfirmed && !!dob);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background">
