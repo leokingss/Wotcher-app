@@ -84,7 +84,7 @@ const LiveRoom = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-[88px]">
       {/* Host video area */}
       <div className="relative h-[44vh] min-h-[280px] bg-black overflow-hidden">
         <img src={room.cover} alt={room.title} className="w-full h-full object-cover opacity-80" />
@@ -175,7 +175,7 @@ const LiveRoom = () => {
       </div>
 
       {/* Bottom action bar */}
-      <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border/50 px-3 py-2 space-y-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+      <div className="fixed left-0 right-0 bottom-[76px] z-40 max-w-lg mx-auto bg-background/95 backdrop-blur border-t border-border/50 px-3 py-2 space-y-2">
         <div className="flex gap-1.5">
           {QUICK_BIDS.map((d) => (
             <button
