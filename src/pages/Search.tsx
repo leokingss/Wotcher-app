@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck, Loader2 } from "lucide-react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck, Loader2, Gavel } from "lucide-react";
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
+import AuctionsView from "@/components/AuctionsView";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
+type Category = "All" | "Photos" | "Music" | "Movies" | "Shop" | "Auctions";
 type Source = "everyone" | "friends" | "following" | "suggested";
 type ContentType = "photos" | "music" | "movies" | "shop";
 
@@ -47,6 +48,7 @@ const categories: { icon: any; label: Category }[] = [
   { icon: Music, label: "Music" },
   { icon: Film, label: "Movies" },
   { icon: ShoppingBag, label: "Shop" },
+  { icon: Gavel, label: "Auctions" },
 ];
 
 const sources: { id: Source; label: string; icon: any; desc: string }[] = [
@@ -231,7 +233,7 @@ const Search = () => {
 
       <div className="max-w-lg mx-auto px-4">
         {/* Categories — directly below search bar */}
-        <div className="flex justify-center gap-6 mb-4 py-2">
+        <div className="flex justify-center gap-5 mb-4 py-2 overflow-x-auto scrollbar-none -mx-4 px-4">
           {categories.map((cat) => {
             const Icon = cat.icon;
             const isActive = active === cat.label;
@@ -252,6 +254,8 @@ const Search = () => {
 
         {active === "Shop" ? (
           <ShopView onOpenListing={setOpenListingId} />
+        ) : active === "Auctions" ? (
+          <AuctionsView onOpenListing={setOpenListingId} />
         ) : (
           <>
             {source === "suggested" && (
