@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Listing } from "@/hooks/useListings";
 import SaveButton from "@/components/SaveButton";
 import TimeLeft from "@/components/TimeLeft";
-import EmptyState from "@/components/EmptyState";
+
 
 const fmt = (n?: number | null) =>
   n == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "GBP" }).format(n);
