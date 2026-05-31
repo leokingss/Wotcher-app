@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, ChevronRight, X } from "lucide-react";
+import { Sparkles, ChevronRight, X, Gift, PartyPopper } from "lucide-react";
 import { useWallet } from "@/hooks/useWallet";
 import { useAuth } from "@/hooks/useAuth";
-import DropCard from "./DropCard";
-import RedPacketCard from "./RedPacketCard";
 
 const STORAGE_KEY = "wotcher.activity.dismissedDropsPackets.v1";
 
@@ -51,6 +49,11 @@ const ActivityPinnedDrops = () => {
 
   const dismiss = (key: string) => setDismissed((arr) => (arr.includes(key) ? arr : [...arr, key]));
 
+  const open = (kind: "drop" | "packet", id: string) => {
+    dismiss(`${kind === "drop" ? "d" : "p"}:${id}`);
+    navigate("/wallet");
+  };
+
   return (
     <section className="pt-2 pb-3">
       <button
@@ -58,7 +61,7 @@ const ActivityPinnedDrops = () => {
         className="w-full flex items-center justify-between mb-2 px-1"
       >
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Sparkles className="w-4 h-4" style={{ color: "hsl(45, 100%, 50%)" }} />
           <h2 className="text-xs uppercase tracking-wider font-semibold">Drops & Packets</h2>
         </div>
         <span className="text-xs text-muted-foreground flex items-center gap-0.5">
@@ -66,36 +69,86 @@ const ActivityPinnedDrops = () => {
         </span>
       </button>
 
-      <div className="-mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {visiblePackets.map((p) => (
-          <div key={p.id} className="w-[280px] shrink-0 snap-start relative group">
-            <button
-              onClick={() => dismiss(`p:${p.id}`)}
-              aria-label="Dismiss"
-              className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 backdrop-blur text-white hover:bg-black/70 transition-colors"
+      <div
+        className="rounded-3xl p-2 space-y-2 border"
+        style={{
+          background: "hsl(45, 100%, 50%, 0.12)",
+          borderColor: "hsl(45, 100%, 50%, 0.35)",
+          boxShadow: "0 0 0 1px hsl(45, 100%, 50%, 0.15) inset",
+        }}
+      >
+        {visiblePackets.map((p) => {
+          const remaining = p.shares.filter((s) => !s.claimedBy).length;
+          return (
+            <div
+              key={p.id}
+              onClick={() => open("packet", p.id)}
+              className="w-full text-left bg-background/70 backdrop-blur flex items-center gap-3 p-3 rounded-2xl transition-all hover:scale-[1.01] cursor-pointer"
             >
-              <X className="w-3.5 h-3.5" />
-            </button>
-            <div onClickCapture={(e) => {
-              const target = e.target as HTMLElement;
-              if (target.closest("button[aria-label='Dismiss']")) return;
-              // dismiss when user interacts with the packet itself
-              setTimeout(() => dismiss(`p:${p.id}`), 800);
-            }}>
-              <RedPacketCard packet={p} />
+              <div className="neo-button-icon p-0.5 relative shrink-0">
+                <img
+                  src={p.creatorAvatar}
+                  alt={p.creator}
+                  className="w-11 h-11 rounded-full object-cover"
+                />
+                <div className="absolute -bottom-1 -right-1 bg-background border border-border p-1 rounded-full" style={{ color: "hsl(45, 100%, 50%)" }}>
+                  <PartyPopper className="w-3 h-3" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm truncate">
+                  <span className="font-semibold">@{p.creator}</span>{" "}
+                  <span className="text-muted-foreground">sent you a red packet</span>
+                  <span className="font-semibold" style={{ color: "hsl(45, 100%, 50%)" }}> · £{p.pool.toFixed(2)}</span>
+                </p>
+                <p className="text-xs text-muted-foreground truncate">{p.greeting} · {remaining} left</p>
+              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); dismiss(`p:${p.id}`); }}
+                aria-label="Dismiss"
+                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-secondary hover:bg-secondary/80 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {visibleDrops.map((d) => (
-          <div key={d.id} className="w-[200px] shrink-0 snap-start relative">
+          <div
+            key={d.id}
+            onClick={() => open("drop", d.id)}
+            className="w-full text-left bg-background/70 backdrop-blur flex items-center gap-3 p-3 rounded-2xl transition-all hover:scale-[1.01] cursor-pointer"
+          >
+            <div className="neo-button-icon p-0.5 relative shrink-0">
+              <img
+                src={d.creatorAvatar}
+                alt={d.creator}
+                className="w-11 h-11 rounded-full object-cover"
+              />
+              <div className="absolute -bottom-1 -right-1 bg-background border border-border p-1 rounded-full" style={{ color: "hsl(45, 100%, 50%)" }}>
+                <Gift className="w-3 h-3" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm truncate">
+                <span className="font-semibold">@{d.creator}</span>{" "}
+                <span className="text-muted-foreground">sent you a drop</span>
+                <span className="text-foreground font-medium"> · {d.title}</span>
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {d.access === "free" ? "Free" : d.access === "paid" ? `£${d.price?.toFixed(2)}` : "Early access"}
+              </p>
+            </div>
+            {d.cover && (
+              <img src={d.cover} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
+            )}
             <button
-              onClick={() => dismiss(`d:${d.id}`)}
+              onClick={(e) => { e.stopPropagation(); dismiss(`d:${d.id}`); }}
               aria-label="Dismiss"
-              className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 backdrop-blur text-white hover:bg-black/70 transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-secondary hover:bg-secondary/80 transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>
-            <DropCard drop={d} />
           </div>
         ))}
       </div>
