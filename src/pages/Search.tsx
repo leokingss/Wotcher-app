@@ -56,12 +56,106 @@ const Search = () => {
               />
               <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             </div>
-            <button className="neo-button-icon p-3">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 6h18M3 12h18M3 18h18" />
-              </svg>
-            </button>
+            <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+              <SheetTrigger asChild>
+                <button className="neo-button-icon p-3" aria-label="Filter">
+                  <SlidersHorizontal className="w-5 h-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="rounded-t-3xl">
+                <SheetHeader>
+                  <SheetTitle className="text-left">Filters</SheetTitle>
+                </SheetHeader>
+
+                <div className="mt-4">
+                  <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Show suggestions from</h3>
+                  <div className="space-y-2">
+                    {sources.map((s) => {
+                      const Icon = s.icon;
+                      const isActive = source === s.id;
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={() => setSource(s.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left ${isActive ? "neo-button-icon !text-primary" : "neo-card"}`}
+                        >
+                          <span className="neo-button-icon p-2 flex-shrink-0">
+                            <Icon className="w-4 h-4" />
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-sm font-medium ${isActive ? "text-primary" : ""}`}>{s.label}</div>
+                            <div className="text-xs text-muted-foreground truncate">{s.desc}</div>
+                          </div>
+                          {isActive && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Content type</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {contentTypes.map((c) => {
+                      const Icon = c.icon;
+                      const isActive = types.includes(c.id);
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => toggleType(c.id)}
+                          className={`flex items-center gap-2 p-3 rounded-2xl ${isActive ? "neo-button-icon !text-primary" : "neo-card"}`}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span className={`text-sm ${isActive ? "text-primary font-semibold" : ""}`}>{c.label}</span>
+                          {isActive && <Check className="w-4 h-4 ml-auto" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="mt-6 flex gap-2">
+                  <button
+                    onClick={() => {
+                      setSource("everyone");
+                      setTypes(["photos", "music", "movies", "shop"]);
+                    }}
+                    className="flex-1 neo-card p-3 rounded-2xl text-sm"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={() => setFilterOpen(false)}
+                    className="flex-1 neo-button-icon p-3 rounded-2xl text-sm !text-primary font-semibold"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
+        </div>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4">
+        {/* Categories — directly below search bar */}
+        <div className="flex justify-center gap-6 mb-4 py-2">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            const isActive = active === cat.label;
+            return (
+              <button
+                key={cat.label}
+                onClick={() => setActive(cat.label)}
+                className="flex flex-col items-center gap-1.5 flex-shrink-0"
+              >
+                <span className={`neo-button-icon p-3 ${isActive ? "!text-primary" : ""}`}>
+                  <Icon className="w-5 h-5" />
+                </span>
+                <span className={`text-xs ${isActive ? "text-primary font-semibold" : "text-muted-foreground"}`}>{cat.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
