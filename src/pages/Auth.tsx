@@ -19,9 +19,28 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [dob, setDob] = useState("");
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [invite, setInvite] = useState(params.get("invite") ?? localStorage.getItem(INVITE_STORAGE_KEY) ?? "");
   const [inviteCheck, setInviteCheck] = useState<{ valid: boolean; reason?: string; inviter?: string | null } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const MIN_AGE = 16;
+  const getAge = (iso: string) => {
+    if (!iso) return 0;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return 0;
+    const now = new Date();
+    let age = now.getFullYear() - d.getFullYear();
+    const m = now.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+    return age;
+  };
+  const age = getAge(dob);
+  const ageOk = age >= MIN_AGE;
+  const today = new Date();
+  const maxDob = new Date(today.getFullYear() - MIN_AGE, today.getMonth(), today.getDate())
+    .toISOString().split("T")[0];
 
   // Auto-validate invite code with debounce
   useEffect(() => {
