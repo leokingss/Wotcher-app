@@ -197,7 +197,7 @@ const Stories = () => {
                   </span>
                 </div>
                 <div className="relative h-7 mt-2 w-full flex items-center justify-center">
-                  <Radio className="w-[18px] h-[18px]" style={{ color: "hsl(45, 100%, 50%)" }} />
+                  <Radio className="w-[18px] h-[18px] story-icon-pulse" style={{ color: "hsl(45, 100%, 50%)" }} />
                 </div>
               </div>
               <span className="text-xs text-foreground font-medium truncate max-w-[72px]">
