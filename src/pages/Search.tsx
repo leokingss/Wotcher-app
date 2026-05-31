@@ -1,13 +1,45 @@
-import { useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck, Loader2 } from "lucide-react";
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
 type Source = "everyone" | "friends" | "following" | "suggested";
 type ContentType = "photos" | "music" | "movies" | "shop";
+
+// Lightweight tags so the AI has something to reason about per item.
+// In production these would come from real metadata / vision tags.
+const exploreTags: string[][] = [
+  ["portrait", "warm", "people", "natural-light"],
+  ["abstract", "moody", "texture"],
+  ["fashion", "studio", "editorial"],
+  ["street", "urban", "candid"],
+  ["nature", "landscape", "golden-hour"],
+  ["portrait", "lifestyle", "outdoor"],
+  ["macro", "detail", "nature"],
+  ["travel", "landscape", "minimal"],
+];
+
+// Mock taste profile — would normally be derived from real interactions.
+const tasteProfile = {
+  likedTags: ["portrait", "golden-hour", "minimal", "editorial"],
+  dislikedTags: ["loud-color"],
+  recentInteractions: [
+    { tag: "portrait", weight: 0.9 },
+    { tag: "natural-light", weight: 0.7 },
+    { tag: "landscape", weight: 0.4 },
+  ],
+  favoriteCategories: ["photography", "music"],
+  followingStyles: ["lifestyle", "editorial"],
+};
+
+type RankedPick = { id: string; score: number; reason: string };
+
 
 const categories: { icon: any; label: Category }[] = [
   { icon: Grid3X3, label: "All" },
@@ -21,7 +53,7 @@ const sources: { id: Source; label: string; icon: any; desc: string }[] = [
   { id: "everyone", label: "Everyone", icon: Globe, desc: "Suggestions from the whole community" },
   { id: "friends", label: "Friends only", icon: Users, desc: "Only people in your circles" },
   { id: "following", label: "People you follow", icon: UserCheck, desc: "Accounts you already follow" },
-  { id: "suggested", label: "Suggested for you", icon: Sparkles, desc: "Personalized picks" },
+  { id: "suggested", label: "Suggested for you", icon: Sparkles, desc: "AI picks based on your taste, activity & interactions" },
 ];
 
 const contentTypes: { id: ContentType; label: string; icon: any }[] = [
@@ -37,10 +69,70 @@ const Search = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [source, setSource] = useState<Source>("everyone");
   const [types, setTypes] = useState<ContentType[]>(["photos", "music", "movies", "shop"]);
+  const [suggesting, setSuggesting] = useState(false);
+  const [ranked, setRanked] = useState<RankedPick[] | null>(null);
 
   const toggleType = (id: ContentType) => {
     setTypes((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
   };
+
+  // Run AI personalization when "Suggested for you" is selected.
+  useEffect(() => {
+    if (source !== "suggested") {
+      setRanked(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setSuggesting(true);
+      try {
+        const candidates = exploreImages.map((_, i) => ({
+          id: String(i),
+          tags: exploreTags[i] ?? [],
+          kind: "photo",
+        }));
+        const { data, error } = await supabase.functions.invoke(
+          "personalized-suggestions",
+          { body: { profile: tasteProfile, candidates, limit: 12 } },
+        );
+        if (cancelled) return;
+        if (error) {
+          const status = (error as any)?.context?.status;
+          const msg = status === 429
+            ? "Too many requests — try again in a moment."
+            : status === 402
+              ? "AI credits exhausted. Add credits to keep curating."
+              : "Couldn't load personalized picks.";
+          toast.error(msg);
+          setRanked([]);
+        } else {
+          setRanked((data?.ranked as RankedPick[]) ?? []);
+        }
+      } catch {
+        if (!cancelled) {
+          toast.error("Couldn't load personalized picks.");
+          setRanked([]);
+        }
+      } finally {
+        if (!cancelled) setSuggesting(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [source]);
+
+  const displayed = useMemo(() => {
+    if (source === "suggested" && ranked && ranked.length > 0) {
+      return ranked
+        .map((r) => ({
+          src: exploreImages[Number(r.id)],
+          reason: r.reason,
+        }))
+        .filter((x) => !!x.src);
+    }
+    return exploreImages.map((src) => ({ src, reason: null as string | null }));
+  }, [source, ranked]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -161,21 +253,67 @@ const Search = () => {
         {active === "Shop" ? (
           <ShopView onOpenListing={setOpenListingId} />
         ) : (
-          /* Masonry Grid */
-          <div className="columns-2 gap-3 space-y-3">
-            {exploreImages.map((image, index) => (
-              <div
-                key={index}
-                className="break-inside-avoid neo-card p-1 rounded-2xl overflow-hidden"
-              >
-                <img
-                  src={image}
-                  alt=""
-                  className="w-full object-cover rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
-                />
+          <>
+            {source === "suggested" && (
+              <div className="flex items-center justify-between mb-3 px-1">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="neo-button-icon p-1.5 !text-primary">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </span>
+                  <span className="font-semibold">AI-curated for your taste</span>
+                </div>
+                {suggesting && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
               </div>
-            ))}
-          </div>
+            )}
+            {source === "suggested" && suggesting && !ranked ? (
+              <div className="columns-2 gap-3 space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="break-inside-avoid neo-card rounded-2xl bg-muted/30 animate-pulse"
+                    style={{ height: 160 + (i % 3) * 60 }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <TooltipProvider delayDuration={150}>
+                <div className="columns-2 gap-3 space-y-3">
+                  {displayed.map((item, index) => (
+                    <div
+                      key={index}
+                      className="break-inside-avoid neo-card p-1 rounded-2xl overflow-hidden relative group"
+                    >
+                      <img
+                        src={item.src}
+                        alt=""
+                        className="w-full object-cover rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
+                      />
+                      {item.reason && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              className="absolute top-2 right-2 neo-button-icon p-1.5 !text-primary"
+                              aria-label="Why this was suggested"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="max-w-[220px] text-xs">
+                            {item.reason}
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </TooltipProvider>
+            )}
+            {source === "suggested" && ranked && ranked.length === 0 && !suggesting && (
+              <p className="text-center text-xs text-muted-foreground mt-6">
+                Interact with more posts so the AI can learn your taste.
+              </p>
+            )}
+          </>
         )}
       </div>
 
