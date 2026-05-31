@@ -88,6 +88,9 @@ const Auth = () => {
       if (mode === "signup") {
         const code = invite.trim().toUpperCase();
         if (!code) throw new Error("This app is invite-only. Enter an invite code.");
+        if (!dob) throw new Error("Please enter your date of birth.");
+        if (!ageOk) throw new Error(`You must be at least ${MIN_AGE} years old to join.`);
+        if (!ageConfirmed) throw new Error("Please confirm your age is correct.");
         const r = await validateInviteCode(code, email);
         if (!r.valid) throw new Error(`Invite ${r.reason.replace("_", " ")}`);
         const { error } = await supabase.auth.signUp({
@@ -98,6 +101,8 @@ const Auth = () => {
             data: {
               username: username || email.split("@")[0],
               invite_code: code,
+              date_of_birth: dob,
+              age_verified: true,
             },
           },
         });
