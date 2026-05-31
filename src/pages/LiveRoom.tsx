@@ -84,7 +84,8 @@ const LiveRoom = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col pb-[88px]">
+    <div className="min-h-screen bg-background flex justify-center">
+      <div className="w-full max-w-lg flex flex-col pb-[88px]">
       {/* Host video area */}
       <div className="relative h-[44vh] min-h-[280px] bg-black overflow-hidden">
         <img src={room.cover} alt={room.title} className="w-full h-full object-cover opacity-80" />
