@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag } from "lucide-react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3 } from "lucide-react";
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
 import ForYouRow from "@/components/discovery/ForYouRow";
 
-type Category = "Photos" | "Music" | "Movies" | "Shop";
+type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
 
 const categories: { icon: any; label: Category }[] = [
+  { icon: Grid3X3, label: "All" },
   { icon: Image, label: "Photos" },
   { icon: Music, label: "Music" },
   { icon: Film, label: "Movies" },
