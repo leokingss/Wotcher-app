@@ -188,11 +188,46 @@ const Auth = () => {
           </div>
         )}
 
+        {mode === "signup" && (
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+              Date of birth
+            </label>
+            <input
+              type="date"
+              required
+              max={maxDob}
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+              className="neo-card-inset w-full px-4 py-3 rounded-xl bg-transparent outline-none text-sm"
+            />
+            {dob && !ageOk && (
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                You must be at least {MIN_AGE} years old to join.
+              </p>
+            )}
+            {dob && ageOk && (
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={ageConfirmed}
+                  onChange={(e) => setAgeConfirmed(e.target.checked)}
+                  className="mt-0.5 accent-primary"
+                />
+                <span>
+                  I confirm I am {age} years old and meet the minimum age of {MIN_AGE}. Providing false information may result in account removal.
+                </span>
+              </label>
+            )}
+          </div>
+        )}
+
         <div className="space-y-2">
-          <button onClick={() => oauth("google")} disabled={!inviteOk} className="action-button w-full disabled:opacity-40">
+          <button onClick={() => oauth("google")} disabled={!signupReady} className="action-button w-full disabled:opacity-40">
             Continue with Google
           </button>
-          <button onClick={() => oauth("apple")} disabled={!inviteOk} className="action-button w-full disabled:opacity-40">
+          <button onClick={() => oauth("apple")} disabled={!signupReady} className="action-button w-full disabled:opacity-40">
             Continue with Apple
           </button>
         </div>
