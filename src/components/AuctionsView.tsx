@@ -283,6 +283,12 @@ const AuctionCard = ({ listing: l, onOpen }: { listing: Listing; onOpen: () => v
         className="absolute bottom-3.5 right-3.5 w-9 h-9 rounded-full"
         iconClassName="w-4 h-4 text-white"
       />
+      <AuctionReminderButton
+        listingId={l.id}
+        title={l.title}
+        endsAt={l.ends_at}
+        className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full"
+      />
     </div>
   );
 };
