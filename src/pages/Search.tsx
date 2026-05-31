@@ -16,7 +16,7 @@ const categories: { icon: any; label: Category }[] = [
 ];
 
 const Search = () => {
-  const [active, setActive] = useState<Category>("Photos");
+  const [active, setActive] = useState<Category>("All");
   const [openListingId, setOpenListingId] = useState<string | null>(null);
 
   return (
