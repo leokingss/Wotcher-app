@@ -162,6 +162,14 @@ export const useListing = (listingId?: string | null) => {
 
   const refresh = useCallback(async () => {
     if (!listingId) { setListing(null); setBids([]); setLoading(false); return; }
+    // Return sample data directly for preview IDs (no DB round-trip)
+    const sample = SAMPLE_AUCTIONS.find((s) => s.id === listingId);
+    if (sample) {
+      setListing(sample);
+      setBids([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const [{ data: l }, { data: b }] = await Promise.all([
       supabase.from("listings").select("*").eq("id", listingId).maybeSingle(),
