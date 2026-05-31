@@ -169,6 +169,92 @@ const ShopView = ({ onOpenListing }: Props) => {
     })();
   }, [user?.id, savedLoaded, savedListingIds]);
 
+  // For You — AI-personalized picks based on saves, follows, and interactions
+  useEffect(() => {
+    if (!user) { setForYou({ loading: false, data: [] }); return; }
+    if (!savedLoaded) return;
+
+    let cancelled = false;
+    (async () => {
+      setForYou({ loading: true, data: [] });
+
+      // Candidate pool: recent active listings
+      const { data: candidatesRaw } = await supabase
+        .from("listings")
+        .select("*, posts:post_id(image_url)")
+        .eq("status", "active")
+        .neq("seller_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(40);
+      const candidates = mapImg(candidatesRaw ?? []);
+      if (candidates.length === 0) {
+        if (!cancelled) setForYou({ loading: false, data: [] });
+        return;
+      }
+
+      // Build a lightweight taste profile from saved items + follows
+      const savedIds = Array.from(savedListingIds);
+      const [{ data: savedRows }, { data: followRows }] = await Promise.all([
+        savedIds.length
+          ? supabase.from("listings").select("title, seller_id").in("id", savedIds)
+          : Promise.resolve({ data: [] as any[] }),
+        supabase.from("follows").select("following_id").eq("follower_id", user.id),
+      ]);
+
+      const likedTagCounts = new Map<string, number>();
+      (savedRows ?? []).forEach((l: any) => {
+        tokenize(l.title).forEach((t) =>
+          likedTagCounts.set(t, (likedTagCounts.get(t) ?? 0) + 1),
+        );
+      });
+      const likedTags = [...likedTagCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 12)
+        .map(([t]) => t);
+      const followedSellerIds = new Set(
+        (followRows ?? []).map((f: any) => f.following_id),
+      );
+
+      const candidatePayload = candidates.map((l) => ({
+        id: l.id,
+        tags: [
+          ...tokenize(l.title),
+          ...(followedSellerIds.has(l.seller_id) ? ["from-followed-seller"] : []),
+          l.type === "auction" ? "auction" : "fixed-price",
+        ],
+        kind: "listing",
+      }));
+
+      const profile = {
+        likedTags: likedTags.length ? likedTags : ["from-followed-seller"],
+        dislikedTags: [],
+        recentInteractions: likedTags.slice(0, 5).map((t) => ({ tag: t, weight: 0.8 })),
+        favoriteCategories: ["from-followed-seller"],
+        followingStyles: [],
+      };
+
+      const { data, error } = await supabase.functions.invoke(
+        "personalized-suggestions",
+        { body: { profile, candidates: candidatePayload, limit: 8 } },
+      );
+      if (cancelled) return;
+      if (error || !data?.ranked) {
+        setForYou({ loading: false, data: [] });
+        return;
+      }
+      const byId = new Map(candidates.map((l) => [l.id, l]));
+      const items = (data.ranked as { id: string; reason: string }[])
+        .map((r) => {
+          const listing = byId.get(r.id);
+          return listing ? { listing, reason: r.reason } : null;
+        })
+        .filter(Boolean) as ForYouItem[];
+      setForYou({ loading: false, data: items });
+    })();
+
+    return () => { cancelled = true; };
+  }, [user?.id, savedLoaded, savedListingIds]);
+
 
   const allDone = !endingSoon.loading && !justListed.loading && !fromFollowing.loading && !featuredSellers.loading && !saved.loading;
   const allEmpty =
