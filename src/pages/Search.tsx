@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck, Loader2 } from "lucide-react";
+import { Search as SearchIcon, Image, Music, Film, ShoppingBag, Grid3X3, SlidersHorizontal, Check, Users, Globe, Sparkles, UserCheck, Loader2, Gavel } from "lucide-react";
 import { exploreImages } from "@/data/mockSocial";
 import ListingDialog from "@/components/ListingDialog";
 import ShopView from "@/components/ShopView";
+import AuctionsView from "@/components/AuctionsView";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Category = "All" | "Photos" | "Music" | "Movies" | "Shop";
+type Category = "All" | "Photos" | "Music" | "Movies" | "Shop" | "Auctions";
 type Source = "everyone" | "friends" | "following" | "suggested";
 type ContentType = "photos" | "music" | "movies" | "shop";
 
