@@ -233,7 +233,7 @@ const Search = () => {
 
       <div className="max-w-lg mx-auto px-4">
         {/* Categories — directly below search bar */}
-        <div className="flex justify-center gap-6 mb-4 py-2">
+        <div className="flex justify-center gap-5 mb-4 py-2 overflow-x-auto scrollbar-none -mx-4 px-4">
           {categories.map((cat) => {
             const Icon = cat.icon;
             const isActive = active === cat.label;
