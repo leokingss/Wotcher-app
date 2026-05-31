@@ -287,7 +287,7 @@ const AuctionCard = ({ listing: l, onOpen }: { listing: Listing; onOpen: () => v
         listingId={l.id}
         title={l.title}
         endsAt={l.ends_at}
-        className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full"
+        className="absolute bottom-14 right-3.5 w-9 h-9 rounded-full"
       />
     </div>
   );
