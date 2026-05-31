@@ -1,4 +1,4 @@
-import { X, Radio, Gavel, Sparkles } from "lucide-react";
+import { X, Gavel, Sparkles } from "lucide-react";
 import { FeedFilterState, DEFAULT_FILTER } from "./FeedFilter";
 
 interface Chip {
@@ -49,18 +49,8 @@ const ActiveFilterChips = ({ value, onChange }: Props) => {
   }
   value.shop.categories.forEach((c) => chips.push({ key: `sc-${c}`, label: c[0].toUpperCase() + c.slice(1), onRemove: () => onChange({ ...value, shop: { ...value.shop, categories: value.shop.categories.filter((x) => x !== c) } }) }));
 
-  // Always-visible quick chips (sit alongside actives)
-  const quickChips: Chip[] = [];
-  if (value.category !== "live") {
-    quickChips.push({
-      key: "quick-live",
-      label: "Live",
-      icon: Radio,
-      onRemove: () => onChange({ ...value, category: "live" }),
-    });
-  }
 
-  if (chips.length === 0 && quickChips.length === 0) return null;
+  if (chips.length === 0) return null;
 
   return (
     <div className="max-w-lg mx-auto px-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
@@ -75,20 +65,6 @@ const ActiveFilterChips = ({ value, onChange }: Props) => {
             {Icon && <Icon className="w-3.5 h-3.5" />}
             {c.label}
             <X className="w-3.5 h-3.5 opacity-70" />
-          </button>
-        );
-      })}
-      {quickChips.map((c) => {
-        const Icon = c.icon;
-        return (
-          <button
-            key={c.key}
-            onClick={c.onRemove}
-            className="shrink-0 neo-card rounded-full px-3 h-8 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"
-            title="Switch to Live"
-          >
-            {Icon && <Icon className="w-3.5 h-3.5 text-destructive" />}
-            {c.label}
           </button>
         );
       })}
