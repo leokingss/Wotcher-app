@@ -164,6 +164,48 @@ const Stories = () => {
             <span className="text-xs text-foreground font-medium">My Story</span>
           </div>
 
+          {/* Live previews — only when 2+ lives are active */}
+          {showLive && liveRooms.map((room) => (
+            <button
+              key={room.id}
+              onClick={() => navigate(room.kind === "auction" ? `/live/${room.id}` : "/labs")}
+              className="flex flex-col items-center gap-2 flex-shrink-0 group"
+              aria-label={`Watch live: ${room.title}`}
+            >
+              <div
+                className="w-[72px] h-[112px] rounded-full flex flex-col items-center pt-2 transition-transform active:scale-95 neo-button-icon"
+                style={{
+                  backgroundColor: "hsl(45, 100%, 50%, 0.18)",
+                  boxShadow:
+                    "inset 0 0 0 1.5px hsl(45, 100%, 50%, 0.55), 6px 6px 12px hsl(0, 0%, 0%, 0.45), -6px -6px 12px hsl(0, 0%, 100%, 0.04)",
+                }}
+              >
+                <div className="relative w-14 h-14">
+                  <div
+                    className="w-14 h-14 rounded-full p-[2px]"
+                    style={{ backgroundImage: "linear-gradient(135deg, hsl(45, 100%, 50%), hsl(0, 84%, 55%))" }}
+                  >
+                    <div className="w-full h-full rounded-full overflow-hidden border-2 border-background">
+                      <img src={room.cover} alt={room.title} className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  <span
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-[4px] bg-destructive text-destructive-foreground text-[8px] font-extrabold tracking-wider uppercase flex items-center gap-0.5"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-current animate-pulse" />
+                    LIVE
+                  </span>
+                </div>
+                <div className="relative h-7 mt-2 w-full flex items-center justify-center">
+                  <Radio className="w-[18px] h-[18px]" style={{ color: "hsl(45, 100%, 50%)" }} />
+                </div>
+              </div>
+              <span className="text-xs text-foreground font-medium truncate max-w-[72px]">
+                {room.host.name.split(" ")[0]}
+              </span>
+            </button>
+          ))}
+
           {/* My own story preview (shown next to + Add when I have a story) */}
           {own && (
             <button
