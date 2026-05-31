@@ -43,12 +43,7 @@ const Search = () => {
       </div>
 
       <div className="max-w-lg mx-auto px-4">
-        {/* AI Discovery — connects user's Top 10 taste to products / auctions / creators */}
-        <div className="mb-4">
-          <ForYouRow />
-        </div>
-
-        {/* Categories */}
+        {/* Categories — directly below search bar */}
         <div className="flex justify-evenly mb-4 py-2">
           {categories.map((cat) => {
             const Icon = cat.icon;
@@ -66,6 +61,11 @@ const Search = () => {
               </button>
             );
           })}
+        </div>
+
+        {/* AI Discovery — connects user's Top 10 taste to products / auctions / creators */}
+        <div className="mb-4">
+          <ForYouRow />
         </div>
 
         {active === "Shop" ? (
