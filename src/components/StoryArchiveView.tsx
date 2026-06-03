@@ -54,6 +54,7 @@ const MediaBadge = ({ type }: { type: "music" | "photo" | "video" }) => {
 };
 
 const StoryArchiveView = ({ userId }: { userId: string }) => {
+  const navigate = useNavigate();
   const [items, setItems] = useState<ArchivedStory[]>([]);
   const [sort, setSort] = useState<SortKey>("newest");
   const [tick, setTick] = useState(0);
