@@ -21,6 +21,7 @@ interface VideoCardProps {
 }
 
 const VideoCard = ({ id, title, duration, thumbnail, likes, comments, views, isCommentsOpen, onToggleComments }: VideoCardProps) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
