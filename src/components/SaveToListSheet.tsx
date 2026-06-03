@@ -24,7 +24,6 @@ const SaveToListSheet = ({ open, onOpenChange, itemType, itemId, itemTitle }: Pr
   const { user } = useAuth();
   const { myLists, savedIndex, loaded, addItem, removeItem, createList } = useSavedLists();
   const [createOpen, setCreateOpen] = useState(false);
-  const navigate = useNavigate();
 
   const inListIds = savedIndex.get(`${itemType}:${itemId}`) ?? new Set<string>();
 
