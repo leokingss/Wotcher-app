@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Send, Pencil, Check, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { usePostComments } from "@/hooks/usePostComments";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelative } from "@/lib/time";
