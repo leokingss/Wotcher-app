@@ -144,7 +144,7 @@ const Stories = () => {
   return (
     <div className="pt-0 pb-2">
       <div className="max-w-lg mx-auto">
-        <div className="flex gap-3 overflow-x-auto hide-scrollbar items-start px-4 pt-1 pb-2">
+        <div className="flex gap-3 overflow-x-auto overflow-y-visible hide-scrollbar items-start px-4 pt-3 pb-2">
           {/* Add Story button — always the + Add tile, never a preview */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <button
