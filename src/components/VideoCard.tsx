@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MessageCircle, Send, Bookmark, Play, Pencil, Check, X } from "lucide-react";
 import ReactionButton from "./ReactionButton";
 import CommentComposer from "./CommentComposer";
