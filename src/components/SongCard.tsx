@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MessageCircle, Send, Bookmark, Play, Pause, Pencil, Check, X, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useTop10Save } from "@/hooks/useTop10Save";
@@ -182,7 +183,9 @@ const SongCard = ({ id, title, artist, duration, cover, likes, comments, isComme
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold">{c.profile?.username ?? "user"}</span>
+                    <button onClick={() => c.profile?.username && navigate(`/profile/${c.profile.username}`)} className="text-xs font-semibold hover:underline">
+                      {c.profile?.username ?? "user"}
+                    </button>
                     <span className="text-xs text-muted-foreground">{formatRelative(c.created_at)}</span>
                     {canEdit(c) && editingId !== c.id && (
                       <button
