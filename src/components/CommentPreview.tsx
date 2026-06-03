@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Comment } from "@/data/mockComments";
 
 interface CommentPreviewProps {
@@ -15,6 +16,7 @@ const CommentPreview = ({
   onViewAll,
   framed = true,
 }: CommentPreviewProps) => {
+  const navigate = useNavigate();
   if (comments.length === 0) return null;
   const preview = comments.slice(0, limit);
   const total = totalCount ?? comments.length;
@@ -31,7 +33,9 @@ const CommentPreview = ({
             />
           </div>
           <p className="text-xs flex-1 min-w-0">
-            <span className="font-semibold">{c.username}</span>{" "}
+            <button onClick={() => navigate(`/profile/${c.username}`)} className="font-semibold hover:underline">
+              {c.username}
+            </button>{" "}
             <span className="text-muted-foreground">{c.text}</span>
           </p>
         </div>

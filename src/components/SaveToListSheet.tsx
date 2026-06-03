@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ interface Props {
 }
 
 const SaveToListSheet = ({ open, onOpenChange, itemType, itemId, itemTitle }: Props) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { myLists, savedIndex, loaded, addItem, removeItem, createList } = useSavedLists();
   const [createOpen, setCreateOpen] = useState(false);
@@ -280,7 +282,9 @@ export const CreateListDialog = ({ open, onOpenChange, onCreated }: CreateProps)
                           )}
                         </span>
                         <span className="flex-1 min-w-0">
-                          <span className="block text-sm font-semibold truncate">@{f.username}</span>
+                          <button onClick={() => navigate(`/profile/${f.username}`)} className="block text-sm font-semibold truncate text-left hover:underline">
+                            @{f.username}
+                          </button>
                           {f.display_name && (
                             <span className="block text-[11px] text-muted-foreground truncate">{f.display_name}</span>
                           )}

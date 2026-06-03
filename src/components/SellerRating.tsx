@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useSellerReviews } from "@/hooks/useSellerReviews";
 
 interface Props { sellerId: string; compact?: boolean }
@@ -19,6 +20,7 @@ const Stars = ({ value, size = 14 }: { value: number; size?: number }) => (
 );
 
 const SellerRating = ({ sellerId, compact }: Props) => {
+  const navigate = useNavigate();
   const { reviews, summary, loading } = useSellerReviews(sellerId);
 
   if (loading) return null;
@@ -54,7 +56,9 @@ const SellerRating = ({ sellerId, compact }: Props) => {
           <div key={r.id} className="neo-card-inset rounded-2xl p-3">
             <div className="flex items-center gap-2 mb-1.5">
               {r.buyer?.avatar_url && <img src={r.buyer.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover" />}
-              <span className="text-xs font-semibold truncate">{r.buyer?.username ?? "anonymous"}</span>
+              <button onClick={() => r.buyer?.username && navigate(`/profile/${r.buyer.username}`)} className="text-xs font-semibold truncate text-left hover:underline">
+                {r.buyer?.username ?? "anonymous"}
+              </button>
               <span className="text-[10px] text-muted-foreground ml-auto">{formatDate(r.created_at)}</span>
             </div>
             <Stars value={r.rating} size={12} />

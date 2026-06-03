@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Send, Pencil, Check, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { usePostComments } from "@/hooks/usePostComments";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelative } from "@/lib/time";
@@ -10,6 +11,7 @@ interface Props {
 }
 
 const CloudCommentSection = ({ isOpen, postId }: Props) => {
+  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const { comments, addComment, editingId, editText, setEditText, canEdit, startEdit, cancelEdit, saveEdit } =
     usePostComments(isOpen ? postId : null);
@@ -65,7 +67,9 @@ const CloudCommentSection = ({ isOpen, postId }: Props) => {
                   </div>
                 ) : (
                   <p className="text-sm">
-                    <span className="font-semibold">{c.profile?.username}</span>{" "}
+                    <button onClick={() => c.profile?.username && navigate(`/profile/${c.profile.username}`)} className="font-semibold hover:underline">
+                      {c.profile?.username}
+                    </button>{" "}
                     <span className="text-muted-foreground">{c.text}</span>
                     {c.edited && <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>}
                   </p>

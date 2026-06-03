@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Pencil, Check, X } from "lucide-react";
 import ReactionButton from "./ReactionButton";
 import CommentComposer from "./CommentComposer";
@@ -12,6 +13,7 @@ interface CommentSectionProps {
 }
 
 const CommentSection = ({ isOpen }: CommentSectionProps) => {
+  const navigate = useNavigate();
   const {
     comments,
     setComments,
@@ -121,7 +123,9 @@ const CommentSection = ({ isOpen }: CommentSectionProps) => {
                   </div>
                 ) : (
                   <p className="text-sm">
-                    <span className="font-semibold">{comment.username}</span>{" "}
+                    <button onClick={() => navigate(`/profile/${comment.username}`)} className="font-semibold hover:underline">
+                      {comment.username}
+                    </button>{" "}
                     <span className="text-muted-foreground">{comment.text}</span>
                     {comment.edited && (
                       <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>

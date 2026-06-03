@@ -157,16 +157,23 @@ const LiveRoom = () => {
               {e.kind === "bid" ? (
                 <div className="neo-card-inset rounded-lg px-2 py-1 inline-flex items-center gap-1.5">
                   <Gavel className="w-3 h-3 text-primary" />
-                  <span className="text-xs font-bold">{e.user}</span>
+                  <button onClick={() => navigate(`/profile/${e.user}`)} className="text-xs font-bold hover:underline">
+                    {e.user}
+                  </button>
                   <span className="text-xs text-primary font-extrabold">${(e as any).amount}</span>
                 </div>
               ) : e.kind === "join" ? (
                 <p className="text-[11px] text-muted-foreground">
-                  <span className="font-semibold">{e.user}</span> joined
+                  <button onClick={() => navigate(`/profile/${e.user}`)} className="font-semibold hover:underline">
+                    {e.user}
+                  </button>{" "}
+                  joined
                 </p>
               ) : (
                 <p className="text-xs">
-                  <span className="font-semibold mr-1">{e.user}</span>
+                  <button onClick={() => navigate(`/profile/${e.user}`)} className="font-semibold mr-1 hover:underline">
+                    {e.user}
+                  </button>
                   <span className="text-foreground/90">{(e as any).text}</span>
                 </p>
               )}

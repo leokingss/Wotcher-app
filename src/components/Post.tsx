@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, HeartCrack, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
 import CommentSection from "./CommentSection";
@@ -16,6 +17,7 @@ interface PostProps {
 }
 
 const Post = ({ username, location, avatar, image, likes, likedBy, caption, comments }: PostProps) => {
+  const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -68,7 +70,9 @@ const Post = ({ username, location, avatar, image, likes, likedBy, caption, comm
             <img src={avatar} alt={username} className="w-10 h-10 rounded-full object-cover" />
           </div>
           <div>
-            <p className="font-semibold text-sm">{username}</p>
+            <button onClick={() => navigate(`/profile/${username}`)} className="font-semibold text-sm hover:underline text-left block">
+              {username}
+            </button>
             <p className="text-xs text-muted-foreground">{location}</p>
           </div>
         </div>

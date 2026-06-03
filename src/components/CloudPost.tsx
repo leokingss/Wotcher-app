@@ -240,7 +240,9 @@ const CloudPost = ({ post, onReactionChanged }: Props) => {
 
           {post.caption && (
             <p className="text-sm">
-              <span className="font-semibold">{username}</span>{" "}
+              <button onClick={() => navigate(`/profile/${username}`)} className="font-semibold hover:underline">
+                {username}
+              </button>{" "}
               <span className="text-muted-foreground">{post.caption}</span>
             </p>
           )}

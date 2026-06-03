@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Pencil, Check, X } from "lucide-react";
 import { Comment } from "@/data/mockComments";
 import VoiceNotePlayer from "./VoiceNotePlayer";
@@ -27,6 +28,7 @@ const CommentList = ({
   onSave,
   onCancel,
 }: CommentListProps) => {
+  const navigate = useNavigate();
   const list = limit ? comments.slice(0, limit) : comments;
   const avatarSize = size === "md" ? "w-7 h-7" : "w-7 h-7";
   const textSize = size === "md" ? "text-sm" : "text-xs";
@@ -42,7 +44,9 @@ const CommentList = ({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className={`${textSize} font-semibold`}>{comment.username}</span>
+              <button onClick={() => navigate(`/profile/${comment.username}`)} className={`${textSize} font-semibold hover:underline`}>
+                {comment.username}
+              </button>
               <span className={`${textSize} text-muted-foreground`}>{comment.time}</span>
               {canEdit(comment) && editingId !== comment.id && (
                 <button
