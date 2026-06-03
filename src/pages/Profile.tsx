@@ -389,8 +389,8 @@ const Profile = () => {
           </button>
           
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-md animate-blob-morph" 
-                 style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', transform: 'scale(1.1)' }} />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-primary/8 to-transparent blur-2xl animate-blob-morph" 
+                 style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', transform: 'scale(1.03)' }} />
             {player.track && (
               <span
                 aria-hidden
