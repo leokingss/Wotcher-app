@@ -92,7 +92,7 @@ const StoryArchiveView = ({ userId }: { userId: string }) => {
   return (
     <div>
       <div className="mb-3">
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 hide-scrollbar">
+        <div className="flex gap-2 overflow-x-auto py-2 -mx-2 px-2 hide-scrollbar">
           {SORTS.map((s) => {
             const Icon = s.icon;
             const active = sort === s.key;

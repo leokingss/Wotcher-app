@@ -429,7 +429,7 @@ const Section = ({
 );
 
 const HorizontalScroll = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
+  <div className="flex gap-3 overflow-x-auto py-2 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
     {children}
   </div>
 );

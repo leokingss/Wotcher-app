@@ -138,7 +138,7 @@ export const SortChips = ({
         {count} item{count === 1 ? "" : "s"}
       </span>
     </div>
-    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+    <div className="flex gap-2 overflow-x-auto py-2 -mx-2 px-2 scrollbar-none">
       {SORTS.map((s) => {
         const Icon = s.icon;
         const active = sort === s.key;

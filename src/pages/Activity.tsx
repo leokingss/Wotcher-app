@@ -249,7 +249,7 @@ const Activity = () => {
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-2 space-y-2">
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+        <div className="flex gap-2 overflow-x-auto py-2 -mx-2 px-2 scrollbar-none">
           {CATS.map((c) => {
             const count = c.id === "unread" ? unread : undefined;
             const active = cat === c.id;
@@ -264,7 +264,7 @@ const Activity = () => {
             );
           })}
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+        <div className="flex gap-2 overflow-x-auto py-2 -mx-2 px-2 scrollbar-none">
           {TIMES.map((t) => {
             const active = time === t.id;
             return (

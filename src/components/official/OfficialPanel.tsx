@@ -36,7 +36,7 @@ const OfficialPanel = ({ username, isOwn }: Props) => {
         <span className="text-[11px] text-muted-foreground">· {acct.tagline} · {fmt(acct.followers)} followers</span>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto mb-3 no-scrollbar">
+      <div className="flex gap-1 overflow-x-auto mb-3 py-2 -mx-2 px-2 no-scrollbar">
         {TABS.map((t) => {
           const Icon = t.icon;
           const active = tab === t.id;

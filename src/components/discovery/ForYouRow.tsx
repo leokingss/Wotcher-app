@@ -79,7 +79,7 @@ const ForYouRow = () => {
         </h2>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4">
+      <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 py-2">
         {recs.map((r, i) => (
           <Link
             key={i}

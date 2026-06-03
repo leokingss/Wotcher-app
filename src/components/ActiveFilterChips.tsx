@@ -53,7 +53,7 @@ const ActiveFilterChips = ({ value, onChange }: Props) => {
   if (chips.length === 0) return null;
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+    <div className="max-w-lg mx-auto px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
       {chips.map((c) => {
         const Icon = c.icon;
         return (
