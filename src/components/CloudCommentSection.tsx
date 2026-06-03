@@ -67,7 +67,9 @@ const CloudCommentSection = ({ isOpen, postId }: Props) => {
                   </div>
                 ) : (
                   <p className="text-sm">
-                    <span className="font-semibold">{c.profile?.username}</span>{" "}
+                    <button onClick={() => c.profile?.username && navigate(`/profile/${c.profile.username}`)} className="font-semibold hover:underline">
+                      {c.profile?.username}
+                    </button>{" "}
                     <span className="text-muted-foreground">{c.text}</span>
                     {c.edited && <span className="text-[10px] text-muted-foreground ml-1">(edited)</span>}
                   </p>
