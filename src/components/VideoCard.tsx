@@ -127,7 +127,9 @@ const VideoCard = ({ id, title, duration, thumbnail, likes, comments, views, isC
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold">{c.profile?.username ?? "user"}</span>
+                    <button onClick={() => c.profile?.username && navigate(`/profile/${c.profile.username}`)} className="text-xs font-semibold hover:underline">
+                      {c.profile?.username ?? "user"}
+                    </button>
                     <span className="text-xs text-muted-foreground">{formatRelative(c.created_at)}</span>
                     {canEdit(c) && editingId !== c.id && (
                       <button

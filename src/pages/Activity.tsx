@@ -316,7 +316,9 @@ const Activity = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm">
-                            <span className="font-semibold">@{n.actor?.username ?? "someone"}</span>{" "}
+                            <button onClick={() => n.actor?.username && navigate(`/profile/${n.actor.username}`)} className="font-semibold hover:underline">
+                              @{n.actor?.username ?? "someone"}
+                            </button>{" "}
                             <span className="text-muted-foreground">{actionText[n.type]}</span>
                             {n.listing?.title && (
                               <span className="text-foreground font-medium"> · {n.listing.title}</span>
