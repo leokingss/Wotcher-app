@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Archive, ArchiveRestore, Music, Camera, Play } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
 import { SortChips } from "@/components/SavedPostsView";
@@ -135,7 +136,9 @@ const StoryArchiveView = ({ userId }: { userId: string }) => {
                 <ArchiveRestore className="w-3.5 h-3.5 text-primary" />
               </button>
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-2 py-2">
-                <p className="text-[10px] font-semibold truncate">{it.username}</p>
+                <button onClick={() => navigate(`/profile/${it.username}`)} className="text-[10px] font-semibold truncate block text-left hover:underline">
+                  {it.username}
+                </button>
               </div>
             </div>
           ))}

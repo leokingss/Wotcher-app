@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { X, Music, Camera, Video as VideoIcon, ChevronLeft, ChevronRight, Pause, Eye, MessageCircleQuestion, Heart, Lock, Users, UsersRound } from "lucide-react";
 import { stories as defaultStories, type StoryItem } from "@/data/mockSocial";
 import type { StoryViewer as ViewerRow } from "@/hooks/useStoryViewers";
@@ -54,6 +55,7 @@ const StoryViewer = ({
   viewersByFrame,
   list: listProp,
 }: StoryViewerProps) => {
+  const navigate = useNavigate();
   const list: StoryItem[] = (listProp ?? defaultStories).filter(
     (s) => s.frames && s.frames.length > 0,
   );
@@ -349,7 +351,9 @@ const StoryViewer = ({
           </div>
           <div className="flex-1 min-w-0 text-white">
             <div className="flex items-center gap-1.5">
-              <p className="text-sm font-semibold truncate drop-shadow">{story.username}</p>
+              <button onClick={() => navigate(`/profile/${story.username}`)} className="text-sm font-semibold truncate drop-shadow text-left hover:underline">
+                {story.username}
+              </button>
               <span className="opacity-75"><TypeIcon type={story.mediaType} /></span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
