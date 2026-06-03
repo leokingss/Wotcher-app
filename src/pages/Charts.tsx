@@ -266,7 +266,7 @@ const Charts = () => {
                     <ListMusic className="w-3 h-3" /> Community Playlists
                   </p>
                 </div>
-                <div className="flex gap-3 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-none">
+                <div className="flex gap-3 overflow-x-auto -mx-4 px-4 py-2 scrollbar-none">
                   {playlists.map((p) => (
                     <Link
                       key={p.id}

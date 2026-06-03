@@ -24,7 +24,7 @@ const DropsRail = () => {
         </span>
       </button>
 
-      <div className="-mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="-mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {packets.map((p) => (
           <div key={p.id} className="w-[280px] shrink-0 snap-start">
             <RedPacketCard packet={p} />

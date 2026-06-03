@@ -4,7 +4,7 @@ import { highlights } from "@/data/mockSocial";
 
 const Highlights = () => (
   <div className="mb-4 -mx-4">
-    <div className="flex gap-3 overflow-x-auto hide-scrollbar px-4 pb-1">
+    <div className="flex gap-3 overflow-x-auto hide-scrollbar px-4 py-2">
       <button className="flex flex-col items-center gap-1.5 shrink-0">
         <div className="neo-button-icon w-16 h-16 rounded-full flex items-center justify-center">
           <Plus className="w-5 h-5 text-muted-foreground" />

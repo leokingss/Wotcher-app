@@ -22,7 +22,7 @@ const MusicFilterChips = ({ active, onChange, isOwnProfile = true }: MusicFilter
   const chips = ALL_CHIPS.filter((c) => !ownOnly.includes(c.id) || isOwnProfile);
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+    <div className="flex items-center gap-2 overflow-x-auto py-2 -mx-2 px-2 scrollbar-none">
       {chips.map((chip) => {
         const isActive = active === chip.id;
         return (

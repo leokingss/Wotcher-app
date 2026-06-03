@@ -82,7 +82,7 @@ const AuctionsView = ({ onOpenListing }: Props) => {
               {hot.length} live
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto -mx-4 px-4 pb-2 snap-x snap-mandatory scrollbar-none">
+          <div className="flex gap-3 overflow-x-auto -mx-4 px-4 py-2 snap-x snap-mandatory scrollbar-none">
             {hot.map((l) => (
               <AuctionHero key={l.id} listing={l} onOpen={() => onOpenListing(l.id)} />
             ))}
