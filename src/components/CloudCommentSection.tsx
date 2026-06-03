@@ -11,6 +11,7 @@ interface Props {
 }
 
 const CloudCommentSection = ({ isOpen, postId }: Props) => {
+  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const { comments, addComment, editingId, editText, setEditText, canEdit, startEdit, cancelEdit, saveEdit } =
     usePostComments(isOpen ? postId : null);
