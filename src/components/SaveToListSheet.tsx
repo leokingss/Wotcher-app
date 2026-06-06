@@ -134,6 +134,7 @@ interface CreateProps {
 }
 
 export const CreateListDialog = ({ open, onOpenChange, onCreated }: CreateProps) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { createList } = useSavedLists();
   const [name, setName] = useState("");
