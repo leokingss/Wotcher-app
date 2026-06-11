@@ -35,6 +35,16 @@ const LiveRoom = () => {
     return Array.from(set.entries()).slice(-5);
   }, [events]);
 
+  const topBidder = useMemo(() => {
+    const bids = events.filter((e) => e.kind === "bid");
+    const last = bids[bids.length - 1] as any;
+    if (last) return { name: last.user, avatar: last.avatar };
+    if (room?.item?.topBidderId) {
+      return { name: room.item.topBidderId, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(room.item.topBidderId)}` };
+    }
+    return null;
+  }, [events, room?.item?.topBidderId]);
+
   if (!room || !room.item) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 p-6">
@@ -83,15 +93,6 @@ const LiveRoom = () => {
     } catch {}
   };
 
-  const topBidder = useMemo(() => {
-    const bids = events.filter((e) => e.kind === "bid");
-    const last = bids[bids.length - 1] as any;
-    if (last) return { name: last.user, avatar: last.avatar };
-    if (room.item.topBidderId) {
-      return { name: room.item.topBidderId, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(room.item.topBidderId)}` };
-    }
-    return null;
-  }, [events, room.item.topBidderId]);
 
   return (
     <div className="fixed inset-0 bg-black flex justify-center z-50">
