@@ -6,6 +6,7 @@ import LiveBadge from "@/components/live/LiveBadge";
 import LiveCountdown from "@/components/live/LiveCountdown";
 import FloatingHearts from "@/components/live/FloatingHearts";
 import TipButton from "@/components/wallet/TipButton";
+import HangOutRoom from "@/components/live/HangOutRoom";
 import { useWallet } from "@/hooks/useWallet";
 import { toast } from "sonner";
 
@@ -45,7 +46,22 @@ const LiveRoom = () => {
     return null;
   }, [events, room?.item?.topBidderId]);
 
-  if (!room || !room.item) {
+  if (!room) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 p-6">
+        <p className="text-muted-foreground">This live stream isn't available.</p>
+        <button onClick={() => navigate("/live")} className="action-button action-button-primary">
+          Back to Live
+        </button>
+      </div>
+    );
+  }
+
+  if (room.kind === "together") {
+    return <HangOutRoom room={room} />;
+  }
+
+  if (!room.item) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 p-6">
         <p className="text-muted-foreground">This live stream isn't available.</p>
