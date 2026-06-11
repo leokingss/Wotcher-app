@@ -168,29 +168,31 @@ const LiveRoom = () => {
       {/* Bottom: Top bid card + bidding + chat input */}
       <div className="relative z-20 px-3 pb-3 pt-2 space-y-2 bg-gradient-to-t from-black via-black/80 to-transparent">
         {/* Top bid / auction info — moved above bidding */}
-        <div className="neo-card rounded-2xl p-2 flex gap-2 items-center">
-          <img src={room.item.image} alt={room.item.title} className="w-8 h-8 rounded-lg object-cover" />
-          <div className="flex-1 min-w-0">
-            {topBidder ? (
-              <button onClick={() => navigate(`/profile/${topBidder.name}`)} className="flex items-center gap-1.5 hover:underline">
-                <img src={topBidder.avatar} className="w-4 h-4 rounded-full" alt="" />
-                <div className="flex flex-col">
-                  <span className="text-[9px] uppercase tracking-wide text-muted-foreground font-semibold">Highest bidder</span>
-                  <span className="text-[11px] font-semibold text-foreground truncate">{topBidder.name}</span>
-                </div>
-              </button>
-            ) : (
-              <p className="text-[10px] text-muted-foreground">No bids yet</p>
-            )}
+        <div className="neo-card rounded-2xl p-2 flex gap-2 items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            <img src={room.item.image} alt={room.item.title} className="w-7 h-7 rounded-lg object-cover shrink-0" />
+            <div className="min-w-0 text-left">
+              {topBidder ? (
+                <button onClick={() => navigate(`/profile/${topBidder.name}`)} className="flex items-center gap-1.5 hover:underline text-left">
+                  <img src={topBidder.avatar} className="w-3.5 h-3.5 rounded-full shrink-0" alt="" />
+                  <div className="flex flex-col text-left min-w-0">
+                    <span className="text-[8px] uppercase tracking-wide text-muted-foreground font-semibold leading-none">Highest bidder</span>
+                    <span className="text-[10px] font-semibold text-foreground truncate leading-tight mt-0.5">{topBidder.name}</span>
+                  </div>
+                </button>
+              ) : (
+                <p className="text-[10px] text-muted-foreground text-left">No bids yet</p>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="flex flex-col items-end">
-              <span className="text-[9px] uppercase tracking-wide text-muted-foreground font-semibold">Price</span>
-              <p className="text-base font-extrabold text-primary leading-none">${room.item.topBid}</p>
+              <span className="text-[8px] uppercase tracking-wide text-muted-foreground font-semibold leading-none">Price</span>
+              <p className="text-sm font-extrabold text-primary leading-none mt-0.5">${room.item.topBid}</p>
             </div>
             <div className="flex flex-col items-end">
               <LiveCountdown endsAt={room.endsAt} />
-              <span className="text-[9px] uppercase tracking-wide text-muted-foreground font-semibold">left</span>
+              <span className="text-[8px] uppercase tracking-wide text-muted-foreground font-semibold leading-none mt-0.5">left</span>
             </div>
           </div>
         </div>
