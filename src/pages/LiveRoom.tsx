@@ -6,6 +6,7 @@ import LiveBadge from "@/components/live/LiveBadge";
 import LiveCountdown from "@/components/live/LiveCountdown";
 import FloatingHearts from "@/components/live/FloatingHearts";
 import TipButton from "@/components/wallet/TipButton";
+import HangOutRoom from "@/components/live/HangOutRoom";
 import { useWallet } from "@/hooks/useWallet";
 import { toast } from "sonner";
 
