@@ -59,10 +59,10 @@ const BottomNav = () => {
   };
 
   // Arc layout: items spread across an arc above the + button
-  const radius = 130;
+  const radius = 115;
   const count = radialActions.length;
-  const startAngle = 200; // degrees (180 = left, 270 = up, 360 = right)
-  const endAngle = 340;
+  const startAngle = 215; // degrees (180 = left, 270 = up, 360 = right)
+  const endAngle = 325;
   const getOffset = (i: number) => {
     const t = count === 1 ? 0.5 : i / (count - 1);
     const angle = (startAngle + (endAngle - startAngle) * t) * (Math.PI / 180);
