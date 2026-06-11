@@ -168,23 +168,26 @@ const LiveRoom = () => {
       {/* Bottom: Top bid card + bidding + chat input */}
       <div className="relative z-20 px-3 pb-3 pt-2 space-y-2 bg-gradient-to-t from-black via-black/80 to-transparent">
         {/* Top bid / auction info — moved above bidding */}
-        <div className="neo-card rounded-2xl p-3 flex gap-3 items-center">
-          <img src={room.item.image} alt={room.item.title} className="w-14 h-14 rounded-xl object-cover" />
-          <div className="flex-1 min-w-0">
+        <div className="neo-card rounded-2xl p-2 flex gap-2 items-center">
+          <img src={room.item.image} alt={room.item.title} className="w-10 h-10 rounded-lg object-cover" />
+          <div className="flex-1 min-w-0 flex flex-col items-center">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Top bid</p>
-            <p className="text-2xl font-extrabold text-primary leading-none">${room.item.topBid}</p>
+            <p className="text-lg font-extrabold text-primary leading-none">${room.item.topBid}</p>
             {topBidder ? (
-              <button onClick={() => navigate(`/profile/${topBidder.name}`)} className="mt-1 flex items-center gap-1.5 hover:underline">
-                <img src={topBidder.avatar} className="w-4 h-4 rounded-full" alt="" />
-                <span className="text-[11px] font-semibold text-foreground truncate">{topBidder.name}</span>
-              </button>
+              <div className="mt-0.5 flex flex-col items-center">
+                <span className="text-[9px] uppercase tracking-wide text-muted-foreground font-semibold">Highest bidder</span>
+                <button onClick={() => navigate(`/profile/${topBidder.name}`)} className="flex items-center gap-1 hover:underline">
+                  <img src={topBidder.avatar} className="w-3 h-3 rounded-full" alt="" />
+                  <span className="text-[10px] font-semibold text-foreground truncate">{topBidder.name}</span>
+                </button>
+              </div>
             ) : (
-              <p className="text-[11px] text-muted-foreground">No bids yet</p>
+              <p className="text-[10px] text-muted-foreground">No bids yet</p>
             )}
           </div>
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-col items-end gap-0.5">
             <LiveCountdown endsAt={room.endsAt} big />
-            <span className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">left</span>
+            <span className="text-[9px] uppercase tracking-wide text-muted-foreground font-semibold">left</span>
           </div>
         </div>
 
