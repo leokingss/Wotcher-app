@@ -132,7 +132,7 @@ const LiveRoom = () => {
       <FloatingHearts trigger={heartTrigger} />
 
       {/* Chat feed - middle, scrollable, transparent */}
-      <div ref={scrollRef} className="relative z-10 flex-1 overflow-y-auto px-4 pt-3 pb-2 space-y-1.5 mt-auto max-h-[35vh]">
+      <div ref={scrollRef} className="relative z-10 flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-2 space-y-1.5 mt-auto">
         {events.slice(-20).map((e) => (
           <div key={e.id} className="flex items-start gap-2 animate-fade-in">
             <img src={e.avatar} className="w-6 h-6 rounded-full mt-0.5" alt="" />
