@@ -95,8 +95,9 @@ const LiveRoom = () => {
 
 
   return (
-    <div className="fixed inset-0 bg-black flex justify-center z-50">
-      <div className="relative w-full h-full flex flex-col">
+    <div className="fixed inset-0 bg-black flex justify-center z-50 h-[100dvh] w-screen overflow-hidden">
+      <div className="relative w-full h-full max-w-md mx-auto flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+
       {/* Full-screen host video */}
       <div className="absolute inset-0">
         <img src={room.cover} alt={room.title} className="w-full h-full object-cover" />
@@ -131,7 +132,7 @@ const LiveRoom = () => {
       <FloatingHearts trigger={heartTrigger} />
 
       {/* Chat feed - middle, scrollable, transparent */}
-      <div ref={scrollRef} className="relative z-10 flex-1 overflow-y-auto px-4 pt-3 pb-2 space-y-1.5 mt-auto max-h-[35vh]">
+      <div ref={scrollRef} className="relative z-10 flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-2 space-y-1.5 mt-auto">
         {events.slice(-20).map((e) => (
           <div key={e.id} className="flex items-start gap-2 animate-fade-in">
             <img src={e.avatar} className="w-6 h-6 rounded-full mt-0.5" alt="" />
