@@ -58,11 +58,11 @@ const BottomNav = () => {
     setHubOpen((v) => !v);
   };
 
-  // Arc layout: 5 items spread across ~180° above the button
-  const radius = 110;
+  // Arc layout: items spread across an arc above the + button
+  const radius = 115;
   const count = radialActions.length;
-  const startAngle = 200; // leftmost (degrees, 270 = up, 180 = left)
-  const endAngle = 340;
+  const startAngle = 215; // degrees (180 = left, 270 = up, 360 = right)
+  const endAngle = 325;
   const getOffset = (i: number) => {
     const t = count === 1 ? 0.5 : i / (count - 1);
     const angle = (startAngle + (endAngle - startAngle) * t) * (Math.PI / 180);
@@ -84,9 +84,8 @@ const BottomNav = () => {
               className="fixed inset-0 z-40 bg-background/70 backdrop-blur-md"
               onClick={() => setHubOpen(false)}
             />
-            <div className="fixed inset-x-0 bottom-0 z-50 pointer-events-none">
+            <div className="fixed inset-x-0 bottom-0 z-[60] pointer-events-none">
               <div className="max-w-lg mx-auto relative h-0">
-                {/* Center is the + button position; nav is centered, so we anchor here */}
                 <div
                   className="absolute left-1/2 pointer-events-none"
                   style={{ bottom: `calc(2.75rem + env(safe-area-inset-bottom))` }}
@@ -95,30 +94,40 @@ const BottomNav = () => {
                     const { x, y } = getOffset(i);
                     const Icon = action.icon;
                     return (
-                      <motion.button
+                      <div
                         key={action.label}
-                        initial={{ x: 0, y: 0, opacity: 0, scale: 0.3 }}
-                        animate={{ x, y, opacity: 1, scale: 1 }}
-                        exit={{ x: 0, y: 0, opacity: 0, scale: 0.3 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 22,
-                          delay: i * 0.035,
+                        className="absolute pointer-events-none"
+                        style={{
+                          left: `${x}px`,
+                          top: `${y}px`,
+                          transform: "translate(-50%, -50%)",
                         }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          action.onSelect();
-                        }}
-                        className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5"
                       >
-                        <span className={`neo-button-icon w-14 h-14 flex items-center justify-center rounded-full ${action.color}`}>
-                          <Icon className="w-6 h-6" />
-                        </span>
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-foreground/80">
-                          {action.label}
-                        </span>
-                      </motion.button>
+                        <motion.button
+                          type="button"
+                          initial={{ opacity: 0, scale: 0.2, y: 30 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.2, y: 20 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 380,
+                            damping: 22,
+                            delay: i * 0.04,
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            action.onSelect();
+                          }}
+                          className="pointer-events-auto flex flex-col items-center gap-1.5 focus:outline-none"
+                        >
+                          <span className={`neo-button-icon w-14 h-14 flex items-center justify-center rounded-full ${action.color}`}>
+                            <Icon className="w-6 h-6" />
+                          </span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-foreground/90">
+                            {action.label}
+                          </span>
+                        </motion.button>
+                      </div>
                     );
                   })}
                 </div>
@@ -127,6 +136,7 @@ const BottomNav = () => {
           </>
         )}
       </AnimatePresence>
+
 
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <nav className="neo-card max-w-lg mx-auto px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex items-center justify-between rounded-none rounded-t-2xl">
