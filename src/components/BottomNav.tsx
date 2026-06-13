@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Search, PlusSquare, Heart, User, BarChart3 } from "lucide-react";
+import { Home, Search, PlusSquare, Heart, User, BarChart3, Radio } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import UploadDialog from "./UploadDialog";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,7 @@ const navItems = [
   { icon: Search, path: "/search", label: "Search" },
   { icon: BarChart3, path: "/charts", label: "Charts" },
   { icon: PlusSquare, path: null, label: "Create" }, // null path means it opens dialog
+  { icon: Radio, path: "/live", label: "Live" },
   { icon: Heart, path: "/activity", label: "Activity" },
   { icon: User, path: "/profile", label: "Profile" },
 ];
