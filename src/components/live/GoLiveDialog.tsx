@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Radio, X, Gavel, Headphones, Users, ChevronLeft } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Radio, X, Gavel, Headphones, Users, ChevronLeft, Lock, Unlock } from "lucide-react";
 import { useLive } from "@/hooks/useLiveStore";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
