@@ -23,6 +23,7 @@ export interface LiveRoom {
   endsAt: string; // ISO
   item?: LiveItem; // present for auctions
   bidders_avatars: string[];
+  autoJoin?: boolean; // for together/hangout rooms
 }
 
 const AV = (seed: string) =>
