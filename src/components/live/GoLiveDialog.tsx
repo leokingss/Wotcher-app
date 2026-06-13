@@ -33,6 +33,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   const [itemTitle, setItemTitle] = useState("");
   const [startingBid, setStartingBid] = useState("10");
   const [minutes, setMinutes] = useState("15");
+  const [autoJoin, setAutoJoin] = useState(false);
 
   const reset = () => {
     setKind(null);
@@ -40,6 +41,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
     setItemTitle("");
     setStartingBid("10");
     setMinutes("15");
+    setAutoJoin(false);
   };
 
   const handleClose = (o: boolean) => {
