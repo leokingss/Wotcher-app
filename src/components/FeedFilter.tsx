@@ -167,9 +167,10 @@ const FeedFilter = ({ value, onChange }: Props) => {
           type="button"
           onClick={() => setOpen(true)}
           aria-label={`Open feed filter — currently ${activeCat.label}`}
-          className={`w-full neo-button rounded-full h-10 relative flex items-center px-4 text-sm font-semibold transition-colors ${
+          className={`w-full neo-button rounded-full relative flex items-center px-4 text-sm font-semibold transition-colors ${
             active ? "text-primary" : "text-foreground"
           }`}
+          style={{ height: '30px' }}
         >
           <SlidersHorizontal className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
           <span className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
