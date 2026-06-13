@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Users, Radio, Gavel, Music2, Coffee, Map as MapIcon, Layers } from "lucide-react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useLive } from "@/hooks/useLiveStore";
-import { useLiveFeed } from "@/hooks/useLiveStore"; // safe-noop if not exported; replaced below
+
 import LiveBadge from "@/components/live/LiveBadge";
 
 type TabId = "all" | "auction" | "hangout" | "sync" | "map";
