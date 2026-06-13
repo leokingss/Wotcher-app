@@ -51,7 +51,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
 
   const start = () => {
     if (!kind) return;
-    if (!title.trim()) {
+    if (kind !== "together" && !title.trim()) {
       toast.error("Add a stream title");
       return;
     }
