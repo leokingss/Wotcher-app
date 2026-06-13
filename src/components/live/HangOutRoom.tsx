@@ -49,7 +49,7 @@ const HangOutRoom = ({ room }: { room: LiveRoom }) => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [events.length]);
 
-  // Simulate ome.tv-style auto matchmaking — drop a join-request every few seconds
+  // Simulate ome.tv-style auto matchmaking
   useEffect(() => {
     const t = setInterval(() => {
       if (seatsRef.current.length >= 4) {
@@ -68,8 +68,7 @@ const HangOutRoom = ({ room }: { room: LiveRoom }) => {
         muted: Math.random() < 0.3,
         camOff: false,
       };
-      // 70% auto-join, 30% requests-to-join
-      if (Math.random() < 0.7) {
+      if (room.autoJoin) {
         setSeats((prev) => (prev.length >= 4 ? prev : [...prev, seat]));
         toast.success(`@${name} joined the hangout`);
       } else {
@@ -77,7 +76,7 @@ const HangOutRoom = ({ room }: { room: LiveRoom }) => {
       }
     }, 3500);
     return () => clearInterval(t);
-  }, [room.host.name]);
+  }, [room.host.name, room.autoJoin]);
 
   const acceptRequest = (s: Seat) => {
     if (seats.length >= 4) { toast.error("Hangout is full"); return; }
