@@ -65,7 +65,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
     addRoom({
       id,
       kind,
-      title: title.trim(),
+      title: kind === "together" ? "Hang Out" : title.trim(),
       host: {
         id: user?.id ?? "you",
         name: user?.user_metadata?.username ?? "you",
@@ -134,12 +134,14 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
           </div>
         ) : (
           <div className="p-4 space-y-3">
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Stream title"
-              className="w-full neo-card-inset rounded-lg px-3 py-2.5 bg-transparent outline-none text-sm"
-            />
+            {kind !== "together" && (
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Stream title"
+                className="w-full neo-card-inset rounded-lg px-3 py-2.5 bg-transparent outline-none text-sm"
+              />
+            )}
             {kind === "auction" && (
               <>
                 <input

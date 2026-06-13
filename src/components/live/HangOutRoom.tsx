@@ -132,9 +132,11 @@ const HangOutRoom = ({ room }: { room: LiveRoom }) => {
             <span className="text-[11px] font-bold text-white">{room.host.name}</span>
             <span className="text-[9px] uppercase tracking-wide text-primary font-extrabold">Host</span>
           </div>
-          <div className="absolute bottom-2 left-2 right-2">
-            <p className="text-xs text-white/95 line-clamp-1 font-semibold drop-shadow">{room.title}</p>
-          </div>
+          {room.title && (
+            <div className="absolute bottom-2 left-2 right-2">
+              <p className="text-xs text-white/95 line-clamp-1 font-semibold drop-shadow">{room.title}</p>
+            </div>
+          )}
         </div>
 
         {/* Bottom half: 2x2 guest grid */}
