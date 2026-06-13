@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Radio, X, Gavel, Headphones, Users, ChevronLeft } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Radio, X, Gavel, Headphones, Users, ChevronLeft, Lock, Unlock } from "lucide-react";
 import { useLive } from "@/hooks/useLiveStore";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   const [itemTitle, setItemTitle] = useState("");
   const [startingBid, setStartingBid] = useState("10");
   const [minutes, setMinutes] = useState("15");
+  const [autoJoin, setAutoJoin] = useState(false);
 
   const reset = () => {
     setKind(null);
@@ -39,6 +41,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
     setItemTitle("");
     setStartingBid("10");
     setMinutes("15");
+    setAutoJoin(false);
   };
 
   const handleClose = (o: boolean) => {
@@ -77,6 +80,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
         ? { id: `item-${id}`, title: itemTitle.trim(), image: "https://images.unsplash.com/photo-1542728928-1413d1894ed1?w=600&h=600&fit=crop", startingBid: startBid, topBid: startBid }
         : undefined,
       bidders_avatars: [],
+      autoJoin: kind === "together" ? autoJoin : undefined,
     });
     handleClose(false);
     toast.success("You're live!");
@@ -170,15 +174,41 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
               </>
             )}
             {kind !== "auction" && (
-              <div>
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">Duration (min)</p>
-                <input
-                  type="number"
-                  value={minutes}
-                  onChange={(e) => setMinutes(e.target.value)}
-                  className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm"
-                />
-              </div>
+              <>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">Duration (min)</p>
+                  <input
+                    type="number"
+                    value={minutes}
+                    onChange={(e) => setMinutes(e.target.value)}
+                    className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm"
+                  />
+                </div>
+                {kind === "together" && (
+                  <div className="neo-card-inset rounded-xl p-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      {autoJoin ? (
+                        <Unlock className="w-4 h-4 text-primary shrink-0" />
+                      ) : (
+                        <Lock className="w-4 h-4 text-muted-foreground shrink-0" />
+                      )}
+                      <div>
+                        <p className="text-sm font-semibold">{autoJoin ? "Open room" : "Approve guests"}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {autoJoin
+                            ? "Anyone can jump in automatically"
+                            : "You accept or decline every request"}
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={autoJoin}
+                      onCheckedChange={setAutoJoin}
+                      aria-label="Allow auto-join"
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
