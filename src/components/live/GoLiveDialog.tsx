@@ -174,15 +174,41 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
               </>
             )}
             {kind !== "auction" && (
-              <div>
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">Duration (min)</p>
-                <input
-                  type="number"
-                  value={minutes}
-                  onChange={(e) => setMinutes(e.target.value)}
-                  className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm"
-                />
-              </div>
+              <>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">Duration (min)</p>
+                  <input
+                    type="number"
+                    value={minutes}
+                    onChange={(e) => setMinutes(e.target.value)}
+                    className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm"
+                  />
+                </div>
+                {kind === "together" && (
+                  <div className="neo-card-inset rounded-xl p-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      {autoJoin ? (
+                        <Unlock className="w-4 h-4 text-primary shrink-0" />
+                      ) : (
+                        <Lock className="w-4 h-4 text-muted-foreground shrink-0" />
+                      )}
+                      <div>
+                        <p className="text-sm font-semibold">{autoJoin ? "Open room" : "Approve guests"}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {autoJoin
+                            ? "Anyone can jump in automatically"
+                            : "You accept or decline every request"}
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={autoJoin}
+                      onCheckedChange={setAutoJoin}
+                      aria-label="Allow auto-join"
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
