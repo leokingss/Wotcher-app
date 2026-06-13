@@ -80,6 +80,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
         ? { id: `item-${id}`, title: itemTitle.trim(), image: "https://images.unsplash.com/photo-1542728928-1413d1894ed1?w=600&h=600&fit=crop", startingBid: startBid, topBid: startBid }
         : undefined,
       bidders_avatars: [],
+      autoJoin: kind === "together" ? autoJoin : undefined,
     });
     handleClose(false);
     toast.success("You're live!");
