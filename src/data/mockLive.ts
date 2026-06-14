@@ -24,6 +24,8 @@ export interface LiveRoom {
   item?: LiveItem; // present for auctions
   bidders_avatars: string[];
   autoJoin?: boolean; // for together/hangout rooms
+  description?: string; // optional; required to appear in search
+  country?: { code: string; name: string; flag: string };
 }
 
 export interface ScheduledAuction {
@@ -33,7 +35,12 @@ export interface ScheduledAuction {
   host: { id: string; name: string; avatar: string; verified?: boolean };
   startsAt: string; // ISO
   startingBid: number;
+  description?: string;
 }
+
+// Mock social graph (host ids).
+export const mockFollowingIds = new Set(["maya", "nori"]);
+export const mockFollowerIds = new Set(["drew", "iris", "kenji"]);
 
 const AV = (seed: string) =>
   `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
