@@ -1,16 +1,21 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, Users, Radio, Gavel, Music2, Coffee, Map as MapIcon, Layers, Clock } from "lucide-react";
+import {
+  ChevronLeft, Users, Radio, Gavel, Map as MapIcon, Layers, Clock,
+  UserPlus, UserCheck, Globe2, Search, X,
+} from "lucide-react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useLive } from "@/hooks/useLiveStore";
+import { mockFollowingIds, mockFollowerIds } from "@/data/mockLive";
 
-type TabId = "all" | "auction" | "hangout" | "sync" | "map";
+type TabId = "all" | "auction" | "following" | "followers" | "world" | "map";
 
 const TABS: { id: TabId; label: string; icon: any }[] = [
   { id: "all", label: "All", icon: Layers },
   { id: "auction", label: "Auctions", icon: Gavel },
-  { id: "hangout", label: "Hangouts", icon: Coffee },
-  { id: "sync", label: "Sync", icon: Music2 },
+  { id: "following", label: "Following", icon: UserCheck },
+  { id: "followers", label: "Followers", icon: UserPlus },
+  { id: "world", label: "World", icon: Globe2 },
   { id: "map", label: "Map", icon: MapIcon },
 ];
 
@@ -24,12 +29,54 @@ const LiveIndex = () => {
   const { rooms, scheduledAuctions } = useLive();
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabId>("all");
+  const [query, setQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
+  // Pick a single random "around the world" auction for the World tab.
+  // Reshuffles every 12s for a discovery feel.
+  const [worldTick, setWorldTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setWorldTick((n) => n + 1), 12_000);
+    return () => clearInterval(t);
+  }, []);
+  const worldPick = useMemo(() => {
+    const pool = rooms.filter((r) => r.kind === "auction" && r.country);
+    if (!pool.length) return null;
+    return pool[Math.floor(Math.random() * pool.length)];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rooms, worldTick]);
+
+  const baseFiltered = useMemo(() => {
+    switch (tab) {
+      case "all":
+      case "map":
+        return rooms;
+      case "auction":
+        return rooms.filter((r) => r.kind === "auction");
+      case "following":
+        return rooms.filter((r) => mockFollowingIds.has(r.host.id));
+      case "followers":
+        return rooms.filter((r) => mockFollowerIds.has(r.host.id));
+      case "world":
+        return worldPick ? [worldPick] : [];
+      default:
+        return rooms;
+    }
+  }, [rooms, tab, worldPick]);
+
+  // Search: only rooms with a description are searchable.
   const filtered = useMemo(() => {
-    if (tab === "all" || tab === "map") return rooms;
-    if (tab === "hangout") return rooms.filter((r) => r.kind === "together");
-    return rooms.filter((r) => r.kind === tab);
-  }, [rooms, tab]);
+    const q = query.trim().toLowerCase();
+    if (!q) return baseFiltered;
+    return baseFiltered.filter(
+      (r) =>
+        !!r.description &&
+        (r.title.toLowerCase().includes(q) ||
+          r.description.toLowerCase().includes(q) ||
+          r.host.name.toLowerCase().includes(q) ||
+          r.country?.name.toLowerCase().includes(q))
+    );
+  }, [baseFiltered, query]);
 
   const goNext = () => {
     const i = TABS.findIndex((t) => t.id === tab);
@@ -55,8 +102,43 @@ const LiveIndex = () => {
           <h1 className="font-semibold flex items-center gap-2">
             <Radio className="w-4 h-4 text-destructive animate-pulse" /> Live now
           </h1>
-          <div className="w-9" />
+          <button
+            onClick={() => setShowSearch((s) => !s)}
+            className={`neo-button-icon p-2 ${showSearch ? "text-primary" : ""}`}
+            aria-label="Search lives"
+          >
+            <Search className="w-5 h-5" />
+          </button>
         </div>
+
+        {/* Search bar */}
+        <AnimatePresence initial={false}>
+          {showSearch && (
+            <motion.div
+              key="search"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="max-w-lg mx-auto px-3 overflow-hidden"
+            >
+              <div className="neo-card-inset rounded-full flex items-center gap-2 px-3 py-2 mb-2">
+                <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                <input
+                  autoFocus
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search words or descriptions…"
+                  className="flex-1 bg-transparent outline-none text-sm"
+                />
+                {query && (
+                  <button onClick={() => setQuery("")} className="text-muted-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="max-w-lg mx-auto px-3 pb-3 flex gap-2 overflow-x-auto scrollbar-hide">
           {TABS.map((t) => {
@@ -92,11 +174,15 @@ const LiveIndex = () => {
           className="max-w-lg mx-auto pt-2 touch-pan-y"
         >
           {tab === "map" ? (
-            <div className="px-3"><LiveMap rooms={rooms} /></div>
+            <div className="px-3"><LiveMap rooms={filtered} /></div>
+          ) : tab === "world" ? (
+            <WorldDiscover room={worldPick} onShuffle={() => setWorldTick((n) => n + 1)} />
           ) : (
             <>
-              <LiveCarousel rooms={filtered} />
-              <UpcomingAuctions items={scheduledAuctions} />
+              <LiveCarousel rooms={filtered} tab={tab} query={query} />
+              {tab !== "following" && tab !== "followers" && !query && (
+                <UpcomingAuctions items={scheduledAuctions} />
+              )}
             </>
           )}
         </motion.main>
@@ -107,12 +193,25 @@ const LiveIndex = () => {
 
 /* ------------------------- LIVE CAROUSEL ------------------------- */
 
-const LiveCarousel = ({ rooms }: { rooms: any[] }) => {
+const TAB_TITLE: Record<string, string> = {
+  all: "Live now",
+  auction: "Live auctions",
+  following: "From people you follow",
+  followers: "Your followers live",
+};
+
+const LiveCarousel = ({ rooms, tab, query }: { rooms: any[]; tab: TabId; query: string }) => {
   if (!rooms.length) {
     return (
       <div className="px-3 mb-6">
         <div className="text-center py-16 text-muted-foreground text-sm neo-card-inset rounded-2xl">
-          Nothing live in this lane. Swipe →
+          {query
+            ? `No live matches "${query}". Try another word.`
+            : tab === "following"
+            ? "No one you follow is live right now."
+            : tab === "followers"
+            ? "None of your followers are live right now."
+            : "Nothing live in this lane. Swipe →"}
         </div>
       </div>
     );
@@ -120,8 +219,12 @@ const LiveCarousel = ({ rooms }: { rooms: any[] }) => {
   return (
     <section className="mb-6">
       <div className="px-4 mb-2 flex items-baseline justify-between">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Live now</h2>
-        <span className="text-[10px] text-muted-foreground">{rooms.length} streaming · swipe →</span>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          {query ? `Results for "${query}"` : TAB_TITLE[tab] ?? "Live now"}
+        </h2>
+        <span className="text-[10px] text-muted-foreground">
+          {rooms.length} {rooms.length === 1 ? "stream" : "streaming"} · swipe →
+        </span>
       </div>
       <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-4 pb-2">
         {rooms.map((r) => (
@@ -160,6 +263,12 @@ const LiveCard = ({ room }: { room: any }) => (
       </span>
     </div>
 
+    {room.country && (
+      <div className="absolute top-12 right-3 px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-sm text-[10px] font-bold text-white">
+        {room.country.flag} {room.country.code}
+      </div>
+    )}
+
     <div className="absolute bottom-20 left-3 flex items-center gap-2">
       <img src={room.host.avatar} alt="" className="w-8 h-8 rounded-full ring-2 ring-white/60" />
       <span className="text-xs font-semibold text-white drop-shadow">{room.host.name}</span>
@@ -174,6 +283,75 @@ const LiveCard = ({ room }: { room: any }) => (
     </div>
   </Link>
 );
+
+/* ------------------------- WORLD DISCOVER ------------------------- */
+
+const WorldDiscover = ({ room, onShuffle }: { room: any; onShuffle: () => void }) => {
+  if (!room) {
+    return (
+      <div className="px-4 py-16 text-center text-muted-foreground text-sm">
+        No global auctions are live right now.
+      </div>
+    );
+  }
+  return (
+    <section className="px-4 space-y-3">
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <Globe2 className="w-3.5 h-3.5" /> Auction roulette
+        </h2>
+        <button onClick={onShuffle} className="text-[10px] font-semibold text-primary uppercase tracking-wider">
+          Spin again ↻
+        </button>
+      </div>
+
+      <Link
+        to={`/live/${room.id}`}
+        className="block neo-card rounded-3xl overflow-hidden relative aspect-[4/5]"
+      >
+        <img src={room.cover} alt={room.title} className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-destructive/90">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+          </span>
+          <span className="text-[10px] font-extrabold text-white tracking-wider">LIVE</span>
+        </div>
+        {room.country && (
+          <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/60 backdrop-blur-sm text-xs font-bold text-white">
+            {room.country.flag} {room.country.name}
+          </div>
+        )}
+
+        <div className="absolute bottom-0 inset-x-0 p-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <img src={room.host.avatar} className="w-9 h-9 rounded-full ring-2 ring-white/60" alt="" />
+            <div>
+              <p className="text-sm font-bold text-white">{room.host.name}</p>
+              <p className="text-[10px] uppercase tracking-wider text-primary font-bold">{KIND_LABEL[room.kind]}</p>
+            </div>
+          </div>
+          <h3 className="font-extrabold text-white text-xl leading-tight">{room.title}</h3>
+          {room.description && (
+            <p className="text-xs text-white/80 line-clamp-2">{room.description}</p>
+          )}
+          {room.item && (
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-2xl font-extrabold text-primary">${room.item.topBid}</span>
+              <span className="action-button action-button-primary py-1.5 text-xs">Tune in</span>
+            </div>
+          )}
+        </div>
+      </Link>
+
+      <p className="text-center text-[11px] text-muted-foreground">
+        A random live auction from around the world. Reshuffles every 12s.
+      </p>
+    </section>
+  );
+};
 
 /* ------------------------- UPCOMING AUCTIONS ------------------------- */
 
