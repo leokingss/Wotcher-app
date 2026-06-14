@@ -290,12 +290,25 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">Starting bid</p>
-                    <input
-                      type="number"
-                      value={startingBid}
-                      onChange={(e) => setStartingBid(e.target.value)}
-                      className="w-full neo-card-inset rounded-lg px-3 py-2 bg-transparent outline-none text-sm"
-                    />
+                    <div className="w-full neo-card-inset rounded-lg flex items-center pl-3 pr-1 py-1">
+                      <span className="text-sm text-muted-foreground font-semibold mr-1 tabular-nums">{currencySymbol}</span>
+                      <input
+                        type="number"
+                        value={startingBid}
+                        onChange={(e) => setStartingBid(e.target.value)}
+                        className="flex-1 min-w-0 bg-transparent outline-none text-sm py-1"
+                      />
+                      <select
+                        value={currency}
+                        onChange={(e) => setCurrency(e.target.value)}
+                        aria-label="Currency"
+                        className="ml-1 neo-button-icon rounded-md text-[11px] font-bold bg-transparent outline-none px-1.5 py-1 cursor-pointer"
+                      >
+                        {CURRENCIES.map((c) => (
+                          <option key={c.code} value={c.code}>{c.code}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">Duration (min)</p>
@@ -307,6 +320,9 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
                     />
                   </div>
                 </div>
+                <p className="text-[10px] text-muted-foreground -mt-1">
+                  Bids settle in <span className="font-semibold text-foreground">{currency}</span>. We'll remember this choice next time.
+                </p>
                 <p className="text-[11px] text-muted-foreground">
                   {startInMin === 0
                     ? "Live auctions extend by 10s if a bid arrives in the final 10 seconds (anti-snipe)."
