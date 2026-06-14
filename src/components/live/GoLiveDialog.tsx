@@ -183,6 +183,23 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
                 className="w-full neo-card-inset rounded-lg px-3 py-2.5 bg-transparent outline-none text-sm"
               />
             )}
+            {kind !== "together" && (
+              <div>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Description (optional, but required to appear in search)"
+                  rows={2}
+                  maxLength={200}
+                  className="w-full neo-card-inset rounded-lg px-3 py-2.5 bg-transparent outline-none text-sm resize-none"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1 px-1">
+                  {description.trim()
+                    ? `${description.length}/200 — searchable`
+                    : "Without a description, your live won't show up in search."}
+                </p>
+              </div>
+            )}
             {kind === "auction" && (
               <>
                 {/* Item photo — required */}
