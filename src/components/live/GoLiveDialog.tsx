@@ -25,7 +25,7 @@ const TYPES: TypeOption[] = [
 ];
 
 const GoLiveDialog = ({ open, onOpenChange }: Props) => {
-  const { addRoom } = useLive();
+  const { addRoom, addScheduledAuction } = useLive();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [kind, setKind] = useState<LiveKind | null>(null);
@@ -34,6 +34,10 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   const [startingBid, setStartingBid] = useState("10");
   const [minutes, setMinutes] = useState("15");
   const [autoJoin, setAutoJoin] = useState(false);
+  // Auction scheduling — 0 means "Go live now"
+  const [startInMin, setStartInMin] = useState<0 | 5 | 15 | 30 | 60>(0);
+  const [itemImage, setItemImage] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const reset = () => {
     setKind(null);
@@ -42,11 +46,19 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
     setStartingBid("10");
     setMinutes("15");
     setAutoJoin(false);
+    setStartInMin(0);
+    setItemImage(null);
   };
 
   const handleClose = (o: boolean) => {
     if (!o) reset();
     onOpenChange(o);
+  };
+
+  const onPickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setItemImage(URL.createObjectURL(f));
   };
 
   const start = () => {
@@ -59,6 +71,34 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
       toast.error("Add the item up for auction");
       return;
     }
+    if (kind === "auction" && !itemImage) {
+      toast.error("Add a photo of the item");
+      return;
+    }
+    const host = {
+      id: user?.id ?? "you",
+      name: user?.user_metadata?.username ?? "you",
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id ?? "you"}`,
+      verified: true,
+    };
+
+    // Scheduled auction announcement
+    if (kind === "auction" && startInMin > 0) {
+      const sid = `sched-${Math.random().toString(36).slice(2, 8)}`;
+      addScheduledAuction({
+        id: sid,
+        title: title.trim(),
+        itemImage: itemImage!,
+        host,
+        startsAt: new Date(Date.now() + startInMin * 60_000).toISOString(),
+        startingBid: parseFloat(startingBid) || 0,
+      });
+      handleClose(false);
+      toast.success(`Auction scheduled in ${startInMin}m`);
+      navigate("/live");
+      return;
+    }
+
     const id = `live-${Math.random().toString(36).slice(2, 8)}`;
     const startBid = parseFloat(startingBid) || 0;
     const mins = parseInt(minutes) || 15;
@@ -66,18 +106,15 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
       id,
       kind,
       title: kind === "together" ? "Hang Out" : title.trim(),
-      host: {
-        id: user?.id ?? "you",
-        name: user?.user_metadata?.username ?? "you",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id ?? "you"}`,
-        verified: true,
-      },
-      cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&h=1200&fit=crop",
+      host,
+      cover: kind === "auction" && itemImage
+        ? itemImage
+        : "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&h=1200&fit=crop",
       viewers: 1,
       bidders: 0,
       endsAt: new Date(Date.now() + mins * 60_000).toISOString(),
       item: kind === "auction"
-        ? { id: `item-${id}`, title: itemTitle.trim(), image: "https://images.unsplash.com/photo-1542728928-1413d1894ed1?w=600&h=600&fit=crop", startingBid: startBid, topBid: startBid }
+        ? { id: `item-${id}`, title: itemTitle.trim(), image: itemImage!, startingBid: startBid, topBid: startBid }
         : undefined,
       bidders_avatars: [],
       autoJoin: kind === "together" ? autoJoin : undefined,
