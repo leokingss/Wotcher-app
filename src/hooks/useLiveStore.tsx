@@ -24,6 +24,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 export const LiveProvider = ({ children }: { children: ReactNode }) => {
   const [rooms, setRooms] = useState<LiveRoom[]>(mockLiveRooms);
+  const [scheduledAuctions, setScheduledAuctions] = useState<ScheduledAuction[]>(mockScheduledAuctions);
   const [feed, setFeed] = useState<Record<string, FeedEvent[]>>({});
   const roomsRef = useRef(rooms);
   roomsRef.current = rooms;
