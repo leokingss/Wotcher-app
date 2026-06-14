@@ -181,12 +181,66 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
             )}
             {kind === "auction" && (
               <>
+                {/* Item photo — required */}
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="w-full neo-card-inset rounded-2xl aspect-[16/10] flex items-center justify-center overflow-hidden relative group"
+                >
+                  {itemImage ? (
+                    <img src={itemImage} alt="Item" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Camera className="w-6 h-6" />
+                      <span className="text-xs font-semibold">Add photo of item (required)</span>
+                    </div>
+                  )}
+                  {itemImage && (
+                    <span className="absolute bottom-2 right-2 px-2 py-1 rounded-full bg-black/60 text-white text-[10px] font-semibold">Tap to change</span>
+                  )}
+                </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={onPickImage}
+                />
+
                 <input
                   value={itemTitle}
                   onChange={(e) => setItemTitle(e.target.value)}
                   placeholder="Item up for auction"
                   className="w-full neo-card-inset rounded-lg px-3 py-2.5 bg-transparent outline-none text-sm"
                 />
+
+                {/* Start timing */}
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1.5 flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> Start
+                  </p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {([
+                      { v: 0, l: "Now" },
+                      { v: 5, l: "in 5m" },
+                      { v: 15, l: "in 15m" },
+                      { v: 30, l: "in 30m" },
+                      { v: 60, l: "in 1h" },
+                    ] as const).map((o) => (
+                      <button
+                        key={o.v}
+                        type="button"
+                        onClick={() => setStartInMin(o.v)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                          startInMin === o.v ? "neo-card-inset text-primary" : "neo-button-icon text-muted-foreground"
+                        }`}
+                      >
+                        {o.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">Starting bid</p>
@@ -208,7 +262,9 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
                   </div>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  Live auctions extend by 10s if a bid arrives in the final 10 seconds (anti-snipe).
+                  {startInMin === 0
+                    ? "Live auctions extend by 10s if a bid arrives in the final 10 seconds (anti-snipe)."
+                    : `Your scheduled auction will appear in the Upcoming row on /live for the next ${startInMin}m.`}
                 </p>
               </>
             )}
