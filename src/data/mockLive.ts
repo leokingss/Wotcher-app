@@ -113,6 +113,33 @@ export const mockLiveRooms: LiveRoom[] = [
   },
 ];
 
+export const mockScheduledAuctions: ScheduledAuction[] = [
+  {
+    id: "sched-1",
+    title: "Signed Coltrane LP — 1st pressing",
+    itemImage: "https://images.unsplash.com/photo-1535992165812-68d1861aa71e?w=600&h=600&fit=crop",
+    host: { id: "maya", name: "Maya Vinyl", avatar: AV("maya"), verified: true },
+    startsAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    startingBid: 50,
+  },
+  {
+    id: "sched-2",
+    title: "Walkman WM-DD9 — mint condition",
+    itemImage: "https://images.unsplash.com/photo-1593697821028-7cc59cfd7399?w=600&h=600&fit=crop",
+    host: { id: "drew", name: "Drew Records", avatar: AV("drew") },
+    startsAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    startingBid: 80,
+  },
+  {
+    id: "sched-3",
+    title: "90s hip-hop 45s — sealed lot of 8",
+    itemImage: "https://images.unsplash.com/photo-1542728928-1413d1894ed1?w=600&h=600&fit=crop",
+    host: { id: "nori", name: "Nori", avatar: AV("nori") },
+    startsAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    startingBid: 25,
+  },
+];
+
 export const sampleChatLines = [
   "FIRE 🔥",
   "shipping to UK?",
