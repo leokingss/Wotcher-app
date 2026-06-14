@@ -8,6 +8,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { LiveKind } from "@/data/mockLive";
 
+const CURRENCIES = [
+  { code: "USD", symbol: "$" },
+  { code: "EUR", symbol: "€" },
+  { code: "GBP", symbol: "£" },
+  { code: "JPY", symbol: "¥" },
+  { code: "CAD", symbol: "C$" },
+  { code: "AUD", symbol: "A$" },
+  { code: "BRL", symbol: "R$" },
+  { code: "MXN", symbol: "Mex$" },
+  { code: "INR", symbol: "₹" },
+  { code: "KRW", symbol: "₩" },
+  { code: "CNY", symbol: "¥" },
+  { code: "CHF", symbol: "Fr" },
+];
+const CURRENCY_KEY = "golive:currency";
+
 interface Props { open: boolean; onOpenChange: (o: boolean) => void; }
 
 type TypeOption = {
