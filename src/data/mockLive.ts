@@ -26,6 +26,15 @@ export interface LiveRoom {
   autoJoin?: boolean; // for together/hangout rooms
 }
 
+export interface ScheduledAuction {
+  id: string;
+  title: string;
+  itemImage: string;
+  host: { id: string; name: string; avatar: string; verified?: boolean };
+  startsAt: string; // ISO
+  startingBid: number;
+}
+
 const AV = (seed: string) =>
   `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
 
