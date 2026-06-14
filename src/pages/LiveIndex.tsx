@@ -1,10 +1,8 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, Users, Radio, Gavel, Music2, Coffee, Map as MapIcon, Layers } from "lucide-react";
+import { ChevronLeft, Users, Radio, Gavel, Music2, Coffee, Map as MapIcon, Layers, Clock } from "lucide-react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useLive } from "@/hooks/useLiveStore";
-
-import LiveBadge from "@/components/live/LiveBadge";
 
 type TabId = "all" | "auction" | "hangout" | "sync" | "map";
 
@@ -16,18 +14,6 @@ const TABS: { id: TabId; label: string; icon: any }[] = [
   { id: "map", label: "Map", icon: MapIcon },
 ];
 
-// Bento tile size pattern — drives the TV-wall mosaic feel
-const SIZE_PATTERN = [
-  "col-span-2 row-span-2", // big
-  "col-span-1 row-span-1",
-  "col-span-1 row-span-2", // tall
-  "col-span-2 row-span-1", // wide
-  "col-span-1 row-span-1",
-  "col-span-1 row-span-1",
-  "col-span-2 row-span-1",
-  "col-span-1 row-span-2",
-];
-
 const KIND_LABEL: Record<string, string> = {
   auction: "Auction",
   sync: "Sync",
@@ -35,7 +21,7 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 const LiveIndex = () => {
-  const { rooms, feed } = useLive();
+  const { rooms, scheduledAuctions } = useLive();
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabId>("all");
 
@@ -72,7 +58,6 @@ const LiveIndex = () => {
           <div className="w-9" />
         </div>
 
-        {/* Tab bar — swipeable */}
         <div className="max-w-lg mx-auto px-3 pb-3 flex gap-2 overflow-x-auto scrollbar-hide">
           {TABS.map((t) => {
             const Icon = t.icon;
@@ -82,9 +67,7 @@ const LiveIndex = () => {
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all ${
-                  active
-                    ? "neo-card-inset text-primary"
-                    : "neo-button-icon text-muted-foreground"
+                  active ? "neo-card-inset text-primary" : "neo-button-icon text-muted-foreground"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -106,12 +89,15 @@ const LiveIndex = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -30 }}
           transition={{ duration: 0.22 }}
-          className="max-w-lg mx-auto px-3 pt-2 touch-pan-y"
+          className="max-w-lg mx-auto pt-2 touch-pan-y"
         >
           {tab === "map" ? (
-            <LiveMap rooms={rooms} />
+            <div className="px-3"><LiveMap rooms={rooms} /></div>
           ) : (
-            <TvWall rooms={filtered} feed={feed} />
+            <>
+              <LiveCarousel rooms={filtered} />
+              <UpcomingAuctions items={scheduledAuctions} />
+            </>
           )}
         </motion.main>
       </AnimatePresence>
@@ -119,92 +105,147 @@ const LiveIndex = () => {
   );
 };
 
-/* ------------------------- TV WALL ------------------------- */
+/* ------------------------- LIVE CAROUSEL ------------------------- */
 
-const TvWall = ({ rooms, feed }: { rooms: any[]; feed: Record<string, any[]> }) => {
+const LiveCarousel = ({ rooms }: { rooms: any[] }) => {
   if (!rooms.length) {
     return (
-      <div className="text-center py-20 text-muted-foreground text-sm">
-        Nothing live in this lane. Swipe →
+      <div className="px-3 mb-6">
+        <div className="text-center py-16 text-muted-foreground text-sm neo-card-inset rounded-2xl">
+          Nothing live in this lane. Swipe →
+        </div>
       </div>
     );
   }
   return (
-    <div className="grid grid-cols-2 auto-rows-[110px] gap-3">
-      {rooms.map((r, i) => (
-        <TvTile
-          key={r.id}
-          room={r}
-          size={SIZE_PATTERN[i % SIZE_PATTERN.length]}
-          chats={feed[r.id]?.filter((e) => e.kind === "chat").slice(-2) ?? []}
-        />
-      ))}
+    <section className="mb-6">
+      <div className="px-4 mb-2 flex items-baseline justify-between">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Live now</h2>
+        <span className="text-[10px] text-muted-foreground">{rooms.length} streaming · swipe →</span>
+      </div>
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-4 pb-2">
+        {rooms.map((r) => (
+          <LiveCard key={r.id} room={r} />
+        ))}
+        <div className="shrink-0 w-2" aria-hidden />
+      </div>
+    </section>
+  );
+};
+
+const LiveCard = ({ room }: { room: any }) => (
+  <Link
+    to={room.kind === "auction" ? `/live/${room.id}` : "/labs"}
+    className="shrink-0 snap-start w-[78%] max-w-[320px] aspect-[3/4] rounded-3xl overflow-hidden neo-card relative group"
+  >
+    <img
+      src={room.cover}
+      alt={room.title}
+      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+    />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+
+    <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-destructive/90">
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+      </span>
+      <span className="text-[10px] font-extrabold text-white tracking-wider">LIVE</span>
     </div>
-  );
-};
 
-const TvTile = ({ room, size, chats }: any) => {
-  const isBig = size.includes("col-span-2");
-  return (
-    <Link
-      to={room.kind === "auction" ? `/live/${room.id}` : "/labs"}
-      className={`relative ${size} rounded-2xl overflow-hidden neo-card group`}
-    >
-      <img
-        src={room.cover}
-        alt={room.title}
-        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+    <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full bg-black/55 backdrop-blur-sm">
+      <Users className="w-3 h-3 text-white" />
+      <span className="text-[10px] font-bold text-white tabular-nums">
+        {room.viewers > 999 ? `${(room.viewers / 1000).toFixed(1)}k` : room.viewers}
+      </span>
+    </div>
 
-      {/* Pulse ring */}
-      <div className="absolute top-2 left-2 flex items-center gap-1.5">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75 animate-ping" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
-        </span>
-        <span className="text-[9px] font-bold text-white tracking-wider uppercase">Live</span>
-      </div>
+    <div className="absolute bottom-20 left-3 flex items-center gap-2">
+      <img src={room.host.avatar} alt="" className="w-8 h-8 rounded-full ring-2 ring-white/60" />
+      <span className="text-xs font-semibold text-white drop-shadow">{room.host.name}</span>
+    </div>
 
-      {/* Viewer ticker */}
-      <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-black/55 backdrop-blur-sm">
-        <Users className="w-2.5 h-2.5 text-white" />
-        <span className="text-[9px] font-bold text-white tabular-nums">
-          {room.viewers > 999 ? `${(room.viewers / 1000).toFixed(1)}k` : room.viewers}
-        </span>
-      </div>
-
-      {/* Floating chat bubbles peeking out */}
-      {isBig && chats.length > 0 && (
-        <div className="absolute bottom-12 left-2 right-2 space-y-1 pointer-events-none">
-          {chats.map((c: any) => (
-            <motion.div
-              key={c.id}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-block max-w-[85%] px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-md text-[10px] text-white truncate"
-            >
-              <span className="font-semibold text-primary">{c.user}</span> {c.text}
-            </motion.div>
-          ))}
-        </div>
+    <div className="absolute bottom-0 inset-x-0 p-3">
+      <p className="text-[10px] uppercase tracking-wider font-bold text-primary">{KIND_LABEL[room.kind]}</p>
+      <h3 className="font-bold text-white text-base line-clamp-2 leading-tight">{room.title}</h3>
+      {room.kind === "auction" && room.item && (
+        <p className="text-sm font-extrabold text-primary mt-1">${room.item.topBid}</p>
       )}
+    </div>
+  </Link>
+);
 
-      {/* Bottom info */}
-      <div className="absolute bottom-0 inset-x-0 p-2">
-        <p className="text-[8px] uppercase tracking-wider font-bold text-primary">
-          {KIND_LABEL[room.kind]}
-        </p>
-        <h3 className={`font-bold text-white line-clamp-1 ${isBig ? "text-sm" : "text-[11px]"}`}>
-          {room.title}
-        </h3>
-        {room.kind === "auction" && room.item && (
-          <p className="text-[10px] font-bold text-primary mt-0.5">${room.item.topBid}</p>
-        )}
+/* ------------------------- UPCOMING AUCTIONS ------------------------- */
+
+const UpcomingAuctions = ({ items }: { items: any[] }) => {
+  const upcoming = useMemo(
+    () =>
+      [...items]
+        .filter((i) => new Date(i.startsAt).getTime() > Date.now())
+        .sort((a, b) => +new Date(a.startsAt) - +new Date(b.startsAt)),
+    [items]
+  );
+  if (!upcoming.length) return null;
+
+  return (
+    <section className="px-4">
+      <div className="mb-2 flex items-baseline justify-between">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <Gavel className="w-3.5 h-3.5" /> Upcoming auctions
+        </h2>
+        <span className="text-[10px] text-muted-foreground">{upcoming.length} scheduled</span>
       </div>
-    </Link>
+      <div className="space-y-2.5">
+        {upcoming.map((s) => (
+          <UpcomingRow key={s.id} item={s} />
+        ))}
+      </div>
+    </section>
   );
 };
+
+const StartsIn = ({ startsAt }: { startsAt: string }) => {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const diff = new Date(startsAt).getTime() - now;
+  if (diff <= 0) return <span className="text-destructive font-bold">starting…</span>;
+  const m = Math.floor(diff / 60_000);
+  const s = Math.floor((diff % 60_000) / 1000);
+  if (m >= 60) {
+    const h = Math.floor(m / 60);
+    return <span>in {h}h {m % 60}m</span>;
+  }
+  const urgent = diff < 60_000;
+  return (
+    <span className={urgent ? "text-destructive font-bold tabular-nums" : "tabular-nums"}>
+      in {m}:{s.toString().padStart(2, "0")}
+    </span>
+  );
+};
+
+const UpcomingRow = ({ item }: { item: any }) => (
+  <div className="neo-card rounded-2xl p-2.5 flex gap-3 items-center">
+    <img src={item.itemImage} alt={item.title} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <img src={item.host.avatar} alt="" className="w-4 h-4 rounded-full" />
+        <span className="text-[11px] font-semibold text-muted-foreground truncate">{item.host.name}</span>
+      </div>
+      <h3 className="text-sm font-bold line-clamp-1">{item.title}</h3>
+      <div className="flex items-center gap-2 text-[11px] mt-0.5">
+        <span className="flex items-center gap-1 text-primary font-semibold">
+          <Clock className="w-3 h-3" /> <StartsIn startsAt={item.startsAt} />
+        </span>
+        <span className="text-muted-foreground">·</span>
+        <span className="text-muted-foreground">start ${item.startingBid}</span>
+      </div>
+    </div>
+    <button className="action-button action-button-primary py-1.5 text-xs">Remind</button>
+  </div>
+);
 
 /* ------------------------- LIVE MAP ------------------------- */
 
@@ -217,7 +258,6 @@ const ZONES = [
 const LiveMap = ({ rooms }: { rooms: any[] }) => {
   const [selected, setSelected] = useState<any>(null);
 
-  // Place each room as a blip near its zone
   const blips = useMemo(() => {
     return rooms.map((r, i) => {
       const z = ZONES.find((z) => z.id === r.kind) ?? ZONES[0];
@@ -235,7 +275,6 @@ const LiveMap = ({ rooms }: { rooms: any[] }) => {
   return (
     <div className="space-y-3">
       <div className="relative w-full aspect-square rounded-3xl neo-card-inset overflow-hidden bg-gradient-to-br from-background to-black/40">
-        {/* Radar grid */}
         <svg className="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 100 100">
           {[20, 35, 50].map((r) => (
             <circle key={r} cx="50" cy="50" r={r} fill="none" stroke="hsl(45, 100%, 50%)" strokeWidth="0.15" />
@@ -244,17 +283,13 @@ const LiveMap = ({ rooms }: { rooms: any[] }) => {
           <line x1="0" y1="50" x2="100" y2="50" stroke="hsl(45, 100%, 50%)" strokeWidth="0.15" />
         </svg>
 
-        {/* Sweep */}
         <motion.div
           className="absolute top-1/2 left-1/2 w-1/2 h-[2px] origin-left"
-          style={{
-            background: "linear-gradient(to right, hsl(45, 100%, 50%, 0.6), transparent)",
-          }}
+          style={{ background: "linear-gradient(to right, hsl(45, 100%, 50%, 0.6), transparent)" }}
           animate={{ rotate: 360 }}
           transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
         />
 
-        {/* Zone labels */}
         {ZONES.map((z) => (
           <div
             key={z.id}
@@ -265,7 +300,6 @@ const LiveMap = ({ rooms }: { rooms: any[] }) => {
           </div>
         ))}
 
-        {/* Blips */}
         {blips.map(({ room, x, y, color }) => (
           <button
             key={room.id}
@@ -274,14 +308,8 @@ const LiveMap = ({ rooms }: { rooms: any[] }) => {
             style={{ left: `${x}%`, top: `${y}%` }}
           >
             <span className="relative flex h-3 w-3">
-              <span
-                className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
-                style={{ backgroundColor: color }}
-              />
-              <span
-                className="relative inline-flex rounded-full h-3 w-3 ring-2 ring-background"
-                style={{ backgroundColor: color }}
-              />
+              <span className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping" style={{ backgroundColor: color }} />
+              <span className="relative inline-flex rounded-full h-3 w-3 ring-2 ring-background" style={{ backgroundColor: color }} />
             </span>
           </button>
         ))}
@@ -317,8 +345,5 @@ const LiveMap = ({ rooms }: { rooms: any[] }) => {
     </div>
   );
 };
-
-// Hook placeholder (we just use useLive().feed) — remove stray import
-const useLiveFeedNoop = () => null;
 
 export default LiveIndex;
