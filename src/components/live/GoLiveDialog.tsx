@@ -30,6 +30,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   const navigate = useNavigate();
   const [kind, setKind] = useState<LiveKind | null>(null);
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [itemTitle, setItemTitle] = useState("");
   const [startingBid, setStartingBid] = useState("10");
   const [minutes, setMinutes] = useState("15");
@@ -42,6 +43,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   const reset = () => {
     setKind(null);
     setTitle("");
+    setDescription("");
     setItemTitle("");
     setStartingBid("10");
     setMinutes("15");
