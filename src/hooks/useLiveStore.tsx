@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, ReactNode, useCallback } from "react";
-import { mockLiveRooms, sampleBidderNames, sampleChatLines, LiveRoom } from "@/data/mockLive";
+import { mockLiveRooms, mockScheduledAuctions, sampleBidderNames, sampleChatLines, LiveRoom, ScheduledAuction } from "@/data/mockLive";
 
 export type FeedEvent =
   | { id: string; kind: "chat"; user: string; avatar: string; text: string; at: number }
@@ -13,6 +13,8 @@ interface LiveStore {
   placeBid: (roomId: string, amount: number, user?: { name: string; avatar: string }) => void;
   sendChat: (roomId: string, text: string, user?: { name: string; avatar: string }) => void;
   addRoom: (room: LiveRoom) => void;
+  scheduledAuctions: ScheduledAuction[];
+  addScheduledAuction: (s: ScheduledAuction) => void;
 }
 
 const Ctx = createContext<LiveStore | null>(null);
