@@ -24,6 +24,8 @@ export interface LiveRoom {
   item?: LiveItem; // present for auctions
   bidders_avatars: string[];
   autoJoin?: boolean; // for together/hangout rooms
+  description?: string; // optional; required to appear in search
+  country?: { code: string; name: string; flag: string };
 }
 
 export interface ScheduledAuction {
@@ -33,7 +35,12 @@ export interface ScheduledAuction {
   host: { id: string; name: string; avatar: string; verified?: boolean };
   startsAt: string; // ISO
   startingBid: number;
+  description?: string;
 }
+
+// Mock social graph (host ids).
+export const mockFollowingIds = new Set(["maya", "nori"]);
+export const mockFollowerIds = new Set(["drew", "iris", "kenji"]);
 
 const AV = (seed: string) =>
   `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
@@ -70,6 +77,8 @@ export const mockLiveRooms: LiveRoom[] = [
       topBidderId: "bidder-3",
     },
     bidders_avatars: ["jay", "ola", "kim", "sam", "lex", "rio"].map(AV),
+    description: "Original Blue Note 1568 mono pressing, deep groove. Lee Morgan at his peak.",
+    country: { code: "US", name: "Brooklyn, USA", flag: "🇺🇸" },
   },
   {
     id: "live-2",
@@ -88,6 +97,8 @@ export const mockLiveRooms: LiveRoom[] = [
       topBid: 38,
     },
     bidders_avatars: ["aya", "bek", "cy", "dee"].map(AV),
+    description: "12 sealed tapes from a private collection — Yaz, OMD, New Order, more.",
+    country: { code: "GB", name: "Manchester, UK", flag: "🇬🇧" },
   },
   {
     id: "live-3",
@@ -99,6 +110,7 @@ export const mockLiveRooms: LiveRoom[] = [
     bidders: 0,
     endsAt: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
     bidders_avatars: [],
+    country: { code: "JP", name: "Tokyo, Japan", flag: "🇯🇵" },
   },
   {
     id: "live-4",
@@ -110,6 +122,47 @@ export const mockLiveRooms: LiveRoom[] = [
     bidders: 0,
     endsAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
     bidders_avatars: [],
+    country: { code: "DE", name: "Berlin, Germany", flag: "🇩🇪" },
+  },
+  {
+    id: "live-5",
+    kind: "auction",
+    title: "Vintage Walkman — sealed in box",
+    host: { id: "kenji", name: "Kenji Audio", avatar: AV("kenji"), verified: true },
+    cover: COVERS[1],
+    viewers: 542,
+    bidders: 12,
+    endsAt: new Date(Date.now() + 22 * 60 * 1000).toISOString(),
+    item: {
+      id: "item-5",
+      title: "Sony WM-DD9 — NOS",
+      image: ITEMS[2],
+      startingBid: 200,
+      topBid: 410,
+    },
+    bidders_avatars: ["mio", "ren", "yui"].map(AV),
+    description: "New-old-stock Sony WM-DD9 found in a shop in Akihabara. Never used.",
+    country: { code: "JP", name: "Osaka, Japan", flag: "🇯🇵" },
+  },
+  {
+    id: "live-6",
+    kind: "auction",
+    title: "Brazilian 70s funk 7\"s",
+    host: { id: "lia", name: "Lia Samba", avatar: AV("lia") },
+    cover: COVERS[2],
+    viewers: 188,
+    bidders: 5,
+    endsAt: new Date(Date.now() + 18 * 60 * 1000).toISOString(),
+    item: {
+      id: "item-6",
+      title: "Lot of 6 — Tim Maia, Jorge Ben",
+      image: ITEMS[0],
+      startingBid: 40,
+      topBid: 75,
+    },
+    bidders_avatars: ["ana", "leo"].map(AV),
+    // no description -> won't appear in search
+    country: { code: "BR", name: "São Paulo, Brazil", flag: "🇧🇷" },
   },
 ];
 

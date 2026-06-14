@@ -30,6 +30,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   const navigate = useNavigate();
   const [kind, setKind] = useState<LiveKind | null>(null);
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [itemTitle, setItemTitle] = useState("");
   const [startingBid, setStartingBid] = useState("10");
   const [minutes, setMinutes] = useState("15");
@@ -42,6 +43,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   const reset = () => {
     setKind(null);
     setTitle("");
+    setDescription("");
     setItemTitle("");
     setStartingBid("10");
     setMinutes("15");
@@ -92,6 +94,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
         host,
         startsAt: new Date(Date.now() + startInMin * 60_000).toISOString(),
         startingBid: parseFloat(startingBid) || 0,
+        description: description.trim() || undefined,
       });
       handleClose(false);
       toast.success(`Auction scheduled in ${startInMin}m`);
@@ -118,6 +121,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
         : undefined,
       bidders_avatars: [],
       autoJoin: kind === "together" ? autoJoin : undefined,
+      description: description.trim() || undefined,
     });
     handleClose(false);
     toast.success("You're live!");
@@ -178,6 +182,23 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
                 placeholder="Stream title"
                 className="w-full neo-card-inset rounded-lg px-3 py-2.5 bg-transparent outline-none text-sm"
               />
+            )}
+            {kind !== "together" && (
+              <div>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Description (optional, but required to appear in search)"
+                  rows={2}
+                  maxLength={200}
+                  className="w-full neo-card-inset rounded-lg px-3 py-2.5 bg-transparent outline-none text-sm resize-none"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1 px-1">
+                  {description.trim()
+                    ? `${description.length}/200 — searchable`
+                    : "Without a description, your live won't show up in search."}
+                </p>
+              </div>
             )}
             {kind === "auction" && (
               <>
