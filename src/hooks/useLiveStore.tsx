@@ -98,7 +98,9 @@ export const LiveProvider = ({ children }: { children: ReactNode }) => {
     placeBid,
     sendChat,
     addRoom: (r) => setRooms((prev) => [r, ...prev]),
-  }), [rooms, feed, placeBid, sendChat]);
+    scheduledAuctions,
+    addScheduledAuction: (s) => setScheduledAuctions((prev) => [s, ...prev]),
+  }), [rooms, feed, placeBid, sendChat, scheduledAuctions]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
