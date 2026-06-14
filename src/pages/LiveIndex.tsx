@@ -5,7 +5,6 @@ import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useLive } from "@/hooks/useLiveStore";
 
 import LiveBadge from "@/components/live/LiveBadge";
-import AuctionsLane from "@/components/live/AuctionsLane";
 
 type TabId = "all" | "auction" | "hangout" | "sync" | "map";
 
@@ -111,8 +110,6 @@ const LiveIndex = () => {
         >
           {tab === "map" ? (
             <LiveMap rooms={rooms} />
-          ) : tab === "auction" ? (
-            <AuctionsLane liveRooms={rooms.filter((r) => r.kind === "auction")} />
           ) : (
             <TvWall rooms={filtered} feed={feed} />
           )}
