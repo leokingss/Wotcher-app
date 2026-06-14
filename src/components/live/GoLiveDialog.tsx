@@ -54,6 +54,15 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   // Auction scheduling — 0 means "Go live now"
   const [startInMin, setStartInMin] = useState<0 | 5 | 15 | 30 | 60>(0);
   const [itemImage, setItemImage] = useState<string | null>(null);
+  const [currency, setCurrencyState] = useState<string>(() => {
+    if (typeof window === "undefined") return "USD";
+    return localStorage.getItem(CURRENCY_KEY) || "USD";
+  });
+  const setCurrency = (c: string) => {
+    setCurrencyState(c);
+    try { localStorage.setItem(CURRENCY_KEY, c); } catch {}
+  };
+  const currencySymbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? "$";
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const reset = () => {
