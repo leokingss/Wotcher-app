@@ -121,6 +121,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
         : undefined,
       bidders_avatars: [],
       autoJoin: kind === "together" ? autoJoin : undefined,
+      description: description.trim() || undefined,
     });
     handleClose(false);
     toast.success("You're live!");
