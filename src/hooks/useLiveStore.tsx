@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, ReactNode, useCallback } from "react";
-import { mockLiveRooms, sampleBidderNames, sampleChatLines, LiveRoom } from "@/data/mockLive";
+import { mockLiveRooms, mockScheduledAuctions, sampleBidderNames, sampleChatLines, LiveRoom, ScheduledAuction } from "@/data/mockLive";
 
 export type FeedEvent =
   | { id: string; kind: "chat"; user: string; avatar: string; text: string; at: number }
@@ -13,6 +13,8 @@ interface LiveStore {
   placeBid: (roomId: string, amount: number, user?: { name: string; avatar: string }) => void;
   sendChat: (roomId: string, text: string, user?: { name: string; avatar: string }) => void;
   addRoom: (room: LiveRoom) => void;
+  scheduledAuctions: ScheduledAuction[];
+  addScheduledAuction: (s: ScheduledAuction) => void;
 }
 
 const Ctx = createContext<LiveStore | null>(null);
@@ -22,6 +24,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 export const LiveProvider = ({ children }: { children: ReactNode }) => {
   const [rooms, setRooms] = useState<LiveRoom[]>(mockLiveRooms);
+  const [scheduledAuctions, setScheduledAuctions] = useState<ScheduledAuction[]>(mockScheduledAuctions);
   const [feed, setFeed] = useState<Record<string, FeedEvent[]>>({});
   const roomsRef = useRef(rooms);
   roomsRef.current = rooms;
@@ -95,7 +98,9 @@ export const LiveProvider = ({ children }: { children: ReactNode }) => {
     placeBid,
     sendChat,
     addRoom: (r) => setRooms((prev) => [r, ...prev]),
-  }), [rooms, feed, placeBid, sendChat]);
+    scheduledAuctions,
+    addScheduledAuction: (s) => setScheduledAuctions((prev) => [s, ...prev]),
+  }), [rooms, feed, placeBid, sendChat, scheduledAuctions]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };

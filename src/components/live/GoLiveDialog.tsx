@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Radio, X, Gavel, Headphones, Users, ChevronLeft, Lock, Unlock } from "lucide-react";
+import { Radio, X, Gavel, Headphones, Users, ChevronLeft, Lock, Unlock, Camera, Clock } from "lucide-react";
 import { useLive } from "@/hooks/useLiveStore";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -25,7 +25,7 @@ const TYPES: TypeOption[] = [
 ];
 
 const GoLiveDialog = ({ open, onOpenChange }: Props) => {
-  const { addRoom } = useLive();
+  const { addRoom, addScheduledAuction } = useLive();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [kind, setKind] = useState<LiveKind | null>(null);
@@ -34,6 +34,10 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
   const [startingBid, setStartingBid] = useState("10");
   const [minutes, setMinutes] = useState("15");
   const [autoJoin, setAutoJoin] = useState(false);
+  // Auction scheduling — 0 means "Go live now"
+  const [startInMin, setStartInMin] = useState<0 | 5 | 15 | 30 | 60>(0);
+  const [itemImage, setItemImage] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const reset = () => {
     setKind(null);
@@ -42,11 +46,19 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
     setStartingBid("10");
     setMinutes("15");
     setAutoJoin(false);
+    setStartInMin(0);
+    setItemImage(null);
   };
 
   const handleClose = (o: boolean) => {
     if (!o) reset();
     onOpenChange(o);
+  };
+
+  const onPickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setItemImage(URL.createObjectURL(f));
   };
 
   const start = () => {
@@ -59,6 +71,34 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
       toast.error("Add the item up for auction");
       return;
     }
+    if (kind === "auction" && !itemImage) {
+      toast.error("Add a photo of the item");
+      return;
+    }
+    const host = {
+      id: user?.id ?? "you",
+      name: user?.user_metadata?.username ?? "you",
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id ?? "you"}`,
+      verified: true,
+    };
+
+    // Scheduled auction announcement
+    if (kind === "auction" && startInMin > 0) {
+      const sid = `sched-${Math.random().toString(36).slice(2, 8)}`;
+      addScheduledAuction({
+        id: sid,
+        title: title.trim(),
+        itemImage: itemImage!,
+        host,
+        startsAt: new Date(Date.now() + startInMin * 60_000).toISOString(),
+        startingBid: parseFloat(startingBid) || 0,
+      });
+      handleClose(false);
+      toast.success(`Auction scheduled in ${startInMin}m`);
+      navigate("/live");
+      return;
+    }
+
     const id = `live-${Math.random().toString(36).slice(2, 8)}`;
     const startBid = parseFloat(startingBid) || 0;
     const mins = parseInt(minutes) || 15;
@@ -66,18 +106,15 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
       id,
       kind,
       title: kind === "together" ? "Hang Out" : title.trim(),
-      host: {
-        id: user?.id ?? "you",
-        name: user?.user_metadata?.username ?? "you",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id ?? "you"}`,
-        verified: true,
-      },
-      cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&h=1200&fit=crop",
+      host,
+      cover: kind === "auction" && itemImage
+        ? itemImage
+        : "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&h=1200&fit=crop",
       viewers: 1,
       bidders: 0,
       endsAt: new Date(Date.now() + mins * 60_000).toISOString(),
       item: kind === "auction"
-        ? { id: `item-${id}`, title: itemTitle.trim(), image: "https://images.unsplash.com/photo-1542728928-1413d1894ed1?w=600&h=600&fit=crop", startingBid: startBid, topBid: startBid }
+        ? { id: `item-${id}`, title: itemTitle.trim(), image: itemImage!, startingBid: startBid, topBid: startBid }
         : undefined,
       bidders_avatars: [],
       autoJoin: kind === "together" ? autoJoin : undefined,
@@ -144,12 +181,66 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
             )}
             {kind === "auction" && (
               <>
+                {/* Item photo — required */}
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="w-full neo-card-inset rounded-2xl aspect-[16/10] flex items-center justify-center overflow-hidden relative group"
+                >
+                  {itemImage ? (
+                    <img src={itemImage} alt="Item" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Camera className="w-6 h-6" />
+                      <span className="text-xs font-semibold">Add photo of item (required)</span>
+                    </div>
+                  )}
+                  {itemImage && (
+                    <span className="absolute bottom-2 right-2 px-2 py-1 rounded-full bg-black/60 text-white text-[10px] font-semibold">Tap to change</span>
+                  )}
+                </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={onPickImage}
+                />
+
                 <input
                   value={itemTitle}
                   onChange={(e) => setItemTitle(e.target.value)}
                   placeholder="Item up for auction"
                   className="w-full neo-card-inset rounded-lg px-3 py-2.5 bg-transparent outline-none text-sm"
                 />
+
+                {/* Start timing */}
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1.5 flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> Start
+                  </p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {([
+                      { v: 0, l: "Now" },
+                      { v: 5, l: "in 5m" },
+                      { v: 15, l: "in 15m" },
+                      { v: 30, l: "in 30m" },
+                      { v: 60, l: "in 1h" },
+                    ] as const).map((o) => (
+                      <button
+                        key={o.v}
+                        type="button"
+                        onClick={() => setStartInMin(o.v)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                          startInMin === o.v ? "neo-card-inset text-primary" : "neo-button-icon text-muted-foreground"
+                        }`}
+                      >
+                        {o.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">Starting bid</p>
@@ -171,7 +262,9 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
                   </div>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  Live auctions extend by 10s if a bid arrives in the final 10 seconds (anti-snipe).
+                  {startInMin === 0
+                    ? "Live auctions extend by 10s if a bid arrives in the final 10 seconds (anti-snipe)."
+                    : `Your scheduled auction will appear in the Upcoming row on /live for the next ${startInMin}m.`}
                 </p>
               </>
             )}
