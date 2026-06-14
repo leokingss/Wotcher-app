@@ -94,6 +94,7 @@ const GoLiveDialog = ({ open, onOpenChange }: Props) => {
         host,
         startsAt: new Date(Date.now() + startInMin * 60_000).toISOString(),
         startingBid: parseFloat(startingBid) || 0,
+        description: description.trim() || undefined,
       });
       handleClose(false);
       toast.success(`Auction scheduled in ${startInMin}m`);
