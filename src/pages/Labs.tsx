@@ -35,7 +35,7 @@ const Labs = () => {
           )}
           <div className="flex items-center gap-2">
             <FlaskConical className="w-4 h-4 text-primary" />
-            <h1 className="font-bold tracking-tight">{lab ? lab.title : "Watcher Labs"}</h1>
+            <h1 className="font-bold tracking-tight">{lab ? lab.title : "Wotcher Labs"}</h1>
           </div>
         </div>
       </header>

@@ -9,6 +9,7 @@ interface Profile {
   bio: string | null;
   avatar_url: string | null;
   account_type: "listener" | "artist";
+  feed_mode: "live" | "popular" | "algorithm";
 }
 
 interface AuthContextValue {
@@ -18,6 +19,7 @@ interface AuthContextValue {
   loading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  setFeedMode: (mode: "live" | "popular" | "algorithm") => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -31,7 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loadProfile = async (uid: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("id, username, display_name, bio, avatar_url, account_type")
+      .select("id, username, display_name, bio, avatar_url, account_type, feed_mode")
       .eq("id", uid)
       .maybeSingle();
     setProfile(data ?? null);
@@ -66,8 +68,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (user) await loadProfile(user.id);
   };
 
+  // Persist the user's chosen feed algorithm — "we let you decide" means it sticks.
+  const setFeedMode = async (mode: "live" | "popular" | "algorithm") => {
+    if (!user) return;
+    setProfile((p) => (p ? { ...p, feed_mode: mode } : p));
+    await supabase.from("profiles").update({ feed_mode: mode }).eq("id", user.id);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile, setFeedMode }}>
       {children}
     </AuthContext.Provider>
   );

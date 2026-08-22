@@ -1,16 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck, FlaskConical, Package, Wallet, UserPlus } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, LogIn, Mic2, Upload, BadgeCheck, FlaskConical, Package, Wallet, UserPlus, Check } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import BecomeArtistDialog from "./BecomeArtistDialog";
 import ArtistUploadDialog from "./ArtistUploadDialog";
-
-const feedOptions = [
-  { id: 1, label: "Live Feed" },
-  { id: 2, label: "Popular" },
-  { id: 3, label: "Algorithm" },
-];
+import { FEED_MODES } from "@/lib/feedModes";
 
 interface HeaderDropdownProps {
   activeTab: number;
@@ -50,31 +45,38 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
       {isOpen && (
         <div className="absolute right-0 top-12 z-50 neo-dropdown min-w-[280px] p-5 rounded-3xl animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="mb-5">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-semibold">Visualization</p>
-            <div className="flex items-start justify-between gap-3">
-              {feedOptions.map((option) => {
-                const isActive = activeTab === option.id;
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Your feed, your rules</p>
+            <p className="text-[11px] text-muted-foreground mb-3">Others decide what you see. We let you decide.</p>
+            <div className="space-y-1.5">
+              {FEED_MODES.map((mode) => {
+                const isActive = activeTab === mode.id;
                 return (
                   <button
-                    key={option.id}
+                    key={mode.id}
                     onClick={() => {
-                      onTabChange(option.id);
+                      onTabChange(mode.id);
                       setIsOpen(false);
                     }}
-                    className="flex flex-col items-center gap-2 flex-1 group"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-left transition-all ${
+                      isActive ? "neo-card-inset" : "neo-button-icon"
+                    }`}
                   >
                     <span
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-semibold transition-all ${
-                        isActive
-                          ? "neo-card-inset text-primary"
-                          : "neo-button-icon text-foreground group-hover:text-primary"
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        isActive ? "text-primary" : "text-muted-foreground"
                       }`}
                     >
-                      {option.id}
+                      <mode.Icon className="w-4 h-4" />
                     </span>
-                    <span className={`text-xs ${isActive ? "text-primary font-medium" : "text-muted-foreground"}`}>
-                      {option.label}
+                    <span className="flex-1 min-w-0">
+                      <span className={`block text-sm font-medium ${isActive ? "text-primary" : "text-foreground"}`}>
+                        {mode.label}
+                      </span>
+                      <span className="block text-[11px] text-muted-foreground leading-snug">
+                        {mode.tagline}
+                      </span>
                     </span>
+                    {isActive && <Check className="w-4 h-4 text-primary shrink-0" />}
                   </button>
                 );
               })}
@@ -163,7 +165,7 @@ const HeaderDropdown = ({ activeTab, onTabChange }: HeaderDropdownProps) => {
               onClick={() => { setIsOpen(false); navigate("/labs"); }}
               className="w-full flex items-center justify-between px-4 py-3 rounded-xl neo-button-inset hover:text-primary transition-all"
             >
-              <span>Watcher Labs</span>
+              <span>Wotcher Labs</span>
               <FlaskConical className="w-5 h-5 text-primary" />
             </button>
             {user ? (
