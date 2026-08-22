@@ -71,17 +71,22 @@ export const useStoryPollVotes = (storyId: string | undefined, stickerId: string
   const vote = async (optionIndex: number) => {
     if (!user || !storyId || !stickerId) return;
     // Optimistic update
-    setVotes((prev) => {
-      const without = prev.filter((v) => v.user_id !== user.id);
-      return [...without, { user_id: user.id, option_index: optionIndex }];
+    setCounts((prev) => {
+      const next = [...prev];
+      if (myVote != null) next[myVote] = Math.max(0, (next[myVote] ?? 1) - 1);
+      next[optionIndex] = (next[optionIndex] ?? 0) + 1;
+      return next;
     });
+    setMyVote(optionIndex);
     await supabase
       .from("story_poll_votes")
       .upsert(
         { story_id: storyId, sticker_id: stickerId, user_id: user.id, option_index: optionIndex },
         { onConflict: "story_id,sticker_id,user_id" },
       );
+    fetchVotes();
   };
 
-  return { votes, tally, myVote, vote, loading };
+  return { tally, myVote, vote, loading };
 };
+
