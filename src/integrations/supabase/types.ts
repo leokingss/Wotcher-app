@@ -1698,6 +1698,7 @@ export type Database = {
           bio: string | null
           created_at: string
           display_name: string | null
+          feed_mode: string
           id: string
           invite_allowance: number
           location_id: string | null
@@ -1713,6 +1714,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          feed_mode?: string
           id: string
           invite_allowance?: number
           location_id?: string | null
@@ -1728,6 +1730,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          feed_mode?: string
           id?: string
           invite_allowance?: number
           location_id?: string | null
