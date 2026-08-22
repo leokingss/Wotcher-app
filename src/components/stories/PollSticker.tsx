@@ -16,7 +16,7 @@ interface PollRenderProps {
  * of the total vs. the winning option highlighted in primary.
  */
 const PollSticker = ({ sticker, storyId, readOnly }: PollRenderProps) => {
-  const { tally, myVote, vote, votes } = useStoryPollVotes(storyId, sticker.id);
+  const { tally, myVote, vote } = useStoryPollVotes(storyId, sticker.id);
   const counts = tally(2);
   const total = counts[0] + counts[1];
   const pct = (i: number) => (total === 0 ? 50 : Math.round((counts[i] / total) * 100));
@@ -61,7 +61,7 @@ const PollSticker = ({ sticker, storyId, readOnly }: PollRenderProps) => {
       </div>
       {hasVoted && (
         <p className="text-[10px] text-center text-muted-foreground mt-1.5 tabular-nums">
-          {votes.length} {votes.length === 1 ? "vote" : "votes"}
+          {total} {total === 1 ? "vote" : "votes"}
         </p>
       )}
     </div>

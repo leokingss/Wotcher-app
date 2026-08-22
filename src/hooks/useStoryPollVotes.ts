@@ -17,19 +17,32 @@ export interface PollVote {
  */
 export const useStoryPollVotes = (storyId: string | undefined, stickerId: string | undefined) => {
   const { user } = useAuth();
-  const [votes, setVotes] = useState<PollVote[]>([]);
+  const [counts, setCounts] = useState<number[]>([]);
+  const [myVote, setMyVote] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchVotes = useCallback(async () => {
     if (!storyId || !stickerId) return;
-    const { data } = await supabase
-      .from("story_poll_votes")
-      .select("user_id, option_index")
-      .eq("story_id", storyId)
-      .eq("sticker_id", stickerId);
-    setVotes((data ?? []) as PollVote[]);
+    const [{ data: tallyRows }, mine] = await Promise.all([
+      supabase.rpc("story_poll_tally", { _story_id: storyId, _sticker_id: stickerId }),
+      user
+        ? supabase
+            .from("story_poll_votes")
+            .select("option_index")
+            .eq("story_id", storyId)
+            .eq("sticker_id", stickerId)
+            .eq("user_id", user.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null } as any),
+    ]);
+    const next: number[] = [];
+    ((tallyRows ?? []) as any[]).forEach((r) => {
+      next[r.option_index] = Number(r.votes);
+    });
+    setCounts(next);
+    setMyVote((mine as any)?.data?.option_index ?? null);
     setLoading(false);
-  }, [storyId, stickerId]);
+  }, [storyId, stickerId, user]);
 
   useEffect(() => {
     if (!storyId || !stickerId) return;
@@ -52,30 +65,28 @@ export const useStoryPollVotes = (storyId: string | undefined, stickerId: string
     };
   }, [storyId, stickerId, fetchVotes]);
 
-  const myVote = user ? votes.find((v) => v.user_id === user.id)?.option_index ?? null : null;
+  const tally = (n: number) => Array.from({ length: n }, (_, i) => counts[i] ?? 0);
 
-  const tally = (n: number) => {
-    const counts = Array.from({ length: n }, () => 0);
-    votes.forEach((v) => {
-      if (v.option_index >= 0 && v.option_index < n) counts[v.option_index]++;
-    });
-    return counts;
-  };
 
   const vote = async (optionIndex: number) => {
     if (!user || !storyId || !stickerId) return;
     // Optimistic update
-    setVotes((prev) => {
-      const without = prev.filter((v) => v.user_id !== user.id);
-      return [...without, { user_id: user.id, option_index: optionIndex }];
+    setCounts((prev) => {
+      const next = [...prev];
+      if (myVote != null) next[myVote] = Math.max(0, (next[myVote] ?? 1) - 1);
+      next[optionIndex] = (next[optionIndex] ?? 0) + 1;
+      return next;
     });
+    setMyVote(optionIndex);
     await supabase
       .from("story_poll_votes")
       .upsert(
         { story_id: storyId, sticker_id: stickerId, user_id: user.id, option_index: optionIndex },
         { onConflict: "story_id,sticker_id,user_id" },
       );
+    fetchVotes();
   };
 
-  return { votes, tally, myVote, vote, loading };
+  return { tally, myVote, vote, loading };
 };
+

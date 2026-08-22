@@ -3529,6 +3529,13 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      story_poll_tally: {
+        Args: { _sticker_id: string; _story_id: string }
+        Returns: {
+          option_index: number
+          votes: number
+        }[]
+      }
       submit_bidder_registration: {
         Args: {
           _address_line1: string
