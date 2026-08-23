@@ -172,7 +172,7 @@ interface Props {
 const PhoneScene = ({ index, prevIndex, t, turn }: Props) => (
   <Canvas
     dpr={[1, 2]}
-    camera={{ position: [0, 0, 7.4], fov: 32 }}
+    camera={{ position: [0, 0, 11], fov: 28 }}
     gl={{ antialias: true, alpha: true }}
   >
     <ambientLight intensity={0.55} />
