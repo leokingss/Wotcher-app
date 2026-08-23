@@ -271,9 +271,11 @@ interface Props {
   prevIndex: number;
   t: number;
   turn: number;
+  entry?: number;
+  exit?: number;
 }
 
-const PhoneScene = ({ index, prevIndex, t, turn }: Props) => (
+const PhoneScene = ({ index, prevIndex, t, turn, entry = 1, exit = 0 }: Props) => (
   <Canvas
     dpr={[1, 2]}
     camera={{ position: [0, 0, 11], fov: 28 }}
@@ -284,8 +286,16 @@ const PhoneScene = ({ index, prevIndex, t, turn }: Props) => (
     <directionalLight position={[-5, -2, 3]} intensity={0.7} color="#7fc8ff" />
     <pointLight position={[0, 0, 3]} intensity={12} color={ACCENT} distance={9} />
     <Suspense fallback={null}>
-      <Phone index={index} prevIndex={prevIndex} t={t} turn={turn} />
+      <Phone
+        index={index}
+        prevIndex={prevIndex}
+        t={t}
+        turn={turn}
+        entry={entry}
+        exit={exit}
+      />
       <Orbiters />
+
       <ContactShadows
         position={[0, -2.6, 0]}
         opacity={0.5}
