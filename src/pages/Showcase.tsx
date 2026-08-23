@@ -2,17 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import PhoneScene from "@/components/showcase/PhoneScene";
 import { CHAPTERS, CHAPTER_SECONDS } from "@/components/showcase/chapters";
+import wotcherLogoIcon from "@/assets/wotcher-logo-icon.png";
 
 /**
- * Auto-playing 3D product demo: a floating device spins through real Wotcher
- * screens while a simulated finger taps and swipes, with feature callouts.
- * Purely presentational — no data, no interaction required.
+ * Auto-playing 3D product demo: logo + manifesto cold open, a floating device
+ * that spins through real Wotcher screens while a simulated finger taps and
+ * swipes, then a logo lock-up outro. Purely presentational.
  */
+const INTRO = 6.2;
+const OUTRO = 5.4;
+const TOUR = CHAPTERS.length * CHAPTER_SECONDS;
+
+const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+
 const Showcase = () => {
-  const [index, setIndex] = useState(0);
-  const prevRef = useRef(0);
-  const startRef = useRef(performance.now());
-  const [tick, setTick] = useState(0);
+  const bootRef = useRef(performance.now());
+  const [, setTick] = useState(0);
 
   useEffect(() => {
     let raf = 0;
@@ -24,18 +29,27 @@ const Showcase = () => {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  const elapsed = (performance.now() - startRef.current) / 1000;
+  const total = (performance.now() - bootRef.current) / 1000;
+  const tourT = total - INTRO;
+  const phase = tourT < 0 ? "intro" : tourT < TOUR ? "tour" : "outro";
 
-  useEffect(() => {
-    if (elapsed >= CHAPTER_SECONDS) {
-      prevRef.current = index;
-      startRef.current = performance.now();
-      setIndex((i) => (i + 1) % CHAPTERS.length);
-    }
-  }, [tick, elapsed, index]);
-
+  const index = Math.min(CHAPTERS.length - 1, Math.max(0, Math.floor(tourT / CHAPTER_SECONDS)));
+  const prevIndex = Math.max(0, index - 1);
+  const elapsed = phase === "tour" ? tourT - index * CHAPTER_SECONDS : 0;
   const chapter = CHAPTERS[index];
-  const progress = Math.min(1, elapsed / CHAPTER_SECONDS);
+  const progress = clamp01(elapsed / CHAPTER_SECONDS);
+
+  // Device flies in as the manifesto dissolves, and warps away for the outro.
+  const entry = clamp01((total - (INTRO - 1.6)) / 1.6);
+  const exit = clamp01((total - (INTRO + TOUR - 0.6)) / 1.4);
+
+  // Intro choreography
+  const logoIn = clamp01(total / 1.1);
+  const lineIn = clamp01((total - 1.4) / 1.1);
+  const introOut = clamp01((total - (INTRO - 1.5)) / 1.5);
+
+  const outroT = total - (INTRO + TOUR);
+  const outroIn = clamp01(outroT / 1.2);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
@@ -45,9 +59,79 @@ const Showcase = () => {
         <div className="absolute -left-32 bottom-0 h-[45vh] w-[45vh] rounded-full bg-accent/10 blur-[120px]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8 lg:flex-row lg:items-center lg:gap-10 lg:py-0">
+      {/* ── cold open ─────────────────────────────────────────── */}
+      {phase === "intro" && (
+        <div
+          className="absolute inset-0 z-30 flex flex-col items-center justify-center px-8 text-center"
+          style={{
+            opacity: 1 - introOut,
+            transform: `scale(${1 + introOut * 0.35})`,
+            filter: `blur(${introOut * 14}px)`,
+          }}
+        >
+          <img
+            src={wotcherLogoIcon}
+            alt="Wotcher"
+            className="h-28 w-auto select-none lg:h-36"
+            style={{
+              opacity: logoIn,
+              transform: `scale(${0.7 + logoIn * 0.3}) translateY(${(1 - logoIn) * 24}px)`,
+              filter: `drop-shadow(0 24px 60px rgba(0,0,0,.65)) drop-shadow(0 0 40px hsl(var(--primary)/${0.35 * logoIn}))`,
+            }}
+          />
+          <h1
+            className="mt-10 max-w-3xl text-3xl font-semibold leading-[1.15] tracking-tight lg:text-5xl"
+            style={{
+              opacity: lineIn,
+              transform: `translateY(${(1 - lineIn) * 18}px)`,
+              filter: `blur(${(1 - lineIn) * 8}px)`,
+            }}
+          >
+            Others decide what you see.{" "}
+            <span className="text-signature">We let you decide.</span>
+          </h1>
+          <div
+            className="mt-10 h-[2px] rounded-full bg-signature"
+            style={{ width: `${lineIn * 220}px`, opacity: lineIn * 0.8 }}
+          />
+        </div>
+      )}
+
+      {/* ── outro ─────────────────────────────────────────────── */}
+      {phase === "outro" && (
+        <div
+          className="absolute inset-0 z-30 flex flex-col items-center justify-center px-8 text-center"
+          style={{ opacity: outroIn }}
+        >
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[46vh] w-[46vh] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[110px]"
+            style={{ transform: `translate(-50%,-50%) scale(${0.6 + outroIn * 0.6})` }}
+          />
+          <img
+            src={wotcherLogoIcon}
+            alt="Wotcher"
+            className="relative h-24 w-auto select-none lg:h-32"
+            style={{
+              transform: `scale(${0.86 + outroIn * 0.14}) rotate(${(1 - outroIn) * -8}deg)`,
+              filter: "drop-shadow(0 20px 50px rgba(0,0,0,.6))",
+            }}
+          />
+          <p className="watcher-logo relative mt-6 text-4xl lg:text-6xl">Wotcher</p>
+          <p
+            className="relative mt-4 text-sm uppercase tracking-[0.4em] text-muted-foreground"
+            style={{ opacity: clamp01((outroT - 1.1) / 1.2) }}
+          >
+            Your feed. Your rules.
+          </p>
+        </div>
+      )}
+
+      <div
+        className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8 lg:flex-row lg:items-center lg:gap-10 lg:py-0"
+        style={{ opacity: phase === "tour" ? 1 : 0.001 + entry * (1 - exit) * 0.9 }}
+      >
         {/* copy */}
-        <div className="order-2 flex-1 lg:order-1">
+        <div className="order-2 flex-1 lg:order-1" style={{ opacity: phase === "tour" ? 1 : 0 }}>
           <p className="watcher-logo mb-6">Wotcher</p>
           <AnimatePresence mode="wait">
             <motion.div
@@ -90,9 +174,11 @@ const Showcase = () => {
         <div className="order-1 h-[58vh] w-full flex-1 lg:order-2 lg:h-screen">
           <PhoneScene
             index={index}
-            prevIndex={prevRef.current}
+            prevIndex={prevIndex}
             t={elapsed}
             turn={elapsed}
+            entry={entry}
+            exit={exit}
           />
         </div>
       </div>
