@@ -229,7 +229,9 @@ function Phone({
         <planeGeometry args={[W, H]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.04} />
       </mesh>
+      <AlgoSheet open={sheetOpen} active={activeAlgo} />
       <Finger chapter={chapter} t={showing === index ? t : t + 99} />
+
     </group>
   );
 }
