@@ -151,11 +151,15 @@ function Phone({
   prevIndex,
   t,
   turn,
+  entry,
+  exit,
 }: {
   index: number;
   prevIndex: number;
   t: number;
   turn: number;
+  entry: number;
+  exit: number;
 }) {
   const group = useRef<THREE.Group>(null);
   const textures = useTexture(CHAPTERS.map((c) => c.img));
@@ -172,17 +176,32 @@ function Phone({
   const showing = spin < 0.5 ? prevIndex : index;
   const chapter = CHAPTERS[showing];
 
+  // Feed chapter: the algorithm tab expands over the feed between 1.2s and 4.4s
+  const sheetOpen =
+    showing === 0
+      ? Math.max(
+          0,
+          Math.min(1, (t - 1.2) / 0.55) - Math.max(0, (t - 4.4) / 0.5)
+        )
+      : 0;
+  const activeAlgo = t > 3.3 ? 2 : t > 2.4 ? 1 : 0;
+
   useFrame((state) => {
     if (!group.current) return;
     const time = state.clock.elapsedTime;
+    const eIn = ease(Math.max(0, Math.min(1, entry)));
+    const eOut = ease(Math.max(0, Math.min(1, exit)));
     const flip = ease(spin) * Math.PI * 2;
-    group.current.rotation.y = flip + Math.sin(time * 0.45) * 0.22;
+    group.current.rotation.y =
+      flip + Math.sin(time * 0.45) * 0.22 + (1 - eIn) * Math.PI * 1.2 + eOut * Math.PI * 1.4;
     group.current.rotation.x = Math.sin(time * 0.33) * 0.06;
-    group.current.rotation.z = Math.sin(time * 0.27) * 0.03;
-    group.current.position.y = Math.sin(time * 0.6) * 0.07;
+    group.current.rotation.z = Math.sin(time * 0.27) * 0.03 + (1 - eIn) * 0.35 - eOut * 0.3;
+    group.current.position.y = Math.sin(time * 0.6) * 0.07 - (1 - eIn) * 1.2 + eOut * 0.8;
+    group.current.position.z = -(1 - eIn) * 6 - eOut * 7;
     const pop = 1 + Math.sin(ease(spin) * Math.PI) * 0.06;
-    group.current.scale.setScalar(pop);
+    group.current.scale.setScalar(pop * (0.65 + eIn * 0.35) * (1 - eOut * 0.35));
   });
+
 
   return (
     <group ref={group}>
