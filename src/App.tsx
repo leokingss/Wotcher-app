@@ -41,6 +41,7 @@ import ListDetail from "./pages/ListDetail";
 import Logos from "./pages/Logos";
 import Charts from "./pages/Charts";
 import Labs from "./pages/Labs";
+import Showcase from "./pages/Showcase";
 import BidderRegistration from "./pages/BidderRegistration";
 import SellerPayouts from "./pages/SellerPayouts";
 import Orders from "./pages/Orders";
@@ -59,7 +60,7 @@ export const queryClient = new QueryClient();
 const AnimatedRoutes = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const hideNav = !user || location.pathname === "/auth" || location.pathname === "/reset-password" || location.pathname.startsWith("/live/");
+  const hideNav = !user || location.pathname === "/auth" || location.pathname === "/reset-password" || location.pathname === "/showcase" || location.pathname.startsWith("/live/");
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
@@ -79,6 +80,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/sellers" element={<PageTransition><ProtectedRoute><AdminSellers /></ProtectedRoute></PageTransition>} />
         <Route path="/list/:id" element={<PageTransition><ListDetail /></PageTransition>} />
         <Route path="/logos" element={<PageTransition><Logos /></PageTransition>} />
+        <Route path="/showcase" element={<Showcase />} />
         <Route path="/labs" element={<PageTransition><Labs /></PageTransition>} />
         <Route path="/bidder-registration" element={<PageTransition><ProtectedRoute><BidderRegistration /></ProtectedRoute></PageTransition>} />
         <Route path="/payouts" element={<PageTransition><ProtectedRoute><SellerPayouts /></ProtectedRoute></PageTransition>} />
