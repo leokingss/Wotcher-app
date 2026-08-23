@@ -37,10 +37,10 @@ function Finger({ chapter, t }: { chapter: Chapter; t: number }) {
       0.14
     );
     const press = local < 0 ? 0 : Math.max(0, 1 - local / 0.85);
-    const s = 0.16 * drift * (1 + (1 - press) * 1.9);
+    const s = 0.075 * drift * (1 + (1 - press) * 1.9);
     ring.current.scale.setScalar(s);
     (ring.current.material as THREE.MeshBasicMaterial).opacity = press * 0.55;
-    dot.current.scale.setScalar(0.14 * (0.9 + press * 0.35));
+    dot.current.scale.setScalar(0.035 * (0.9 + press * 0.35));
     (dot.current.material as THREE.MeshBasicMaterial).opacity = 0.35 + press * 0.5;
   });
 
@@ -121,11 +121,6 @@ function Phone({
       <mesh position={[0, 0, 0.12]}>
         <planeGeometry args={[W, H]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.04} />
-      </mesh>
-      {/* back plate glow */}
-      <mesh position={[0, 0, -0.14]}>
-        <planeGeometry args={[W * 1.5, H * 1.15]} />
-        <meshBasicMaterial color={ACCENT} transparent opacity={0.05} />
       </mesh>
       <Finger chapter={chapter} t={showing === index ? t : t + 99} />
     </group>
