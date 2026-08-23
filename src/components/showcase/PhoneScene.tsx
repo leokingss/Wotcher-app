@@ -5,6 +5,7 @@ import {
   RoundedBox,
   ContactShadows,
   useTexture,
+  Html,
 } from "@react-three/drei";
 import * as THREE from "three";
 import { CHAPTERS, Chapter } from "./chapters";
@@ -14,6 +15,93 @@ const H = (W * 1398) / 645;
 const ACCENT = "#ffd400";
 
 const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+const ALGOS = [
+  { label: "Latest", tag: "Newest first — pure chronological", icon: "◷" },
+  { label: "Popular", tag: "Ranked by likes and buzz", icon: "✷" },
+  { label: "For You", tag: "Shaped by what you play & save", icon: "✦" },
+];
+
+/** The feed tab expanding into the three algorithm choices, drawn over the screen. */
+function AlgoSheet({ open, active }: { open: number; active: number }) {
+  if (open <= 0) return null;
+  return (
+    <Html
+      transform
+      position={[0, H * 0.14, 0.13]}
+      distanceFactor={2.6}
+      style={{ pointerEvents: "none" }}
+    >
+      <div
+        style={{
+          width: 300,
+          transform: `scale(${0.82 + open * 0.18})`,
+          opacity: open,
+          transformOrigin: "top center",
+          borderRadius: 22,
+          padding: 14,
+          background: "linear-gradient(160deg,#232427,#161719)",
+          border: "1px solid rgba(255,212,0,0.28)",
+          boxShadow: "0 18px 50px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06)",
+          fontFamily: "Manrope, Avenir, system-ui, sans-serif",
+          color: "#fff",
+        }}
+      >
+        <p
+          style={{
+            fontSize: 11,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            color: "#8b8d92",
+            margin: "2px 0 10px 4px",
+          }}
+        >
+          Choose your algorithm
+        </p>
+        {ALGOS.map((a, i) => {
+          const on = i === active;
+          return (
+            <div
+              key={a.label}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "11px 12px",
+                marginBottom: 8,
+                borderRadius: 16,
+                background: on
+                  ? "linear-gradient(135deg,rgba(255,212,0,.18),rgba(255,212,0,.06))"
+                  : "#1d1e21",
+                border: on ? "1px solid rgba(255,212,0,.55)" : "1px solid rgba(255,255,255,.05)",
+                boxShadow: on
+                  ? "inset 2px 2px 6px rgba(0,0,0,.5)"
+                  : "4px 4px 10px rgba(0,0,0,.45), -3px -3px 8px rgba(255,255,255,.03)",
+                opacity: Math.min(1, Math.max(0, open * 3 - i * 0.6)),
+              }}
+            >
+              <span style={{ fontSize: 18, color: on ? ACCENT : "#9a9ca1" }}>{a.icon}</span>
+              <span style={{ flex: 1 }}>
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: on ? ACCENT : "#f2f2f3",
+                  }}
+                >
+                  {a.label}
+                </span>
+                <span style={{ display: "block", fontSize: 11, color: "#8b8d92" }}>{a.tag}</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </Html>
+  );
+}
+
 
 function Finger({ chapter, t }: { chapter: Chapter; t: number }) {
   const ring = useRef<THREE.Mesh>(null);
