@@ -110,7 +110,21 @@ const Showcase = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
+      {/* sound toggle */}
+      <button
+        onClick={toggleSound}
+        aria-label={sound ? "Mute soundtrack" : "Play soundtrack"}
+        className="neo-button-icon absolute right-5 top-5 z-40 flex h-11 w-11 items-center justify-center rounded-full"
+      >
+        {sound ? (
+          <Volume2 className="h-4 w-4 text-primary" />
+        ) : (
+          <VolumeX className="h-4 w-4 text-muted-foreground" />
+        )}
+      </button>
+
       {/* atmosphere */}
+
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-1/2 h-[70vh] w-[70vh] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[120px]" />
         <div className="absolute -left-32 bottom-0 h-[45vh] w-[45vh] rounded-full bg-accent/10 blur-[120px]" />
