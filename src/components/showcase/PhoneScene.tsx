@@ -306,15 +306,16 @@ function Phone({
   const showing = spin < 0.5 ? prevIndex : index;
   const chapter = CHAPTERS[showing];
 
-  // Feed chapter: the algorithm tab expands over the feed between 1.2s and 4.4s
+  // Feed chapter: the algorithm tab expands over the feed between 1.0s and 4.6s
   const sheetOpen =
     showing === 0
       ? Math.max(
           0,
-          Math.min(1, (t - 1.2) / 0.55) - Math.max(0, (t - 4.4) / 0.5)
+          Math.min(1, (t - 1.0) / 0.5) - Math.max(0, (t - 4.5) / 0.45)
         )
       : 0;
-  const activeAlgo = t > 3.3 ? 2 : t > 2.4 ? 1 : 0;
+  const activeAlgo = t > 3.5 ? 2 : t > 2.3 ? 1 : 0;
+
 
   useFrame((state) => {
     if (!group.current) return;
