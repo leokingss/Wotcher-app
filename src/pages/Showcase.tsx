@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Volume2, VolumeX } from "lucide-react";
 import PhoneScene from "@/components/showcase/PhoneScene";
 import { CHAPTERS, CHAPTER_SECONDS } from "@/components/showcase/chapters";
+import { ShowcaseAudio } from "@/lib/showcaseAudio";
 import wotcherLogoIcon from "@/assets/wotcher-logo-icon.png";
 
 /**
@@ -15,19 +17,74 @@ const TOUR = CHAPTERS.length * CHAPTER_SECONDS;
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
 
+type CueName = "intro" | "impact" | "transition" | "tabOpen" | "tabSwitch" | "tap" | "outro";
+
+/** Absolute timeline of audio cues, mirroring the on-screen choreography. */
+const buildCues = () => {
+  const cues: { at: number; name: CueName }[] = [{ at: 2.6, name: "intro" }];
+  cues.push({ at: INTRO, name: "impact" });
+  CHAPTERS.forEach((c, i) => {
+    const c0 = INTRO + i * CHAPTER_SECONDS;
+    if (i > 0) cues.push({ at: c0 - 0.4, name: "transition" });
+    c.taps.forEach((tap) => cues.push({ at: c0 + tap.at, name: "tap" }));
+  });
+  // feed chapter: tab expansion + the two mode switches
+  cues.push({ at: INTRO + 1.0, name: "tabOpen" });
+  cues.push({ at: INTRO + 2.3, name: "tabSwitch" });
+  cues.push({ at: INTRO + 3.5, name: "tabSwitch" });
+  cues.push({ at: INTRO + TOUR, name: "outro" });
+  return cues.sort((a, b) => a.at - b.at);
+};
+
 const Showcase = () => {
   const bootRef = useRef(performance.now());
   const [, setTick] = useState(0);
+  const [sound, setSound] = useState(false);
+
+  const audioRef = useRef<ShowcaseAudio | null>(null);
+  if (!audioRef.current) audioRef.current = new ShowcaseAudio();
+  const cues = useMemo(buildCues, []);
+  const cursor = useRef(0);
+  const chordRef = useRef(-1);
 
   useEffect(() => {
     let raf = 0;
     const loop = () => {
+      const now = (performance.now() - bootRef.current) / 1000;
+      const audio = audioRef.current;
+      while (cursor.current < cues.length && cues[cursor.current].at <= now) {
+        const cue = cues[cursor.current];
+        // only fire cues that are actually due now (skip backlog after unmute)
+        if (audio?.active && now - cue.at < 0.4) audio.cue(cue.name);
+        cursor.current += 1;
+      }
+      if (audio?.active) {
+        const ci = Math.floor((now - INTRO) / CHAPTER_SECONDS);
+        if (ci >= 0 && ci < CHAPTERS.length && ci !== chordRef.current) {
+          chordRef.current = ci;
+          audio.setChord(ci);
+        }
+      }
       setTick((n) => n + 1);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
+  }, [cues]);
+
+  useEffect(() => () => audioRef.current?.stop(), []);
+
+  const toggleSound = useCallback(async () => {
+    const audio = audioRef.current!;
+    if (audio.active) {
+      audio.stop();
+      setSound(false);
+    } else {
+      await audio.start();
+      setSound(true);
+    }
   }, []);
+
 
   const total = (performance.now() - bootRef.current) / 1000;
   const tourT = total - INTRO;
