@@ -17,28 +17,56 @@ const ACCENT = "#ffd400";
 const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 
 const ALGOS = [
-  { label: "Latest", tag: "Newest first — pure chronological", icon: "◷" },
-  { label: "Popular", tag: "Ranked by likes and buzz", icon: "✷" },
-  { label: "For You", tag: "Shaped by what you play & save", icon: "✦" },
+  {
+    label: "Latest",
+    icon: "◷",
+    callout: "Pure chronological — the newest post always wins",
+    order: [3, 0, 2, 1],
+  },
+  {
+    label: "Popular",
+    icon: "✷",
+    callout: "Re-ranked by likes, bids and buzz in the last hour",
+    order: [1, 2, 3, 0],
+  },
+  {
+    label: "For You",
+    icon: "✦",
+    callout: "Shaped by what you play, save and bid on",
+    order: [2, 3, 0, 1],
+  },
 ];
+
+/** Four stand-in feed rows that physically re-order as the mode changes. */
+const ROWS = [
+  { title: "lina_velvet · photo", meta: "2m ago", stat: "128", color: "#8fd3ff" },
+  { title: "Live auction · vinyl", meta: "1h ago", stat: "4.2k", color: ACCENT },
+  { title: "novaa · new single", meta: "22m ago", stat: "1.1k", color: "#ff9ad5" },
+  { title: "kai_moves · clip", meta: "5m ago", stat: "312", color: "#9affc8" },
+];
+
+const ROW_H = 44;
 
 /** The feed tab expanding into the three algorithm choices, drawn over the screen. */
 function AlgoSheet({ open, active }: { open: number; active: number }) {
   if (open <= 0) return null;
+  const algo = ALGOS[active];
+  const statLabel = active === 0 ? "posted" : active === 1 ? "likes" : "match";
+
   return (
     <Html
       transform
-      position={[0, H * 0.14, 0.13]}
+      position={[0, H * 0.1, 0.13]}
       distanceFactor={2.6}
       style={{ pointerEvents: "none" }}
     >
       <div
         style={{
-          width: 300,
+          width: 320,
           transform: `scale(${0.82 + open * 0.18})`,
           opacity: open,
           transformOrigin: "top center",
-          borderRadius: 22,
+          borderRadius: 24,
           padding: 14,
           background: "linear-gradient(160deg,#232427,#161719)",
           border: "1px solid rgba(255,212,0,0.28)",
@@ -58,49 +86,151 @@ function AlgoSheet({ open, active }: { open: number; active: number }) {
         >
           Choose your algorithm
         </p>
-        {ALGOS.map((a, i) => {
-          const on = i === active;
-          return (
-            <div
+
+        {/* tab bar with a sliding neumorphic pill */}
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            padding: 4,
+            borderRadius: 16,
+            background: "#1a1b1d",
+            boxShadow: "inset 3px 3px 8px rgba(0,0,0,.6), inset -2px -2px 6px rgba(255,255,255,.035)",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 4,
+              left: 4,
+              width: "calc(33.333% - 2.7px)",
+              height: "calc(100% - 8px)",
+              borderRadius: 12,
+              background: "linear-gradient(135deg,rgba(255,212,0,.28),rgba(255,212,0,.1))",
+              border: "1px solid rgba(255,212,0,.55)",
+              transform: `translateX(${active * 100}%)`,
+              transition: "transform .42s cubic-bezier(.22,1,.36,1)",
+            }}
+          />
+          {ALGOS.map((a, i) => (
+            <span
               key={a.label}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "11px 12px",
-                marginBottom: 8,
-                borderRadius: 16,
-                background: on
-                  ? "linear-gradient(135deg,rgba(255,212,0,.18),rgba(255,212,0,.06))"
-                  : "#1d1e21",
-                border: on ? "1px solid rgba(255,212,0,.55)" : "1px solid rgba(255,255,255,.05)",
-                boxShadow: on
-                  ? "inset 2px 2px 6px rgba(0,0,0,.5)"
-                  : "4px 4px 10px rgba(0,0,0,.45), -3px -3px 8px rgba(255,255,255,.03)",
-                opacity: Math.min(1, Math.max(0, open * 3 - i * 0.6)),
+                position: "relative",
+                flex: 1,
+                textAlign: "center",
+                padding: "8px 0",
+                fontSize: 13,
+                fontWeight: 700,
+                color: i === active ? ACCENT : "#8b8d92",
+                transition: "color .3s ease",
               }}
             >
-              <span style={{ fontSize: 18, color: on ? ACCENT : "#9a9ca1" }}>{a.icon}</span>
-              <span style={{ flex: 1 }}>
+              <span style={{ marginRight: 5 }}>{a.icon}</span>
+              {a.label}
+            </span>
+          ))}
+        </div>
+
+        {/* callout bubble */}
+        <div
+          key={algo.label}
+          style={{
+            position: "relative",
+            margin: "14px 2px 12px",
+            padding: "9px 12px",
+            borderRadius: 14,
+            fontSize: 12,
+            lineHeight: 1.35,
+            color: "#e8e8ea",
+            background: "linear-gradient(135deg,rgba(255,212,0,.14),rgba(255,212,0,.04))",
+            border: "1px solid rgba(255,212,0,.35)",
+            animation: "showcase-callout .45s cubic-bezier(.22,1,.36,1)",
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              top: -5,
+              left: `calc(${16 + active * 33.3}% )`,
+              width: 9,
+              height: 9,
+              transform: "rotate(45deg)",
+              background: "rgba(58,52,20,1)",
+              borderLeft: "1px solid rgba(255,212,0,.35)",
+              borderTop: "1px solid rgba(255,212,0,.35)",
+              transition: "left .42s cubic-bezier(.22,1,.36,1)",
+            }}
+          />
+          {algo.callout}
+        </div>
+
+        {/* mini feed that re-orders per mode */}
+        <div style={{ position: "relative", height: ROW_H * ROWS.length, margin: "0 2px" }}>
+          {ROWS.map((r, i) => {
+            const slot = algo.order.indexOf(i);
+            const top = slot === 0;
+            return (
+              <div
+                key={r.title}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  height: ROW_H - 8,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "0 10px",
+                  borderRadius: 13,
+                  background: top ? "rgba(255,212,0,.10)" : "#1d1e21",
+                  border: top ? "1px solid rgba(255,212,0,.45)" : "1px solid rgba(255,255,255,.05)",
+                  boxShadow: "4px 4px 10px rgba(0,0,0,.45), -3px -3px 8px rgba(255,255,255,.025)",
+                  transform: `translateY(${slot * ROW_H}px)`,
+                  transition: "transform .55s cubic-bezier(.22,1,.36,1), background .4s ease, border-color .4s ease",
+                }}
+              >
                 <span
                   style={{
-                    display: "block",
-                    fontSize: 15,
-                    fontWeight: 700,
-                    color: on ? ACCENT : "#f2f2f3",
+                    width: 22,
+                    height: 22,
+                    borderRadius: 8,
+                    background: r.color,
+                    opacity: top ? 1 : 0.55,
+                    flexShrink: 0,
                   }}
-                >
-                  {a.label}
+                />
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: top ? ACCENT : "#f2f2f3",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {r.title}
+                  </span>
+                  <span style={{ display: "block", fontSize: 10, color: "#8b8d92" }}>{r.meta}</span>
                 </span>
-                <span style={{ display: "block", fontSize: 11, color: "#8b8d92" }}>{a.tag}</span>
-              </span>
-            </div>
-          );
-        })}
+                <span style={{ textAlign: "right", flexShrink: 0 }}>
+                  <span style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#d7d8da" }}>
+                    {active === 0 ? r.meta.replace(" ago", "") : r.stat}
+                  </span>
+                  <span style={{ display: "block", fontSize: 9, color: "#75777c" }}>{statLabel}</span>
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </Html>
   );
 }
+
 
 
 function Finger({ chapter, t }: { chapter: Chapter; t: number }) {
